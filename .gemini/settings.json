@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "node",
+      "args": [
+        "./.ai/mcp/launchers/github.mjs"
+      ],
+      "trust": true
+    },
+    "supabase-db": {
+      "command": "node",
+      "args": [
+        "./.ai/mcp/launchers/supabase-postgres.mjs"
+      ],
+      "trust": true
+    },
+    "openaiDeveloperDocs": {
+      "httpUrl": "https://developers.openai.com/mcp",
+      "trust": true
+    }
+  },
+  "mcp": {
+    "allowed": [
+      "github",
+      "supabase-db",
+      "openaiDeveloperDocs"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/.ai/mcp/launchers/github.mjs"
+      ]
+    },
+    "supabase-db": {
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/.ai/mcp/launchers/supabase-postgres.mjs"
+      ]
+    },
+    "openaiDeveloperDocs": {
+      "url": "https://developers.openai.com/mcp"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "servers": {
+    "github": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/.ai/mcp/launchers/github.mjs"
+      ]
+    },
+    "supabase-db": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/.ai/mcp/launchers/supabase-postgres.mjs"
+      ]
+    },
+    "openaiDeveloperDocs": {
+      "type": "http",
+      "url": "https://developers.openai.com/mcp"
+    }
+  }
+}

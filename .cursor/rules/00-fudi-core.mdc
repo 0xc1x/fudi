@@ -1,0 +1,14 @@
+---
+description: Core project context and behavioral triggers for Fudi. Directs Cursor to the Single Source of Truth.
+alwaysApply: true
+---
+
+# Fudi Core Rule
+
+- Before any implementation, read [AGENTS.md](AGENTS.md), [PRODUCT_BRIEF.md](docs/ai/PRODUCT_BRIEF.md) and [SYSTEM_ARCHITECTURE.md](docs/ai/SYSTEM_ARCHITECTURE.md).
+- Follow Clean Architecture + Feature-First patterns as defined in [SYSTEM_ARCHITECTURE.md](docs/ai/SYSTEM_ARCHITECTURE.md).
+- Respect business boundaries (Phase 1: pickup-only, no-cart) as defined in [PRODUCT_BRIEF.md](docs/ai/PRODUCT_BRIEF.md).
+- Act as a Senior Architect: explain technical rationale and tradeoffs.
+- Never run builds after editing files.
+- Never place business logic in UI widgets.
+- Ensure accessibility (WCAG AA) and observability (Sentry) are considered in every change.

@@ -1,0 +1,13 @@
+---
+description: Documentation and agent-configuration rules for Fudi markdown files and instruction files.
+globs: ["**/*.md", ".opencode/**/*.md", ".github/**/*.md"]
+alwaysApply: false
+---
+
+# Fudi Docs Rule
+
+- Keep documentation current with architecture and product decisions.
+- Prefer concise, structured Markdown with tables and checklists.
+- Document role boundaries, environment separation, integrations and deployment implications.
+- If a product decision reduces scope, explain why.
+- Keep agent prompts focused, deterministic and scoped to their specialization.

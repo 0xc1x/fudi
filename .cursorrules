@@ -1,0 +1,19 @@
+# Fudi Cursor Rules
+
+Este archivo existe por compatibilidad. La configuración más moderna y granular vive en:
+
+- `.cursor/rules/00-fudi-core.mdc`
+- `.cursor/rules/10-fudi-docs.mdc`
+
+## Reglas esenciales
+
+- Flutter + Supabase + Riverpod + Sentry
+- Clean Architecture + Feature-First
+- Fase 1: pickup-only
+- Sin carrito ni delivery en fase 1
+- `guest` es estado no autenticado
+- Roles persistidos: `user`, `business`, `admin`
+- `business` tiene dashboard propio
+- `admin` es web-first
+- No lógica de negocio en UI
+- No ejecutar builds después de cambios

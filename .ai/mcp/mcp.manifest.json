@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "name": "fudi-shared-mcp-manifest",
+  "envFilePriority": [
+    ".env",
+    ".env.local",
+    ".env.mcp",
+    ".env.mcp.local"
+  ],
+  "servers": {
+    "github": {
+      "transport": "stdio",
+      "launcher": ".ai/mcp/launchers/github.mjs",
+      "requiredEnv": [
+        "GITHUB_PERSONAL_ACCESS_TOKEN"
+      ],
+      "package": "@modelcontextprotocol/server-github",
+      "enabledByDefault": true
+    },
+    "supabase-db": {
+      "transport": "stdio",
+      "launcher": ".ai/mcp/launchers/supabase-postgres.mjs",
+      "requiredEnv": [
+        "SUPABASE_DB_URL"
+      ],
+      "package": "@modelcontextprotocol/server-postgres",
+      "enabledByDefault": true
+    },
+    "openaiDeveloperDocs": {
+      "transport": "http",
+      "url": "https://developers.openai.com/mcp",
+      "requiredEnv": [],
+      "enabledByDefault": true
+    }
+  }
+}

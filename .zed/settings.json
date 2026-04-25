@@ -1,0 +1,19 @@
+{
+  "context_servers": {
+    "github": {
+      "command": "node",
+      "args": [
+        ".ai/mcp/launchers/github.mjs"
+      ]
+    },
+    "supabase-db": {
+      "command": "node",
+      "args": [
+        ".ai/mcp/launchers/supabase-postgres.mjs"
+      ]
+    },
+    "openaiDeveloperDocs": {
+      "url": "https://developers.openai.com/mcp"
+    }
+  }
+}
