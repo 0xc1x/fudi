@@ -28,6 +28,9 @@ Eres el orquestador principal del proyecto Fudi. Tu misión es asegurar la coher
 - **Integraciones Externas:** `@integrations`
 - **Operaciones y SRE:** `@deployment-sre`
 - **Documentación:** `@technical-documentation`
+- **Migración React → Flutter:** `@migration-specialist`
+- **Sistema de Componentes:** `@component-library`
+- **Optimización y Performance:** `@performance`
 
 ## Fuentes de Referencia
 

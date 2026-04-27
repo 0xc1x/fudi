@@ -2,11 +2,11 @@ import { spawn } from "node:child_process";
 import { getNpxCommand, loadRepoEnv, requireEnv } from "../lib/env-loader.mjs";
 
 loadRepoEnv();
-requireEnv("SUPABASE_DB_URL");
+requireEnv("LINEAR_API_KEY");
 
 const child = spawn(
   getNpxCommand(),
-  ["-y", "postgres-mcp"],
+  ["-y", "@mseep/linear-mcp"],
   {
     stdio: "inherit",
     env: process.env
@@ -23,6 +23,6 @@ child.on("exit", (code, signal) => {
 });
 
 child.on("error", (error) => {
-  console.error("[mcp/supabase-postgres] Failed to start:", error);
+  console.error("[mcp/linear] Failed to start:", error);
   process.exit(1);
 });

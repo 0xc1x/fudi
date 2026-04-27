@@ -33,6 +33,10 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# MCP/Node.js related
+.ai/mcp/node_modules/
+.ai/mcp/package-lock.json
+
 # Local environment files
 .env
 .env.local

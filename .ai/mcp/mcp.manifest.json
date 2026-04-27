@@ -11,18 +11,14 @@
     "github": {
       "transport": "stdio",
       "launcher": ".ai/mcp/launchers/github.mjs",
-      "requiredEnv": [
-        "GITHUB_PERSONAL_ACCESS_TOKEN"
-      ],
+      "requiredEnv": ["GITHUB_PERSONAL_ACCESS_TOKEN"],
       "package": "@modelcontextprotocol/server-github",
       "enabledByDefault": true
     },
     "supabase-db": {
       "transport": "stdio",
       "launcher": ".ai/mcp/launchers/supabase-postgres.mjs",
-      "requiredEnv": [
-        "SUPABASE_DB_URL"
-      ],
+      "requiredEnv": ["SUPABASE_DB_URL"],
       "package": "@modelcontextprotocol/server-postgres",
       "enabledByDefault": true
     },
@@ -31,6 +27,65 @@
       "url": "https://developers.openai.com/mcp",
       "requiredEnv": [],
       "enabledByDefault": true
+    },
+    "react-docs": {
+      "transport": "http",
+      "url": "https://react.dev/learn",
+      "requiredEnv": [],
+      "enabledByDefault": true,
+      "description": "Documentación oficial de React para análisis de código existente"
+    },
+    "flutter-docs": {
+      "transport": "http",
+      "url": "https://docs.flutter.dev",
+      "requiredEnv": [],
+      "enabledByDefault": true,
+      "description": "Documentación oficial de Flutter para desarrollo y migración"
+    },
+    "flutter-testing": {
+      "transport": "http",
+      "url": "https://docs.flutter.dev/cookbook/testing",
+      "requiredEnv": [],
+      "enabledByDefault": true,
+      "description": "Documentación de testing específico de Flutter"
+    },
+    "jest-docs": {
+      "transport": "http",
+      "url": "https://jestjs.io/docs/getting-started",
+      "requiredEnv": [],
+      "enabledByDefault": true,
+      "description": "Documentación de Jest para entender patrones de testing React"
+    },
+    "github-actions": {
+      "transport": "http",
+      "url": "https://docs.github.com/en/actions",
+      "requiredEnv": [],
+      "enabledByDefault": true,
+      "description": "Documentación de GitHub Actions para CI/CD"
+    },
+    "figma-api": {
+      "transport": "stdio",
+      "launcher": ".ai/mcp/launchers/figma.mjs",
+      "requiredEnv": ["FIGMA_ACCESS_TOKEN"],
+      "package": "@modelcontextprotocol/server-figma",
+      "enabledByDefault": false,
+      "description": "API de Figma para extraer designs y componentes"
+    },
+    "linear": {
+      "transport": "stdio",
+      "launcher": ".ai/mcp/launchers/linear.mjs",
+      "requiredEnv": ["LINEAR_API_KEY"],
+      "package": "@modelcontextprotocol/server-linear",
+      "enabledByDefault": false,
+      "description": "Integration con Linear para gestión de tareas"
+    },
+    "slack-notifications": {
+      "transport": "stdio",
+      "launcher": ".ai/mcp/launchers/slack.mjs",
+      "requiredEnv": ["SLACK_WEBHOOK_URL"],
+      "package": "@modelcontextprotocol/server-slack",
+      "enabledByDefault": false,
+      "description": "Notificaciones de Slack para builds y deployments"
     }
   }
 }

@@ -27,6 +27,9 @@ Este archivo es el **mapa unificado** del sistema agentic de Fudi. Los agentes e
 | **Integrations** | `.agents/integrations.md` | Supabase, mapas, pagos, push |
 | **Deployment/SRE** | `.agents/deployment-sre.md` | Flavors, CI/CD, operación |
 | **Tech Docs** | `.agents/technical-documentation.md` | Guías, referencias, decisiones |
+| **Migration Specialist** | `.agents/migration-specialist.md` | Migración React → Flutter, patrones de estado |
+| **Component Library** | `.agents/component-library.md` | Sistema de diseño, componentes reutilizables |
+| **Performance** | `.agents/performance.md` | Optimización de renderizado, memoria, animaciones |
 
 ---
 
@@ -43,6 +46,9 @@ Este archivo es el **mapa unificado** del sistema agentic de Fudi. Los agentes e
 | Integrations | 0.15 | Estructurado, foco en límites |
 | Deployment/SRE | 0.1 | Preciso, operativo |
 | Tech Docs | 0.1 | Claro, estructurado |
+| Migration Specialist | 0.2 | Estructurado con espacio para decisiones técnicas |
+| Component Library | 0.3 | Creativo pero consistente con sistema de diseño |
+| Performance | 0.1 | Preciso, analítico |
 
 ---
 

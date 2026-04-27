@@ -13,6 +13,14 @@ Versionar en el repositorio una **fuente única de verdad** para los MCPs de Fud
 | `github` | local / stdio | Issues, PRs y metadata del repositorio |
 | `supabase-db` | local / stdio | Introspección segura de Postgres/Supabase |
 | `openaiDeveloperDocs` | remoto / HTTP | Documentación oficial de OpenAI |
+| `react-docs` | remoto / HTTP | Documentación oficial de React para análisis de código existente |
+| `flutter-docs` | remoto / HTTP | Documentación oficial de Flutter para desarrollo y migración |
+| `flutter-testing` | remoto / HTTP | Documentación de testing específico de Flutter |
+| `jest-docs` | remoto / HTTP | Documentación de Jest para entender patrones de testing React |
+| `github-actions` | remoto / HTTP | Documentación de GitHub Actions para CI/CD |
+| `figma-api` | local / stdio | API de Figma para extraer designs y componentes (opcional) |
+| `linear` | local / stdio | Integration con Linear para gestión de tareas (opcional) |
+| `slack-notifications` | local / stdio | Notificaciones de Slack para builds y deployments (opcional) |
 
 ## Archivos importantes
 
@@ -48,6 +56,9 @@ Los launchers leen variables en este orden de prioridad:
 | --- | --- | --- |
 | `GITHUB_PERSONAL_ACCESS_TOKEN` | Sí | MCP de GitHub |
 | `SUPABASE_DB_URL` | Sí | MCP de Postgres/Supabase |
+| `FIGMA_ACCESS_TOKEN` | No | MCP de Figma (opcional) |
+| `LINEAR_API_KEY` | No | MCP de Linear (opcional) |
+| `SLACK_WEBHOOK_URL` | No | MCP de Slack (opcional) |
 
 ## Primer setup para un integrante nuevo
 

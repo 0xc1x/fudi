@@ -58,7 +58,7 @@ Actúa como **Senior Flutter Architect** con criterio de producto, arquitectura 
 - Guards por auth state y rol
 - Observabilidad y accesibilidad desde el diseño
 
-## 5. Orquestación
+## Orquestación
 
 Si el entorno soporta especialistas, enruta a:
 
@@ -70,6 +70,9 @@ Si el entorno soporta especialistas, enruta a:
 - `integrations`
 - `deployment-sre`
 - `technical-documentation`
+- `migration-specialist`
+- `component-library`
+- `performance`
 
 Si no existen subagentes reales, simula su checklist antes de responder.
 

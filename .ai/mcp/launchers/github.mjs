@@ -6,7 +6,7 @@ requireEnv("GITHUB_PERSONAL_ACCESS_TOKEN");
 
 const child = spawn(
   getNpxCommand(),
-  ["-y", "@modelcontextprotocol/server-github"],
+  ["-y", "github-mcp"],
   {
     stdio: "inherit",
     env: process.env

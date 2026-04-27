@@ -1,0 +1,28 @@
+{
+  "name": "fudi-mcp-launchers",
+  "version": "1.0.0",
+  "description": "MCP launchers for Fudi project",
+  "main": "index.js",
+  "scripts": {
+    "install:packages": "npm install",
+    "setup": "node scripts/setup.js",
+    "verify": "node scripts/verify.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "fudi"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "github-mcp": "^0.0.7",
+    "postgres-mcp": "^1.0.4",
+    "figma-mcp": "^0.1.4",
+    "@mseep/linear-mcp": "^78.0.1",
+    "@aaronsb/slack-mcp": "^1.4.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.0"
+  }
+}
