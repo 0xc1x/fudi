@@ -8,16 +8,15 @@ Esta guía explica paso a paso cómo configurar todos los MCPs (Model Context Pr
 
 | Nombre | Tipo | Paquete | Variable de Entorno | Descripción |
 |--------|------|---------|---------------------|-------------|
-| `github` | stdio | @modelcontextprotocol/server-github | GITHUB_PERSONAL_ACCESS_TOKEN | GitHub API para gestión de repositorios |
-| `supabase-db` | stdio | @modelcontextprotocol/server-postgres | SUPABASE_DB_URL | Supabase PostgreSQL para introspección de BD |
+| `github` | stdio | github-mcp | GITHUB_PERSONAL_ACCESS_TOKEN | GitHub API para gestión de repositorios |
+| `supabase-db` | stdio | postgres-mcp | SUPABASE_DB_URL | Supabase PostgreSQL para introspección de BD |
 
-### MCPs Opcionales (3)
+### MCPs Opcionales (2)
 
 | Nombre | Tipo | Paquete | Variable de Entorno | Descripción |
 |--------|------|---------|---------------------|-------------|
-| `figma-api` | stdio | @modelcontextprotocol/server-figma | FIGMA_ACCESS_TOKEN | Figma API para designs y componentes |
-| `linear` | stdio | @modelcontextprotocol/server-linear | LINEAR_API_KEY | Linear API para gestión de tareas |
-| `slack-notifications` | stdio | @modelcontextprotocol/server-slack | SLACK_WEBHOOK_URL | Slack webhooks para notificaciones |
+| `figma-api` | stdio | figma-mcp | FIGMA_ACCESS_TOKEN | Figma API para designs y componentes |
+| `linear` | stdio | @mseep/linear-mcp | LINEAR_API_KEY | Linear API para gestión de tareas |
 
 ### MCPs HTTP (6)
 
@@ -63,6 +62,16 @@ npm run verify
 ```
 
 ## 📝 Configuración Detallada
+
+## 🔁 Traducción de variables runtime
+
+Los launchers del repo traducen variables canónicas a lo que espera cada paquete upstream:
+
+| MCP | Variable canónica | Variable upstream |
+|-----|-------------------|------------------|
+| GitHub | `GITHUB_PERSONAL_ACCESS_TOKEN` | `GITHUB_ACCESS_TOKEN` |
+| Supabase/Postgres | `SUPABASE_DB_URL` | `DB_MAIN_URL` + `DB_ALIASES=main` + `DEFAULT_DB_ALIAS=main` |
+| Figma | `FIGMA_ACCESS_TOKEN` | `FIGMA_API_KEY` |
 
 ### Requisitos Previos
 
@@ -183,29 +192,6 @@ LINEAR_API_KEY=lin_api_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 curl -H "Authorization: YOUR_KEY" https://api.linear.app/graphql
 ```
 
-#### 5. Slack Notifications MCP
-
-**Propósito:** Notificaciones de builds, deployments y errores.
-
-**Obtener Webhook URL:**
-1. Ir a [Slack API → Incoming Webhooks](https://api.slack.com/messaging/webhooks)
-2. Click en "Create your Slack app"
-3. Configurar app y activar "Incoming Webhooks"
-4. Click en "Add New Webhook to Workspace"
-5. Seleccionar canal y **copiar URL**
-
-**Configurar:**
-```bash
-# Agregar a .env.mcp.local
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
-```
-
-**Verificar:**
-```bash
-# Test con curl
-curl -X POST -H 'Content-type: application/json' --data '{"text":"Test message from Fudi MCP"}' YOUR_WEBHOOK_URL
-```
-
 ## 🔧 Scripts de Automatización
 
 ### Setup Script
@@ -244,7 +230,7 @@ npm run verify
 ├── mcp.manifest.json                     # Manifiesto de MCPs
 ├── README.md                             # Esta guía
 ├── .env.mcp.example                      # Ejemplo de variables
-├── .env.mcp.local                        # Tus variables (no commits)
+├── .env.mcp.local                        # Tus variables locales MCP (no commits)
 ├── launchers/                            # Scripts de launchers
 │   ├── github.mjs
 │   ├── supabase-postgres.mjs
@@ -269,6 +255,8 @@ npm run verify
    .env.local
    .env.mcp
    .env.mcp.local
+   .ai/mcp/.env.mcp
+   .ai/mcp/.env.mcp.local
    ```
 
 2. **Usar tokens con permisos mínimos necesarios**
@@ -276,14 +264,11 @@ npm run verify
    - Supabase: Solo acceso de lectura si es posible
    - Figma: Solo permisos de lectura
    - Linear: Permisos específicos por equipo
-   - Slack: Solo webhook, no bot token completo
-
 3. **Rotar tokens periódicamente**
    - GitHub: Cada 90 días
    - Supabase: Cada 180 días
    - Figma: Cada año
    - Linear: Cada 90 días
-   - Slack: Cada año
 
 4. **Usar variables de entorno en lugar de archivos hardcoded**
    ```bash
@@ -299,8 +284,6 @@ npm run verify
    - Supabase: Revisar "Database URLs" en settings
    - Figma: Revisar "Personal Access Tokens" en settings
    - Linear: Revisar "API Keys" en settings
-   - Slack: Revisar "Incoming Webhooks" en settings
-
 ## 🐛 Troubleshooting
 
 ### Error: "Node.js not found"
@@ -419,8 +402,6 @@ psql "postgresql://postgres:password@db.project.supabase.co:5432/postgres" -c "S
 - [ ] Figma token configurado (si aplica)
 - [ ] Linear API Key obtenida (si aplica)
 - [ ] Linear key configurada (si aplica)
-- [ ] Slack Webhook URL obtenida (si aplica)
-- [ ] Slack URL configurada (si aplica)
 
 ### Verificación
 - [ ] `npm run setup` ejecutado sin errores

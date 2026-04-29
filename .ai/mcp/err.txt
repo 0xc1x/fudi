@@ -1,0 +1,1 @@
+[mcp/github] GitHub MCP server running on stdio

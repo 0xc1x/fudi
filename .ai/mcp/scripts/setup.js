@@ -11,11 +11,18 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
+import {
+  MCP_ROOT,
+  buildFigmaRuntimeEnv,
+  buildGitHubRuntimeEnv,
+  buildPostgresRuntimeEnv,
+  getEnvLoadPaths,
+  loadRepoEnv
+} from '../lib/env-loader.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Importar env-loader
 const CURRENT_DIR = path.dirname(__filename);
 const REPO_ROOT = path.resolve(CURRENT_DIR, '..', '..', '..');
 
@@ -61,12 +68,14 @@ const MCPs = {
       name: 'github',
       package: 'github-mcp',
       envVar: 'GITHUB_PERSONAL_ACCESS_TOKEN',
+      runtimeEnvVar: 'GITHUB_ACCESS_TOKEN',
       description: 'GitHub API para gestión de repositorios'
     },
     {
       name: 'supabase-db',
       package: 'postgres-mcp',
       envVar: 'SUPABASE_DB_URL',
+      runtimeEnvVar: 'DB_MAIN_URL',
       description: 'Supabase PostgreSQL para introspección de base de datos'
     }
   ],
@@ -75,6 +84,7 @@ const MCPs = {
       name: 'figma-api',
       package: 'figma-mcp',
       envVar: 'FIGMA_ACCESS_TOKEN',
+      runtimeEnvVar: 'FIGMA_API_KEY',
       description: 'Figma API para extraer designs y componentes'
     },
     {
@@ -82,12 +92,6 @@ const MCPs = {
       package: '@mseep/linear-mcp',
       envVar: 'LINEAR_API_KEY',
       description: 'Linear API para gestión de tareas'
-    },
-    {
-      name: 'slack-notifications',
-      package: '@aaronsb/slack-mcp',
-      envVar: 'SLACK_WEBHOOK_URL',
-      description: 'Slack webhooks para notificaciones'
     }
   ],
   http: [
@@ -123,73 +127,6 @@ const MCPs = {
     }
   ]
 };
-
-// Función para cargar variables de entorno
-function loadRepoEnv() {
-  const ENV_FILES_IN_PRECEDENCE_ORDER = [
-    ".env",
-    ".env.local",
-    ".env.mcp",
-    ".env.mcp.local"
-  ];
-
-  const mergedFromFiles = {};
-
-  for (const fileName of ENV_FILES_IN_PRECEDENCE_ORDER) {
-    const fullPath = path.join(REPO_ROOT, fileName);
-
-    if (!fs.existsSync(fullPath)) {
-      continue;
-    }
-
-    const fileContents = fs.readFileSync(fullPath, "utf8");
-    Object.assign(mergedFromFiles, parseEnvFile(fileContents));
-  }
-
-  for (const [key, value] of Object.entries(mergedFromFiles)) {
-    if (process.env[key] === undefined || process.env[key] === "") {
-      process.env[key] = value;
-    }
-  }
-
-  return process.env;
-}
-
-function parseEnvFile(rawContents) {
-  const result = {};
-  const lines = rawContents.split(/\r?\n/);
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim();
-
-    if (!line || line.startsWith("#")) {
-      continue;
-    }
-
-    const normalized = line.startsWith("export ")
-      ? line.slice("export ".length)
-      : line;
-
-    const separatorIndex = normalized.indexOf("=");
-
-    if (separatorIndex <= 0) {
-      continue;
-    }
-
-    const key = normalized.slice(0, separatorIndex).trim();
-    const value = normalized.slice(separatorIndex + 1).trim();
-
-    if (!key) {
-      continue;
-    }
-
-    result[key] = value
-      .replace(/\\n/g, "\n")
-      .replace(/\\r/g, "\r");
-  }
-
-  return result;
-}
 
 // Verificar si Node.js está instalado
 function checkNodeVersion() {
@@ -247,7 +184,7 @@ function verifyLaunchers() {
   
   const launchersDir = path.join(__dirname, '..', 'launchers');
   const requiredLaunchers = ['github.mjs', 'supabase-postgres.mjs'];
-  const optionalLaunchers = ['figma.mjs', 'linear.mjs', 'slack.mjs'];
+  const optionalLaunchers = ['figma.mjs', 'linear.mjs'];
   
   let allRequiredPresent = true;
   
@@ -279,19 +216,14 @@ function verifyLaunchers() {
 function verifyEnvFile() {
   logStep('3', 'Verificando archivos de entorno...');
   
-  const envFiles = [
-    '.env',
-    '.env.local',
-    '.env.mcp',
-    '.env.mcp.local'
-  ];
+  const envFiles = [...new Set(getEnvLoadPaths())];
   
   let envFileExists = false;
   
-  for (const envFile of envFiles) {
-    const envFilePath = path.join(REPO_ROOT, envFile);
+  for (const envFilePath of envFiles) {
     if (fs.existsSync(envFilePath)) {
-      logSuccess(`${envFile} encontrado`);
+      const relativePath = path.relative(REPO_ROOT, envFilePath) || path.basename(envFilePath);
+      logSuccess(`${relativePath} encontrado`);
       envFileExists = true;
       
       // Verificar contenido
@@ -305,7 +237,7 @@ function verifyEnvFile() {
           logInfo(`   ${lines.length} variables configuradas`);
         }
       } catch (error) {
-        logWarning(`   No se pudo leer ${envFile}`);
+        logWarning(`   No se pudo leer ${path.relative(REPO_ROOT, envFilePath)}`);
       }
     }
   }
@@ -321,7 +253,7 @@ function verifyEnvFile() {
 
 // Crear archivo de ejemplo
 function createEnvExample() {
-  const envExamplePath = path.join(REPO_ROOT, '.env.mcp.example');
+  const envExamplePath = path.join(MCP_ROOT, '.env.mcp.example');
   
   const envContent = `# MCP Environment Variables Example
 # Copy this file to .env.mcp.local and fill in your actual values
@@ -337,9 +269,6 @@ SUPABASE_DB_URL=postgresql://postgres:password@db.supabase.co:5432/postgres
 
 # Linear (for task management)
 # LINEAR_API_KEY=your_linear_api_key_here
-
-# Slack Notifications (for build/deployment notifications)
-# SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 `;
   
   try {
@@ -359,12 +288,21 @@ function verifyEnvVars() {
   loadRepoEnv();
   
   let allRequiredPresent = true;
+  const githubEnv = buildGitHubRuntimeEnv(process.env);
+  const postgresEnv = buildPostgresRuntimeEnv(process.env);
+  const figmaEnv = buildFigmaRuntimeEnv(process.env);
   
   logInfo('Verificando variables requeridas:');
   for (const mcp of MCPs.required) {
     const value = process.env[mcp.envVar];
     if (value) {
       logSuccess(`${mcp.envVar} configurada`);
+      if (mcp.runtimeEnvVar === 'GITHUB_ACCESS_TOKEN' && githubEnv.GITHUB_ACCESS_TOKEN) {
+        logInfo(`   ↳ runtime: ${mcp.runtimeEnvVar}`);
+      }
+      if (mcp.runtimeEnvVar === 'DB_MAIN_URL' && postgresEnv.DB_MAIN_URL) {
+        logInfo(`   ↳ runtime: ${mcp.runtimeEnvVar}`);
+      }
     } else {
       logWarning(`${mcp.envVar} no configurada`);
       allRequiredPresent = false;
@@ -376,6 +314,9 @@ function verifyEnvVars() {
     const value = process.env[mcp.envVar];
     if (value) {
       logSuccess(`${mcp.envVar} configurada`);
+      if (mcp.runtimeEnvVar === 'FIGMA_API_KEY' && figmaEnv.FIGMA_API_KEY) {
+        logInfo(`   ↳ runtime: ${mcp.runtimeEnvVar}`);
+      }
     } else {
       logWarning(`${mcp.envVar} no configurada (opcional)`);
     }
@@ -413,8 +354,10 @@ function showNextSteps() {
   logInfo('\n📋 Pasos para completar la configuración:\n');
   
   log('1. Configurar variables de entorno requeridas:', colors.cyan);
+  log('   cd .ai/mcp');
   log('   cp .env.mcp.example .env.mcp.local');
-  log('   # Editar .env.mcp.local con tus valores reales\n');
+  log('   # Editar .env.mcp.local con tus valores reales');
+  log('   # Alternativa: usar variables en el .env del repo root\n');
   
   log('2. Obtener tokens necesarios:', colors.cyan);
   log('   - GitHub Personal Access Token:');
@@ -427,8 +370,7 @@ function showNextSteps() {
   log('     https://www.figma.com/developers/api#access-tokens');
   log('   - Linear API Key:');
   log('     https://linear.app/settings/api');
-  log('   - Slack Webhook URL:');
-  log('     https://api.slack.com/messaging/webhooks\n');
+  log('\n');
   
   log('4. Verificar configuración:', colors.cyan);
   log('   npm run verify\n');

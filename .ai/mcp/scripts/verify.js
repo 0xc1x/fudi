@@ -10,12 +10,17 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { execSync } from 'child_process';
+import {
+  buildFigmaRuntimeEnv,
+  buildGitHubRuntimeEnv,
+  buildPostgresRuntimeEnv,
+  getEnvLoadPaths,
+  loadRepoEnv
+} from '../lib/env-loader.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Importar env-loader
 const CURRENT_DIR = path.dirname(__filename);
 const REPO_ROOT = path.resolve(CURRENT_DIR, '..', '..', '..');
 
@@ -62,12 +67,14 @@ const MCPs = {
       name: 'github',
       package: 'github-mcp',
       envVar: 'GITHUB_PERSONAL_ACCESS_TOKEN',
+      runtimeEnvVar: 'GITHUB_ACCESS_TOKEN',
       launcher: 'github.mjs'
     },
     {
       name: 'supabase-db',
       package: 'postgres-mcp',
       envVar: 'SUPABASE_DB_URL',
+      runtimeEnvVar: 'DB_MAIN_URL',
       launcher: 'supabase-postgres.mjs'
     }
   ],
@@ -76,6 +83,7 @@ const MCPs = {
       name: 'figma-api',
       package: 'figma-mcp',
       envVar: 'FIGMA_ACCESS_TOKEN',
+      runtimeEnvVar: 'FIGMA_API_KEY',
       launcher: 'figma.mjs'
     },
     {
@@ -83,12 +91,6 @@ const MCPs = {
       package: '@mseep/linear-mcp',
       envVar: 'LINEAR_API_KEY',
       launcher: 'linear.mjs'
-    },
-    {
-      name: 'slack-notifications',
-      package: '@aaronsb/slack-mcp',
-      envVar: 'SLACK_WEBHOOK_URL',
-      launcher: 'slack.mjs'
     }
   ],
   http: [
@@ -118,73 +120,6 @@ const MCPs = {
     }
   ]
 };
-
-// Función para cargar variables de entorno
-function loadRepoEnv() {
-  const ENV_FILES_IN_PRECEDENCE_ORDER = [
-    ".env",
-    ".env.local",
-    ".env.mcp",
-    ".env.mcp.local"
-  ];
-
-  const mergedFromFiles = {};
-
-  for (const fileName of ENV_FILES_IN_PRECEDENCE_ORDER) {
-    const fullPath = path.join(REPO_ROOT, fileName);
-
-    if (!fs.existsSync(fullPath)) {
-      continue;
-    }
-
-    const fileContents = fs.readFileSync(fullPath, "utf8");
-    Object.assign(mergedFromFiles, parseEnvFile(fileContents));
-  }
-
-  for (const [key, value] of Object.entries(mergedFromFiles)) {
-    if (process.env[key] === undefined || process.env[key] === "") {
-      process.env[key] = value;
-    }
-  }
-
-  return process.env;
-}
-
-function parseEnvFile(rawContents) {
-  const result = {};
-  const lines = rawContents.split(/\r?\n/);
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim();
-
-    if (!line || line.startsWith("#")) {
-      continue;
-    }
-
-    const normalized = line.startsWith("export ")
-      ? line.slice("export ".length)
-      : line;
-
-    const separatorIndex = normalized.indexOf("=");
-
-    if (separatorIndex <= 0) {
-      continue;
-    }
-
-    const key = normalized.slice(0, separatorIndex).trim();
-    const value = normalized.slice(separatorIndex + 1).trim();
-
-    if (!key) {
-      continue;
-    }
-
-    result[key] = value
-      .replace(/\\n/g, "\n")
-      .replace(/\\r/g, "\r");
-  }
-
-  return result;
-}
 
 // Verificar instalación de paquetes
 function verifyPackages() {
@@ -250,18 +185,27 @@ function verifyEnvVars() {
   
   // Cargar variables de entorno desde archivos
   loadRepoEnv();
+  const githubEnv = buildGitHubRuntimeEnv(process.env);
+  const postgresEnv = buildPostgresRuntimeEnv(process.env);
+  const figmaEnv = buildFigmaRuntimeEnv(process.env);
   
   let allRequiredPresent = true;
   
   logInfo('Variables requeridas:');
   for (const mcp of MCPs.required) {
     const value = process.env[mcp.envVar];
+    const runtimeValue =
+      mcp.runtimeEnvVar === 'GITHUB_ACCESS_TOKEN'
+        ? githubEnv.GITHUB_ACCESS_TOKEN
+        : postgresEnv.DB_MAIN_URL;
+
     if (value) {
       // Mostrar solo primeros caracteres por seguridad
       const maskedValue = value.length > 8 
         ? `${value.substring(0, 4)}...${value.substring(value.length - 4)}`
         : '***';
       logSuccess(`${mcp.envVar} = ${maskedValue}`);
+      logInfo(`   runtime ${mcp.runtimeEnvVar}: ${runtimeValue ? 'derivable' : 'faltante'}`);
     } else {
       logError(`${mcp.envVar} no configurada`);
       allRequiredPresent = false;
@@ -276,6 +220,12 @@ function verifyEnvVars() {
         ? `${value.substring(0, 4)}...${value.substring(value.length - 4)}`
         : '***';
       logSuccess(`${mcp.envVar} = ${maskedValue}`);
+      if (mcp.runtimeEnvVar) {
+        const runtimeValue = mcp.runtimeEnvVar === 'FIGMA_API_KEY'
+          ? figmaEnv.FIGMA_API_KEY
+          : process.env[mcp.runtimeEnvVar];
+        logInfo(`   runtime ${mcp.runtimeEnvVar}: ${runtimeValue ? 'derivable' : 'faltante'}`);
+      }
     } else {
       logWarning(`${mcp.envVar} no configurada (opcional)`);
     }
@@ -288,19 +238,14 @@ function verifyEnvVars() {
 function verifyEnvFiles() {
   logSection('Verificando Archivos de Entorno');
   
-  const envFiles = [
-    '.env',
-    '.env.local',
-    '.env.mcp',
-    '.env.mcp.local'
-  ];
+  const envFiles = [...new Set(getEnvLoadPaths())];
   
   let envFileExists = false;
   
-  for (const envFile of envFiles) {
-    const envFilePath = path.join(REPO_ROOT, envFile);
+  for (const envFilePath of envFiles) {
     if (fs.existsSync(envFilePath)) {
-      logSuccess(`${envFile} encontrado`);
+      const relativePath = path.relative(REPO_ROOT, envFilePath) || path.basename(envFilePath);
+      logSuccess(`${relativePath} encontrado`);
       envFileExists = true;
       
       // Verificar contenido
@@ -314,17 +259,57 @@ function verifyEnvFiles() {
           logInfo(`   ${lines.length} variables configuradas`);
         }
       } catch (error) {
-        logWarning(`   No se pudo leer ${envFile}`);
+        logWarning(`   No se pudo leer ${relativePath}`);
       }
     }
   }
   
   if (!envFileExists) {
     logWarning('No se encontraron archivos de entorno');
-    logInfo('Ejecuta: npm run setup para crear .env.mcp.example');
+    logInfo('Ejecuta: npm run setup para crear .ai/mcp/.env.mcp.example');
   }
   
   return envFileExists;
+}
+
+function verifyRuntimeCompatibility() {
+  logSection('Verificando Compatibilidad de Runtime');
+
+  loadRepoEnv();
+  const githubEnv = buildGitHubRuntimeEnv(process.env);
+  const postgresEnv = buildPostgresRuntimeEnv(process.env);
+  const figmaEnv = buildFigmaRuntimeEnv(process.env);
+
+  const checks = [
+    {
+      name: 'github',
+      ok: Boolean(githubEnv.GITHUB_ACCESS_TOKEN),
+      details: 'GITHUB_PERSONAL_ACCESS_TOKEN -> GITHUB_ACCESS_TOKEN'
+    },
+    {
+      name: 'supabase-db',
+      ok: Boolean(postgresEnv.DB_MAIN_URL && postgresEnv.DB_ALIASES && postgresEnv.DEFAULT_DB_ALIAS),
+      details: 'SUPABASE_DB_URL -> DB_MAIN_URL + aliases'
+    },
+    {
+      name: 'figma-api',
+      ok: !process.env.FIGMA_ACCESS_TOKEN || Boolean(figmaEnv.FIGMA_API_KEY),
+      details: 'FIGMA_ACCESS_TOKEN -> FIGMA_API_KEY'
+    }
+  ];
+
+  let allPassed = true;
+
+  for (const check of checks) {
+    if (check.ok) {
+      logSuccess(`${check.name}: ${check.details}`);
+    } else {
+      logError(`${check.name}: ${check.details}`);
+      allPassed = false;
+    }
+  }
+
+  return allPassed;
 }
 
 // Verificar manifiesto
@@ -405,6 +390,7 @@ async function main() {
     launchers: verifyLaunchers(),
     envVars: verifyEnvVars(),
     envFiles: verifyEnvFiles(),
+    runtimeCompatibility: verifyRuntimeCompatibility(),
     manifest: verifyManifest(),
     httpConnectivity: verifyHttpConnectivity()
   };
@@ -414,7 +400,8 @@ async function main() {
   // Exit code basado en resultados
   const allRequiredPassed = results.packages && 
                            results.launchers && 
-                           results.envVars;
+                           results.envVars &&
+                           results.runtimeCompatibility;
   
   process.exit(allRequiredPassed ? 0 : 1);
 }

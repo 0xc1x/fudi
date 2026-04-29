@@ -43,6 +43,10 @@ migrate_working_dir/
 .env.mcp
 .env.mcp.local
 .env.*.local
+.ai/mcp/.env
+.ai/mcp/.env.local
+.ai/mcp/.env.mcp
+.ai/mcp/.env.mcp.local
 
 # Symbolication related
 app.*.symbols

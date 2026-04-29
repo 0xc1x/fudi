@@ -10,13 +10,17 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { execSync } from 'child_process';
 import { spawn } from 'child_process';
+import {
+  buildFigmaRuntimeEnv,
+  buildGitHubRuntimeEnv,
+  buildPostgresRuntimeEnv,
+  loadRepoEnv
+} from '../lib/env-loader.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Importar env-loader
 const CURRENT_DIR = path.dirname(__filename);
 const REPO_ROOT = path.resolve(CURRENT_DIR, '..', '..', '..');
 
@@ -57,73 +61,6 @@ function logSection(title) {
   log(`${colors.cyan}${'═'.repeat(70)}${colors.reset}`);
 }
 
-// Función para cargar variables de entorno
-function loadRepoEnv() {
-  const ENV_FILES_IN_PRECEDENCE_ORDER = [
-    ".env",
-    ".env.local",
-    ".env.mcp",
-    ".env.mcp.local"
-  ];
-
-  const mergedFromFiles = {};
-
-  for (const fileName of ENV_FILES_IN_PRECEDENCE_ORDER) {
-    const fullPath = path.join(REPO_ROOT, fileName);
-
-    if (!fs.existsSync(fullPath)) {
-      continue;
-    }
-
-    const fileContents = fs.readFileSync(fullPath, "utf8");
-    Object.assign(mergedFromFiles, parseEnvFile(fileContents));
-  }
-
-  for (const [key, value] of Object.entries(mergedFromFiles)) {
-    if (process.env[key] === undefined || process.env[key] === "") {
-      process.env[key] = value;
-    }
-  }
-
-  return process.env;
-}
-
-function parseEnvFile(rawContents) {
-  const result = {};
-  const lines = rawContents.split(/\r?\n/);
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim();
-
-    if (!line || line.startsWith("#")) {
-      continue;
-    }
-
-    const normalized = line.startsWith("export ")
-      ? line.slice("export ".length)
-      : line;
-
-    const separatorIndex = normalized.indexOf("=");
-
-    if (separatorIndex <= 0) {
-      continue;
-    }
-
-    const key = normalized.slice(0, separatorIndex).trim();
-    const value = normalized.slice(separatorIndex + 1).trim();
-
-    if (!key) {
-      continue;
-    }
-
-    result[key] = value
-      .replace(/\\n/g, "\n")
-      .replace(/\\r/g, "\r");
-  }
-
-  return result;
-}
-
 // MCPs a probar
 const MCPs = {
   required: [
@@ -133,7 +70,6 @@ const MCPs = {
       package: 'github-mcp',
       envVar: 'GITHUB_PERSONAL_ACCESS_TOKEN',
       launcher: 'github.mjs',
-      testCommand: 'npx -y github-mcp --version',
       description: 'Gestión de repositorios, issues, PRs'
     },
     {
@@ -142,7 +78,6 @@ const MCPs = {
       package: 'postgres-mcp',
       envVar: 'SUPABASE_DB_URL',
       launcher: 'supabase-postgres.mjs',
-      testCommand: 'npx -y postgres-mcp --version',
       description: 'Introspección de PostgreSQL'
     }
   ],
@@ -153,7 +88,6 @@ const MCPs = {
       package: 'figma-mcp',
       envVar: 'FIGMA_ACCESS_TOKEN',
       launcher: 'figma.mjs',
-      testCommand: 'npx -y figma-mcp --version',
       description: 'Designs y componentes'
     },
     {
@@ -162,17 +96,7 @@ const MCPs = {
       package: '@mseep/linear-mcp',
       envVar: 'LINEAR_API_KEY',
       launcher: 'linear.mjs',
-      testCommand: 'npx -y @mseep/linear-mcp --version',
       description: 'Gestión de tareas'
-    },
-    {
-      name: 'Slack Notifications',
-      id: 'slack-notifications',
-      package: '@aaronsb/slack-mcp',
-      envVar: 'SLACK_WEBHOOK_URL',
-      launcher: 'slack.mjs',
-      testCommand: 'npx -y @aaronsb/slack-mcp --version',
-      description: 'Notificaciones'
     }
   ],
   http: [
@@ -237,46 +161,35 @@ function testStdioMCP(mcp) {
   
   logInfo(`  ✅ Launcher ${mcp.launcher} encontrado`);
   
-  // Probar comando de versión
   try {
-    const output = execSync(mcp.testCommand, { 
-      encoding: 'utf-8',
-      timeout: 10000,
-      stdio: 'pipe'
+    logInfo(`  ℹ️  Intentando iniciar launcher directamente...`);
+
+    const runtimeEnv =
+      mcp.id === 'github'
+        ? buildGitHubRuntimeEnv(process.env)
+        : mcp.id === 'supabase-db'
+          ? buildPostgresRuntimeEnv(process.env)
+          : mcp.id === 'figma-api'
+            ? buildFigmaRuntimeEnv(process.env)
+            : process.env;
+
+    const result = spawn(process.execPath, [launcherPath], {
+      env: runtimeEnv,
+      stdio: 'pipe',
+      cwd: REPO_ROOT
     });
-    
-    logInfo(`  ✅ Comando ejecutado: ${output.trim()}`);
-  } catch (error) {
-    // Algunos MCPs no tienen --version, intentar ejecutar directamente
-    try {
-      logInfo(`  ℹ️  Intentando ejecutar launcher directamente...`);
-      
-      // Ejecutar launcher con timeout
-      const result = spawn('node', [launcherPath], {
-        env: process.env,
-        stdio: 'pipe'
-      });
-      
-      let output = '';
-      let errorOutput = '';
-      
-      result.stdout.on('data', (data) => {
-        output += data.toString();
-      });
-      
-      result.stderr.on('data', (data) => {
-        errorOutput += data.toString();
-      });
-      
-      // Esperar un poco para ver si inicia correctamente
-      setTimeout(() => {
-        result.kill();
-      }, 3000);
-      
-      logInfo(`  ✅ Launcher puede iniciarse`);
-    } catch (spawnError) {
+
+    result.on('error', (spawnError) => {
       logWarning(`  ⚠️  No se pudo probar el launcher: ${spawnError.message}`);
-    }
+    });
+
+    setTimeout(() => {
+      result.kill();
+    }, 3000);
+
+    logInfo(`  ✅ Launcher puede iniciarse`);
+  } catch (spawnError) {
+    logWarning(`  ⚠️  No se pudo probar el launcher: ${spawnError.message}`);
   }
   
   return true;

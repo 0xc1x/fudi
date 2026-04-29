@@ -4,14 +4,8 @@ import { fileURLToPath } from "node:url";
 
 const CURRENT_FILE = fileURLToPath(import.meta.url);
 const CURRENT_DIR = path.dirname(CURRENT_FILE);
-const REPO_ROOT = path.resolve(CURRENT_DIR, "..", "..", "..");
-
-const ENV_FILES_IN_PRECEDENCE_ORDER = [
-  ".env",
-  ".env.local",
-  ".env.mcp",
-  ".env.mcp.local"
-];
+export const MCP_ROOT = path.resolve(CURRENT_DIR, "..");
+export const REPO_ROOT = path.resolve(CURRENT_DIR, "..", "..", "..");
 
 function stripMatchingQuotes(value) {
   if (
@@ -60,12 +54,70 @@ function parseEnvFile(rawContents) {
   return result;
 }
 
+export function getEnvLoadPaths({
+  repoRoot = REPO_ROOT,
+  mcpRoot = MCP_ROOT
+} = {}) {
+  return [
+    path.join(repoRoot, ".env"),
+    path.join(repoRoot, ".env.local"),
+    path.join(repoRoot, ".env.mcp"),
+    path.join(repoRoot, ".env.mcp.local"),
+    path.join(mcpRoot, ".env.mcp.local")
+  ];
+}
+
+export function applyEnvAliases(env, aliasMap) {
+  const nextEnv = { ...env };
+
+  for (const [targetKey, sourceKeys] of Object.entries(aliasMap)) {
+    if (nextEnv[targetKey]) {
+      continue;
+    }
+
+    for (const sourceKey of sourceKeys) {
+      if (nextEnv[sourceKey]) {
+        nextEnv[targetKey] = nextEnv[sourceKey];
+        break;
+      }
+    }
+  }
+
+  return nextEnv;
+}
+
+export function buildGitHubRuntimeEnv(env = process.env) {
+  return applyEnvAliases(env, {
+    GITHUB_ACCESS_TOKEN: ["GITHUB_PERSONAL_ACCESS_TOKEN"]
+  });
+}
+
+export function buildPostgresRuntimeEnv(env = process.env) {
+  const nextEnv = applyEnvAliases(env, {
+    DB_MAIN_URL: ["SUPABASE_DB_URL"]
+  });
+
+  if (!nextEnv.DB_ALIASES) {
+    nextEnv.DB_ALIASES = "main";
+  }
+
+  if (!nextEnv.DEFAULT_DB_ALIAS) {
+    nextEnv.DEFAULT_DB_ALIAS = "main";
+  }
+
+  return nextEnv;
+}
+
+export function buildFigmaRuntimeEnv(env = process.env) {
+  return applyEnvAliases(env, {
+    FIGMA_API_KEY: ["FIGMA_ACCESS_TOKEN"]
+  });
+}
+
 export function loadRepoEnv() {
   const mergedFromFiles = {};
 
-  for (const fileName of ENV_FILES_IN_PRECEDENCE_ORDER) {
-    const fullPath = path.join(REPO_ROOT, fileName);
-
+  for (const fullPath of getEnvLoadPaths()) {
     if (!fs.existsSync(fullPath)) {
       continue;
     }
@@ -94,8 +146,4 @@ export function requireEnv(varName) {
   }
 
   return value;
-}
-
-export function getNpxCommand() {
-  return process.platform === "win32" ? "npx.cmd" : "npx";
 }

@@ -1,28 +1,39 @@
-import { spawn } from "node:child_process";
-import { getNpxCommand, loadRepoEnv, requireEnv } from "../lib/env-loader.mjs";
+import { inspect } from "node:util";
+import {
+  REPO_ROOT,
+  buildPostgresRuntimeEnv,
+  loadRepoEnv,
+  requireEnv
+} from "../lib/env-loader.mjs";
 
-loadRepoEnv();
-requireEnv("SUPABASE_DB_URL");
+function redirectConsoleToStderr(methodNames = ["log", "info", "warn"]) {
+  for (const methodName of methodNames) {
+    const originalMethod = console[methodName];
 
-const child = spawn(
-  getNpxCommand(),
-  ["-y", "postgres-mcp"],
-  {
-    stdio: "inherit",
-    env: process.env
+    console[methodName] = (...args) => {
+      const serialized = args
+        .map((value) =>
+          typeof value === "string" ? value : inspect(value, { depth: 5, colors: false })
+        )
+        .join(" ");
+
+      process.stderr.write(`${serialized}\n`);
+    };
   }
-);
+}
 
-child.on("exit", (code, signal) => {
-  if (signal) {
-    process.kill(process.pid, signal);
-    return;
-  }
+try {
+  Object.assign(process.env, buildPostgresRuntimeEnv(loadRepoEnv()));
+  requireEnv("DB_MAIN_URL");
+  process.chdir(REPO_ROOT);
+  redirectConsoleToStderr();
 
-  process.exit(code ?? 0);
-});
+  const { startServer } = await import("postgres-mcp");
 
-child.on("error", (error) => {
-  console.error("[mcp/supabase-postgres] Failed to start:", error);
+  startServer();
+  process.stdin.resume();
+  console.error("[mcp/supabase-db] Postgres MCP server running on stdio");
+} catch (error) {
+  console.error("[mcp/supabase-db] Failed to start:", error);
   process.exit(1);
-});
+}

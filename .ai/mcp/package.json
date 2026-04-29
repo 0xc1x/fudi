@@ -2,11 +2,13 @@
   "name": "fudi-mcp-launchers",
   "version": "1.0.0",
   "description": "MCP launchers for Fudi project",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "install:packages": "npm install",
     "setup": "node scripts/setup.js",
-    "verify": "node scripts/verify.js"
+    "verify": "node scripts/verify.js",
+    "test": "node tests/env-loader.test.mjs"
   },
   "keywords": [
     "mcp",

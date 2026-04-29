@@ -13,6 +13,9 @@ Centralizar reglas, arquitectura, contexto de producto y configuración MCP para
 | `AGENTS.md` | Comportamiento | Reglas operativas y criterio del agente |
 | `docs/ai/PRODUCT_BRIEF.md` | Producto | Roles, pantallas, alcance y restricciones |
 | `docs/ai/SYSTEM_ARCHITECTURE.md` | Arquitectura | Stack, módulos y decisiones técnicas |
+| `docs/ai/ERROR_HANDLING.md` | Observabilidad | Jerarquía FudiException, Sentry, retry, offline, UI errors |
+| `docs/ai/PAYMENTS.md` | Pagos | Pasarela MercadoPago, flujos cobro/pago, webhooks, reembolsos |
+| `docs/ai/ANALYTICS.md` | Analítica | Eventos, funnels, métricas de negocio, consentimiento |
 | `docs/ai/MCP_CAPABILITIES.md` | Herramientas | MCPs compartidos, variables y estrategia de uso |
 | `AGENT_SYSTEM_META.md` | Meta | Mapa unificado de agentes y herramientas |
 
@@ -22,6 +25,7 @@ Los roles viven en `.agents/`:
 
 - `fudi-orchestrator`
 - `architect`
+- `database-architect`
 - `ux-ui`
 - `business-logic`
 - `test-engineer`
@@ -29,6 +33,12 @@ Los roles viven en `.agents/`:
 - `integrations`
 - `deployment-sre`
 - `technical-documentation`
+- `migration-specialist`
+- `component-library`
+- `performance`
+- `security-compliance`
+- `analytics-growth`
+- `payments`
 
 ## MCP compartidos
 

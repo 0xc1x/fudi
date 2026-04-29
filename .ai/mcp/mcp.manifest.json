@@ -1,25 +1,32 @@
 {
   "version": 1,
   "name": "fudi-shared-mcp-manifest",
+  "envSearchRoots": [
+    ".",
+    ".ai/mcp"
+  ],
   "envFilePriority": [
     ".env",
     ".env.local",
     ".env.mcp",
-    ".env.mcp.local"
+    ".env.mcp.local",
+    ".ai/mcp/.env.mcp.local"
   ],
   "servers": {
     "github": {
       "transport": "stdio",
       "launcher": ".ai/mcp/launchers/github.mjs",
       "requiredEnv": ["GITHUB_PERSONAL_ACCESS_TOKEN"],
-      "package": "@modelcontextprotocol/server-github",
+      "runtimeEnv": ["GITHUB_ACCESS_TOKEN"],
+      "package": "github-mcp",
       "enabledByDefault": true
     },
     "supabase-db": {
       "transport": "stdio",
       "launcher": ".ai/mcp/launchers/supabase-postgres.mjs",
       "requiredEnv": ["SUPABASE_DB_URL"],
-      "package": "@modelcontextprotocol/server-postgres",
+      "runtimeEnv": ["DB_MAIN_URL", "DB_ALIASES", "DEFAULT_DB_ALIAS"],
+      "package": "postgres-mcp",
       "enabledByDefault": true
     },
     "openaiDeveloperDocs": {
@@ -67,7 +74,8 @@
       "transport": "stdio",
       "launcher": ".ai/mcp/launchers/figma.mjs",
       "requiredEnv": ["FIGMA_ACCESS_TOKEN"],
-      "package": "@modelcontextprotocol/server-figma",
+      "runtimeEnv": ["FIGMA_API_KEY"],
+      "package": "figma-mcp",
       "enabledByDefault": false,
       "description": "API de Figma para extraer designs y componentes"
     },
@@ -75,17 +83,9 @@
       "transport": "stdio",
       "launcher": ".ai/mcp/launchers/linear.mjs",
       "requiredEnv": ["LINEAR_API_KEY"],
-      "package": "@modelcontextprotocol/server-linear",
+      "package": "@mseep/linear-mcp",
       "enabledByDefault": false,
       "description": "Integration con Linear para gestión de tareas"
-    },
-    "slack-notifications": {
-      "transport": "stdio",
-      "launcher": ".ai/mcp/launchers/slack.mjs",
-      "requiredEnv": ["SLACK_WEBHOOK_URL"],
-      "package": "@modelcontextprotocol/server-slack",
-      "enabledByDefault": false,
-      "description": "Notificaciones de Slack para builds y deployments"
     }
   }
 }

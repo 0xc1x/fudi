@@ -20,7 +20,6 @@ Versionar en el repositorio una **fuente única de verdad** para los MCPs de Fud
 | `github-actions` | remoto / HTTP | Documentación de GitHub Actions para CI/CD |
 | `figma-api` | local / stdio | API de Figma para extraer designs y componentes (opcional) |
 | `linear` | local / stdio | Integration con Linear para gestión de tareas (opcional) |
-| `slack-notifications` | local / stdio | Notificaciones de Slack para builds y deployments (opcional) |
 
 ## Archivos importantes
 
@@ -42,13 +41,24 @@ Versionar en el repositorio una **fuente única de verdad** para los MCPs de Fud
 Los launchers leen variables en este orden de prioridad:
 
 1. variables del proceso ya exportadas
-2. `.env.mcp.local`
-3. `.env.mcp`
-4. `.env.local`
-5. `.env`
+2. `.ai/mcp/.env.mcp.local`
+3. `.env.mcp.local`
+4. `.env.mcp`
+5. `.env.local`
+6. `.env`
 
 > Recomendación: usa `.env.mcp.local` para secretos locales.  
 > El repo incluye `.env.mcp.example`, pero **no** incluye tokens reales.
+
+## Compatibilidad runtime
+
+Los launchers exponen variables canónicas del repo y las traducen a lo que espera cada paquete upstream:
+
+| Server | Variable del repo | Variable runtime |
+| --- | --- | --- |
+| `github` | `GITHUB_PERSONAL_ACCESS_TOKEN` | `GITHUB_ACCESS_TOKEN` |
+| `supabase-db` | `SUPABASE_DB_URL` | `DB_MAIN_URL` + aliases `main` |
+| `figma-api` | `FIGMA_ACCESS_TOKEN` | `FIGMA_API_KEY` |
 
 ## Variables mínimas
 
@@ -58,11 +68,10 @@ Los launchers leen variables en este orden de prioridad:
 | `SUPABASE_DB_URL` | Sí | MCP de Postgres/Supabase |
 | `FIGMA_ACCESS_TOKEN` | No | MCP de Figma (opcional) |
 | `LINEAR_API_KEY` | No | MCP de Linear (opcional) |
-| `SLACK_WEBHOOK_URL` | No | MCP de Slack (opcional) |
 
 ## Primer setup para un integrante nuevo
 
-1. Copiar `.env.mcp.example` a `.env.mcp.local`
+1. Copiar `.ai/mcp/.env.mcp.example` a `.ai/mcp/.env.mcp.local`
 2. Completar valores reales
 3. Abrir la herramienta que use:
    - Codex usa `.codex/config.toml`
@@ -85,3 +94,7 @@ SUPABASE_DB_URL=postgresql://postgres:password@db.example.supabase.co:5432/postg
 No requiere token adicional porque es un endpoint de documentación pública:
 
 `https://developers.openai.com/mcp`
+
+## Nota operativa importante
+
+Abre la herramienta sobre la **raíz del repositorio** `fudi`. Los launchers resuelven secretos y runtime desde ahí.

@@ -11,6 +11,9 @@ Antes de trabajar, consulta:
 - `docs/ai/PRODUCT_BRIEF.md`
 - `docs/ai/SYSTEM_ARCHITECTURE.md`
 - `docs/ai/MCP_CAPABILITIES.md`
+- `docs/ai/ERROR_HANDLING.md`
+- `docs/ai/PAYMENTS.md`
+- `docs/ai/ANALYTICS.md`
 - `AGENT_SYSTEM_META.md`
 
 ## 1. Rol esperado
@@ -63,6 +66,7 @@ Actúa como **Senior Flutter Architect** con criterio de producto, arquitectura 
 Si el entorno soporta especialistas, enruta a:
 
 - `architect`
+- `database-architect`
 - `ux-ui`
 - `business-logic`
 - `test-engineer`
@@ -73,6 +77,9 @@ Si el entorno soporta especialistas, enruta a:
 - `migration-specialist`
 - `component-library`
 - `performance`
+- `security-compliance`
+- `analytics-growth`
+- `payments`
 
 Si no existen subagentes reales, simula su checklist antes de responder.
 

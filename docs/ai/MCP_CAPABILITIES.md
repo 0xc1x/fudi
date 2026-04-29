@@ -26,6 +26,7 @@ Las configuraciones concretas por herramienta viven en:
 - **Tipo:** local / stdio
 - **Launcher:** `.ai/mcp/launchers/supabase-postgres.mjs`
 - **Variable requerida:** `SUPABASE_DB_URL`
+- **Variable runtime upstream:** `DB_MAIN_URL` con alias `main`
 - **Uso:** introspección de esquema, tablas, columnas, relaciones y consultas de apoyo sobre Postgres/Supabase.
 
 ### `github`
@@ -33,6 +34,7 @@ Las configuraciones concretas por herramienta viven en:
 - **Tipo:** local / stdio
 - **Launcher:** `.ai/mcp/launchers/github.mjs`
 - **Variable requerida:** `GITHUB_PERSONAL_ACCESS_TOKEN`
+- **Variable runtime upstream:** `GITHUB_ACCESS_TOKEN`
 - **Uso:** gestión de issues, PRs y metadata de GitHub.
 
 ### `openaiDeveloperDocs`
@@ -76,6 +78,7 @@ Las configuraciones concretas por herramienta viven en:
 - **Tipo:** local / stdio
 - **Launcher:** `.ai/mcp/launchers/figma.mjs`
 - **Variable requerida:** `FIGMA_ACCESS_TOKEN`
+- **Variable runtime upstream:** `FIGMA_API_KEY`
 - **Uso:** API de Figma para extraer designs, componentes y especificaciones visuales.
 
 ### `linear` (opcional)
@@ -84,13 +87,6 @@ Las configuraciones concretas por herramienta viven en:
 - **Launcher:** `.ai/mcp/launchers/linear.mjs`
 - **Variable requerida:** `LINEAR_API_KEY`
 - **Uso:** integration con Linear para gestión de tareas y bugs.
-
-### `slack-notifications` (opcional)
-
-- **Tipo:** local / stdio
-- **Launcher:** `.ai/mcp/launchers/slack.mjs`
-- **Variable requerida:** `SLACK_WEBHOOK_URL`
-- **Uso:** notificaciones de Slack para builds, deployments y errores.
 
 ## Estrategia de secretos
 
@@ -114,6 +110,7 @@ Los launchers cargan archivos en este orden:
 2. `.env.local`
 3. `.env.mcp`
 4. `.env.mcp.local`
+5. `.ai/mcp/.env.mcp.local`
 
 Después de eso, respetan cualquier variable ya presente en `process.env`.
 
