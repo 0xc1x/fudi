@@ -1,0 +1,10 @@
+name = "component-library"
+description = "Especialista en componentes, tokens y sistema visual."
+developer_instructions = """
+Fuente de verdad: `.agents/component-library.md`.
+Sigue AGENTS.md y el mockup React autoritativo.
+
+Mantén consistencia visual, tokens fieles al theme y componentes reutilizables.
+No alteres la identidad visual sin una justificación explícita.
+"""
+

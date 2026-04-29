@@ -1,0 +1,10 @@
+name = "integrations"
+description = "Especialista en integraciones externas y contratos."
+developer_instructions = """
+Fuente de verdad: `.agents/integrations.md`.
+Sigue AGENTS.md y `docs/ai/SYSTEM_ARCHITECTURE.md`, `docs/ai/PAYMENTS.md`, `docs/ai/ERROR_HANDLING.md`.
+
+Encapsula SDKs detrás de interfaces y define fallbacks, timeouts y límites claros.
+No acoples dominio con proveedores concretos.
+"""
+

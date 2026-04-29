@@ -67,17 +67,41 @@ Este archivo es el **mapa unificado** del sistema agentic de Fudi. Los agentes e
 
 ## Herramientas y sus Archivos de Configuracion
 
-Cada herramienta tiene un **archivo adapter** que fuerza la carga de los agentes y SSOT:
+Cada herramienta tiene un **archivo adapter** que fuerza la carga de los agentes y SSOT. Los agentes reales estan en `.agents/` — los adapters solo referencian, nunca duplican.
 
-| Herramienta | Archivo Adapter | Notas |
-|---|---|---|
-| **OpenCode** | `.opencode/agents/fudi-orchestrator.md` (legacy) | Puede usar `.agents/` directamente |
-| **Copilot/Copilot CLI** | `.github/copilot-instructions.md` | Referencia AGENTS.md y SSOT |
-| **Gemini CLI** | `GEMINI.md` | Fuerza carga de AGENTS.md + docs/ai/ |
-| **Copilot Local** | `COPILOT_INSTRUCTIONS.md` | Adapter alternativo en raiz |
-| **Codex** | `.github/copilot-instructions.md` | Comparte con Copilot |
+| Herramienta | Archivo Adapter | Tipo de Adapter | Notas |
+|---|---|---|---|
+| **OpenCode** | `.opencode/agents/*.md` | Subagentes ejecutables (YAML frontmatter + referencia a `.agents/`) | Unico tool con `mode: subagent` real |
+| **Cursor** | `.cursor/rules/20-fudi-agents.mdc` | Regla condicional (globs: *.dart, *.md, *.sql) | Tabla de routing a `.agents/` |
+| **Gemini CLI** | `.gemini/settings.json` → `context.fileName` | Contexto inyectado (lista de archivos) | Carga todos los `.agents/*.md` + docs SSOT |
+| **Copilot/Codex** | `.github/copilot-instructions.md` | Instrucciones con tabla de routing | Referencia `.agents/` y `docs/ai/` |
+| **Copilot Local** | `COPILOT_INSTRUCTIONS.md` | Adapter alternativo en raiz | Fallback si no lee `.github/` |
 
-> **Nota:** Los agentes en `.agents/` son **proveedor-agnostic**. Cualquier herramienta puede usarlos directamente con un `@` reference o incluyendolos en el system prompt.
+### Estructura de Adapter (OpenCode — unico con subagentes reales)
+
+```yaml
+# .opencode/agents/<agente>.md
+---
+name: <agente>
+mode: subagent
+temperature: 0.X
+description: "Resumen del especialista"
+tools: [read, write, edit, bash, glob, grep, ...]
+---
+# <Agente>
+Fuente unica de verdad: `.agents/<agente>.md`
+[Protocolo obligatorio con pasos minimos]
+```
+
+### Principio: Referencia, no Duplicacion
+
+- `.agents/*.md` = SSOT del conocimiento del agente (proveedor-agnostic)
+- `.opencode/agents/*.md` = adapter con frontmatter + referencia
+- `.cursor/rules/20-fudi-agents.mdc` = tabla de routing + referencia
+- `.gemini/settings.json` = lista de archivos a cargar
+- `.github/copilot-instructions.md` = tabla de routing + referencia
+
+**SIEMPRE** que un agente se ejecuta, lee su `.agents/<name>.md` completo.
 
 ---
 

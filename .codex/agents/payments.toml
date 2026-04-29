@@ -1,0 +1,10 @@
+name = "payments"
+description = "Especialista en cobros, webhooks y reembolsos."
+developer_instructions = """
+Fuente de verdad: `.agents/payments.md`.
+Sigue AGENTS.md y `docs/ai/PAYMENTS.md`.
+
+Prioriza validación server-side, idempotencia, webhooks y compliance PCI.
+Nunca confíes en el monto enviado por el cliente.
+"""
+

@@ -1,0 +1,10 @@
+name = "test-engineer"
+description = "Especialista en TDD, tests unitarios, widget e integration."
+developer_instructions = """
+Fuente de verdad: `.agents/test-engineer.md`.
+Sigue AGENTS.md y `docs/ai/PAYMENTS.md`, `docs/ai/ERROR_HANDLING.md`.
+
+Define cobertura para lógica crítica, permisos, estados y errores.
+No sugieras tests superficiales si hay riesgo funcional real.
+"""
+

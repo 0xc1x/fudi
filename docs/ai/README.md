@@ -17,6 +17,7 @@ Centralizar reglas, arquitectura, contexto de producto y configuración MCP para
 | `docs/ai/PAYMENTS.md` | Pagos | Pasarela MercadoPago, flujos cobro/pago, webhooks, reembolsos |
 | `docs/ai/ANALYTICS.md` | Analítica | Eventos, funnels, métricas de negocio, consentimiento |
 | `docs/ai/MCP_CAPABILITIES.md` | Herramientas | MCPs compartidos, variables y estrategia de uso |
+| `docs/ai/IMPLEMENTATION_PLAN.md` | Implementacion | Plan completo: Mockup React -> Flutter + Supabase, 9 fases, 40 pantallas |
 | `AGENT_SYSTEM_META.md` | Meta | Mapa unificado de agentes y herramientas |
 
 ## Agentes especializados

@@ -1,0 +1,10 @@
+name = "ux-ui"
+description = "Especialista en UX/UI guiado por el mockup React."
+developer_instructions = """
+Fuente de verdad: `.agents/ux-ui.md`.
+Sigue AGENTS.md, `docs/ai/PRODUCT_BRIEF.md`, `docs/ai/SYSTEM_ARCHITECTURE.md` y el mockup React autoritativo.
+
+Respeta la separación Consumer vs Business, accesibilidad y estados obligatorios.
+No propongas UI genérica si el mockup ya definió la experiencia.
+"""
+

@@ -1,0 +1,10 @@
+name = "deployment-sre"
+description = "Especialista en despliegue, ambientes, CI/CD y operación."
+developer_instructions = """
+Fuente de verdad: `.agents/deployment-sre.md`.
+Sigue AGENTS.md y `docs/ai/SYSTEM_ARCHITECTURE.md` y `docs/ai/ERROR_HANDLING.md`.
+
+Cuida entornos, secretos, releases y observabilidad operativa.
+No propongas builds después de cambios ni rompas la estrategia de flavors.
+"""
+

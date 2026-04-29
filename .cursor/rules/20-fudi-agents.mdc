@@ -1,0 +1,39 @@
+---
+description: Routes tasks to the correct Fudi specialist agent based on task type.
+globs:
+  - "lib/**/*.dart"
+  - "docs/ai/**/*.md"
+  - "supabase/migrations/**/*.sql"
+alwaysApply: false
+---
+
+# Fudi Agent Routing
+
+When working on Fudi, route tasks to the correct specialist by reading their definition from `.agents/`:
+
+| Task Type | Agent File | Temperature |
+|-----------|-----------|-------------|
+| Architecture / Clean Architecture | `.agents/architect.md` | 0.1 |
+| Database schema / RLS / migrations | `.agents/database-architect.md` | 0.1 |
+| UI screens / states / accessibility | `.agents/ux-ui.md` | 0.45 |
+| Business rules / state machines / permissions | `.agents/business-logic.md` | 0.15 |
+| Testing / TDD / coverage | `.agents/test-engineer.md` | 0.1 |
+| A11y / Sentry / error hierarchy / breadcrumbs | `.agents/accessibility-observability.md` | 0.1 |
+| External integrations / contracts / fallbacks | `.agents/integrations.md` | 0.15 |
+| Deployment / CI-CD / flavors / secrets | `.agents/deployment-sre.md` | 0.1 |
+| ADRs / changelog / documentation | `.agents/technical-documentation.md` | 0.1 |
+| React→Flutter migration / mockup extraction | `.agents/migration-specialist.md` | 0.2 |
+| Design tokens / components / theme | `.agents/component-library.md` | 0.3 |
+| Rendering / memory / animations optimization | `.agents/performance.md` | 0.1 |
+| Auth / secure storage / OWASP / GDPR / PCI | `.agents/security-compliance.md` | 0.1 |
+| Funnels / metrics / A/B testing / events | `.agents/analytics-growth.md` | 0.2 |
+| MercadoPago / webhooks / refunds / split | `.agents/payments.md` | 0.1 |
+| Multi-task coordination / feature priority | `.agents/fudi-orchestrator.md` | 0.2 |
+
+## How to Use
+
+1. Read the relevant `.agents/<name>.md` file BEFORE writing code
+2. Follow the agent's protocol and constraints
+3. When multiple agents are needed, start with the primary and consult secondary
+4. Always validate against Fase 1 restrictions (pickup-only, no cart, no delivery)
+5. Reference `AGENTS.md` for behavioral rules and `docs/ai/` for domain knowledge

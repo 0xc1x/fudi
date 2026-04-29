@@ -1,5 +1,32 @@
 {
-  "mcpServers": {
+ "context": {
+  "fileName": [
+   "AGENTS.md",
+   "AGENT_SYSTEM_META.md",
+   ".agents/fudi-orchestrator.md",
+   ".agents/architect.md",
+   ".agents/database-architect.md",
+   ".agents/ux-ui.md",
+   ".agents/business-logic.md",
+   ".agents/test-engineer.md",
+   ".agents/accessibility-observability.md",
+   ".agents/integrations.md",
+   ".agents/deployment-sre.md",
+   ".agents/technical-documentation.md",
+   ".agents/migration-specialist.md",
+   ".agents/component-library.md",
+   ".agents/performance.md",
+   ".agents/security-compliance.md",
+   ".agents/analytics-growth.md",
+   ".agents/payments.md",
+   "docs/ai/PRODUCT_BRIEF.md",
+   "docs/ai/SYSTEM_ARCHITECTURE.md",
+   "docs/ai/ERROR_HANDLING.md",
+   "docs/ai/PAYMENTS.md",
+   "docs/ai/ANALYTICS.md"
+  ]
+ },
+ "mcpServers": {
     "github": {
       "command": "node",
       "args": [
