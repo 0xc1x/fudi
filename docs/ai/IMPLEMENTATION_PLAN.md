@@ -4,9 +4,11 @@
 
 **Goal:** Migrar los 40 componentes del mockup React a Flutter con logica real, crear el esquema de base de datos en Supabase, e implementar los flujos core de negocio.
 
-**Architecture:** Clean Architecture + Feature-First. 3 capas (Data/Domain/Presentation) con capas transversales de Error, Analytics, Observabilidad y Network. Supabase como backend (Auth + DB + Storage + Edge Functions). MercadoPago para pagos. Sentry para trazabilidad.
+**Architecture:** Clean Architecture + Feature-First. 3 capas (Data/Domain/Presentation) con capas transversales de Error, Analytics, Observabilidad y Network. Supabase como backend (Auth + DB + Storage + Edge Functions). Pasarela de pagos por definir (ver decisión Place to Pay abajo). Sentry para trazabilidad.
 
-**Tech Stack:** Flutter 3.x, Dart, Riverpod, GoRouter, Supabase Flutter, Sentry Flutter, Google Maps Flutter, MercadoPago SDK
+**Tech Stack:** Flutter 3.x, Dart, Riverpod, GoRouter, Supabase Flutter, Sentry Flutter, Google Maps Flutter
+
+**Payment Provider Decision:** Place to Pay será la pasarela de pagos (reemplaza MercadoPago). No se agrega SDK de pagos en Phase 0 — la integración se pospone hasta Fase 7. Ver ADR-001 abajo.
 
 **Mockup fuente:** `/mnt/c/Users/emele/Downloads/fudi/src/app/` (40 pantallas, 7 componentes, 3 contextos)
 
@@ -14,9 +16,27 @@
 
 ---
 
-## FASE 0: Infraestructura y Herramientas
+## ADR-001: Pasarela de Pagos — Place to Pay
 
-### 0.1 Configurar MCP de Supabase
+**Status:** Accepted
+
+**Context:** El plan original referenciaba MercadoPago (`mercadopago_sdk`) como pasarela de pagos. El usuario ha decidido usar Place to Pay en su lugar.
+
+**Decision:** Usar Place to Pay como pasarela de pagos primaria. No agregar ningún SDK de pagos en Phase 0. La integración se implementará en Fase 7 con la misma interfaz abstracta `PaymentGateway` definida en PAYMENTS.md.
+
+**Consequences:**
+- `mercadopago_sdk` NO se agrega como dependencia
+- La interfaz abstracta `PaymentGateway` (PAYMENTS.md) se mantiene — solo cambia la implementación concreta
+- Los env vars de configuración cambiarán de `MP_*` a los que Place to Pay requiera
+- Los webhooks endpoint cambiarán de `/api/webhooks/payments/mercadopago` a `/api/webhooks/payments/placetopay`
+- Los sandbox/test credentials serán los de Place to Pay
+- Los modelos de dominio (PaymentIntent, Payout, PaymentEvent) NO cambian — son agnósticos de pasarela
+
+---
+
+## FASE 0: Infraestructura y Herramientas ✅ COMPLETADA
+
+### 0.1 Configurar MCP de Supabase ✅
 
 **Objective:** Habilitar herramientas MCP para crear y gestionar Supabase
 
@@ -25,19 +45,19 @@
 **Step 1:** Agregar al config:
 ```yaml
 mcp_servers:
-  supabase:
-    command: "npx"
-    args: ["-y", "@supabase/mcp-server-supabase@latest"]
-    env:
-      SUPABASE_ACCESS_TOKEN: "<REQUIERE_TOKEN>"
-      SUPABASE_PROJECT_ID: "<REQUIERE_PROJECT_ID>"
+supabase:
+command: "npx"
+args: ["-y", "@supabase/mcp-server-supabase@latest"]
+env:
+SUPABASE_ACCESS_TOKEN: "<REQUIERE_TOKEN>"
+SUPABASE_PROJECT_ID: "<REQUIERE_PROJECT_ID>"
 ```
 
 **NOTA:** Se necesitan credenciales de Supabase. Crear proyecto en https://supabase.com primero.
 
 ---
 
-### 0.2 Agregar dependencias Flutter
+### 0.2 Agregar dependencias Flutter ✅
 
 **Objective:** Configurar todas las dependencias necesarias
 
@@ -51,7 +71,7 @@ mcp_servers:
 - Analytics: firebase_core, firebase_analytics, mixpanel_flutter
 - Maps: google_maps_flutter, geolocator
 - UI: cached_network_image, shimmer, flutter_svg, smooth_page_indicator
-- Payments: mercadopago_sdk
+- Payments: ~~mercadopago_sdk~~ → **Ningún SDK de pagos en Phase 0** (ver ADR-001: Place to Pay)
 - Utils: internet_connection_checker, intl, uuid, freezed_annotation, json_annotation, flutter_dotenv, shared_preferences, flutter_secure_storage, dio
 
 **Dev:** build_runner, freezed, json_serializable, riverpod_generator, mocktail
@@ -60,7 +80,7 @@ mcp_servers:
 
 ---
 
-### 0.3 Crear estructura de carpetas
+### 0.3 Crear estructura de carpetas ✅
 
 **Objective:** Crear directorios segun architect.md
 
@@ -72,14 +92,37 @@ mkdir -p lib/shared
 
 ---
 
-### 0.4 Configurar environments y flavors
+### 0.4 Configurar environments y flavors ✅
 
 **Objective:** 3 ambientes (dev/staging/prod) con .env files
 
 **Files:**
-- Create: `lib/core/config/app_config.dart` — AppConfig con environment, supabaseUrl, sentryDsn, etc.
-- Create: `lib/core/config/app_environment.dart` — enum AppEnvironment { dev, staging, prod }
-- Create: `.env.dev`, `.env.staging`, `.env.prod`, `.env.example`
+- Create: `lib/core/config/app_config.dart` — AppConfig con environment, supabaseUrl, sentryDsn, etc. ✅
+- Create: `lib/core/config/app_environment.dart` — enum AppEnvironment { dev, staging, prod } ✅
+- Create: `.env.dev`, `.env.staging`, `.env.prod`, `.env.example` ✅
+
+---
+
+### 0.5 Wire main.dart ✅ NUEVO
+
+**Objective:** Conectar la infraestructura en el punto de entrada de la app
+
+**Files:**
+- Modify: `lib/main.dart` — Load dotenv, create AppConfig, init Supabase + Sentry, wrap with ProviderScope
+- Create: `lib/core/observability/sentry_init.dart` — Sentry initialization per environment
+- Create: `lib/core/observability/sentry_breadcrumb.dart` — Structured breadcrumbs (navigation, user_action, api, payment)
+- Create: `lib/core/observability/fudi_error_reporter.dart` — Error capture with FudiException context
+- Create: `lib/core/di/core_providers.dart` — Riverpod providers for AppConfig, AppEnvironment, SupabaseClient
+- Create: `lib/core/routing/app_router.dart` — GoRouter with placeholder home route
+
+**Startup sequence:**
+1. `WidgetsFlutterBinding.ensureInitialized()`
+2. Resolve `AppEnvironment` from `--dart-define=APP_ENV`
+3. `dotenv.load(fileName: environment.envFileName)`
+4. `AppConfig.fromEnv(environment)`
+5. `Supabase.initialize(url: ..., anonKey: ...)`
+6. `initSentry(config)` (only if DSN configured)
+7. `runApp(ProviderScope(overrides: [...], child: FudiApp()))`
 
 ---
 
@@ -218,7 +261,7 @@ mkdir -p lib/shared
 ### 2.4 Edge Functions
 
 - `reserve-offer` — Reserva atomica (decrement stock + create order)
-- `handle-payment-webhook` — Recibe webhook MercadoPago, actualiza payment_intents y orders
+- `handle-payment-webhook` — Recibe webhook de pasarela de pagos (Place to Pay), actualiza payment_intents y orders
 - `process-payout` — Payout semanal automatico a negocios
 
 ---
@@ -357,8 +400,8 @@ mkdir -p lib/shared
 **Mockup:** ProductDetail.tsx, Checkout.tsx (Product interface), ReviewOrder.tsx
 **Logica CRITICA NUEVA:**
 - Edge Function reserve-offer
-- PaymentIntent via MercadoPago
-- Checkout Pro redirect
+- PaymentIntent via pasarela de pagos (Place to Pay — ver ADR-001)
+- Checkout redirect
 - Deep link de retorno
 - Payment timeout 5 min
 - Sentry: payment_flow events
@@ -423,16 +466,16 @@ mkdir -p lib/shared
 
 ## FASE 7: Integraciones de Terceros
 
-### 7.1 MercadoPago integration
+### 7.1 Place to Pay integration (reemplaza MercadoPago — ver ADR-001)
 
 **Agente:** payments + integrations
 
 **Files:**
-- Create: `lib/core/network/payment_gateway.dart` — Interface abstracta
-- Create: `lib/features/offers/data/mercadopago_gateway.dart` — Implementacion
+- Create: `lib/core/network/payment_gateway.dart` — Interface abstracta (sin cambios, agnóstica de pasarela)
+- Create: `lib/features/offers/data/placetopay_gateway.dart` — Implementación Place to Pay
 - Create: `lib/features/offers/data/mock_payment_gateway.dart` — Para testing
 
-**Ver PAYMENTS.md para flujos completos**
+**Ver PAYMENTS.md para flujos completos.** Los modelos de dominio (PaymentIntent, PaymentEvent, etc.) no cambian. Solo la implementación concreta de la pasarela cambia de MercadoPago a Place to Pay.
 
 ---
 

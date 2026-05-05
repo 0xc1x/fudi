@@ -2,10 +2,12 @@
 
 ## Decision de Pasarela
 
-**Primaria:** MercadoPago (mercado_pago_sdk)
-**Razon:** Cobertura LATAM, soporte multi-pais, split payments nativo, checkout pro, webhooks robustos.
+**Primaria:** Place to Pay (reemplaza MercadoPago — ver ADR-001 en IMPLEMENTATION_PLAN.md)
+**Razon:** Cobertura LATAM, soporte multi-pais, checkout redirect, webhooks robustos. Decisión del usuario.
 
 **Secundaria (futura):** Stripe Connect (para expansion fuera de LATAM).
+
+> **NOTA:** La integración concreta se implementará en Fase 7. Los modelos de dominio y la interfaz abstracta `PaymentGateway` son agnósticos de pasarela y NO cambian. Solo la implementación concreta cambia de MercadoPago a Place to Pay. Los env vars de configuración (`MP_*`) se reemplazarán por los que Place to Pay requiera.
 
 La pasarela se encapsula detras de una interfaz abstracta para permitir swap sin tocar logica de negocio.
 
@@ -46,7 +48,7 @@ Orden completada (pickup validado)
 |-------|------|-------------|
 | id | UUID | PK |
 | order_id | UUID | FK a orders |
-| gateway | enum | mercado_pago, stripe |
+| gateway | enum | place_to_pay, stripe |
 | gateway_id | string | ID externo de la pasarela |
 | amount | decimal | Monto total |
 | currency | string | COP, MXN, etc. |
@@ -125,7 +127,7 @@ class PaymentRefundedEvent extends PaymentEvent {
 
 ### Endpoint
 
-`POST /api/webhooks/payments/mercadopago`
+`POST /api/webhooks/payments/placetopay` (anteriormente `/mercadopago`)
 
 ### Validacion
 
@@ -187,9 +189,11 @@ class MockPaymentGateway implements PaymentGateway {
 
 | Variable | Dev | Staging | Prod |
 |----------|-----|---------|------|
-| `MP_PUBLIC_KEY` | test-xxx | test-xxx | prod-xxx |
-| `MP_ACCESS_TOKEN` | test-xxx | test-xxx | prod-xxx |
-| `MP_WEBHOOK_SECRET` | dev-secret | staging-secret | prod-secret |
-| `MP_SANDBOX_MODE` | true | true | false |
+| `PTP_LOGIN` | test-xxx | test-xxx | prod-xxx |
+| `PTP_TRANKEY` | test-xxx | test-xxx | prod-xxx |
+| `PTP_WEBHOOK_SECRET` | dev-secret | staging-secret | prod-secret |
+| `PTP_SANDBOX_MODE` | true | true | false |
 | `PLATFORM_FEE_PCT` | 10 | 10 | Configurable por negocio |
 | `PAYOUT_SCHEDULE` | manual | weekly | weekly |
+
+> **NOTA:** Los env vars `MP_*` anteriores se reemplazan por `PTP_*` (Place to Pay). Los nombres exactos pueden ajustarse al revisar la documentación de Place to Pay SDK.

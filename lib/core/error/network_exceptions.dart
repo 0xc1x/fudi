@@ -1,6 +1,5 @@
 import 'fudi_exception.dart';
 
-/// Exceptions related to network and connectivity.
 sealed class NetworkException extends FudiException {
   final int? statusCode;
   final String? endpoint;
@@ -9,6 +8,8 @@ sealed class NetworkException extends FudiException {
     required super.message,
     super.code,
     super.context,
+    super.severity,
+    super.feature = 'network',
     this.statusCode,
     this.endpoint,
   });
@@ -16,20 +17,20 @@ sealed class NetworkException extends FudiException {
 
 class ConnectionException extends NetworkException {
   const ConnectionException({super.message = 'Sin conexión a internet'})
-      : super(code: 'NET_001');
+      : super(code: 'NET_001', severity: ErrorSeverity.low);
 }
 
 class TimeoutException extends NetworkException {
   const TimeoutException({super.message = 'La petición excedió el tiempo límite'})
-      : super(code: 'NET_002');
+      : super(code: 'NET_002', severity: ErrorSeverity.low);
 }
 
 class ServerException extends NetworkException {
   const ServerException({super.message = 'Error del servidor', int? statusCode})
-      : super(code: 'NET_003', statusCode: statusCode);
+      : super(code: 'NET_003', severity: ErrorSeverity.high, statusCode: statusCode);
 }
 
 class RateLimitException extends NetworkException {
   const RateLimitException({super.message = 'Demasiadas peticiones'})
-      : super(code: 'NET_004');
+      : super(code: 'NET_004', severity: ErrorSeverity.low);
 }
