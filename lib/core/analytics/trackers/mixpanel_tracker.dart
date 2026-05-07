@@ -53,7 +53,7 @@ class MixpanelTracker implements AnalyticsTracker {
     if (mp == null) return;
 
     try {
-      mp.track(event.name, event.properties);
+      mp.track(event.name, properties: event.properties);
     } catch (e) {
       _reportError('track', e);
     }
@@ -79,7 +79,10 @@ class MixpanelTracker implements AnalyticsTracker {
     if (mp == null) return;
 
     try {
-      mp.getPeople().set(properties.toMap());
+      final propsMap = properties.toMap();
+      for (final entry in propsMap.entries) {
+        mp.getPeople().set(entry.key, entry.value);
+      }
     } catch (e) {
       _reportError('setUserProperties', e);
     }

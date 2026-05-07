@@ -16,7 +16,7 @@ class UnauthorizedException extends AuthException {
 }
 
 class ForbiddenException extends AuthException {
-  const ForbiddenException({super.message = 'Sin permisos', String? requiredRole})
+  ForbiddenException({super.message = 'Sin permisos', String? requiredRole})
       : super(code: 'AUTH_002', severity: ErrorSeverity.medium, context: {'required_role': requiredRole});
 }
 

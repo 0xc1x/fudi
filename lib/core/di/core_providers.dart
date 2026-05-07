@@ -32,7 +32,7 @@ final appConfigProvider = Provider<AppConfig>((ref) {
 /// Supabase must be initialized in main.dart before this provider
 /// is first read. The client is obtained via [Supabase.instanceClient].
 final supabaseClientProvider = Provider<SupabaseClient>((ref) {
-  return Supabase.instanceClient;
+  return Supabase.instance.client;
 });
 
 /// Provider for the [SecureHttpClient].

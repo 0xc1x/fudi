@@ -24,7 +24,7 @@ enum ErrorSeverity {
 /// - Traceable: Via the [code] and [context] for Sentry.
 /// - Actionable: Via the `userMessage` extension and `recovery` extension.
 @immutable
-sealed class FudiException implements Exception {
+abstract class FudiException implements Exception {
   final String message;
   final String? code;
   final Map<String, dynamic> context;

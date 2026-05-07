@@ -19,7 +19,7 @@ class FudiErrorReporter {
     Sentry.captureException(
       exception,
       stackTrace: stackTrace,
-      hint: {'level': level},
+      hint: Hint.withMap({'level': level}),
     );
 
     // Tag with the error code for searchability in Sentry

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -81,8 +82,8 @@ class RouteGuards {
   /// - If not authenticated and trying to access a protected route → /login
   /// - If authenticated and trying to access /login or /signup → / (home)
   /// - Otherwise → no redirect (null)
-  static String? authGuard(GoRouterState state) {
-    final session = Supabase.instanceClient.auth.currentSession;
+  static String? authGuard(BuildContext context, GoRouterState state) {
+    final session = Supabase.instance.client.auth.currentSession;
     final isAuthenticated = session != null;
     final currentPath = state.matchedLocation;
 
@@ -105,14 +106,14 @@ class RouteGuards {
   /// - Business trying to access consumer routes → /business
   /// - Admin can access all routes
   /// - Otherwise → no redirect (null)
-  static String? roleGuard(GoRouterState state) {
-    final session = Supabase.instanceClient.auth.currentSession;
+  static String? roleGuard(BuildContext context, GoRouterState state) {
+    final session = Supabase.instance.client.auth.currentSession;
     if (session == null) return null; // Let authGuard handle this
 
     final currentPath = state.matchedLocation;
 
     // Get role from user metadata (set during signup)
-    final userMetadata = Supabase.instanceClient.auth.currentUser?.userMetadata;
+    final userMetadata = Supabase.instance.client.auth.currentUser?.userMetadata;
     final role = userMetadata?['role'] as String? ?? 'user';
 
     // Admin can access everything
@@ -137,9 +138,9 @@ class RouteGuards {
   /// you pass to GoRouter's `redirect` parameter.
   ///
   /// Also adds a Sentry navigation breadcrumb for observability.
-  static String? combinedGuard(GoRouterState state) {
+  static String? combinedGuard(BuildContext context, GoRouterState state) {
     // Auth check takes priority
-    final authRedirect = authGuard(state);
+    final authRedirect = authGuard(context, state);
     if (authRedirect != null) {
       SentryBreadcrumb.navigation(
         state.matchedLocation,
@@ -150,9 +151,9 @@ class RouteGuards {
     }
 
     // Then role check
-    final roleRedirect = roleGuard(state);
+    final roleRedirect = roleGuard(context, state);
     if (roleRedirect != null) {
-      final userMetadata = Supabase.instanceClient.auth.currentUser?.userMetadata;
+      final userMetadata = Supabase.instance.client.auth.currentUser?.userMetadata;
       final role = userMetadata?['role'] as String? ?? 'user';
       SentryBreadcrumb.navigation(
         state.matchedLocation,

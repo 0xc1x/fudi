@@ -1,11 +1,6 @@
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-import 'events/auth_events.dart';
-import 'events/business_events.dart';
 import 'events/navigation_events.dart';
-import 'events/offer_events.dart';
-import 'events/order_events.dart';
-import 'events/payment_events.dart';
 import 'models/analytics_event.dart';
 import 'models/user_properties.dart';
 import 'trackers/analytics_tracker.dart';

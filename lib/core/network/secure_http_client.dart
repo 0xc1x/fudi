@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../error/fudi_exception.dart';
 import '../error/auth_exceptions.dart';
 import '../error/data_exceptions.dart';
 import '../error/network_exceptions.dart';
@@ -51,7 +52,7 @@ class SecureHttpClient {
   })  : _supabaseClient = supabaseClient,
         _circuitBreaker = circuitBreaker ?? CircuitBreaker(),
         _dio = Dio(BaseOptions(
-          baseUrl: baseUrl ?? supabaseClient.rest.baseUrl,
+          baseUrl: baseUrl ?? supabaseClient.rest.url,
           connectTimeout: connectTimeout,
           receiveTimeout: receiveTimeout,
           headers: {
@@ -255,7 +256,7 @@ class SecureHttpClient {
 
     return switch (statusCode) {
       401 => const UnauthorizedException(),
-      403 => const ForbiddenException(),
+      403 => ForbiddenException(),
       404 => const NotFoundException(),
       429 => const RateLimitException(),
       >= 500 => ServerException(statusCode: statusCode),
@@ -318,7 +319,7 @@ class _SentryTracingInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     final span = response.requestOptions.extra['sentrySpan'] as ISentrySpan?;
-    span?.setStatus(const SpanStatus.ok());
+    span?.status = const SpanStatus.ok();
     span?.finish();
 
     SentryBreadcrumb.apiCall(
@@ -333,7 +334,7 @@ class _SentryTracingInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final span = err.requestOptions.extra['sentrySpan'] as ISentrySpan?;
-    span?.setStatus(SpanStatus.internalError());
+    span?.status = SpanStatus.internalError();
     span?.finish();
 
     SentryBreadcrumb.apiCall(

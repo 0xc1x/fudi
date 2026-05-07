@@ -21,7 +21,6 @@ Future<void> initSentry(AppConfig config) async {
       options.attachStacktrace = true;
       options.attachThreads = true;
       options.sendDefaultPii = false;
-      options.enableMetricSummary = true;
 
       // Before send: filter and enrich
       options.beforeSend = (event, hint) {
@@ -37,8 +36,9 @@ Future<void> initSentry(AppConfig config) async {
       };
 
       // Before send transaction: discard health checks
-      options.beforeSendTransaction = (transaction) {
-        if (transaction.name.startsWith('GET /health')) {
+      options.beforeSendTransaction = (transaction, hint) {
+        final transactionName = transaction.transaction;
+        if (transactionName != null && transactionName.startsWith('GET /health')) {
           return null;
         }
         return transaction;

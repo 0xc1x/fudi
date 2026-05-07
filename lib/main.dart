@@ -73,10 +73,6 @@ class FudiApp extends ConsumerWidget {
         useMaterial3: true,
       ),
       routerConfig: router,
-      // Sentry navigation observer for automatic route tracking
-      navigatorObservers: [
-        SentryNavigatorObserver(),
-      ],
     );
   }
 }

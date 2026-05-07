@@ -1,10 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 
-import '../config/app_config.dart';
-import '../di/core_providers.dart';
 import 'analytics_service.dart';
+import 'trackers/analytics_tracker.dart';
 import 'trackers/firebase_tracker.dart';
 import 'trackers/mixpanel_tracker.dart';
 
@@ -21,8 +19,6 @@ import 'trackers/mixpanel_tracker.dart';
 /// await analytics.track(AuthLoginStartedEvent(method: AuthMethod.email));
 /// ```
 final analyticsServiceProvider = Provider<AnalyticsService>((ref) {
-  final config = ref.watch(appConfigProvider);
-
   final trackers = <AnalyticsTracker>[
     FirebaseTracker(),
     MixpanelTracker(),

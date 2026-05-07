@@ -22,7 +22,7 @@ import 'package:meta/meta.dart';
 /// }
 /// ```
 @immutable
-sealed class AnalyticsEvent {
+abstract class AnalyticsEvent {
   /// The stable event name used across all trackers.
   ///
   /// Convention: `feature_action` in snake_case (e.g. `auth_login_completed`).
@@ -37,7 +37,7 @@ sealed class AnalyticsEvent {
   /// Timestamp of when this event was created.
   ///
   /// Defaults to the moment the object is instantiated.
-  DateTime get timestamp;
+  final DateTime timestamp;
 
   AnalyticsEvent() : timestamp = DateTime.now();
 }

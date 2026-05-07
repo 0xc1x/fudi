@@ -27,6 +27,7 @@ GoRouter createAppRouter() {
     debugLogDiagnostics: true,
     redirect: RouteGuards.combinedGuard,
     observers: [
+      SentryNavigatorObserver(),
       _SentryRouteObserver(),
     ],
     routes: [
@@ -338,7 +339,7 @@ class _SentryRouteObserver extends RouteObserver<PageRoute<dynamic>> {
     if (route is PageRoute) {
       SentryBreadcrumb.navigation(
         previousRoute?.settings.name ?? '/',
-        route.settings.name ?? route.settings.path,
+        route.settings.name ?? 'unknown',
       );
     }
   }
@@ -349,7 +350,7 @@ class _SentryRouteObserver extends RouteObserver<PageRoute<dynamic>> {
     if (route is PageRoute && previousRoute is PageRoute) {
       SentryBreadcrumb.navigation(
         route.settings.name ?? '/',
-        previousRoute.settings.name ?? previousRoute.settings.path,
+        previousRoute.settings.name ?? 'unknown',
       );
     }
   }
@@ -360,7 +361,7 @@ class _SentryRouteObserver extends RouteObserver<PageRoute<dynamic>> {
     if (newRoute is PageRoute) {
       SentryBreadcrumb.navigation(
         oldRoute?.settings.name ?? '/',
-        newRoute.settings.name ?? newRoute.settings.path,
+        newRoute.settings.name ?? 'unknown',
       );
     }
   }
