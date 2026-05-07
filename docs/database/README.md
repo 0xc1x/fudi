@@ -1,57 +1,40 @@
 # Database Documentation
 
-Estructura de documentación para el esquema de base de datos de Fudi.
+Estado actual de la base de datos de Fudi después del cierre de Fase 2 a nivel de repositorio.
 
-## Estructura
+## Qué quedó trazado
 
-```
-docs/database/
-├── README.md              # Este archivo - índice general
-├── CHANGELOG.md           # Historial de cambios en el esquema
-├── schemas/               # Definiciones de esquema SQL
-│   ├── 001_initial.sql    # Schema inicial
-│   └── ...                # Esquemas subsiguientes
-├── migrations/            # Scripts de migración
-│   ├── 001_initial_up.sql
-│   ├── 001_initial_down.sql
-│   └── ...
-└── diagrams/              # Diagramas ERD y visualizaciones
-    └── README.md          # Instrucciones para generar diagramas
-```
+- `schemas/001_phase2_baseline.sql` — snapshot base del esquema remoto capturado el 2026-05-07
+- `migrations/2026-05-07_remote_migration_inventory.md` — inventario de migraciones remotas realmente aplicadas
+- `../../supabase/migrations/20260507210000_phase2_baseline_sync.sql` — baseline técnico para versionado futuro en repo
+- `rls_policies.md` — matriz funcional de políticas RLS por tabla
+- `seed_inventory.md` — evidencia de seed data cargada en remoto
 
-## Convenciones
+## Decisión importante
 
-### Nomenclatura
+La base se creó primero en Supabase y NO primero en el repositorio. Por eso no existe historial granular local confiable de cada SQL original.
 
-- **Tablas:** snake_case, plural (ej: `businesses`, `offers`, `orders`)
-- **Columnas:** snake_case (ej: `created_at`, `business_id`)
-- **Índices:** `idx_{tabla}_{columna}` (ej: `idx_offers_business_id`)
-- **Foreign keys:** `fk_{tabla}_{columna}` (ej: `fk_orders_user_id`)
-- **Migraciones:** `{número}_{descripción}.sql` (ej: `002_add_soft_deletes.sql`)
+En vez de inventar migraciones históricas, este directorio conserva dos cosas:
 
-### Versionado de Migraciones
+1. **Inventario remoto verificado** de lo que sí se aplicó.
+2. **Baseline snapshot** para que el repo vuelva a ser trazable desde este punto.
 
-- Números secuenciales de 3 dígitos: 001, 002, 003...
-- Cada migración tiene archivo `_up.sql` y `_down.sql`
-- Archivo up = aplicar cambio
-- Archivo down = revertir cambio
-- Ambos deben ser idempotentes
+Eso es arquitectura seria: NO falsificar historia.
 
-### Trazabilidad
+## Estado verificado contra Supabase (2026-05-07)
 
-Cada cambio debe registrarse en `CHANGELOG.md` con:
-- Fecha
-- Autor/Agente
-- Descripción del cambio
-- Justificación
-- Número de migración
-- Impacto en la aplicación
+- 17 tablas públicas
+- 8 enums
+- 11 funciones SQL
+- 19 triggers de tabla
+- 72 políticas RLS
+- 13 migraciones remotas registradas
+- 3 Edge Functions desplegadas y activas: `reserve-offer`, `handle-payment-webhook`, `process-payout`
 
-## Agentes
+## Próxima regla operativa
 
-El agente **Database Architect** (`.agents/database-architect.md`) es responsable de mantener esta documentación y los esquemas.
+A partir de este baseline:
 
-## Referencias
-
-- `docs/ai/PRODUCT_BRIEF.md` - Entidades y relaciones del dominio
-- `docs/ai/SYSTEM_ARCHITECTURE.md` - Stack y arquitectura
+- Todo cambio nuevo debe entrar primero por `supabase/migrations/`
+- Toda modificación relevante del modelo debe reflejarse en `docs/database/`
+- No volver a dejar el estado real solo en la consola de Supabase

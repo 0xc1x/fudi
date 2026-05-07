@@ -12,12 +12,9 @@
       ],
       "enabled": true
     },
-    "supabase-db": {
-      "type": "local",
-      "command": [
-        "node",
-        "./.ai/mcp/launchers/supabase-postgres.mjs"
-      ],
+    "supabase": {
+      "type": "remote",
+      "url": "https://mcp.supabase.com/mcp?project_ref=sxqopofoynsqkztozlix",
       "enabled": true
     },
     "openaiDeveloperDocs": {

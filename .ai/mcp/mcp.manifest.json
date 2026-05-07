@@ -21,13 +21,12 @@
       "package": "github-mcp",
       "enabledByDefault": true
     },
-    "supabase-db": {
-      "transport": "stdio",
-      "launcher": ".ai/mcp/launchers/supabase-postgres.mjs",
-      "requiredEnv": ["SUPABASE_DB_URL"],
-      "runtimeEnv": ["DB_MAIN_URL", "DB_ALIASES", "DEFAULT_DB_ALIAS"],
-      "package": "postgres-mcp",
-      "enabledByDefault": true
+    "supabase": {
+      "transport": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=sxqopofoynsqkztozlix",
+      "requiredEnv": [],
+      "enabledByDefault": true,
+      "description": "Official Supabase MCP — requires OAuth via `opencode mcp auth supabase`"
     },
     "openaiDeveloperDocs": {
       "transport": "http",

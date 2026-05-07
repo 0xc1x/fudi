@@ -7,12 +7,9 @@
         "${workspaceFolder}/.ai/mcp/launchers/github.mjs"
       ]
     },
-    "supabase-db": {
-      "type": "stdio",
-      "command": "node",
-      "args": [
-        "${workspaceFolder}/.ai/mcp/launchers/supabase-postgres.mjs"
-      ]
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=sxqopofoynsqkztozlix"
     },
     "openaiDeveloperDocs": {
       "type": "http",
