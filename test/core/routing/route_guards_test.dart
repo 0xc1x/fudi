@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fudi/core/routing/route_guards.dart';
+import 'package:fudi/features/auth/domain/user_profile.dart';
 
 void main() {
   group('RouteGuards', () {
@@ -37,6 +38,10 @@ void main() {
         expect(RouteGuards.isPublicRoute('/signup'), true);
       });
 
+      test('update-password is public', () {
+        expect(RouteGuards.isPublicRoute('/update-password'), true);
+      });
+
       test('landing is public', () {
         expect(RouteGuards.isPublicRoute('/landing'), true);
       });
@@ -69,6 +74,29 @@ void main() {
 
       test('/explore is NOT a business route', () {
         expect(RouteGuards.isBusinessRoute('/explore'), false);
+      });
+    });
+
+    group('default path by role', () {
+      test('business users land in business dashboard', () {
+        expect(
+          RouteGuards.defaultPathFor(UserRole.business),
+          '/business',
+        );
+      });
+
+      test('consumer users land in home', () {
+        expect(
+          RouteGuards.defaultPathFor(UserRole.user),
+          '/',
+        );
+      });
+
+      test('admin users currently land in home fallback', () {
+        expect(
+          RouteGuards.defaultPathFor(UserRole.admin),
+          '/',
+        );
       });
     });
   });

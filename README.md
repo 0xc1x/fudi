@@ -8,6 +8,7 @@ Configuración base de agentes e instrucciones de trabajo para desarrollar **Fud
 
 - `AGENTS.md` -> instrucción canónica del repositorio
 - `AGENT_SYSTEM_META.md` -> mapa unificado de herramientas y agentes
+- `CHANGELOG.md` -> historial de cambios y versiones del proyecto
 - `.agents/` -> agentes especializados (ubicación neutral, proveedor-agnostic)
 - `GEMINI.md` -> contexto raíz para Gemini CLI
 - `opencode.json` -> configuración base para OpenCode

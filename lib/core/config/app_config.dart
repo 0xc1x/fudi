@@ -14,6 +14,7 @@ class AppConfig {
   final String supabaseAnonKey;
   final String sentryDsn;
   final String googleMapsApiKey;
+  final String authResetRedirectUrl;
 
   const AppConfig({
     required this.environment,
@@ -21,6 +22,7 @@ class AppConfig {
     required this.supabaseAnonKey,
     required this.sentryDsn,
     required this.googleMapsApiKey,
+    required this.authResetRedirectUrl,
   });
 
   /// Factory constructor that reads values from the currently loaded
@@ -34,6 +36,7 @@ class AppConfig {
       supabaseAnonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
       sentryDsn: dotenv.env['SENTRY_DSN'] ?? '',
       googleMapsApiKey: dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '',
+      authResetRedirectUrl: dotenv.env['AUTH_RESET_REDIRECT_URL'] ?? '',
     );
   }
 
@@ -47,6 +50,7 @@ class AppConfig {
 
   /// Whether Google Maps integration is configured for this environment.
   bool get hasGoogleMaps => googleMapsApiKey.isNotEmpty;
+  bool get hasAuthResetRedirectUrl => authResetRedirectUrl.isNotEmpty;
 
   @override
   String toString() {

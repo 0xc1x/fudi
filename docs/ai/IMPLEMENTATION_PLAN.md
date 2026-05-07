@@ -287,9 +287,9 @@ mkdir -p lib/shared
 
 ---
 
-## FASE 3: Auth (Login + Signup + Session)
+## FASE 3: Auth (Login + Signup + Session) ✅ COMPLETADA
 
-### 3.1 Auth domain layer
+### 3.1 Auth domain layer ✅
 
 **Agente:** business-logic
 
@@ -300,14 +300,14 @@ mkdir -p lib/shared
 
 ---
 
-### 3.2 Auth data layer (Supabase)
+### 3.2 Auth data layer (Supabase) ✅
 
 **Files:**
 - Create: `lib/features/auth/data/supabase_auth_repository.dart` — Implementacion real
 
 ---
 
-### 3.3 Login screen
+### 3.3 Login screen ✅
 
 **Agente:** migration-specialist + ux-ui
 
@@ -319,17 +319,17 @@ mkdir -p lib/shared
 
 ---
 
-### 3.4 Signup screen
+### 3.4 Signup screen ✅
 
 **Mockup:** `Signup.tsx` -> `lib/features/auth/presentation/signup_screen.dart`
 **Logica NUEVA:** Supabase Auth signUp, seleccion de rol (user/business), crear profile, consentimiento analytics
 
 ---
 
-### 3.5 Session management
+### 3.5 Session management ✅
 
 **Files:** `lib/features/auth/presentation/auth_state_provider.dart`
-**Logica:** Auth state changes, redirect automatico, token refresh, session expired handling
+**Logica:** Auth state changes, redirect automatico, token refresh, session expired handling, password recovery handling, update password flow.
 
 ---
 

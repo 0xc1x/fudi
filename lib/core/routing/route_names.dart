@@ -25,6 +25,9 @@ class RouteNames {
   static const signup = 'signup';
   static const signupPath = '/signup';
 
+  static const updatePassword = 'update-password';
+  static const updatePasswordPath = '/update-password';
+
   // ─── Consumer ───────────────────────────────────────────────────
 
   static const home = 'home';

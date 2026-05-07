@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../features/auth/presentation/auth_state_provider.dart';
 import '../config/app_config.dart';
 import '../config/app_environment.dart';
 import '../network/offline_aware_repository.dart';
@@ -51,7 +52,8 @@ final secureHttpClientProvider = Provider<SecureHttpClient>((ref) {
 /// The router is created fresh each time (not cached) because
 /// GoRouter is stateful and shouldn't be reused across hot reloads.
 final appRouterProvider = Provider<GoRouter>((ref) {
-  return createAppRouter();
+  final authSessionNotifier = ref.watch(authSessionNotifierProvider);
+  return createAppRouter(authSessionNotifier);
 });
 
 /// Provider for the [OfflineAwareRepository].

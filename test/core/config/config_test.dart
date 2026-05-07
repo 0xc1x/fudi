@@ -65,6 +65,7 @@ void main() {
         supabaseAnonKey: 'key',
         sentryDsn: '',
         googleMapsApiKey: '',
+        authResetRedirectUrl: '',
       );
       expect(config.isDev, true);
       expect(config.isStaging, false);
@@ -78,6 +79,7 @@ void main() {
         supabaseAnonKey: '',
         sentryDsn: '',
         googleMapsApiKey: '',
+        authResetRedirectUrl: '',
       );
       expect(config.hasSentry, false);
     });
@@ -89,6 +91,7 @@ void main() {
         supabaseAnonKey: '',
         sentryDsn: 'https://abc@sentry.io/123',
         googleMapsApiKey: '',
+        authResetRedirectUrl: '',
       );
       expect(config.hasSentry, true);
     });
@@ -100,6 +103,7 @@ void main() {
         supabaseAnonKey: '',
         sentryDsn: '',
         googleMapsApiKey: '',
+        authResetRedirectUrl: '',
       );
       expect(config.hasGoogleMaps, false);
     });
@@ -111,6 +115,7 @@ void main() {
         supabaseAnonKey: 'super-secret-key',
         sentryDsn: 'https://abc@sentry.io/123',
         googleMapsApiKey: 'maps-key',
+        authResetRedirectUrl: 'https://example.com/reset',
       );
       final str = config.toString();
       expect(str, contains('AppConfig'));

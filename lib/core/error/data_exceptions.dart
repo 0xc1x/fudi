@@ -17,6 +17,11 @@ class ValidationException extends DataException {
       : super(code: 'DATA_001', severity: ErrorSeverity.low);
 }
 
+class ConflictException extends DataException {
+  const ConflictException({super.message = 'Conflicto de datos'})
+      : super(code: 'DATA_004', severity: ErrorSeverity.medium);
+}
+
 class NotFoundException extends DataException {
   const NotFoundException({super.message = 'Recurso no encontrado'})
       : super(code: 'DATA_002', severity: ErrorSeverity.medium);

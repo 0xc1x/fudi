@@ -29,3 +29,8 @@ class InvalidCredentialsException extends AuthException {
   const InvalidCredentialsException({super.message = 'Credenciales inválidas'})
       : super(code: 'AUTH_004', severity: ErrorSeverity.low);
 }
+
+class AuthConflictException extends AuthException {
+  const AuthConflictException({super.message = 'Ya existe una cuenta con ese correo'})
+      : super(code: 'AUTH_005', severity: ErrorSeverity.medium);
+}

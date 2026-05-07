@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/config/app_config.dart';
 import 'core/config/app_environment.dart';
 import 'core/di/core_providers.dart';
 import 'core/observability/sentry_init.dart';
+import 'features/auth/presentation/auth_state_provider.dart';
 
 void main() async {
   // 1. Ensure Flutter bindings are initialized before any async work
@@ -73,6 +72,11 @@ class FudiApp extends ConsumerWidget {
         useMaterial3: true,
       ),
       routerConfig: router,
+      builder: (context, child) {
+        return AuthFeedbackListener(
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
     );
   }
 }

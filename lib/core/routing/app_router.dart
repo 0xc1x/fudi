@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '../../features/auth/presentation/auth_state_provider.dart';
+import '../../features/auth/presentation/login_screen.dart';
+import '../../features/auth/presentation/signup_screen.dart';
+import '../../features/auth/presentation/update_password_screen.dart';
 import '../observability/sentry_breadcrumb.dart';
 import 'route_guards.dart';
 import 'route_names.dart';
@@ -21,11 +25,23 @@ import 'route_names.dart';
 ///
 /// All screens use placeholder widgets until their real implementations
 /// are built in Phases 3–6.
-GoRouter createAppRouter() {
+GoRouter createAppRouter(AuthSessionNotifier authSessionNotifier) {
   return GoRouter(
     initialLocation: RouteNames.homePath,
     debugLogDiagnostics: true,
-    redirect: RouteGuards.combinedGuard,
+    refreshListenable: authSessionNotifier,
+    redirect: (context, state) {
+      if (authSessionNotifier.hasPendingPasswordRecovery &&
+          state.matchedLocation != RouteNames.updatePasswordPath) {
+        return RouteNames.updatePasswordPath;
+      }
+
+      return RouteGuards.combinedGuard(
+        context,
+        state,
+        authSessionNotifier.state,
+      );
+    },
     observers: [
       SentryNavigatorObserver(),
       _SentryRouteObserver(),
@@ -35,12 +51,17 @@ GoRouter createAppRouter() {
       GoRoute(
         path: RouteNames.loginPath,
         name: RouteNames.login,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Login'),
+        builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
         path: RouteNames.signupPath,
         name: RouteNames.signup,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Signup'),
+        builder: (context, state) => const SignupScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.updatePasswordPath,
+        name: RouteNames.updatePassword,
+        builder: (context, state) => const UpdatePasswordScreen(),
       ),
 
       // ─── Consumer ────────────────────────────────────────────────

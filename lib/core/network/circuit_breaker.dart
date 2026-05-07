@@ -25,7 +25,6 @@ class CircuitBreaker {
   CircuitState _state = CircuitState.closed;
   int _failureCount = 0;
   DateTime? _lastFailureTime;
-  int _halfOpenAttempts = 0;
 
   CircuitBreaker({
     this.failureThreshold = 5,
@@ -60,7 +59,7 @@ class CircuitBreaker {
       final result = await operation();
       _onSuccess();
       return result;
-    } on Exception catch (e) {
+    } on Exception catch (_) {
       _onFailure();
       rethrow;
     }
@@ -72,7 +71,6 @@ class CircuitBreaker {
     _state = CircuitState.closed;
     _failureCount = 0;
     _lastFailureTime = null;
-    _halfOpenAttempts = 0;
   }
 
   /// Checks if enough time has passed to transition from open to half-open.
@@ -81,7 +79,6 @@ class CircuitBreaker {
       final elapsed = DateTime.now().difference(_lastFailureTime!);
       if (elapsed >= resetTimeout) {
         _state = CircuitState.halfOpen;
-        _halfOpenAttempts = 0;
       }
     }
   }
@@ -92,7 +89,6 @@ class CircuitBreaker {
       _state = CircuitState.closed;
     }
     _failureCount = 0;
-    _halfOpenAttempts = 0;
   }
 
   void _onFailure() {
@@ -102,7 +98,6 @@ class CircuitBreaker {
     if (_state == CircuitState.halfOpen) {
       // Probe failed — reopen the circuit
       _state = CircuitState.open;
-      _halfOpenAttempts = 0;
     } else if (_failureCount >= failureThreshold) {
       // Threshold reached — open the circuit
       _state = CircuitState.open;

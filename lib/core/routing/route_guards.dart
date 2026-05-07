@@ -1,8 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../features/auth/domain/user_profile.dart';
 import '../observability/sentry_breadcrumb.dart';
+import '../../features/auth/domain/auth_repository.dart';
 import 'route_names.dart';
 
 /// Route guard logic for authentication and role-based access.
@@ -28,6 +29,7 @@ class RouteGuards {
   static const _publicRoutes = {
     RouteNames.loginPath,
     RouteNames.signupPath,
+    RouteNames.updatePasswordPath,
     RouteNames.landingPath,
     RouteNames.forBusinessPath,
     RouteNames.howItWorksPath,
@@ -82,14 +84,17 @@ class RouteGuards {
   /// - If not authenticated and trying to access a protected route → /login
   /// - If authenticated and trying to access /login or /signup → / (home)
   /// - Otherwise → no redirect (null)
-  static String? authGuard(BuildContext context, GoRouterState state) {
-    final session = Supabase.instance.client.auth.currentSession;
-    final isAuthenticated = session != null;
+  static String? authGuard(
+    BuildContext context,
+    GoRouterState state,
+    AuthSessionState authState,
+  ) {
+    final isAuthenticated = authState.isAuthenticated;
     final currentPath = state.matchedLocation;
 
     // Authenticated users should not see login/signup
     if (isAuthenticated && (currentPath == RouteNames.loginPath || currentPath == RouteNames.signupPath)) {
-      return RouteNames.homePath;
+      return defaultPathFor(authState.role);
     }
 
     // Unauthenticated users can only access public routes
@@ -106,15 +111,15 @@ class RouteGuards {
   /// - Business trying to access consumer routes → /business
   /// - Admin can access all routes
   /// - Otherwise → no redirect (null)
-  static String? roleGuard(BuildContext context, GoRouterState state) {
-    final session = Supabase.instance.client.auth.currentSession;
-    if (session == null) return null; // Let authGuard handle this
+  static String? roleGuard(
+    BuildContext context,
+    GoRouterState state,
+    AuthSessionState authState,
+  ) {
+    if (!authState.isAuthenticated) return null; // Let authGuard handle this
 
     final currentPath = state.matchedLocation;
-
-    // Get role from user metadata (set during signup)
-    final userMetadata = Supabase.instance.client.auth.currentUser?.userMetadata;
-    final role = userMetadata?['role'] as String? ?? 'user';
+    final role = authState.role.name;
 
     // Admin can access everything
     if (role == 'admin') return null;
@@ -138,9 +143,13 @@ class RouteGuards {
   /// you pass to GoRouter's `redirect` parameter.
   ///
   /// Also adds a Sentry navigation breadcrumb for observability.
-  static String? combinedGuard(BuildContext context, GoRouterState state) {
+  static String? combinedGuard(
+    BuildContext context,
+    GoRouterState state,
+    AuthSessionState authState,
+  ) {
     // Auth check takes priority
-    final authRedirect = authGuard(context, state);
+    final authRedirect = authGuard(context, state, authState);
     if (authRedirect != null) {
       SentryBreadcrumb.navigation(
         state.matchedLocation,
@@ -151,14 +160,12 @@ class RouteGuards {
     }
 
     // Then role check
-    final roleRedirect = roleGuard(context, state);
+    final roleRedirect = roleGuard(context, state, authState);
     if (roleRedirect != null) {
-      final userMetadata = Supabase.instance.client.auth.currentUser?.userMetadata;
-      final role = userMetadata?['role'] as String? ?? 'user';
       SentryBreadcrumb.navigation(
         state.matchedLocation,
         roleRedirect,
-        role: role,
+        role: authState.role.name,
       );
       return roleRedirect;
     }
@@ -180,6 +187,17 @@ class RouteGuards {
 
   static bool isBusinessRoute(String path) {
     return path.startsWith('/business');
+  }
+
+  static String defaultPathFor(UserRole role) {
+    switch (role) {
+      case UserRole.business:
+        return RouteNames.businessPath;
+      case UserRole.admin:
+      case UserRole.user:
+      default:
+        return RouteNames.homePath;
+    }
   }
 
   static bool isConsumerOnlyRoute(String path) {
