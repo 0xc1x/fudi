@@ -15,6 +15,10 @@ class AppConfig {
   final String sentryDsn;
   final String googleMapsApiKey;
   final String authResetRedirectUrl;
+  final String firebaseApiKey;
+  final String firebaseProjectId;
+  final String firebaseMessagingSenderId;
+  final String firebaseAppId;
 
   const AppConfig({
     required this.environment,
@@ -23,6 +27,10 @@ class AppConfig {
     required this.sentryDsn,
     required this.googleMapsApiKey,
     required this.authResetRedirectUrl,
+    required this.firebaseApiKey,
+    required this.firebaseProjectId,
+    required this.firebaseMessagingSenderId,
+    required this.firebaseAppId,
   });
 
   /// Factory constructor that reads values from the currently loaded
@@ -37,6 +45,10 @@ class AppConfig {
       sentryDsn: dotenv.env['SENTRY_DSN'] ?? '',
       googleMapsApiKey: dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '',
       authResetRedirectUrl: dotenv.env['AUTH_RESET_REDIRECT_URL'] ?? '',
+      firebaseApiKey: dotenv.env['FIREBASE_API_KEY'] ?? '',
+      firebaseProjectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? '',
+      firebaseMessagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
+      firebaseAppId: dotenv.env['FIREBASE_APP_ID'] ?? '',
     );
   }
 
@@ -51,6 +63,9 @@ class AppConfig {
   /// Whether Google Maps integration is configured for this environment.
   bool get hasGoogleMaps => googleMapsApiKey.isNotEmpty;
   bool get hasAuthResetRedirectUrl => authResetRedirectUrl.isNotEmpty;
+
+  bool get hasFirebase =>
+      firebaseApiKey.isNotEmpty && firebaseProjectId.isNotEmpty;
 
   @override
   String toString() {

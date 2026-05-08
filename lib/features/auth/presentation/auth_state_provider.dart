@@ -50,6 +50,11 @@ class AuthSessionNotifier extends ChangeNotifier {
         _signOutRequested = false;
       }
 
+      // Clear auth error on successful sign-in — the guard can now redirect.
+      if (nextState.event == AuthFlowEvent.signedIn) {
+        _hasAuthError = false;
+      }
+
       notifyListeners();
     });
   }
@@ -60,11 +65,35 @@ class AuthSessionNotifier extends ChangeNotifier {
   AuthFlowEvent _lastEvent = AuthFlowEvent.initialSession;
   bool _signOutRequested = false;
   bool _hasPendingPasswordRecovery = false;
+  bool _hasAuthError = false;
   String? _pendingNotice;
 
   AuthSessionState get state => _state;
   AuthFlowEvent get lastEvent => _lastEvent;
   bool get hasPendingPasswordRecovery => _hasPendingPasswordRecovery;
+
+  /// Whether the last auth operation (sign-in / sign-up) failed.
+  ///
+  /// The GoRouter guard checks this flag to avoid redirecting away from
+  /// `/login` when the user is still on the login screen after a failed
+  /// attempt.  Without it, `refreshListenable` fires `notifyListeners()`
+  /// and the guard would redirect to home even though sign-in failed.
+  bool get hasAuthError => _hasAuthError;
+
+  /// Mark that the last auth operation failed (called by AuthController).
+  void markAuthError() {
+    _hasAuthError = true;
+    notifyListeners();
+  }
+
+  /// Clear the auth-error flag (called on successful sign-in or when the
+  /// user leaves the login screen).
+  void clearAuthError() {
+    if (_hasAuthError) {
+      _hasAuthError = false;
+      notifyListeners();
+    }
+  }
 
   void markSignOutRequested() {
     _signOutRequested = true;
@@ -129,6 +158,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
 
     state.whenOrNull(
       error: (error, _) {
+        _sessionNotifier.markAuthError();
         _analytics.track(
           AuthLoginFailedEvent(
             method: AuthMethod.email,

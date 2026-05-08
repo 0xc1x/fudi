@@ -333,9 +333,9 @@ mkdir -p lib/shared
 
 ---
 
-## FASE 4: UI Components (Component library)
+## FASE 4: UI Components (Component library) ✅ COMPLETADA
 
-### 4.1 Theme y tokens
+### 4.1 Theme y tokens ✅
 
 **Agente:** component-library
 
@@ -349,32 +349,36 @@ mkdir -p lib/shared
 - mutedForeground: #737373
 
 **Files:**
-- Create: `lib/core/ui/fudi_colors.dart`
-- Create: `lib/core/ui/fudi_theme.dart`
-- Create: `lib/core/ui/fudi_typography.dart`
+- Create: `lib/core/ui/fudi_colors.dart` ✅
+- Create: `lib/core/ui/fudi_theme.dart` ✅
+- Create: `lib/core/ui/fudi_typography.dart` ✅
+- Create: `lib/core/ui/fudi_spacing.dart` ✅
 
 ---
 
-### 4.2 Componentes base
+### 4.2 Componentes base ✅
 
 | Componente React | Widget Flutter | Archivo |
 |---|---|---|
 | BottomNav.tsx | FudiBottomNav | lib/core/ui/fudi_bottom_nav.dart |
 | Filters.tsx | FudiFilters | lib/core/ui/fudi_filters.dart |
 | StarRating.tsx | FudiStarRating | lib/core/ui/fudi_star_rating.dart |
-| SplashScreen.tsx | FudiSplashScreen | lib/core/ui/fudi_splash_screen.dart |
 | AppLogo.tsx | FudiLogo | lib/core/ui/fudi_logo.dart |
 | Layout.tsx | FudiScaffold | lib/core/ui/fudi_scaffold.dart |
-| MapView.tsx | FudiMapView | lib/core/ui/fudi_map_view.dart |
+
+**Extra:**
+- `app_mode_provider.dart` para cambio automático entre Consumer y Business.
+- `ShellRoute` integration en `app_router.dart`.
+- `_OfflineBanner` integrado en el scaffold.
 
 ---
 
-### 4.3 Cards recurrentes
+### 4.3 Cards recurrentes ✅
 
-- `deal_card.dart` — Usado en Home, Explore, Favorites
-- `product_card.dart` — Usado en BusinessProducts
-- `order_card.dart` — Usado en OrderHistory, BusinessOrders
-- `business_card.dart` — Usado en search results
+- `deal_card.dart` — Usado en Home, Explore, Favorites ✅
+- `order_card.dart` — Usado en OrderHistory, BusinessOrders ✅
+- `business_card.dart` — Usado en search results ✅
+- `ui_gallery_screen.dart` — Para verificación de componentes ✅
 
 ---
 

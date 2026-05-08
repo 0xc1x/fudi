@@ -1,42 +1,58 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../models/analytics_event.dart';
 import '../models/user_properties.dart';
 import 'analytics_tracker.dart';
 
-/// Firebase Analytics tracker implementation.
-///
-/// Translates typed [AnalyticsEvent]s into Firebase Analytics calls.
-/// Firebase has restrictions on property names and values (40 chars keys,
-/// 100 chars values for user properties, 25 params per event) — this tracker
-/// handles those constraints gracefully.
-///
-/// Errors are caught and reported as Sentry messages (not crashes) per
-/// `.agents/analytics-growth.md` guidelines.
 class FirebaseTracker implements AnalyticsTracker {
   FirebaseTracker({FirebaseAnalytics? analytics})
-      : _analytics = analytics ?? FirebaseAnalytics.instance;
+      : _analytics = analytics,
+        _initialized = analytics != null;
 
-  final FirebaseAnalytics _analytics;
+  FirebaseAnalytics? _analytics;
+  bool _initialized;
   bool _enabled = false;
+  bool _initAttempted = false;
 
   @override
   String get trackerName => 'Firebase';
 
+  Future<void> _ensureInitialized() async {
+    if (_initialized || _initAttempted) return;
+    _initAttempted = true;
+
+    try {
+      if (Firebase.apps.isEmpty) return;
+      _analytics = FirebaseAnalytics.instance;
+      _initialized = true;
+    } catch (e) {
+      _reportError('init', e);
+    }
+  }
+
   @override
   void setEnabled(bool enabled) {
     _enabled = enabled;
-    // Firebase uses setAnalyticsCollectionEnabled for consent
-    _analytics.setAnalyticsCollectionEnabled(enabled);
+    final analytics = _analytics;
+    if (analytics == null) return;
+    try {
+      analytics.setAnalyticsCollectionEnabled(enabled);
+    } catch (e) {
+      _reportError('setEnabled', e);
+    }
   }
 
   @override
   Future<void> track(AnalyticsEvent event) async {
     if (!_enabled) return;
+    await _ensureInitialized();
+    final analytics = _analytics;
+    if (analytics == null) return;
 
     try {
-      await _analytics.logEvent(
+      await analytics.logEvent(
         name: event.name,
         parameters: _sanitizeProperties(event.properties),
       );
@@ -48,9 +64,12 @@ class FirebaseTracker implements AnalyticsTracker {
   @override
   Future<void> setUserId(String userId) async {
     if (!_enabled) return;
+    await _ensureInitialized();
+    final analytics = _analytics;
+    if (analytics == null) return;
 
     try {
-      await _analytics.setUserId(id: userId);
+      await analytics.setUserId(id: userId);
     } catch (e) {
       _reportError('setUserId', e);
     }
@@ -59,14 +78,16 @@ class FirebaseTracker implements AnalyticsTracker {
   @override
   Future<void> setUserProperties(UserProperties properties) async {
     if (!_enabled) return;
+    await _ensureInitialized();
+    final analytics = _analytics;
+    if (analytics == null) return;
 
     try {
       final map = properties.toMap();
       for (final entry in map.entries) {
-        // Firebase user property names max 40 chars, values max 100 chars
         final key = entry.key.length > 40 ? entry.key.substring(0, 40) : entry.key;
         final value = _truncateValue(entry.value);
-        await _analytics.setUserProperty(name: key, value: value);
+        await analytics.setUserProperty(name: key, value: value);
       }
     } catch (e) {
       _reportError('setUserProperties', e);
@@ -75,8 +96,12 @@ class FirebaseTracker implements AnalyticsTracker {
 
   @override
   Future<void> reset() async {
+    await _ensureInitialized();
+    final analytics = _analytics;
+    if (analytics == null) return;
+
     try {
-      await _analytics.setUserId(id: null);
+      await analytics.setUserId(id: null);
     } catch (e) {
       _reportError('reset', e);
     }

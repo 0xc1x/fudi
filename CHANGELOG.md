@@ -1,22 +1,24 @@
 # CHANGELOG
 
-## [0.3.0] - 2026-05-07
+## [0.4.0] - 2026-05-07
 
 ### Added
-- **Phase 3: Auth** completed.
-- `LoginScreen` with email/password, validation, and "Forgot password" dialog.
-- `SignupScreen` with role selection (Consumer/Business) and analytics consent.
-- `UpdatePasswordScreen` for secure password reset flow.
-- `SupabaseAuthRepository` implementation for robust session management.
-- `AuthSessionNotifier` for reactive UI state and session expiration signaling.
-- `AuthFeedbackListener` for global session notifications (SnackBars).
-- Sentry breadcrumbs for all auth actions (submit, logout, reset).
-- Analytics events tracking for auth funnels (started, completed, failed, logout).
+- **Phase 4: UI Components** completed.
+- High-fidelity Design Tokens: `FudiColors`, `FudiTypography`, `FudiSpacing`, `FudiRadius`.
+- Centralized `FudiTheme` (Light/Dark) following Material 3.
+- `FudiScaffold` with built-in `_OfflineBanner` and corporate `AppBar`.
+- Adaptive `FudiBottomNav` supporting automatic switching between Consumer and Business modes.
+- Core UI Cards: `DealCard`, `OrderCard`, and `BusinessCard`.
+- `FudiLogo` and `FudiStarRating` atomic components.
+- `UiGalleryScreen` for component verification and testing.
+- `AppModeNotifier` for managing Consumer/Business mode state based on user role.
+- Persistent navigation structure using `ShellRoute` in `GoRouter`.
 
 ### Fixed
-- UI synchronization when clearing password recovery flags in `AuthSessionNotifier`.
+- Analysis warnings related to deprecated `withOpacity` (replaced with `withValues`).
+- Cleanup of unused fields and imports in `RouteGuards` and `AppRouter`.
 
-## [0.2.0] - 2026-05-07
+## [0.3.0] - 2026-05-07
 
 ### Added
 - **Phase 2: Database Schema** baseline established in Supabase.

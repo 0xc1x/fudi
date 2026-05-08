@@ -57,7 +57,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       }
 
       final target = _selectedRole == UserRole.business
-          ? RouteNames.businessPath
+          ? RouteNames.businessProductsPath
           : RouteNames.homePath;
       context.go(target);
     } catch (error) {

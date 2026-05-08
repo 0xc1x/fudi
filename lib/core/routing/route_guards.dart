@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/auth_state_provider.dart';
 import '../../features/auth/domain/user_profile.dart';
 import '../observability/sentry_breadcrumb.dart';
 import '../../features/auth/domain/auth_repository.dart';
@@ -37,6 +38,7 @@ class RouteGuards {
     RouteNames.aboutPath,
     RouteNames.termsPath,
     RouteNames.privacyPath,
+    '/ui-gallery',
   };
 
   /// Routes that require the `user` (consumer) role.
@@ -56,44 +58,27 @@ class RouteGuards {
     RouteNames.profileSettingsPath,
   };
 
-  /// Routes that require the `business` role.
-  /// All start with /business prefix.
-  static const _businessOnlyRoutes = {
-    RouteNames.businessPath,
-    RouteNames.businessOrdersPath,
-    RouteNames.businessOrderDetailPath,
-    RouteNames.businessProductsPath,
-    RouteNames.businessProductDetailPath,
-    RouteNames.businessProductEditPath,
-    RouteNames.businessStatisticsPath,
-    RouteNames.businessPaymentsPath,
-    RouteNames.businessPaymentDetailPath,
-    RouteNames.businessCouponsPath,
-    RouteNames.businessCouponEditPath,
-    RouteNames.businessLocationsPath,
-    RouteNames.businessLocationDetailPath,
-    RouteNames.businessLocationEditPath,
-    RouteNames.businessNotificationsPath,
-    RouteNames.businessEditPath,
-    RouteNames.businessProfilePath,
-    RouteNames.businessHelpPath,
-  };
-
   /// Auth guard: redirects unauthenticated users to login.
   ///
   /// - If not authenticated and trying to access a protected route → /login
-  /// - If authenticated and trying to access /login or /signup → / (home)
+  /// - If authenticated and trying to access /login or /signup → default route
+  /// - If auth just failed (hasAuthError) → stay on login, no redirect
   /// - Otherwise → no redirect (null)
   static String? authGuard(
     BuildContext context,
     GoRouterState state,
-    AuthSessionState authState,
-  ) {
+    AuthSessionState authState, {
+    bool hasAuthError = false,
+  }) {
     final isAuthenticated = authState.isAuthenticated;
     final currentPath = state.matchedLocation;
 
-    // Authenticated users should not see login/signup
-    if (isAuthenticated && (currentPath == RouteNames.loginPath || currentPath == RouteNames.signupPath)) {
+    // Authenticated users should not see login/signup — but only if there
+    // is no active auth error (failed sign-in attempt).  When hasAuthError
+    // is true the user is still on the login screen and must stay there.
+    if (isAuthenticated &&
+        !hasAuthError &&
+        (currentPath == RouteNames.loginPath || currentPath == RouteNames.signupPath)) {
       return defaultPathFor(authState.role);
     }
 
@@ -108,7 +93,7 @@ class RouteGuards {
   /// Role guard: redirects users who lack the required role.
   ///
   /// - Consumer (`user`) trying to access business routes → / (home)
-  /// - Business trying to access consumer routes → /business
+  /// - Business trying to access consumer routes → /business/products
   /// - Admin can access all routes
   /// - Otherwise → no redirect (null)
   static String? roleGuard(
@@ -129,10 +114,10 @@ class RouteGuards {
       return RouteNames.homePath;
     }
 
-    // Business trying to access consumer-only routes
-    if (role == 'business' && isConsumerOnlyRoute(currentPath)) {
-      return RouteNames.businessPath;
-    }
+  // Business trying to access consumer-only routes
+  if (role == 'business' && isConsumerOnlyRoute(currentPath)) {
+    return RouteNames.businessProductsPath;
+  }
 
     return null; // No redirect needed
   }
@@ -146,10 +131,13 @@ class RouteGuards {
   static String? combinedGuard(
     BuildContext context,
     GoRouterState state,
-    AuthSessionState authState,
-  ) {
+    AuthSessionState authState, {
+    AuthSessionNotifier? sessionNotifier,
+  }) {
+    final hasAuthError = sessionNotifier?.hasAuthError ?? false;
+
     // Auth check takes priority
-    final authRedirect = authGuard(context, state, authState);
+    final authRedirect = authGuard(context, state, authState, hasAuthError: hasAuthError);
     if (authRedirect != null) {
       SentryBreadcrumb.navigation(
         state.matchedLocation,
@@ -192,7 +180,7 @@ class RouteGuards {
   static String defaultPathFor(UserRole role) {
     switch (role) {
       case UserRole.business:
-        return RouteNames.businessPath;
+        return RouteNames.businessProductsPath;
       case UserRole.admin:
       case UserRole.user:
       default:

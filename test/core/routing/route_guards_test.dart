@@ -78,12 +78,12 @@ void main() {
     });
 
     group('default path by role', () {
-      test('business users land in business dashboard', () {
-        expect(
-          RouteGuards.defaultPathFor(UserRole.business),
-          '/business',
-        );
-      });
+  test('business users land in business products', () {
+    expect(
+      RouteGuards.defaultPathFor(UserRole.business),
+      '/business/products',
+    );
+  });
 
       test('consumer users land in home', () {
         expect(

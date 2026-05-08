@@ -6,7 +6,6 @@ import '../../../core/di/core_providers.dart';
 import '../../../core/routing/route_names.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/fudi_exception_l10n.dart';
-import '../domain/user_profile.dart';
 import 'auth_state_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -20,6 +19,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -31,26 +31,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Clear previous error before new attempt
+    setState(() => _errorMessage = null);
+    ref.read(authSessionNotifierProvider).clearAuthError();
+
     try {
       await ref.read(authControllerProvider.notifier).signIn(
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-          );
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
 
-      if (!mounted) return;
-      final sessionState = ref.read(authSessionNotifierProvider).state;
-      final target = sessionState.role == UserRole.business
-          ? RouteNames.businessPath
-          : RouteNames.homePath;
-      context.go(target);
+      // On success, clearAuthError was already called above.
+      // GoRouter's refreshListenable will trigger the guard,
+      // which will redirect to the correct default route.
+      // NO imperative navigation here — let the guard handle it.
     } catch (error) {
       if (!mounted) return;
       final message = error is FudiException
           ? error.userMessage()
           : 'No pudimos iniciar sesión. Intenta de nuevo.';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      setState(() => _errorMessage = message);
     }
   }
 
@@ -214,12 +214,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: const Text('Olvidaste tu contraseña'),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    FilledButton(
-                      onPressed: isLoading ? null : _submit,
-                      child: Text(isLoading ? 'Ingresando...' : 'Iniciar sesión'),
-                    ),
-                    const SizedBox(height: 24),
+    const SizedBox(height: 8),
+    FilledButton(
+      onPressed: isLoading ? null : _submit,
+      child: Text(isLoading ? 'Ingresando...' : 'Iniciar sesión'),
+    ),
+    if (_errorMessage != null) ...[
+      const SizedBox(height: 12),
+      MaterialBanner(
+        content: Text(
+          _errorMessage!,
+          style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.errorContainer,
+        actions: [
+          TextButton(
+            onPressed: () => setState(() => _errorMessage = null),
+            child: Text(
+              'Cerrar',
+              style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
+            ),
+          ),
+        ],
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: EdgeInsets.zero,
+      ),
+    ],
+    const SizedBox(height: 24),
                     Row(
                       children: const [
                         Expanded(child: Divider()),

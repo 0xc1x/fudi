@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,21 +10,22 @@ import 'core/config/app_config.dart';
 import 'core/config/app_environment.dart';
 import 'core/di/core_providers.dart';
 import 'core/observability/sentry_init.dart';
+import 'core/ui/fudi_theme.dart';
 import 'features/auth/presentation/auth_state_provider.dart';
 
 void main() async {
-  // 1. Ensure Flutter bindings are initialized before any async work
-  WidgetsFlutterBinding.ensureInitialized();
+// 1. Ensure Flutter bindings are initialized before any async work
+WidgetsFlutterBinding.ensureInitialized();
 
-  // 2. Determine environment (compile-time constant or fallback to dev)
-  const envString = String.fromEnvironment('APP_ENV', defaultValue: 'dev');
-  final environment = AppEnvironment.fromString(envString);
+// 2. Determine environment (compile-time constant or fallback to dev)
+const envString = String.fromEnvironment('APP_ENV', defaultValue: 'dev');
+final environment = AppEnvironment.fromString(envString);
 
-  // 3. Load environment-specific .env file
-  await dotenv.load(fileName: environment.envFileName);
+// 3. Load environment-specific .env file (from assets or filesystem)
+await _loadEnv(environment);
 
-  // 4. Build AppConfig from loaded env vars
-  final config = AppConfig.fromEnv(environment);
+// 4. Build AppConfig from loaded env vars
+final config = AppConfig.fromEnv(environment);
 
   // 5. Initialize Supabase
   await Supabase.initialize(
@@ -29,6 +33,18 @@ void main() async {
     anonKey: config.supabaseAnonKey,
     debug: config.isDev,
   );
+
+  // 5b. Initialize Firebase (only if configured)
+  if (config.hasFirebase) {
+    await Firebase.initializeApp(
+      options: FirebaseOptions(
+        apiKey: config.firebaseApiKey,
+        projectId: config.firebaseProjectId,
+        messagingSenderId: config.firebaseMessagingSenderId,
+        appId: config.firebaseAppId,
+      ),
+    );
+  }
 
   // 6. Initialize Sentry (only if DSN is configured)
   if (config.hasSentry) {
@@ -49,6 +65,41 @@ void main() async {
   );
 }
 
+/// Loads the .env file for the given [environment].
+///
+/// Resolution order:
+/// 1. Asset bundle (works for compiled apps where .env was bundled)
+/// 2. Filesystem relative path (works during development)
+/// 3. Fallback to `.env.dev` if the target env file is missing
+///
+/// This ensures the app doesn't crash on a fresh clone where only
+/// `.env.dev` exists — other env files are only required when
+/// actually targeting those environments.
+Future<void> _loadEnv(AppEnvironment environment) async {
+  final fileName = environment.envFileName;
+
+  try {
+    await dotenv.load(fileName: fileName);
+    return;
+  } catch (_) {}
+
+  if (environment != AppEnvironment.dev) {
+    try {
+      await dotenv.load(fileName: AppEnvironment.dev.envFileName);
+      return;
+    } catch (_) {}
+  }
+
+  if (Platform.environment.containsKey('FLUTTER_TEST')) {
+    return;
+  }
+
+  throw StateError(
+    'No .env file found. Create $fileName or .env.dev with your '
+    'Supabase and service credentials. See .env.example for reference.',
+  );
+}
+
 /// Root widget for the Fudi application.
 ///
 /// Wraps the MaterialApp with Sentry's navigation observer
@@ -64,13 +115,7 @@ class FudiApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Fudi',
       debugShowCheckedModeBanner: config.isDev,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF256646), // Fudi primary green
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-      ),
+      theme: FudiTheme.light(),
       routerConfig: router,
       builder: (context, child) {
         return AuthFeedbackListener(
