@@ -42,6 +42,12 @@ class FudiTypography {
     color: FudiColors.foreground,
   );
 
+  /// headlineMedium - alias for h4 used by AppBar titles
+  static const TextStyle headlineMedium = h4;
+
+  /// headlineSmall - alias for h3 used by section headers
+  static const TextStyle headlineSmall = h3;
+
   // ─── Body ─────────────────────────────────────────────────────
   
   /// Body Large - 16px, w400, height 1.5

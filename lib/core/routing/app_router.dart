@@ -6,6 +6,15 @@ import '../../features/auth/presentation/auth_state_provider.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/signup_screen.dart';
 import '../../features/auth/presentation/update_password_screen.dart';
+import '../../features/home/presentation/home_screen.dart';
+import '../../features/offers/presentation/product_detail_screen.dart';
+import '../../features/orders/presentation/checkout_screen.dart';
+import '../../features/orders/presentation/review_order_screen.dart';
+import '../../features/explore/presentation/explore_screen.dart';
+import '../../features/orders/presentation/order_history_screen.dart';
+import '../../features/orders/presentation/order_detail_screen.dart';
+import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/profile/presentation/profile_edit_screen.dart';
 import '../observability/sentry_breadcrumb.dart';
 import '../ui/fudi_scaffold.dart';
 import '../ui/ui_gallery_screen.dart';
@@ -13,23 +22,26 @@ import 'route_guards.dart';
 import 'route_names.dart';
 
 /// Configuración del router con ShellRoute para navegación persistente.
-GoRouter createAppRouter(AuthSessionNotifier authSessionNotifier) {
+GoRouter createAppRouter(
+  AuthSessionNotifier authSessionNotifier,
+  Listenable refreshListenable,
+) {
   return GoRouter(
     initialLocation: RouteNames.homePath,
     debugLogDiagnostics: true,
-    refreshListenable: authSessionNotifier,
+    refreshListenable: refreshListenable,
     redirect: (context, state) {
       if (authSessionNotifier.hasPendingPasswordRecovery &&
           state.matchedLocation != RouteNames.updatePasswordPath) {
         return RouteNames.updatePasswordPath;
       }
 
-    return RouteGuards.combinedGuard(
-      context,
-      state,
-      authSessionNotifier.state,
-      sessionNotifier: authSessionNotifier,
-    );
+      return RouteGuards.combinedGuard(
+        context,
+        state,
+        authSessionNotifier.currentAuthState,
+        sessionNotifier: authSessionNotifier,
+      );
     },
     observers: [
       SentryNavigatorObserver(),
@@ -69,31 +81,31 @@ GoRouter createAppRouter(AuthSessionNotifier authSessionNotifier) {
           body: child,
         ),
         routes: [
-          GoRoute(
-            path: RouteNames.homePath,
-            name: RouteNames.home,
-            builder: (context, state) => const _PlaceholderScreen(title: 'Fudi Home'),
-          ),
-          GoRoute(
-            path: RouteNames.explorePath,
-            name: RouteNames.explore,
-            builder: (context, state) => const _PlaceholderScreen(title: 'Explorar'),
-          ),
-          GoRoute(
-            path: RouteNames.ordersPath,
-            name: RouteNames.orders,
-            builder: (context, state) => const _PlaceholderScreen(title: 'Mis Pedidos'),
-          ),
+        GoRoute(
+          path: RouteNames.homePath,
+          name: RouteNames.home,
+          builder: (context, state) => const HomeScreen(),
+        ),
+        GoRoute(
+          path: RouteNames.explorePath,
+          name: RouteNames.explore,
+          builder: (context, state) => const ExploreScreen(),
+        ),
+        GoRoute(
+          path: RouteNames.ordersPath,
+          name: RouteNames.orders,
+          builder: (context, state) => const OrderHistoryScreen(),
+        ),
           GoRoute(
             path: RouteNames.favoritesPath,
             name: RouteNames.favorites,
             builder: (context, state) => const _PlaceholderScreen(title: 'Favoritos'),
           ),
-          GoRoute(
-            path: RouteNames.profilePath,
-            name: RouteNames.profile,
-            builder: (context, state) => const _PlaceholderScreen(title: 'Perfil'),
-          ),
+        GoRoute(
+          path: RouteNames.profilePath,
+          name: RouteNames.profile,
+          builder: (context, state) => const ProfileScreen(),
+        ),
         ],
       ),
 
@@ -139,37 +151,41 @@ GoRouter createAppRouter(AuthSessionNotifier authSessionNotifier) {
     ),
 
       // ─── Rutas de Detalle (sin BottomNav por defecto) ─────────────
-      GoRoute(
-        path: RouteNames.productPath,
-        name: RouteNames.product,
-        builder: (context, state) => _PlaceholderScreen(
-          title: 'Detalle de Oferta',
-          subtitle: 'ID: ${state.pathParameters['id']}',
-        ),
+  GoRoute(
+      path: RouteNames.productPath,
+      name: RouteNames.product,
+      builder: (context, state) => ProductDetailScreen(
+        id: state.pathParameters['id']!,
       ),
-      GoRoute(
-        path: RouteNames.checkoutPath,
-        name: RouteNames.checkout,
-        builder: (context, state) => _PlaceholderScreen(
-          title: 'Checkout',
-          subtitle: 'ID: ${state.pathParameters['id']}',
-        ),
+    ),
+    GoRoute(
+      path: RouteNames.checkoutPath,
+      name: RouteNames.checkout,
+      builder: (context, state) => CheckoutScreen(
+        offerId: state.pathParameters['id']!,
       ),
-      GoRoute(
-        path: RouteNames.orderDetailPath,
-        name: RouteNames.orderDetail,
-        builder: (context, state) => _PlaceholderScreen(
-          title: 'Detalle del Pedido',
-          subtitle: 'ID: ${state.pathParameters['id']}',
-        ),
+    ),
+    GoRoute(
+      path: RouteNames.orderDetailPath,
+      name: RouteNames.orderDetail,
+      builder: (context, state) => OrderDetailScreen(
+        id: state.pathParameters['id']!,
       ),
-      
-      // Perfil extendido
-      GoRoute(
-        path: RouteNames.profileEditPath,
-        name: RouteNames.profileEdit,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Editar Perfil'),
+    ),
+    GoRoute(
+      path: RouteNames.reviewOrderPath,
+      name: RouteNames.reviewOrder,
+      builder: (context, state) => ReviewOrderScreen(
+        id: state.pathParameters['id']!,
       ),
+    ),
+
+    // Perfil extendido
+  GoRoute(
+      path: RouteNames.profileEditPath,
+      name: RouteNames.profileEdit,
+      builder: (context, state) => const ProfileEditScreen(),
+    ),
 
       // Otras rutas informativas...
       GoRoute(
@@ -182,11 +198,9 @@ GoRouter createAppRouter(AuthSessionNotifier authSessionNotifier) {
 }
 
 class _PlaceholderScreen extends StatelessWidget {
-  const _PlaceholderScreen({required this.title, this.subtitle});
+  const _PlaceholderScreen({required this.title});
 
   final String title;
-  final String? subtitle;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -199,13 +213,6 @@ class _PlaceholderScreen extends StatelessWidget {
               title,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                subtitle!,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
             const SizedBox(height: 16),
             const Text('🚧 Implementación en curso...'),
           ],

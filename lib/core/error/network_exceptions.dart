@@ -26,8 +26,8 @@ class TimeoutException extends NetworkException {
 }
 
 class ServerException extends NetworkException {
-  const ServerException({super.message = 'Error del servidor', int? statusCode})
-      : super(code: 'NET_003', severity: ErrorSeverity.high, statusCode: statusCode);
+  const ServerException({super.message = 'Error del servidor', super.statusCode})
+      : super(code: 'NET_003', severity: ErrorSeverity.high);
 }
 
 class RateLimitException extends NetworkException {

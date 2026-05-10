@@ -19,21 +19,36 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return SupabaseAuthRepository(supabaseClient: supabaseClient);
 });
 
-final authSessionNotifierProvider = Provider<AuthSessionNotifier>((ref) {
-  final notifier = AuthSessionNotifier(ref.watch(authRepositoryProvider));
-  ref.onDispose(notifier.dispose);
-  return notifier;
+final authSessionNotifierProvider =
+    NotifierProvider<AuthSessionNotifier, AuthSessionState>(
+  AuthSessionNotifier.new,
+);
+
+final authRefreshListenableProvider = Provider<ChangeNotifier>((ref) {
+  final notifier = ref.watch(authSessionNotifierProvider.notifier);
+  return notifier._refreshListenable;
 });
 
 final authControllerProvider =
     NotifierProvider<AuthController, AsyncValue<void>>(AuthController.new);
 
-class AuthSessionNotifier extends ChangeNotifier {
-  AuthSessionNotifier(this._repository) {
-    _state = _repository.currentSnapshot();
-    _subscription = _repository.watchAuthState().listen((nextState) {
-      final previousState = _state;
-      _state = nextState.state;
+class AuthSessionNotifier extends Notifier<AuthSessionState> {
+  StreamSubscription<AuthStateChange>? _subscription;
+  final _refreshListenable = AuthRefreshListenable();
+  AuthFlowEvent _lastEvent = AuthFlowEvent.initialSession;
+  bool _signOutRequested = false;
+  bool _hasPendingPasswordRecovery = false;
+  bool _hasAuthError = false;
+  String? _pendingNotice;
+
+  @override
+  AuthSessionState build() {
+    final repository = ref.watch(authRepositoryProvider);
+    final initialState = repository.currentSnapshot();
+
+    _subscription = repository.watchAuthState().listen((nextState) {
+      final previousState = state;
+      state = nextState.state;
       _lastEvent = nextState.event;
 
       if (nextState.event == AuthFlowEvent.passwordRecovery) {
@@ -43,55 +58,43 @@ class AuthSessionNotifier extends ChangeNotifier {
       if (nextState.event == AuthFlowEvent.signedOut &&
           previousState.isAuthenticated &&
           !_signOutRequested) {
-        _pendingNotice = 'Tu sesión expiró. Inicia sesión de nuevo para continuar.';
+        _pendingNotice =
+            'Tu sesión expiró. Inicia sesión de nuevo para continuar.';
       }
 
       if (nextState.event == AuthFlowEvent.signedOut) {
         _signOutRequested = false;
       }
 
-      // Clear auth error on successful sign-in — the guard can now redirect.
       if (nextState.event == AuthFlowEvent.signedIn) {
         _hasAuthError = false;
       }
 
-      notifyListeners();
+      _refreshListenable._notify();
     });
+
+    ref.onDispose(() {
+      _subscription?.cancel();
+      _refreshListenable.dispose();
+    });
+
+    return initialState;
   }
 
-  final AuthRepository _repository;
-  late AuthSessionState _state;
-  StreamSubscription<AuthStateChange>? _subscription;
-  AuthFlowEvent _lastEvent = AuthFlowEvent.initialSession;
-  bool _signOutRequested = false;
-  bool _hasPendingPasswordRecovery = false;
-  bool _hasAuthError = false;
-  String? _pendingNotice;
-
-  AuthSessionState get state => _state;
   AuthFlowEvent get lastEvent => _lastEvent;
   bool get hasPendingPasswordRecovery => _hasPendingPasswordRecovery;
-
-  /// Whether the last auth operation (sign-in / sign-up) failed.
-  ///
-  /// The GoRouter guard checks this flag to avoid redirecting away from
-  /// `/login` when the user is still on the login screen after a failed
-  /// attempt.  Without it, `refreshListenable` fires `notifyListeners()`
-  /// and the guard would redirect to home even though sign-in failed.
   bool get hasAuthError => _hasAuthError;
+  AuthSessionState get currentAuthState => state;
 
-  /// Mark that the last auth operation failed (called by AuthController).
   void markAuthError() {
     _hasAuthError = true;
-    notifyListeners();
+    _refreshListenable._notify();
   }
 
-  /// Clear the auth-error flag (called on successful sign-in or when the
-  /// user leaves the login screen).
   void clearAuthError() {
     if (_hasAuthError) {
       _hasAuthError = false;
-      notifyListeners();
+      _refreshListenable._notify();
     }
   }
 
@@ -107,14 +110,12 @@ class AuthSessionNotifier extends ChangeNotifier {
 
   void clearPasswordRecoveryFlag() {
     _hasPendingPasswordRecovery = false;
-    notifyListeners();
+    _refreshListenable._notify();
   }
+}
 
-  @override
-  void dispose() {
-    _subscription?.cancel();
-    super.dispose();
-  }
+class AuthRefreshListenable extends ChangeNotifier {
+  void _notify() => notifyListeners();
 }
 
 class AuthController extends Notifier<AsyncValue<void>> {
@@ -126,7 +127,8 @@ class AuthController extends Notifier<AsyncValue<void>> {
   AuthRepository get _repository => ref.read(authRepositoryProvider);
   AnalyticsService get _analytics => ref.read(analyticsServiceProvider);
   AppConfig get _config => ref.read(appConfigProvider);
-  AuthSessionNotifier get _sessionNotifier => ref.read(authSessionNotifierProvider);
+  AuthSessionNotifier get _sessionNotifier =>
+      ref.read(authSessionNotifierProvider.notifier);
 
   Future<void> signIn({
     required String email,
@@ -268,6 +270,13 @@ class AuthFeedbackListener extends ConsumerStatefulWidget {
 
 class _AuthFeedbackListenerState extends ConsumerState<AuthFeedbackListener> {
   AuthSessionNotifier? _notifier;
+  VoidCallback? _listener;
+
+  @override
+  void initState() {
+    super.initState();
+    _subscribe();
+  }
 
   @override
   void didChangeDependencies() {
@@ -282,14 +291,24 @@ class _AuthFeedbackListenerState extends ConsumerState<AuthFeedbackListener> {
   }
 
   void _subscribe() {
-    final notifier = ref.read(authSessionNotifierProvider);
+    final notifier = ref.read(authSessionNotifierProvider.notifier);
     if (identical(_notifier, notifier)) {
       return;
     }
 
-    _notifier?.removeListener(_handleAuthFeedback);
+    _removeListener();
     _notifier = notifier;
-    _notifier?.addListener(_handleAuthFeedback);
+    final listenable = ref.read(authRefreshListenableProvider);
+    _listener = _handleAuthFeedback;
+    listenable.addListener(_listener!);
+  }
+
+  void _removeListener() {
+    if (_listener != null) {
+    final listenable = ref.read(authRefreshListenableProvider);
+      listenable.removeListener(_listener!);
+      _listener = null;
+    }
   }
 
   void _handleAuthFeedback() {
@@ -304,12 +323,11 @@ class _AuthFeedbackListenerState extends ConsumerState<AuthFeedbackListener> {
         );
       });
     }
-
   }
 
   @override
   void dispose() {
-    _notifier?.removeListener(_handleAuthFeedback);
+    _removeListener();
     super.dispose();
   }
 

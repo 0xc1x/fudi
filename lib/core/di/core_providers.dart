@@ -52,8 +52,9 @@ final secureHttpClientProvider = Provider<SecureHttpClient>((ref) {
 /// The router is created fresh each time (not cached) because
 /// GoRouter is stateful and shouldn't be reused across hot reloads.
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final authSessionNotifier = ref.watch(authSessionNotifierProvider);
-  return createAppRouter(authSessionNotifier);
+  final authSessionNotifier = ref.watch(authSessionNotifierProvider.notifier);
+  final refreshListenable = ref.watch(authRefreshListenableProvider);
+  return createAppRouter(authSessionNotifier, refreshListenable);
 });
 
 /// Provider for the [OfflineAwareRepository].

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../../features/orders/domain/order_status.dart';
 import '../fudi_colors.dart';
 import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
@@ -25,6 +26,8 @@ class OrderCard extends StatelessWidget {
   final double totalPrice;
   final String imageUrl;
   final VoidCallback? onTap;
+
+  OrderStatus get orderStatus => OrderStatus.fromString(status);
 
   @override
   Widget build(BuildContext context) {
@@ -104,43 +107,17 @@ class _StatusBadge extends StatelessWidget {
   const _StatusBadge({required this.status});
   final String status;
 
+  OrderStatus get _orderStatus => OrderStatus.fromString(status);
+
   @override
   Widget build(BuildContext context) {
-    Color color;
-    Color textColor;
-    String label;
-
-    switch (status.toLowerCase()) {
-      case 'completed':
-        color = const Color(0xFFDCFCE7);
-        textColor = const Color(0xFF166534);
-        label = 'Completado';
-        break;
-      case 'ready':
-        color = const Color(0xFFFEF9C3);
-        textColor = const Color(0xFF854D0E);
-        label = 'Listo';
-        break;
-      case 'cancelled':
-        color = const Color(0xFFFEE2E2);
-        textColor = const Color(0xFF991B1B);
-        label = 'Cancelado';
-        break;
-      case 'pending':
-        color = FudiColors.muted;
-        textColor = FudiColors.mutedForeground;
-        label = 'Pendiente';
-        break;
-      case 'confirmed':
-        color = FudiColors.secondary;
-        textColor = FudiColors.secondaryForeground;
-        label = 'Confirmado';
-        break;
-      default:
-        color = FudiColors.muted;
-        textColor = FudiColors.mutedForeground;
-        label = status;
-    }
+    final (color, textColor) = switch (_orderStatus) {
+      OrderStatus.completed => (const Color(0xFFDCFCE7), const Color(0xFF166534)),
+      OrderStatus.readyForPickup => (const Color(0xFFFEF9C3), const Color(0xFF854D0E)),
+      OrderStatus.cancelled || OrderStatus.expired => (const Color(0xFFFEE2E2), const Color(0xFF991B1B)),
+      OrderStatus.confirmed => (FudiColors.secondary, FudiColors.secondaryForeground),
+      _ => (FudiColors.muted, FudiColors.mutedForeground),
+    };
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -149,7 +126,7 @@ class _StatusBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(FudiRadius.sm),
       ),
       child: Text(
-        label,
+        _orderStatus.label,
         style: TextStyle(
           color: textColor,
           fontSize: 10,

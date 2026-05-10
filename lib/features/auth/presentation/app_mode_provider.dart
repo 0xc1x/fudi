@@ -12,15 +12,12 @@ final appModeProvider = NotifierProvider<AppModeNotifier, AppMode>(AppModeNotifi
 class AppModeNotifier extends Notifier<AppMode> {
   @override
   AppMode build() {
-    // Escuchamos los cambios de auth para sincronizar el modo inicial
-    final authState = ref.watch(authSessionNotifierProvider).state;
-    
-    // Si es negocio, por defecto entra en modo negocio
+    final authState = ref.watch(authSessionNotifierProvider);
+
     if (authState.role == UserRole.business) {
       return AppMode.business;
     }
-    
-    // Por defecto modo consumidor (incluye guests y users regulares)
+
     return AppMode.consumer;
   }
 

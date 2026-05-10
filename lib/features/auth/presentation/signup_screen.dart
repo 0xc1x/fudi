@@ -150,8 +150,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    DropdownButtonFormField<UserRole>(
-                      initialValue: _selectedRole,
+      DropdownButtonFormField<UserRole>(
+        value: _selectedRole,
                       decoration: const InputDecoration(
                         labelText: 'Tipo de cuenta',
                         border: OutlineInputBorder(),

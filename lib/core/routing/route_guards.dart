@@ -183,7 +183,6 @@ class RouteGuards {
         return RouteNames.businessProductsPath;
       case UserRole.admin:
       case UserRole.user:
-      default:
         return RouteNames.homePath;
     }
   }

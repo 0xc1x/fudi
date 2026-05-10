@@ -1,0 +1,218 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/di/core_providers.dart';
+import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_spacing.dart';
+import '../../../core/ui/fudi_typography.dart';
+import '../../auth/presentation/auth_state_provider.dart';
+
+class ProfileEditScreen extends ConsumerStatefulWidget {
+  const ProfileEditScreen({super.key});
+
+  @override
+  ConsumerState<ProfileEditScreen> createState() => _ProfileEditScreenState();
+}
+
+class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _nameController;
+  late TextEditingController _phoneController;
+  late TextEditingController _cityController;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final profile = ref.read(authSessionNotifierProvider).profile;
+    _nameController = TextEditingController(text: profile?.fullName ?? '');
+    _phoneController = TextEditingController(text: profile?.phone ?? '');
+    _cityController = TextEditingController(text: profile?.city ?? '');
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _cityController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Editar perfil'),
+        backgroundColor: FudiColors.background,
+        surfaceTintColor: Colors.transparent,
+      ),
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(FudiSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: CircleAvatar(
+                  radius: 48,
+                  backgroundColor: FudiColors.secondary,
+                  child: Text(
+                    _initials,
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700,
+                      color: FudiColors.primary,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: FudiSpacing.sm),
+              Center(
+                child: TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    'Cambiar foto',
+                    style: FudiTypography.bodySmall.copyWith(
+                      color: FudiColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: FudiSpacing.xl),
+              Text('Nombre completo', style: FudiTypography.labelMedium),
+              const SizedBox(height: FudiSpacing.xs),
+              TextFormField(
+                controller: _nameController,
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null,
+                decoration: InputDecoration(
+                  hintText: 'Tu nombre',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(FudiRadius.md),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: FudiSpacing.md,
+                    vertical: FudiSpacing.sm,
+                  ),
+                ),
+              ),
+              const SizedBox(height: FudiSpacing.lg),
+              Text('Teléfono', style: FudiTypography.labelMedium),
+              const SizedBox(height: FudiSpacing.xs),
+              TextFormField(
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  hintText: '+57 300 123 4567',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(FudiRadius.md),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: FudiSpacing.md,
+                    vertical: FudiSpacing.sm,
+                  ),
+                ),
+              ),
+              const SizedBox(height: FudiSpacing.lg),
+              Text('Ciudad', style: FudiTypography.labelMedium),
+              const SizedBox(height: FudiSpacing.xs),
+              TextFormField(
+                controller: _cityController,
+                decoration: InputDecoration(
+                  hintText: 'Bogotá',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(FudiRadius.md),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: FudiSpacing.md,
+                    vertical: FudiSpacing.sm,
+                  ),
+                ),
+              ),
+              const SizedBox(height: FudiSpacing.xxl),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _saving ? null : _saveProfile,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: FudiColors.primary,
+                    minimumSize: const Size.fromHeight(56),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(FudiRadius.lg),
+                    ),
+                  ),
+                  child: _saving
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          'Guardar cambios',
+                          style: FudiTypography.labelMedium.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(height: FudiSpacing.xxl),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String get _initials {
+    final name = _nameController.text.trim();
+    if (name.isEmpty) return 'F';
+    final parts = name.split(' ');
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return parts[0][0].toUpperCase();
+  }
+
+  Future<void> _saveProfile() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _saving = true);
+
+    try {
+      final supabase = ref.read(supabaseClientProvider);
+      final userId = supabase.auth.currentUser?.id;
+      if (userId == null) return;
+
+      await supabase
+          .from('profiles')
+          .update({
+            'full_name': _nameController.text.trim(),
+            'phone': _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
+            'city': _cityController.text.trim().isEmpty ? null : _cityController.text.trim(),
+          })
+          .eq('id', userId);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Perfil actualizado')),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al guardar: $e'),
+            backgroundColor: FudiColors.destructive,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+}

@@ -17,7 +17,8 @@ Future<void> initSentry(AppConfig config) async {
       options.environment = config.environment.name;
       options.release = 'fudi@1.0.0+1';
       options.tracesSampleRate = config.isDev ? 1.0 : (config.isStaging ? 0.5 : 0.2);
-      options.profilesSampleRate = config.isDev ? 1.0 : (config.isStaging ? 0.3 : 0.1);
+      // ignore: experimental_member_use
+    options.profilesSampleRate = config.isDev ? 1.0 : (config.isStaging ? 0.3 : 0.1);
       options.attachStacktrace = true;
       options.attachThreads = true;
       options.sendDefaultPii = false;

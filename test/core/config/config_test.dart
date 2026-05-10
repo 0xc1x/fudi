@@ -59,64 +59,84 @@ void main() {
 
   group('AppConfig', () {
     test('isDev returns true for dev environment', () {
-      const config = AppConfig(
-        environment: AppEnvironment.dev,
-        supabaseUrl: 'https://example.supabase.co',
-        supabaseAnonKey: 'key',
-        sentryDsn: '',
-        googleMapsApiKey: '',
-        authResetRedirectUrl: '',
-      );
+    const config = AppConfig(
+      environment: AppEnvironment.dev,
+      supabaseUrl: 'https://example.supabase.co',
+      supabaseAnonKey: 'key',
+      sentryDsn: '',
+      googleMapsApiKey: '',
+      authResetRedirectUrl: '',
+      firebaseApiKey: '',
+      firebaseProjectId: '',
+      firebaseMessagingSenderId: '',
+      firebaseAppId: '',
+    );
       expect(config.isDev, true);
       expect(config.isStaging, false);
       expect(config.isProd, false);
     });
 
     test('hasSentry returns false for empty DSN', () {
-      const config = AppConfig(
-        environment: AppEnvironment.dev,
-        supabaseUrl: '',
-        supabaseAnonKey: '',
-        sentryDsn: '',
-        googleMapsApiKey: '',
-        authResetRedirectUrl: '',
-      );
-      expect(config.hasSentry, false);
-    });
+    const config = AppConfig(
+      environment: AppEnvironment.dev,
+      supabaseUrl: '',
+      supabaseAnonKey: '',
+      sentryDsn: '',
+      googleMapsApiKey: '',
+      authResetRedirectUrl: '',
+      firebaseApiKey: '',
+      firebaseProjectId: '',
+      firebaseMessagingSenderId: '',
+      firebaseAppId: '',
+    );
+    expect(config.hasSentry, false);
+  });
 
-    test('hasSentry returns true for non-empty DSN', () {
-      const config = AppConfig(
-        environment: AppEnvironment.prod,
-        supabaseUrl: '',
-        supabaseAnonKey: '',
-        sentryDsn: 'https://abc@sentry.io/123',
-        googleMapsApiKey: '',
-        authResetRedirectUrl: '',
-      );
+  test('hasSentry returns true for non-empty DSN', () {
+    const config = AppConfig(
+      environment: AppEnvironment.prod,
+      supabaseUrl: '',
+      supabaseAnonKey: '',
+      sentryDsn: 'https://abc@sentry.io/123',
+      googleMapsApiKey: '',
+      authResetRedirectUrl: '',
+      firebaseApiKey: '',
+      firebaseProjectId: '',
+      firebaseMessagingSenderId: '',
+      firebaseAppId: '',
+    );
       expect(config.hasSentry, true);
     });
 
     test('hasGoogleMaps returns false for empty key', () {
-      const config = AppConfig(
-        environment: AppEnvironment.dev,
-        supabaseUrl: '',
-        supabaseAnonKey: '',
-        sentryDsn: '',
-        googleMapsApiKey: '',
-        authResetRedirectUrl: '',
-      );
-      expect(config.hasGoogleMaps, false);
-    });
+    const config = AppConfig(
+      environment: AppEnvironment.dev,
+      supabaseUrl: '',
+      supabaseAnonKey: '',
+      sentryDsn: '',
+      googleMapsApiKey: '',
+      authResetRedirectUrl: '',
+      firebaseApiKey: '',
+      firebaseProjectId: '',
+      firebaseMessagingSenderId: '',
+      firebaseAppId: '',
+    );
+    expect(config.hasGoogleMaps, false);
+  });
 
-    test('toString does not expose secrets', () {
-      const config = AppConfig(
-        environment: AppEnvironment.prod,
-        supabaseUrl: 'https://secret.supabase.co',
-        supabaseAnonKey: 'super-secret-key',
-        sentryDsn: 'https://abc@sentry.io/123',
-        googleMapsApiKey: 'maps-key',
-        authResetRedirectUrl: 'https://example.com/reset',
-      );
+  test('toString does not expose secrets', () {
+    const config = AppConfig(
+      environment: AppEnvironment.prod,
+      supabaseUrl: 'https://secret.supabase.co',
+      supabaseAnonKey: 'super-secret-key',
+      sentryDsn: 'https://abc@sentry.io/123',
+      googleMapsApiKey: 'maps-key',
+      authResetRedirectUrl: 'https://example.com/reset',
+      firebaseApiKey: 'fb-api-key',
+      firebaseProjectId: 'fb-project',
+      firebaseMessagingSenderId: 'fb-sender',
+      firebaseAppId: 'fb-app',
+    );
       final str = config.toString();
       expect(str, contains('AppConfig'));
       expect(str, contains('hasSentry'));

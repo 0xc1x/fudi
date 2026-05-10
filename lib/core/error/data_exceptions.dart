@@ -31,3 +31,8 @@ class CacheException extends DataException {
   const CacheException({super.message = 'Error de caché'})
       : super(code: 'DATA_003', severity: ErrorSeverity.low);
 }
+
+class UnknownDataException extends DataException {
+  const UnknownDataException({required super.message, super.code, super.context, super.severity})
+      : super(feature: 'data');
+}

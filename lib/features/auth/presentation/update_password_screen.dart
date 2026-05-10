@@ -24,7 +24,7 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(authSessionNotifierProvider).clearPasswordRecoveryFlag();
+      ref.read(authSessionNotifierProvider.notifier).clearPasswordRecoveryFlag();
     });
   }
 

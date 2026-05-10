@@ -3,11 +3,17 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app_environment.dart';
 
 /// Central application configuration loaded from environment-specific
-/// .env files via flutter_dotenv.
+/// .env files via flutter_dotenv, with fallback to `--dart-define`
+/// compile-time constants.
+///
+/// Resolution order per key:
+/// 1. dotenv.env (from .env file)
+/// 2. String.fromEnvironment (from --dart-define)
+/// 3. Empty string fallback
 ///
 /// Usage:
-///   final config = AppConfig.fromEnv(AppEnvironment.dev);
-///   print(config.supabaseUrl);
+/// final config = AppConfig.fromEnv(AppEnvironment.dev);
+/// print(config.supabaseUrl);
 class AppConfig {
   final AppEnvironment environment;
   final String supabaseUrl;
@@ -40,15 +46,15 @@ class AppConfig {
   factory AppConfig.fromEnv(AppEnvironment env) {
     return AppConfig(
       environment: env,
-      supabaseUrl: dotenv.env['SUPABASE_URL'] ?? '',
-      supabaseAnonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
-      sentryDsn: dotenv.env['SENTRY_DSN'] ?? '',
-      googleMapsApiKey: dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '',
-      authResetRedirectUrl: dotenv.env['AUTH_RESET_REDIRECT_URL'] ?? '',
-      firebaseApiKey: dotenv.env['FIREBASE_API_KEY'] ?? '',
-      firebaseProjectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? '',
-      firebaseMessagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
-      firebaseAppId: dotenv.env['FIREBASE_APP_ID'] ?? '',
+      supabaseUrl: _resolveAny(['SUPABASE_URL', 'SUPABASE_PROJECT_URL']),
+      supabaseAnonKey: _resolve('SUPABASE_ANON_KEY'),
+      sentryDsn: _resolve('SENTRY_DSN'),
+      googleMapsApiKey: _resolve('GOOGLE_MAPS_API_KEY'),
+      authResetRedirectUrl: _resolve('AUTH_RESET_REDIRECT_URL'),
+      firebaseApiKey: _resolve('FIREBASE_API_KEY'),
+      firebaseProjectId: _resolve('FIREBASE_PROJECT_ID'),
+      firebaseMessagingSenderId: _resolve('FIREBASE_MESSAGING_SENDER_ID'),
+      firebaseAppId: _resolve('FIREBASE_APP_ID'),
     );
   }
 
@@ -77,3 +83,29 @@ class AppConfig {
         ')';
   }
 }
+
+String _resolve(String key) {
+  final fromDotenv = dotenv.env[key];
+  if (fromDotenv != null && fromDotenv.isNotEmpty) return fromDotenv;
+  return _dartDefine[key] ?? '';
+}
+
+String _resolveAny(List<String> keys) {
+  for (final key in keys) {
+    final value = _resolve(key);
+    if (value.isNotEmpty) return value;
+  }
+  return '';
+}
+
+const _dartDefine = {
+  'SUPABASE_URL': String.fromEnvironment('SUPABASE_URL', defaultValue: ''),
+  'SUPABASE_ANON_KEY': String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: ''),
+  'SENTRY_DSN': String.fromEnvironment('SENTRY_DSN', defaultValue: ''),
+  'GOOGLE_MAPS_API_KEY': String.fromEnvironment('GOOGLE_MAPS_API_KEY', defaultValue: ''),
+  'AUTH_RESET_REDIRECT_URL': String.fromEnvironment('AUTH_RESET_REDIRECT_URL', defaultValue: ''),
+  'FIREBASE_API_KEY': String.fromEnvironment('FIREBASE_API_KEY', defaultValue: ''),
+  'FIREBASE_PROJECT_ID': String.fromEnvironment('FIREBASE_PROJECT_ID', defaultValue: ''),
+  'FIREBASE_MESSAGING_SENDER_ID': String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID', defaultValue: ''),
+  'FIREBASE_APP_ID': String.fromEnvironment('FIREBASE_APP_ID', defaultValue: ''),
+};

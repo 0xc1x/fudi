@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -67,15 +66,19 @@ final config = AppConfig.fromEnv(environment);
 
 /// Loads the .env file for the given [environment].
 ///
-/// Resolution order:
-/// 1. Asset bundle (works for compiled apps where .env was bundled)
-/// 2. Filesystem relative path (works during development)
-/// 3. Fallback to `.env.dev` if the target env file is missing
+/// On web: only `.env.dev` is bundled as an asset. Other environments
+/// must provide credentials via `--dart-define` compile-time constants.
 ///
-/// This ensures the app doesn't crash on a fresh clone where only
-/// `.env.dev` exists — other env files are only required when
-/// actually targeting those environments.
+/// On native: tries the target env file first, then falls back to
+/// `.env.dev`. In debug mode, silently skips if no file is found.
+///
+/// On web in non-dev environments: skips dotenv entirely and relies
+/// on `--dart-define` constants (AppConfig.fromEnv reads those too).
 Future<void> _loadEnv(AppEnvironment environment) async {
+  if (kIsWeb && environment != AppEnvironment.dev) {
+    return;
+  }
+
   final fileName = environment.envFileName;
 
   try {
@@ -90,7 +93,7 @@ Future<void> _loadEnv(AppEnvironment environment) async {
     } catch (_) {}
   }
 
-  if (Platform.environment.containsKey('FLUTTER_TEST')) {
+  if (kDebugMode) {
     return;
   }
 
