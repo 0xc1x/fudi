@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../core/ui/cards/deal_card.dart';
 import '../../../core/ui/fudi_colors.dart';
@@ -9,6 +10,7 @@ import '../../../core/ui/fudi_typography.dart';
 import '../../offers/domain/offer.dart';
 import '../../offers/presentation/offer_providers.dart';
 import 'fudi_filters.dart';
+import 'map_view.dart';
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
@@ -21,6 +23,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   final _searchController = TextEditingController();
   FudiFilterState _filters = const FudiFilterState();
   bool _searchActive = false;
+  bool _viewModeMap = false;
 
   @override
   void dispose() {
@@ -30,6 +33,14 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_viewModeMap) {
+      return ExploreMapView(
+        onBack: _toggleViewMode,
+        filters: _filters,
+        onFiltersChanged: _applyFilters,
+      );
+    }
+
     final offersAsync = ref.watch(filteredOffersProvider);
 
     return Scaffold(
@@ -56,12 +67,17 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             centerTitle: !_searchActive,
             backgroundColor: FudiColors.background,
             surfaceTintColor: Colors.transparent,
-            actions: [
-              IconButton(
-                icon: Icon(_searchActive ? Icons.close : Icons.search),
-                onPressed: _toggleSearch,
-              ),
-              IconButton(
+        actions: [
+          IconButton(
+            icon: Icon(_searchActive ? Icons.close : Icons.search),
+            onPressed: _toggleSearch,
+          ),
+          IconButton(
+            icon: const Icon(Icons.map_outlined),
+            tooltip: 'Ver mapa',
+            onPressed: _toggleViewMode,
+          ),
+          IconButton(
                 icon: Badge(
                   isLabelVisible: _filters.hasActiveFilters,
                   child: const Icon(Icons.tune),
@@ -166,6 +182,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
         }
       }
     });
+  }
+
+  void _toggleViewMode() {
+    setState(() => _viewModeMap = !_viewModeMap);
   }
 
   void _submitSearch(String query) {
@@ -371,11 +391,40 @@ class _DealCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Card(
-      child: SizedBox(
-        height: 120,
-        child: Center(
-          child: CircularProgressIndicator(strokeWidth: 2),
+    return Shimmer.fromColors(
+      baseColor: FudiColors.muted,
+      highlightColor: Colors.white,
+      child: Material(
+        color: FudiColors.muted,
+        borderRadius: BorderRadius.circular(FudiRadius.xl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(height: 180, color: FudiColors.muted),
+            const Padding(
+              padding: EdgeInsets.all(FudiSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 14, width: 160, child: DecoratedBox(decoration: BoxDecoration(color: FudiColors.muted))),
+                  SizedBox(height: 8),
+                  SizedBox(height: 10, width: 100, child: DecoratedBox(decoration: BoxDecoration(color: FudiColors.muted))),
+                  SizedBox(height: 12),
+                  SizedBox(height: 10, width: 200, child: DecoratedBox(decoration: BoxDecoration(color: FudiColors.muted))),
+                  SizedBox(height: 12),
+                  SizedBox(height: 1, child: DecoratedBox(decoration: BoxDecoration(color: FudiColors.muted))),
+                  SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(height: 14, width: 80, child: DecoratedBox(decoration: BoxDecoration(color: FudiColors.muted))),
+                      SizedBox(height: 32, width: 90, child: DecoratedBox(decoration: BoxDecoration(color: FudiColors.muted))),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

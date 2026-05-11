@@ -52,11 +52,14 @@ class SupabaseOrderRepository implements OrderRepository {
       final message = result['message'] as String? ?? 'Error al reservar';
 
       return ReservationFailure(errorCode: errorCode, message: message);
-    } on BusinessRuleException {
-      rethrow;
-    } catch (e) {
-      throw UnknownDataException(message: 'Error al procesar la reserva');
-    }
+  } on BusinessRuleException {
+    rethrow;
+  } catch (e, st) {
+    throw UnknownDataException(
+      message: 'Error al procesar la reserva',
+      context: {'originalError': e.toString(), 'stackTrace': st.toString()},
+    );
+  }
   }
 
   @override

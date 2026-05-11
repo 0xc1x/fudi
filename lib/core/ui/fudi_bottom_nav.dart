@@ -5,6 +5,7 @@ import '../../features/auth/domain/app_mode.dart';
 import '../../features/auth/presentation/app_mode_provider.dart';
 import '../routing/route_names.dart';
 import 'fudi_colors.dart';
+import 'fudi_icons.dart';
 import 'fudi_spacing.dart';
 
 /// Navegación inferior de Fudi.
@@ -102,9 +103,9 @@ class FudiBottomNav extends ConsumerWidget {
   // ─── Consumer Tabs (3) ────────────────────────────────────────
 
   static const _consumerItems = [
-    _NavItem(label: 'Inicio', icon: Icons.home_rounded),
-    _NavItem(label: 'Explorar', icon: Icons.search_rounded),
-    _NavItem(label: 'Perfil', icon: Icons.person_rounded),
+    _NavItem(label: 'Inicio', icon: FudiIcons.home),
+    _NavItem(label: 'Explorar', icon: FudiIcons.search),
+    _NavItem(label: 'Perfil', icon: FudiIcons.user),
   ];
 
   static const _consumerRoutes = [
@@ -116,9 +117,9 @@ class FudiBottomNav extends ConsumerWidget {
   // ─── Business Tabs (3) ────────────────────────────────────────
 
   static const _businessItems = [
-    _NavItem(label: 'Productos', icon: Icons.inventory_2_outlined),
-    _NavItem(label: 'Pedidos', icon: Icons.shopping_bag_outlined),
-    _NavItem(label: 'Gestión', icon: Icons.apartment_rounded),
+    _NavItem(label: 'Productos', icon: FudiIcons.package_),
+    _NavItem(label: 'Pedidos', icon: FudiIcons.shoppingBag),
+    _NavItem(label: 'Gestión', icon: FudiIcons.building2),
   ];
 
   static const _businessRoutes = [
