@@ -113,7 +113,7 @@ class _OrderList extends ConsumerWidget {
       child: ListView.separated(
         padding: const EdgeInsets.all(FudiSpacing.lg),
         itemCount: orders.length,
-        separatorBuilder: (_, __) => const SizedBox(height: FudiSpacing.md),
+        separatorBuilder: (_, _) => const SizedBox(height: FudiSpacing.md),
         itemBuilder: (context, index) {
           final order = orders[index];
           return OrderCard(

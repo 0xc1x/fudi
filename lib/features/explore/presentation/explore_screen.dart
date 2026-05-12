@@ -129,7 +129,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               ),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
-                  (_, __) => const Padding(
+                  (_, _) => const Padding(
                     padding: EdgeInsets.only(bottom: FudiSpacing.md),
                     child: _DealCardSkeleton(),
                   ),

@@ -440,7 +440,7 @@ class _OrderInfoCard extends StatelessWidget {
                   height: 140,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => Container(
+                  errorWidget: (_, _, _) => Container(
                     height: 140,
                     color: FudiColors.muted,
                     child: const Icon(

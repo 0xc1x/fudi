@@ -15,7 +15,7 @@ class SentryBreadcrumb {
         category: 'navigation',
         message: '$from -> $to',
         level: SentryLevel.info,
-        data: {'from': from, 'to': to, if (role != null) 'role': role},
+        data: {'from': from, 'to': to, 'role': ?role},
       ),
     );
   }
@@ -53,7 +53,7 @@ class SentryBreadcrumb {
         data: {
           'method': method,
           'endpoint': endpoint,
-          if (statusCode != null) 'status_code': statusCode,
+          'status_code': ?statusCode,
           if (duration != null) 'duration_ms': duration.inMilliseconds,
         },
       ),
@@ -75,8 +75,8 @@ class SentryBreadcrumb {
         data: {
           'action': action,
           'order_id': orderId,
-          if (gateway != null) 'gateway': gateway,
-          if (status != null) 'status': status,
+          'gateway': ?gateway,
+          'status': ?status,
         },
       ),
     );

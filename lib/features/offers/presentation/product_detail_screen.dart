@@ -76,7 +76,7 @@ class _OfferDetailContent extends ConsumerWidget {
                   ? CachedNetworkImage(
                       imageUrl: offer.imageUrl!,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => Container(
+                      errorWidget: (_, _, _) => Container(
                         color: FudiColors.muted,
                         child: const Icon(
                           Icons.broken_image_outlined,

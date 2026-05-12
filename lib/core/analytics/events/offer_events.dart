@@ -28,7 +28,7 @@ class OfferListViewedEvent extends AnalyticsEvent {
   Map<String, dynamic> get properties => {
     'source': source,
     'count': count,
-    if (filters != null) 'filters': filters!,
+    'filters': ?filters,
   };
 }
 
@@ -54,7 +54,7 @@ class OfferDetailViewedEvent extends AnalyticsEvent {
     'offer_id': offerId,
     'business_id': businessId,
     'price': price,
-    if (discountPct != null) 'discount_pct': discountPct!,
+    'discount_pct': ?discountPct,
   };
 }
 
@@ -76,7 +76,7 @@ class OfferSearchPerformedEvent extends AnalyticsEvent {
   @override
   Map<String, dynamic> get properties => {
     'query': query,
-    if (category != null) 'category': category!,
+    'category': ?category,
     'results_count': resultsCount,
   };
 }

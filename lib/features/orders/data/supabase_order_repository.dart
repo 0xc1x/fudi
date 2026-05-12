@@ -31,7 +31,7 @@ class SupabaseOrderRepository implements OrderRepository {
         params: {
           'p_user_id': userId,
           'p_offer_id': offerId,
-          if (couponId != null) 'p_coupon_id': couponId,
+          'p_coupon_id': ?couponId,
         },
       );
 

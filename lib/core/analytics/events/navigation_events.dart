@@ -23,8 +23,8 @@ class ScreenViewedEvent extends AnalyticsEvent {
   @override
   Map<String, dynamic> get properties => {
     'screen_name': screenName,
-    if (source != null) 'source': source!,
-    if (role != null) 'role': role!,
+    'source': ?source,
+    'role': ?role,
   };
 }
 

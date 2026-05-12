@@ -47,7 +47,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final hasLocation =
         locationAsync.whenOrNull(
           data: (position) => position != null,
-          error: (_, __) => false,
+          error: (_, _) => false,
         ) ??
         false;
 
@@ -84,7 +84,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             horizontal: FudiSpacing.lg,
                           ),
                           itemCount: offers.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (_, _) =>
                               const SizedBox(width: FudiSpacing.md),
                           itemBuilder: (context, index) {
                             final offer = offers[index];
@@ -136,7 +136,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      (_, __) => const _DealCardSkeleton(),
+                      (_, _) => const _DealCardSkeleton(),
                       childCount: 3,
                     ),
                   ),
@@ -480,7 +480,7 @@ class _CategoryChips extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg),
           itemCount: _categories.length,
-          separatorBuilder: (_, __) => const SizedBox(width: FudiSpacing.sm),
+          separatorBuilder: (_, _) => const SizedBox(width: FudiSpacing.sm),
           itemBuilder: (context, index) {
             final isActive = index == selectedIndex;
             return _CategoryChip(
@@ -694,8 +694,8 @@ class _PopularLoadingSkeleton extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg),
         itemCount: 3,
-        separatorBuilder: (_, __) => const SizedBox(width: FudiSpacing.md),
-        itemBuilder: (_, __) =>
+        separatorBuilder: (_, _) => const SizedBox(width: FudiSpacing.md),
+        itemBuilder: (_, _) =>
             const SizedBox(width: 260, child: _DealCardSkeleton()),
       ),
     );

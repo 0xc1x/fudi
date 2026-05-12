@@ -234,7 +234,7 @@ class _OfferSummary extends StatelessWidget {
                       width: 80,
                       height: 80,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => Container(
+                      errorWidget: (_, _, _) => Container(
                         width: 80,
                         height: 80,
                         color: FudiColors.muted,
