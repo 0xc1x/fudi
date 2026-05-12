@@ -22,9 +22,9 @@ class AuthSessionState {
   });
 
   const AuthSessionState.unauthenticated()
-      : session = null,
-        profile = null,
-        fallbackRole = UserRole.user;
+    : session = null,
+      profile = null,
+      fallbackRole = UserRole.user;
 
   final supa.Session? session;
   final UserProfile? profile;
@@ -35,20 +35,14 @@ class AuthSessionState {
 }
 
 class AuthStateChange {
-  const AuthStateChange({
-    required this.event,
-    required this.state,
-  });
+  const AuthStateChange({required this.event, required this.state});
 
   final AuthFlowEvent event;
   final AuthSessionState state;
 }
 
 class SignUpResult {
-  const SignUpResult({
-    required this.requiresEmailConfirmation,
-    this.profile,
-  });
+  const SignUpResult({required this.requiresEmailConfirmation, this.profile});
 
   final bool requiresEmailConfirmation;
   final UserProfile? profile;
@@ -77,9 +71,7 @@ abstract class AuthRepository {
     String? redirectTo,
   });
 
-  Future<void> updatePassword({
-    required String newPassword,
-  });
+  Future<void> updatePassword({required String newPassword});
 
   Future<void> signOut();
 }

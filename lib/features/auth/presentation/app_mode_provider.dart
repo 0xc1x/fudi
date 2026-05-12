@@ -4,10 +4,12 @@ import '../domain/user_profile.dart';
 import 'auth_state_provider.dart';
 
 /// Provider que maneja el modo actual de la aplicación (Consumer vs Business).
-/// 
+///
 /// Por defecto se basa en el rol del usuario autenticado, pero permite
 /// el cambio manual para usuarios con rol de negocio.
-final appModeProvider = NotifierProvider<AppModeNotifier, AppMode>(AppModeNotifier.new);
+final appModeProvider = NotifierProvider<AppModeNotifier, AppMode>(
+  AppModeNotifier.new,
+);
 
 class AppModeNotifier extends Notifier<AppMode> {
   @override

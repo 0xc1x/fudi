@@ -9,7 +9,7 @@ import '../domain/offer_repository.dart';
 
 class SupabaseOfferRepository implements OfferRepository {
   SupabaseOfferRepository({required SupabaseClient supabaseClient})
-      : _supabaseClient = supabaseClient;
+    : _supabaseClient = supabaseClient;
 
   final SupabaseClient _supabaseClient;
 
@@ -49,33 +49,34 @@ class SupabaseOfferRepository implements OfferRepository {
   }) async {
     try {
       final allOffers = await _fetchActiveOffers();
-      final nearby = allOffers.where((offer) {
-        if (offer.business.latitude == null || offer.business.longitude == null) {
-          return false;
-        }
-        final distance = _haversineKm(
-          lat,
-          lng,
-          offer.business.latitude!,
-          offer.business.longitude!,
-        );
-        return distance <= radiusKm;
-      }).toList()
-        ..sort((a, b) {
-          final distA = _haversineKm(
-            lat,
-            lng,
-            a.business.latitude ?? 0,
-            a.business.longitude ?? 0,
-          );
-          final distB = _haversineKm(
-            lat,
-            lng,
-            b.business.latitude ?? 0,
-            b.business.longitude ?? 0,
-          );
-          return distA.compareTo(distB);
-        });
+      final nearby =
+          allOffers.where((offer) {
+            if (offer.business.latitude == null ||
+                offer.business.longitude == null) {
+              return false;
+            }
+            final distance = _haversineKm(
+              lat,
+              lng,
+              offer.business.latitude!,
+              offer.business.longitude!,
+            );
+            return distance <= radiusKm;
+          }).toList()..sort((a, b) {
+            final distA = _haversineKm(
+              lat,
+              lng,
+              a.business.latitude ?? 0,
+              a.business.longitude ?? 0,
+            );
+            final distB = _haversineKm(
+              lat,
+              lng,
+              b.business.latitude ?? 0,
+              b.business.longitude ?? 0,
+            );
+            return distA.compareTo(distB);
+          });
 
       return nearby.take(limit).toList();
     } catch (e) {
@@ -94,17 +95,19 @@ class SupabaseOfferRepository implements OfferRepository {
     String? searchQuery,
   }) async {
     try {
-      var query = _supabaseClient.from('offers').select('''
+      var query = _supabaseClient
+          .from('offers')
+          .select('''
           id, business_id, title, description, image, category,
           original_price, discounted_price, rating, stock, initial_stock,
           pickup_start, pickup_end, is_active,
           businesses:business_id (
             id, name, type, image, latitude, longitude, rating, address
           )
-        ''').eq('is_active', true).gt('stock', 0).gt(
-          'pickup_end',
-          DateTime.now().toUtc().toIso8601String(),
-        );
+        ''')
+          .eq('is_active', true)
+          .gt('stock', 0)
+          .gt('pickup_end', DateTime.now().toUtc().toIso8601String());
 
       if (category != null && category.isNotEmpty) {
         query = query.eq('category', category);
@@ -116,20 +119,26 @@ class SupabaseOfferRepository implements OfferRepository {
         query = query.ilike('title', '%$searchQuery%');
       }
 
-      final response = await query.order('rating', ascending: false, nullsFirst: false);
+      final response = await query.order(
+        'rating',
+        ascending: false,
+        nullsFirst: false,
+      );
       var offers = response.map(_mapOfferFromJson).toList();
 
       if (maxDistanceKm != null) {
         offers = offers.where((offer) {
-          if (offer.business.latitude == null || offer.business.longitude == null) {
+          if (offer.business.latitude == null ||
+              offer.business.longitude == null) {
             return false;
           }
           return _haversineKm(
-            lat,
-            lng,
-            offer.business.latitude!,
-            offer.business.longitude!,
-          ) <= maxDistanceKm;
+                lat,
+                lng,
+                offer.business.latitude!,
+                offer.business.longitude!,
+              ) <=
+              maxDistanceKm;
         }).toList();
       }
 
@@ -175,11 +184,11 @@ class SupabaseOfferRepository implements OfferRepository {
         .stream(primaryKey: ['id'])
         .eq('id', id)
         .map((events) {
-      if (events.isEmpty) {
-        throw const OfferUnavailableException();
-      }
-      return _mapOfferFromJson(events.first);
-    });
+          if (events.isEmpty) {
+            throw const OfferUnavailableException();
+          }
+          return _mapOfferFromJson(events.first);
+        });
   }
 
   Future<List<Offer>> _fetchActiveOffers() async {
@@ -243,7 +252,8 @@ class SupabaseOfferRepository implements OfferRepository {
   double _haversineKm(double lat1, double lng1, double lat2, double lng2) {
     final dLat = _toRad(lat2 - lat1);
     final dLng = _toRad(lng2 - lng1);
-    final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+    final a =
+        math.sin(dLat / 2) * math.sin(dLat / 2) +
         math.cos(_toRad(lat1)) *
             math.cos(_toRad(lat2)) *
             math.sin(dLng / 2) *

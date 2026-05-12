@@ -112,10 +112,20 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (color, textColor) = switch (_orderStatus) {
-      OrderStatus.completed => (const Color(0xFFDCFCE7), const Color(0xFF166534)),
-      OrderStatus.readyForPickup => (const Color(0xFFFEF9C3), const Color(0xFF854D0E)),
-      OrderStatus.cancelled || OrderStatus.expired => (const Color(0xFFFEE2E2), const Color(0xFF991B1B)),
-      OrderStatus.confirmed => (FudiColors.secondary, FudiColors.secondaryForeground),
+      OrderStatus.completed => (
+        const Color(0xFFDCFCE7),
+        const Color(0xFF166534),
+      ),
+      OrderStatus.readyForPickup => (
+        const Color(0xFFFEF9C3),
+        const Color(0xFF854D0E),
+      ),
+      OrderStatus.cancelled ||
+      OrderStatus.expired => (const Color(0xFFFEE2E2), const Color(0xFF991B1B)),
+      OrderStatus.confirmed => (
+        FudiColors.secondary,
+        FudiColors.secondaryForeground,
+      ),
       _ => (FudiColors.muted, FudiColors.mutedForeground),
     };
 

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'fudi_colors.dart';
 
 /// Fudi Design System Typography
-/// 
+///
 /// Mapping React mockup styles to Flutter TextStyle.
 /// Headings: w500 (Medium) per theme.css.
 class FudiTypography {
   FudiTypography._();
 
   // ─── Headings ─────────────────────────────────────────────────
-  
+
   /// h1 - text-2xl (24px), w500, height 1.5
   static const TextStyle h1 = TextStyle(
     fontSize: 24,
@@ -49,7 +49,7 @@ class FudiTypography {
   static const TextStyle headlineSmall = h3;
 
   // ─── Body ─────────────────────────────────────────────────────
-  
+
   /// Body Large - 16px, w400, height 1.5
   static const TextStyle bodyLarge = TextStyle(
     fontSize: 16,
@@ -73,7 +73,7 @@ class FudiTypography {
   );
 
   // ─── Labels / Interactive ─────────────────────────────────────
-  
+
   /// Label Medium - 16px, w500
   static const TextStyle labelMedium = TextStyle(
     fontSize: 16,

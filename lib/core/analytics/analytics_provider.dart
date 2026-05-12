@@ -8,10 +8,7 @@ import 'trackers/firebase_tracker.dart';
 import 'trackers/mixpanel_tracker.dart';
 
 final analyticsServiceProvider = Provider<AnalyticsService>((ref) {
-  final trackers = <AnalyticsTracker>[
-    FirebaseTracker(),
-    MixpanelTracker(),
-  ];
+  final trackers = <AnalyticsTracker>[FirebaseTracker(), MixpanelTracker()];
 
   return AnalyticsService(trackers: trackers);
 });

@@ -4,8 +4,8 @@ import 'fudi_typography.dart';
 import 'fudi_spacing.dart';
 
 /// Central theme configuration for Fudi.
-/// 
-/// Integrates [FudiColors], [FudiTypography], and [FudiSpacing] 
+///
+/// Integrates [FudiColors], [FudiTypography], and [FudiSpacing]
 /// into Material 3 [ThemeData].
 class FudiTheme {
   FudiTheme._();
@@ -100,8 +100,12 @@ class FudiTheme {
       ),
       scaffoldBackgroundColor: FudiColorsDark.background,
       textTheme: TextTheme(
-        bodyLarge: FudiTypography.bodyLarge.copyWith(color: FudiColorsDark.foreground),
-        bodyMedium: FudiTypography.bodyMedium.copyWith(color: FudiColorsDark.foreground),
+        bodyLarge: FudiTypography.bodyLarge.copyWith(
+          color: FudiColorsDark.foreground,
+        ),
+        bodyMedium: FudiTypography.bodyMedium.copyWith(
+          color: FudiColorsDark.foreground,
+        ),
       ),
     );
   }

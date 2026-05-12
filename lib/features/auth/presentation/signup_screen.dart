@@ -36,7 +36,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     try {
-      final result = await ref.read(authControllerProvider.notifier).signUp(
+      final result = await ref
+          .read(authControllerProvider.notifier)
+          .signUp(
             fullName: _fullNameController.text.trim(),
             email: _emailController.text.trim(),
             password: _passwordController.text,
@@ -49,7 +51,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       if (result.requiresEmailConfirmation) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Cuenta creada. Revisa tu correo para confirmar el registro.'),
+            content: Text(
+              'Cuenta creada. Revisa tu correo para confirmar el registro.',
+            ),
           ),
         );
         context.go(RouteNames.loginPath);
@@ -65,9 +69,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       final message = error is FudiException
           ? error.userMessage()
           : 'No pudimos crear tu cuenta. Intenta de nuevo.';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
@@ -150,8 +154,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-      DropdownButtonFormField<UserRole>(
-        value: _selectedRole,
+                    DropdownButtonFormField<UserRole>(
+                      initialValue: _selectedRole,
                       decoration: const InputDecoration(
                         labelText: 'Tipo de cuenta',
                         border: OutlineInputBorder(),
@@ -180,14 +184,20 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       onChanged: isLoading
                           ? null
                           : (value) {
-                              setState(() => _analyticsConsentGranted = value ?? false);
+                              setState(
+                                () => _analyticsConsentGranted = value ?? false,
+                              );
                             },
-                      title: const Text('Acepto analytics para mejorar la experiencia'),
+                      title: const Text(
+                        'Acepto analytics para mejorar la experiencia',
+                      ),
                     ),
                     const SizedBox(height: 8),
                     FilledButton(
                       onPressed: isLoading ? null : _submit,
-                      child: Text(isLoading ? 'Creando cuenta...' : 'Crear cuenta'),
+                      child: Text(
+                        isLoading ? 'Creando cuenta...' : 'Crear cuenta',
+                      ),
                     ),
                     const SizedBox(height: 16),
                     TextButton(

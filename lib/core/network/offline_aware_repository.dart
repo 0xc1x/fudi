@@ -28,8 +28,16 @@ class OfflineResult<T> {
   factory OfflineResult.fresh(T data) => OfflineResult(data: data);
 
   /// Data from cache, possibly stale.
-  factory OfflineResult.cached(T data, {bool isStale = false, DateTime? cachedAt}) =>
-      OfflineResult(data: data, fromCache: true, isStale: isStale, cachedAt: cachedAt);
+  factory OfflineResult.cached(
+    T data, {
+    bool isStale = false,
+    DateTime? cachedAt,
+  }) => OfflineResult(
+    data: data,
+    fromCache: true,
+    isStale: isStale,
+    cachedAt: cachedAt,
+  );
 }
 
 /// Stale-while-revalidate repository pattern.
@@ -60,8 +68,8 @@ class OfflineAwareRepository {
   OfflineAwareRepository({
     required InternetConnection connectivity,
     FlutterSecureStorage? secureStorage,
-  })  : _connectivity = connectivity,
-        _secureStorage = secureStorage ?? const FlutterSecureStorage();
+  }) : _connectivity = connectivity,
+       _secureStorage = secureStorage ?? const FlutterSecureStorage();
 
   /// Executes an operation with offline-aware caching.
   ///
@@ -121,7 +129,11 @@ class OfflineAwareRepository {
     final isOnline = await _connectivity.hasInternetAccess;
 
     // Try cache first — return immediately if available
-    final cached = await _tryReadFromCache(cacheKey, deserializer, maxStaleness);
+    final cached = await _tryReadFromCache(
+      cacheKey,
+      deserializer,
+      maxStaleness,
+    );
     if (cached != null) {
       // Kick off background refresh if online
       if (isOnline) {
@@ -187,7 +199,11 @@ class OfflineAwareRepository {
     T Function(Map<String, dynamic>) deserializer,
     Duration maxStaleness,
   ) async {
-    final cached = await _tryReadFromCache(cacheKey, deserializer, maxStaleness);
+    final cached = await _tryReadFromCache(
+      cacheKey,
+      deserializer,
+      maxStaleness,
+    );
     if (cached != null) return cached;
     throw const CacheException(message: 'No hay datos en caché');
   }
@@ -201,12 +217,18 @@ class OfflineAwareRepository {
       final raw = await _secureStorage.read(key: _storageKey(cacheKey));
       if (raw == null) return null;
 
-      final entry = _CacheEntry.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+      final entry = _CacheEntry.fromJson(
+        jsonDecode(raw) as Map<String, dynamic>,
+      );
       final data = deserializer(entry.data);
       final age = DateTime.now().difference(entry.cachedAt);
       final isStale = age > maxStaleness;
 
-      return OfflineResult.cached(data, isStale: isStale, cachedAt: entry.cachedAt);
+      return OfflineResult.cached(
+        data,
+        isStale: isStale,
+        cachedAt: entry.cachedAt,
+      );
     } on Exception {
       return null;
     }
@@ -219,12 +241,14 @@ class OfflineAwareRepository {
     void Function(T) onRefreshed,
   ) {
     // Fire and forget — errors are silently swallowed
-    remote().then((freshData) async {
-      await _saveToCache(cacheKey, freshData, serializer);
-      onRefreshed(freshData);
-    }).catchError((_) {
-      // Background refresh failure is non-fatal
-    });
+    remote()
+        .then((freshData) async {
+          await _saveToCache(cacheKey, freshData, serializer);
+          onRefreshed(freshData);
+        })
+        .catchError((_) {
+          // Background refresh failure is non-fatal
+        });
   }
 
   String _storageKey(String cacheKey) => 'fudi_cache_$cacheKey';
@@ -252,7 +276,5 @@ class _CacheEntry {
 ///
 /// Depends on [InternetConnection] for connectivity checks.
 final offlineAwareRepositoryProvider = Provider<OfflineAwareRepository>((ref) {
-  return OfflineAwareRepository(
-    connectivity: InternetConnection(),
-  );
+  return OfflineAwareRepository(connectivity: InternetConnection());
 });

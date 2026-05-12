@@ -15,21 +15,17 @@ class ScreenViewedEvent extends AnalyticsEvent {
   /// Active role when the screen was viewed: user, business, admin, guest.
   final String? role;
 
-  ScreenViewedEvent({
-    required this.screenName,
-    this.source,
-    this.role,
-  });
+  ScreenViewedEvent({required this.screenName, this.source, this.role});
 
   @override
   String get name => 'screen_viewed';
 
   @override
   Map<String, dynamic> get properties => {
-        'screen_name': screenName,
-        if (source != null) 'source': source!,
-        if (role != null) 'role': role!,
-      };
+    'screen_name': screenName,
+    if (source != null) 'source': source!,
+    if (role != null) 'role': role!,
+  };
 }
 
 /// A bottom navigation tab was tapped.
@@ -44,7 +40,7 @@ class BottomNavTappedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'tab_index': tabIndex,
-        'tab_name': tabName,
-      };
+    'tab_index': tabIndex,
+    'tab_name': tabName,
+  };
 }

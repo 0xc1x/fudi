@@ -32,9 +32,9 @@ class AuthLoginCompletedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'method': method.name,
-        'is_new_user': isNewUser,
-      };
+    'method': method.name,
+    'is_new_user': isNewUser,
+  };
 }
 
 /// Login failed.
@@ -49,9 +49,9 @@ class AuthLoginFailedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'method': method.name,
-        'error_type': errorType,
-      };
+    'method': method.name,
+    'error_type': errorType,
+  };
 }
 
 /// Signup completed successfully.
@@ -65,10 +65,7 @@ class AuthSignupCompletedEvent extends AnalyticsEvent {
   String get name => 'auth_signup_completed';
 
   @override
-  Map<String, dynamic> get properties => {
-        'method': method.name,
-        'role': role,
-      };
+  Map<String, dynamic> get properties => {'method': method.name, 'role': role};
 }
 
 /// User logged out.

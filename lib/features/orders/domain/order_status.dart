@@ -87,6 +87,5 @@ enum OrderStatus {
       this == OrderStatus.cancelled ||
       this == OrderStatus.expired;
 
-  bool get isActive =>
-      !isTerminal;
+  bool get isActive => !isTerminal;
 }

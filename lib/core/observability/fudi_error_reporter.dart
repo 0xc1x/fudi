@@ -36,9 +36,6 @@ class FudiErrorReporter {
     SentryLevel level = SentryLevel.warning,
     String? category,
   }) async {
-    Sentry.captureMessage(
-      message,
-      level: level,
-    );
+    Sentry.captureMessage(message, level: level);
   }
 }

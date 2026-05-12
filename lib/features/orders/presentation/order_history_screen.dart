@@ -39,8 +39,16 @@ class OrderHistoryScreen extends ConsumerWidget {
             final past = orders.where((o) => o.status.isTerminal).toList();
             return TabBarView(
               children: [
-                _OrderList(orders: active, emptyIcon: Icons.shopping_bag_outlined, emptyMessage: 'No tienes pedidos activos'),
-                _OrderList(orders: past, emptyIcon: Icons.history, emptyMessage: 'No tienes pedidos pasados'),
+                _OrderList(
+                  orders: active,
+                  emptyIcon: Icons.shopping_bag_outlined,
+                  emptyMessage: 'No tienes pedidos activos',
+                ),
+                _OrderList(
+                  orders: past,
+                  emptyIcon: Icons.history,
+                  emptyMessage: 'No tienes pedidos pasados',
+                ),
               ],
             );
           },
@@ -49,12 +57,20 @@ class OrderHistoryScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline, size: 48, color: FudiColors.destructive),
+                const Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: FudiColors.destructive,
+                ),
                 const SizedBox(height: FudiSpacing.md),
-                Text('Error al cargar pedidos', style: FudiTypography.bodyMedium),
+                Text(
+                  'Error al cargar pedidos',
+                  style: FudiTypography.bodyMedium,
+                ),
                 const SizedBox(height: FudiSpacing.md),
                 FilledButton(
-                  onPressed: () => ref.read(userOrdersProvider.notifier).refresh(),
+                  onPressed: () =>
+                      ref.read(userOrdersProvider.notifier).refresh(),
                   child: const Text('Reintentar'),
                 ),
               ],

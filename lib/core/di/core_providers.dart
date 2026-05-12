@@ -62,7 +62,5 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 /// Uses InternetConnection for connectivity checks and
 /// FlutterSecureStorage for cache storage.
 final offlineAwareRepositoryProvider = Provider<OfflineAwareRepository>((ref) {
-  return OfflineAwareRepository(
-    connectivity: InternetConnection(),
-  );
+  return OfflineAwareRepository(connectivity: InternetConnection());
 });

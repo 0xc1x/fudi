@@ -68,11 +68,20 @@ void main() {
       test('business detail routes include parameter', () {
         expect(RouteNames.businessOrderDetailPath, '/business/orders/:id');
         expect(RouteNames.businessProductDetailPath, '/business/products/:id');
-        expect(RouteNames.businessProductEditPath, '/business/products/:id/edit');
+        expect(
+          RouteNames.businessProductEditPath,
+          '/business/products/:id/edit',
+        );
         expect(RouteNames.businessPaymentDetailPath, '/business/payments/:id');
         expect(RouteNames.businessCouponEditPath, '/business/coupons/:id/edit');
-        expect(RouteNames.businessLocationDetailPath, '/business/locations/:id');
-        expect(RouteNames.businessLocationEditPath, '/business/locations/:id/edit');
+        expect(
+          RouteNames.businessLocationDetailPath,
+          '/business/locations/:id',
+        );
+        expect(
+          RouteNames.businessLocationEditPath,
+          '/business/locations/:id/edit',
+        );
       });
     });
 
@@ -91,41 +100,77 @@ void main() {
     group('completeness', () {
       test('every name has a corresponding path', () {
         final names = [
-          RouteNames.login, RouteNames.signup,
-          RouteNames.home, RouteNames.explore, RouteNames.product,
-          RouteNames.checkout, RouteNames.reviewOrder, RouteNames.orders,
-          RouteNames.orderDetail, RouteNames.favorites,
-          RouteNames.paymentMethods, RouteNames.savedAddresses,
-          RouteNames.profile, RouteNames.profileEdit,
-          RouteNames.profileNotifications, RouteNames.profileSettings,
-          RouteNames.business, RouteNames.businessOrders,
-          RouteNames.businessProducts, RouteNames.businessStatistics,
-          RouteNames.businessPayments, RouteNames.businessCoupons,
-          RouteNames.businessLocations, RouteNames.businessNotifications,
-          RouteNames.businessEdit, RouteNames.businessProfile,
+          RouteNames.login,
+          RouteNames.signup,
+          RouteNames.home,
+          RouteNames.explore,
+          RouteNames.product,
+          RouteNames.checkout,
+          RouteNames.reviewOrder,
+          RouteNames.orders,
+          RouteNames.orderDetail,
+          RouteNames.favorites,
+          RouteNames.paymentMethods,
+          RouteNames.savedAddresses,
+          RouteNames.profile,
+          RouteNames.profileEdit,
+          RouteNames.profileNotifications,
+          RouteNames.profileSettings,
+          RouteNames.business,
+          RouteNames.businessOrders,
+          RouteNames.businessProducts,
+          RouteNames.businessStatistics,
+          RouteNames.businessPayments,
+          RouteNames.businessCoupons,
+          RouteNames.businessLocations,
+          RouteNames.businessNotifications,
+          RouteNames.businessEdit,
+          RouteNames.businessProfile,
           RouteNames.businessHelp,
-          RouteNames.forBusiness, RouteNames.howItWorks,
-          RouteNames.help, RouteNames.about,
-          RouteNames.terms, RouteNames.privacy, RouteNames.landing,
+          RouteNames.forBusiness,
+          RouteNames.howItWorks,
+          RouteNames.help,
+          RouteNames.about,
+          RouteNames.terms,
+          RouteNames.privacy,
+          RouteNames.landing,
         ];
 
         final paths = [
-          RouteNames.loginPath, RouteNames.signupPath,
-          RouteNames.homePath, RouteNames.explorePath, RouteNames.productPath,
-          RouteNames.checkoutPath, RouteNames.reviewOrderPath, RouteNames.ordersPath,
-          RouteNames.orderDetailPath, RouteNames.favoritesPath,
-          RouteNames.paymentMethodsPath, RouteNames.savedAddressesPath,
-          RouteNames.profilePath, RouteNames.profileEditPath,
-          RouteNames.profileNotificationsPath, RouteNames.profileSettingsPath,
-          RouteNames.businessPath, RouteNames.businessOrdersPath,
-          RouteNames.businessProductsPath, RouteNames.businessStatisticsPath,
-          RouteNames.businessPaymentsPath, RouteNames.businessCouponsPath,
-          RouteNames.businessLocationsPath, RouteNames.businessNotificationsPath,
-          RouteNames.businessEditPath, RouteNames.businessProfilePath,
+          RouteNames.loginPath,
+          RouteNames.signupPath,
+          RouteNames.homePath,
+          RouteNames.explorePath,
+          RouteNames.productPath,
+          RouteNames.checkoutPath,
+          RouteNames.reviewOrderPath,
+          RouteNames.ordersPath,
+          RouteNames.orderDetailPath,
+          RouteNames.favoritesPath,
+          RouteNames.paymentMethodsPath,
+          RouteNames.savedAddressesPath,
+          RouteNames.profilePath,
+          RouteNames.profileEditPath,
+          RouteNames.profileNotificationsPath,
+          RouteNames.profileSettingsPath,
+          RouteNames.businessPath,
+          RouteNames.businessOrdersPath,
+          RouteNames.businessProductsPath,
+          RouteNames.businessStatisticsPath,
+          RouteNames.businessPaymentsPath,
+          RouteNames.businessCouponsPath,
+          RouteNames.businessLocationsPath,
+          RouteNames.businessNotificationsPath,
+          RouteNames.businessEditPath,
+          RouteNames.businessProfilePath,
           RouteNames.businessHelpPath,
-          RouteNames.forBusinessPath, RouteNames.howItWorksPath,
-          RouteNames.helpPath, RouteNames.aboutPath,
-          RouteNames.termsPath, RouteNames.privacyPath, RouteNames.landingPath,
+          RouteNames.forBusinessPath,
+          RouteNames.howItWorksPath,
+          RouteNames.helpPath,
+          RouteNames.aboutPath,
+          RouteNames.termsPath,
+          RouteNames.privacyPath,
+          RouteNames.landingPath,
         ];
 
         expect(names.length, paths.length);

@@ -30,7 +30,7 @@ class AnalyticsService {
   bool _consentGranted = false;
 
   AnalyticsService({required List<AnalyticsTracker> trackers})
-      : _trackers = trackers;
+    : _trackers = trackers;
 
   /// Whether the user has granted analytics consent.
   bool get consentGranted => _consentGranted;
@@ -117,15 +117,16 @@ class AnalyticsService {
     String? source,
     String? role,
   }) {
-    return track(ScreenViewedEvent(
-      screenName: screenName,
-      source: source,
-      role: role,
-    ));
+    return track(
+      ScreenViewedEvent(screenName: screenName, source: source, role: role),
+    );
   }
 
   /// Tracks a bottom nav tap event.
-  Future<void> trackBottomNavTap({required int tabIndex, required String tabName}) {
+  Future<void> trackBottomNavTap({
+    required int tabIndex,
+    required String tabName,
+  }) {
     return track(BottomNavTappedEvent(tabIndex: tabIndex, tabName: tabName));
   }
 

@@ -40,5 +40,6 @@ abstract class FudiException implements Exception {
   });
 
   @override
-  String toString() => 'FudiException(code: $code, severity: $severity, feature: $feature, message: $message)';
+  String toString() =>
+      'FudiException(code: $code, severity: $severity, feature: $feature, message: $message)';
 }

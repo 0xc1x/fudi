@@ -189,7 +189,9 @@ void main() {
     group('error resilience', () {
       test('failing tracker does not crash the service', () async {
         final failingTracker = _FailingTracker();
-        final resilientService = AnalyticsService(trackers: [failingTracker, tracker]);
+        final resilientService = AnalyticsService(
+          trackers: [failingTracker, tracker],
+        );
         resilientService.setConsent(true);
 
         await resilientService.track(AuthLogoutEvent());
@@ -198,7 +200,9 @@ void main() {
 
       test('failing setUserId does not crash the service', () async {
         final failingTracker = _FailingTracker();
-        final resilientService = AnalyticsService(trackers: [failingTracker, tracker]);
+        final resilientService = AnalyticsService(
+          trackers: [failingTracker, tracker],
+        );
         resilientService.setConsent(true);
 
         await resilientService.setUserId('user-123');
@@ -216,19 +220,28 @@ void main() {
       });
 
       test('AuthLoginCompletedEvent includes isNewUser', () {
-        final event = AuthLoginCompletedEvent(method: AuthMethod.google, isNewUser: true);
+        final event = AuthLoginCompletedEvent(
+          method: AuthMethod.google,
+          isNewUser: true,
+        );
         expect(event.name, 'auth_login_completed');
         expect(event.properties['method'], 'google');
         expect(event.properties['is_new_user'], true);
       });
 
       test('AuthLoginFailedEvent includes errorType', () {
-        final event = AuthLoginFailedEvent(method: AuthMethod.apple, errorType: 'network');
+        final event = AuthLoginFailedEvent(
+          method: AuthMethod.apple,
+          errorType: 'network',
+        );
         expect(event.properties['error_type'], 'network');
       });
 
       test('AuthSignupCompletedEvent includes role', () {
-        final event = AuthSignupCompletedEvent(method: AuthMethod.email, role: 'business');
+        final event = AuthSignupCompletedEvent(
+          method: AuthMethod.email,
+          role: 'business',
+        );
         expect(event.properties['role'], 'business');
       });
 
@@ -263,14 +276,20 @@ void main() {
 
       test('OfferDetailViewedEvent includes price', () {
         final event = OfferDetailViewedEvent(
-          offerId: 'o1', businessId: 'b1', price: 15000, discountPct: 30.0,
+          offerId: 'o1',
+          businessId: 'b1',
+          price: 15000,
+          discountPct: 30.0,
         );
         expect(event.properties['price'], 15000);
         expect(event.properties['discount_pct'], 30.0);
       });
 
       test('OfferSearchPerformedEvent has query and results', () {
-        final event = OfferSearchPerformedEvent(query: 'pizza', resultsCount: 5);
+        final event = OfferSearchPerformedEvent(
+          query: 'pizza',
+          resultsCount: 5,
+        );
         expect(event.properties['query'], 'pizza');
         expect(event.properties['results_count'], 5);
       });
@@ -279,14 +298,20 @@ void main() {
     group('OrderEvents', () {
       test('OrderReserveStartedEvent includes amount', () {
         final event = OrderReserveStartedEvent(
-          offerId: 'o1', businessId: 'b1', amount: 15000,
+          offerId: 'o1',
+          businessId: 'b1',
+          amount: 15000,
         );
         expect(event.name, 'order_reserve_started');
         expect(event.properties['amount'], 15000);
       });
 
       test('OrderCancelledEvent includes reason and by', () {
-        final event = OrderCancelledEvent(orderId: 'ord1', reason: 'changed_mind', by: 'user');
+        final event = OrderCancelledEvent(
+          orderId: 'ord1',
+          reason: 'changed_mind',
+          by: 'user',
+        );
         expect(event.properties['reason'], 'changed_mind');
         expect(event.properties['by'], 'user');
       });
@@ -295,7 +320,9 @@ void main() {
     group('PaymentEvents', () {
       test('CheckoutStartedEvent includes amount', () {
         final event = CheckoutStartedEvent(
-          offerId: 'o1', businessId: 'b1', amount: 9.99,
+          offerId: 'o1',
+          businessId: 'b1',
+          amount: 9.99,
         );
         expect(event.name, 'checkout_started');
         expect(event.properties['amount'], 9.99);
@@ -303,7 +330,10 @@ void main() {
 
       test('PaymentCompletedEvent includes gateway', () {
         final event = PaymentCompletedEvent(
-          orderId: 'ord1', amount: 9.99, gateway: 'placetopay', paymentMethod: 'card',
+          orderId: 'ord1',
+          amount: 9.99,
+          gateway: 'placetopay',
+          paymentMethod: 'card',
         );
         expect(event.properties['gateway'], 'placetopay');
       });
@@ -312,7 +342,9 @@ void main() {
     group('BusinessEvents', () {
       test('BusinessOfferCreatedEvent includes price', () {
         final event = BusinessOfferCreatedEvent(
-          businessId: 'b1', offerId: 'o1', price: 25000,
+          businessId: 'b1',
+          offerId: 'o1',
+          price: 25000,
         );
         expect(event.name, 'business_offer_created');
         expect(event.properties['price'], 25000);
@@ -330,8 +362,16 @@ void main() {
         final before = DateTime.now();
         final event = AuthLogoutEvent();
         final after = DateTime.now();
-        expect(event.timestamp.isAfter(before.subtract(const Duration(milliseconds: 1))), true);
-        expect(event.timestamp.isBefore(after.add(const Duration(milliseconds: 1))), true);
+        expect(
+          event.timestamp.isAfter(
+            before.subtract(const Duration(milliseconds: 1)),
+          ),
+          true,
+        );
+        expect(
+          event.timestamp.isBefore(after.add(const Duration(milliseconds: 1))),
+          true,
+        );
       });
     });
   });

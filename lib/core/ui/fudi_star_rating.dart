@@ -35,20 +35,16 @@ class FudiStarRating extends StatelessWidget {
             } else {
               icon = Icons.star_outline_rounded;
             }
-            return Icon(
-              icon,
-              size: size,
-              color: color,
-            );
+            return Icon(icon, size: size, color: color);
           }),
         ),
         if (showText) ...[
           const SizedBox(width: FudiSpacing.xs),
           Text(
             rating.toStringAsFixed(1),
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ],

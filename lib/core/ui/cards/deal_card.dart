@@ -33,8 +33,9 @@ class DealCard extends StatelessWidget {
   final String? categoryLabel;
   final VoidCallback? onTap;
 
-  int get _discountPercent =>
-      originalPrice > 0 ? ((1 - discountedPrice / originalPrice) * 100).round() : 0;
+  int get _discountPercent => originalPrice > 0
+      ? ((1 - discountedPrice / originalPrice) * 100).round()
+      : 0;
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +49,7 @@ class DealCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildImage(),
-            _buildContent(context),
-          ],
+          children: [_buildImage(), _buildContent(context)],
         ),
       ),
     );
@@ -118,10 +116,7 @@ class DealCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 2),
-          Text(
-            businessType,
-            style: FudiTypography.bodySmall,
-          ),
+          Text(businessType, style: FudiTypography.bodySmall),
           const SizedBox(height: FudiSpacing.sm),
           Row(
             children: [
@@ -157,7 +152,10 @@ class DealCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: FudiSpacing.sm),
-          Divider(height: 1, color: FudiColors.borderSolid.withValues(alpha: 0.5)),
+          Divider(
+            height: 1,
+            color: FudiColors.borderSolid.withValues(alpha: 0.5),
+          ),
           const SizedBox(height: FudiSpacing.sm),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,

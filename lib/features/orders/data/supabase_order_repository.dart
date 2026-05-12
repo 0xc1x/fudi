@@ -9,7 +9,7 @@ import '../domain/reservation_result.dart';
 
 class SupabaseOrderRepository implements OrderRepository {
   SupabaseOrderRepository({required SupabaseClient supabaseClient})
-      : _supabaseClient = supabaseClient;
+    : _supabaseClient = supabaseClient;
 
   final SupabaseClient _supabaseClient;
 
@@ -52,14 +52,14 @@ class SupabaseOrderRepository implements OrderRepository {
       final message = result['message'] as String? ?? 'Error al reservar';
 
       return ReservationFailure(errorCode: errorCode, message: message);
-  } on BusinessRuleException {
-    rethrow;
-  } catch (e, st) {
-    throw UnknownDataException(
-      message: 'Error al procesar la reserva',
-      context: {'originalError': e.toString(), 'stackTrace': st.toString()},
-    );
-  }
+    } on BusinessRuleException {
+      rethrow;
+    } catch (e, st) {
+      throw UnknownDataException(
+        message: 'Error al procesar la reserva',
+        context: {'originalError': e.toString(), 'stackTrace': st.toString()},
+      );
+    }
   }
 
   @override
@@ -102,12 +102,12 @@ class SupabaseOrderRepository implements OrderRepository {
           .eq('id', id)
           .maybeSingle();
 
-    if (response == null) {
-      throw const NotFoundException(message: 'Pedido no encontrado');
-    }
+      if (response == null) {
+        throw const NotFoundException(message: 'Pedido no encontrado');
+      }
 
-    return _mapOrderFromJson(response);
-  } on DataException {
+      return _mapOrderFromJson(response);
+    } on DataException {
       rethrow;
     } catch (e) {
       throw UnknownDataException(message: 'Error al cargar el pedido');
@@ -121,11 +121,11 @@ class SupabaseOrderRepository implements OrderRepository {
         .stream(primaryKey: ['id'])
         .eq('id', id)
         .map((events) {
-      if (events.isEmpty) {
-        throw const NotFoundException(message: 'Pedido no encontrado');
-      }
-      return _mapOrderFromJson(events.first);
-    });
+          if (events.isEmpty) {
+            throw const NotFoundException(message: 'Pedido no encontrado');
+          }
+          return _mapOrderFromJson(events.first);
+        });
   }
 
   @override
@@ -156,10 +156,7 @@ class SupabaseOrderRepository implements OrderRepository {
 
       final response = await _supabaseClient.rpc(
         'cancel_order',
-        params: {
-          'p_user_id': userId,
-          'p_order_id': orderId,
-        },
+        params: {'p_user_id': userId, 'p_order_id': orderId},
       );
 
       final result = response as Map<String, dynamic>;

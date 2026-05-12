@@ -49,17 +49,19 @@ class SecureHttpClient {
     Duration connectTimeout = const Duration(seconds: 10),
     Duration receiveTimeout = const Duration(seconds: 30),
     CircuitBreaker? circuitBreaker,
-  })  : _supabaseClient = supabaseClient,
-        _circuitBreaker = circuitBreaker ?? CircuitBreaker(),
-        _dio = Dio(BaseOptions(
-          baseUrl: baseUrl ?? supabaseClient.rest.url,
-          connectTimeout: connectTimeout,
-          receiveTimeout: receiveTimeout,
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-        )) {
+  }) : _supabaseClient = supabaseClient,
+       _circuitBreaker = circuitBreaker ?? CircuitBreaker(),
+       _dio = Dio(
+         BaseOptions(
+           baseUrl: baseUrl ?? supabaseClient.rest.url,
+           connectTimeout: connectTimeout,
+           receiveTimeout: receiveTimeout,
+           headers: {
+             'Accept': 'application/json',
+             'Content-Type': 'application/json',
+           },
+         ),
+       ) {
     // Order matters: auth → retry → error mapping → tracing
     _dio.interceptors.addAll([
       _AuthInterceptor(supabaseClient: _supabaseClient),
@@ -85,11 +87,8 @@ class SecureHttpClient {
       method: 'GET',
       path: path,
       retryPolicy: retryPolicy,
-      request: () => _dio.get<T>(
-        path,
-        queryParameters: queryParameters,
-        options: options,
-      ),
+      request: () =>
+          _dio.get<T>(path, queryParameters: queryParameters, options: options),
     );
   }
 
@@ -202,7 +201,8 @@ class SecureHttpClient {
           attempt++;
 
           // Check if we should retry
-          final canRetry = retryPolicy.hasRetriesLeft(attempt) &&
+          final canRetry =
+              retryPolicy.hasRetriesLeft(attempt) &&
               RetryPolicy.isIdempotentMethod(method) &&
               RetryPolicy.isRetryable(fudiException);
 
@@ -229,22 +229,21 @@ class SecureHttpClient {
     return switch (e.type) {
       DioExceptionType.connectionTimeout ||
       DioExceptionType.sendTimeout ||
-      DioExceptionType.receiveTimeout =>
-        const TimeoutException(),
+      DioExceptionType.receiveTimeout => const TimeoutException(),
 
-      DioExceptionType.connectionError =>
-        const ConnectionException(),
+      DioExceptionType.connectionError => const ConnectionException(),
 
       DioExceptionType.badResponse => _mapStatusCode(e.response?.statusCode),
 
-      DioExceptionType.cancel =>
-        const ConnectionException(message: 'Petición cancelada'),
+      DioExceptionType.cancel => const ConnectionException(
+        message: 'Petición cancelada',
+      ),
 
       // For unknown Dio errors, treat as server error
       _ => ServerException(
-          message: e.message ?? 'Error de red desconocido',
-          statusCode: e.response?.statusCode,
-        ),
+        message: e.message ?? 'Error de red desconocido',
+        statusCode: e.response?.statusCode,
+      ),
     };
   }
 
@@ -261,9 +260,9 @@ class SecureHttpClient {
       429 => const RateLimitException(),
       >= 500 => ServerException(statusCode: statusCode),
       >= 400 => ValidationException(
-          message: 'Error de validación',
-          fieldErrors: {'status': '$statusCode'},
-        ),
+        message: 'Error de validación',
+        fieldErrors: {'status': '$statusCode'},
+      ),
       _ => ServerException(statusCode: statusCode),
     };
   }
@@ -282,7 +281,7 @@ class _AuthInterceptor extends Interceptor {
   final SupabaseClient _supabaseClient;
 
   _AuthInterceptor({required SupabaseClient supabaseClient})
-      : _supabaseClient = supabaseClient;
+    : _supabaseClient = supabaseClient;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {

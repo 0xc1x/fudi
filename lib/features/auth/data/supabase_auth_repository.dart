@@ -7,7 +7,7 @@ import '../domain/user_profile.dart';
 
 class SupabaseAuthRepository implements AuthRepository {
   SupabaseAuthRepository({required supa.SupabaseClient supabaseClient})
-      : _supabaseClient = supabaseClient;
+    : _supabaseClient = supabaseClient;
 
   final supa.SupabaseClient _supabaseClient;
 
@@ -99,9 +99,7 @@ class SupabaseAuthRepository implements AuthRepository {
 
       final user = response.user;
       if (user == null) {
-        throw const ValidationException(
-          message: 'No se pudo crear la cuenta',
-        );
+        throw const ValidationException(message: 'No se pudo crear la cuenta');
       }
 
       final hasActiveSession = response.session != null;
@@ -117,10 +115,7 @@ class SupabaseAuthRepository implements AuthRepository {
       }
 
       final profile = await _fetchProfile(user.id);
-      return SignUpResult(
-        requiresEmailConfirmation: false,
-        profile: profile,
-      );
+      return SignUpResult(requiresEmailConfirmation: false, profile: profile);
     } on supa.AuthException catch (error) {
       throw _mapAuthException(error);
     } on AuthException {
@@ -157,9 +152,7 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> updatePassword({
-    required String newPassword,
-  }) async {
+  Future<void> updatePassword({required String newPassword}) async {
     try {
       await _supabaseClient.auth.updateUser(
         supa.UserAttributes(password: newPassword),
@@ -196,7 +189,9 @@ class SupabaseAuthRepository implements AuthRepository {
       return AuthSessionState(
         session: session,
         profile: null,
-        fallbackRole: UserRole.fromString(user.userMetadata?['role'] as String?),
+        fallbackRole: UserRole.fromString(
+          user.userMetadata?['role'] as String?,
+        ),
       );
     }
   }
@@ -266,10 +261,7 @@ class SupabaseAuthRepository implements AuthRepository {
       return;
     }
 
-    await _updateAnalyticsConsent(
-      userId: userId,
-      granted: true,
-    );
+    await _updateAnalyticsConsent(userId: userId, granted: true);
   }
 
   AuthException _mapAuthException(supa.AuthException error) {

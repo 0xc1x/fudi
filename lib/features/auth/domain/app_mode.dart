@@ -1,4 +1,1 @@
-enum AppMode {
-  consumer,
-  business,
-}
+enum AppMode { consumer, business }

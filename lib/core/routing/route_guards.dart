@@ -78,7 +78,8 @@ class RouteGuards {
     // is true the user is still on the login screen and must stay there.
     if (isAuthenticated &&
         !hasAuthError &&
-        (currentPath == RouteNames.loginPath || currentPath == RouteNames.signupPath)) {
+        (currentPath == RouteNames.loginPath ||
+            currentPath == RouteNames.signupPath)) {
       return defaultPathFor(authState.role);
     }
 
@@ -114,10 +115,10 @@ class RouteGuards {
       return RouteNames.homePath;
     }
 
-  // Business trying to access consumer-only routes
-  if (role == 'business' && isConsumerOnlyRoute(currentPath)) {
-    return RouteNames.businessProductsPath;
-  }
+    // Business trying to access consumer-only routes
+    if (role == 'business' && isConsumerOnlyRoute(currentPath)) {
+      return RouteNames.businessProductsPath;
+    }
 
     return null; // No redirect needed
   }
@@ -137,7 +138,12 @@ class RouteGuards {
     final hasAuthError = sessionNotifier?.hasAuthError ?? false;
 
     // Auth check takes priority
-    final authRedirect = authGuard(context, state, authState, hasAuthError: hasAuthError);
+    final authRedirect = authGuard(
+      context,
+      state,
+      authState,
+      hasAuthError: hasAuthError,
+    );
     if (authRedirect != null) {
       SentryBreadcrumb.navigation(
         state.matchedLocation,

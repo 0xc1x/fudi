@@ -21,10 +21,10 @@ class CheckoutStartedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'offer_id': offerId,
-        'business_id': businessId,
-        'amount': amount,
-      };
+    'offer_id': offerId,
+    'business_id': businessId,
+    'amount': amount,
+  };
 }
 
 /// Payment completed successfully (alias-level event for the payment funnel).
@@ -46,11 +46,11 @@ class PaymentCompletedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'order_id': orderId,
-        'amount': amount,
-        'gateway': gateway,
-        'payment_method': paymentMethod,
-      };
+    'order_id': orderId,
+    'amount': amount,
+    'gateway': gateway,
+    'payment_method': paymentMethod,
+  };
 }
 
 /// Payment failed at the gateway level.
@@ -70,10 +70,10 @@ class PaymentFailedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'order_id': orderId,
-        'error_type': errorType,
-        'gateway': gateway,
-      };
+    'order_id': orderId,
+    'error_type': errorType,
+    'gateway': gateway,
+  };
 }
 
 /// User requested a refund.
@@ -88,7 +88,7 @@ class RefundRequestedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'order_id': orderId,
-        'reason': reason,
-      };
+    'order_id': orderId,
+    'reason': reason,
+  };
 }

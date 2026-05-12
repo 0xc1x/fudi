@@ -21,18 +21,24 @@ class OrderDetailScreen extends ConsumerWidget {
 
     return orderAsync.when(
       data: (order) => _OrderDetailContent(order: order),
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (error, _) => Scaffold(
         appBar: AppBar(),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: FudiColors.destructive),
+              const Icon(
+                Icons.error_outline,
+                size: 48,
+                color: FudiColors.destructive,
+              ),
               const SizedBox(height: FudiSpacing.md),
-              Text('Error al cargar el pedido', style: FudiTypography.bodyMedium),
+              Text(
+                'Error al cargar el pedido',
+                style: FudiTypography.bodyMedium,
+              ),
               const SizedBox(height: FudiSpacing.md),
               FilledButton(
                 onPressed: () => ref.invalidate(orderDetailProvider(id)),
@@ -52,7 +58,8 @@ class _OrderDetailContent extends ConsumerStatefulWidget {
   final OrderModel order;
 
   @override
-  ConsumerState<_OrderDetailContent> createState() => _OrderDetailContentState();
+  ConsumerState<_OrderDetailContent> createState() =>
+      _OrderDetailContentState();
 }
 
 class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
@@ -83,9 +90,9 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
-              onPressed: isCanceling
-                  ? null
-                  : () => _showCancelDialog(context),
+                  onPressed: isCanceling
+                      ? null
+                      : () => _showCancelDialog(context),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: FudiColors.destructive,
                     side: const BorderSide(color: FudiColors.destructive),
@@ -139,50 +146,50 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
                 Text(
                   '¿Estás seguro de que deseas cancelar el pedido #${widget.order.orderNumber}? Esta acción no se puede deshacer.',
                 ),
-            if (cancelState.errorMessage != null) ...[
-              const SizedBox(height: FudiSpacing.sm),
-              Text(
-                cancelState.errorMessage!,
-                style: FudiTypography.bodySmall.copyWith(
-                  color: FudiColors.destructive,
+                if (cancelState.errorMessage != null) ...[
+                  const SizedBox(height: FudiSpacing.sm),
+                  Text(
+                    cancelState.errorMessage!,
+                    style: FudiTypography.bodySmall.copyWith(
+                      color: FudiColors.destructive,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: isCanceling
+                    ? null
+                    : () {
+                        Navigator.of(ctx).pop();
+                        ref.read(orderCancelProvider.notifier).reset();
+                      },
+                child: const Text('No, mantener'),
+              ),
+              FilledButton(
+                onPressed: isCanceling
+                    ? null
+                    : () {
+                        ref
+                            .read(orderCancelProvider.notifier)
+                            .cancelOrder(widget.order.id);
+                      },
+                style: FilledButton.styleFrom(
+                  backgroundColor: FudiColors.destructive,
                 ),
+                child: isCanceling
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('Sí, cancelar'),
               ),
             ],
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: isCanceling
-                ? null
-                : () {
-                    Navigator.of(ctx).pop();
-                    ref.read(orderCancelProvider.notifier).reset();
-                  },
-            child: const Text('No, mantener'),
-          ),
-          FilledButton(
-            onPressed: isCanceling
-                ? null
-                : () {
-                    ref
-                        .read(orderCancelProvider.notifier)
-                        .cancelOrder(widget.order.id);
-                  },
-            style: FilledButton.styleFrom(
-              backgroundColor: FudiColors.destructive,
-            ),
-            child: isCanceling
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Text('Sí, cancelar'),
-          ),
-        ],
           );
         },
       ),
@@ -249,10 +256,20 @@ class _StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (color, textColor) = switch (status) {
-      OrderStatus.completed => (const Color(0xFFDCFCE7), const Color(0xFF166534)),
-      OrderStatus.readyForPickup => (const Color(0xFFFEF9C3), const Color(0xFF854D0E)),
-      OrderStatus.cancelled || OrderStatus.expired => (const Color(0xFFFEE2E2), const Color(0xFF991B1B)),
-      OrderStatus.confirmed => (FudiColors.secondary, FudiColors.secondaryForeground),
+      OrderStatus.completed => (
+        const Color(0xFFDCFCE7),
+        const Color(0xFF166534),
+      ),
+      OrderStatus.readyForPickup => (
+        const Color(0xFFFEF9C3),
+        const Color(0xFF854D0E),
+      ),
+      OrderStatus.cancelled ||
+      OrderStatus.expired => (const Color(0xFFFEE2E2), const Color(0xFF991B1B)),
+      OrderStatus.confirmed => (
+        FudiColors.secondary,
+        FudiColors.secondaryForeground,
+      ),
       _ => (FudiColors.muted, FudiColors.mutedForeground),
     };
 
@@ -304,7 +321,9 @@ class _TimelineProgress extends StatelessWidget {
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: isCompleted ? FudiColors.primary : FudiColors.muted,
+                      color: isCompleted
+                          ? FudiColors.primary
+                          : FudiColors.muted,
                       shape: BoxShape.circle,
                     ),
                     child: isCompleted
@@ -315,7 +334,9 @@ class _TimelineProgress extends StatelessWidget {
                     Container(
                       width: 2,
                       height: 24,
-                      color: isCompleted ? FudiColors.primary : FudiColors.borderSolid,
+                      color: isCompleted
+                          ? FudiColors.primary
+                          : FudiColors.borderSolid,
                     ),
                 ],
               ),
@@ -329,8 +350,8 @@ class _TimelineProgress extends StatelessWidget {
                       color: isCurrent
                           ? FudiColors.primary
                           : isCompleted
-                              ? FudiColors.foreground
-                              : FudiColors.mutedForeground,
+                          ? FudiColors.foreground
+                          : FudiColors.mutedForeground,
                       fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400,
                     ),
                   ),
@@ -379,9 +400,9 @@ class _PickupCodeSection extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: code));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Código copiado')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Código copiado')));
               },
               icon: const Icon(Icons.copy_rounded, size: 16),
               label: const Text('Copiar código'),
@@ -422,7 +443,10 @@ class _OrderInfoCard extends StatelessWidget {
                   errorWidget: (_, __, ___) => Container(
                     height: 140,
                     color: FudiColors.muted,
-                    child: const Icon(Icons.restaurant, color: FudiColors.mutedForeground),
+                    child: const Icon(
+                      Icons.restaurant,
+                      color: FudiColors.mutedForeground,
+                    ),
                   ),
                 ),
               ),
@@ -469,7 +493,9 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = isBold ? FudiTypography.labelMedium : FudiTypography.bodyMedium;
+    final style = isBold
+        ? FudiTypography.labelMedium
+        : FudiTypography.bodyMedium;
     final effectiveColor = valueColor ?? (isBold ? FudiColors.primary : null);
 
     return Padding(
@@ -478,10 +504,7 @@ class _InfoRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: style),
-          Text(
-            value,
-            style: style.copyWith(color: effectiveColor),
-          ),
+          Text(value, style: style.copyWith(color: effectiveColor)),
         ],
       ),
     );

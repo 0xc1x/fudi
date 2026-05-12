@@ -111,10 +111,7 @@ class _ProfileHeader extends StatelessWidget {
               : null,
         ),
         const SizedBox(height: FudiSpacing.md),
-        Text(
-          profile?.fullName ?? 'Usuario Fudi',
-          style: FudiTypography.h3,
-        ),
+        Text(profile?.fullName ?? 'Usuario Fudi', style: FudiTypography.h3),
         const SizedBox(height: FudiSpacing.xs),
         Text(
           profile?.email ?? '',
@@ -127,12 +124,13 @@ class _ProfileHeader extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.location_on_outlined, size: 14, color: FudiColors.mutedForeground),
-              const SizedBox(width: 4),
-              Text(
-                profile!.city!,
-                style: FudiTypography.bodySmall,
+              const Icon(
+                Icons.location_on_outlined,
+                size: 14,
+                color: FudiColors.mutedForeground,
               ),
+              const SizedBox(width: 4),
+              Text(profile!.city!, style: FudiTypography.bodySmall),
             ],
           ),
         ],
@@ -165,7 +163,11 @@ class _ProfileMenuSection extends StatelessWidget {
               ListTile(
                 leading: Icon(item.icon, color: FudiColors.primary),
                 title: Text(item.label, style: FudiTypography.bodyLarge),
-                trailing: const Icon(Icons.chevron_right, size: 20, color: FudiColors.mutedForeground),
+                trailing: const Icon(
+                  Icons.chevron_right,
+                  size: 20,
+                  color: FudiColors.mutedForeground,
+                ),
                 onTap: item.onTap,
               ),
               if (item != items.last) const Divider(height: 1),

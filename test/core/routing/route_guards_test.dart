@@ -11,7 +11,10 @@ void main() {
       });
 
       test('parameterized path matches concrete path', () {
-        expect(RouteGuards.pathMatches('/product/:id', '/product/abc123'), true);
+        expect(
+          RouteGuards.pathMatches('/product/:id', '/product/abc123'),
+          true,
+        );
         expect(RouteGuards.pathMatches('/orders/:id', '/orders/xyz'), true);
       });
 
@@ -20,8 +23,20 @@ void main() {
       });
 
       test('business nested routes match', () {
-        expect(RouteGuards.pathMatches('/business/products/:id', '/business/products/abc'), true);
-        expect(RouteGuards.pathMatches('/business/products/:id/edit', '/business/products/abc/edit'), true);
+        expect(
+          RouteGuards.pathMatches(
+            '/business/products/:id',
+            '/business/products/abc',
+          ),
+          true,
+        );
+        expect(
+          RouteGuards.pathMatches(
+            '/business/products/:id/edit',
+            '/business/products/abc/edit',
+          ),
+          true,
+        );
       });
 
       test('root path matches itself', () {
@@ -78,25 +93,19 @@ void main() {
     });
 
     group('default path by role', () {
-  test('business users land in business products', () {
-    expect(
-      RouteGuards.defaultPathFor(UserRole.business),
-      '/business/products',
-    );
-  });
-
-      test('consumer users land in home', () {
+      test('business users land in business products', () {
         expect(
-          RouteGuards.defaultPathFor(UserRole.user),
-          '/',
+          RouteGuards.defaultPathFor(UserRole.business),
+          '/business/products',
         );
       });
 
+      test('consumer users land in home', () {
+        expect(RouteGuards.defaultPathFor(UserRole.user), '/');
+      });
+
       test('admin users currently land in home fallback', () {
-        expect(
-          RouteGuards.defaultPathFor(UserRole.admin),
-          '/',
-        );
+        expect(RouteGuards.defaultPathFor(UserRole.admin), '/');
       });
     });
   });

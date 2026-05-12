@@ -24,7 +24,9 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(authSessionNotifierProvider.notifier).clearPasswordRecoveryFlag();
+      ref
+          .read(authSessionNotifierProvider.notifier)
+          .clearPasswordRecoveryFlag();
     });
   }
 
@@ -39,9 +41,9 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     try {
-      await ref.read(authControllerProvider.notifier).updatePassword(
-            newPassword: _passwordController.text,
-          );
+      await ref
+          .read(authControllerProvider.notifier)
+          .updatePassword(newPassword: _passwordController.text);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -57,9 +59,9 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
       final message = error is FudiException
           ? error.userMessage()
           : 'No pudimos actualizar tu contraseña.';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     }
   }
 

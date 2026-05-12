@@ -21,10 +21,10 @@ class OrderReserveStartedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'offer_id': offerId,
-        'business_id': businessId,
-        'amount': amount,
-      };
+    'offer_id': offerId,
+    'business_id': businessId,
+    'amount': amount,
+  };
 }
 
 /// The user initiated payment for an order.
@@ -44,10 +44,10 @@ class OrderPaymentInitiatedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'order_id': orderId,
-        'amount': amount,
-        'payment_method': paymentMethod,
-      };
+    'order_id': orderId,
+    'amount': amount,
+    'payment_method': paymentMethod,
+  };
 }
 
 /// Payment completed successfully.
@@ -67,10 +67,10 @@ class OrderPaymentCompletedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'order_id': orderId,
-        'amount': amount,
-        'gateway': gateway,
-      };
+    'order_id': orderId,
+    'amount': amount,
+    'gateway': gateway,
+  };
 }
 
 /// Payment failed.
@@ -78,19 +78,16 @@ class OrderPaymentFailedEvent extends AnalyticsEvent {
   final String orderId;
   final String errorType;
 
-  OrderPaymentFailedEvent({
-    required this.orderId,
-    required this.errorType,
-  });
+  OrderPaymentFailedEvent({required this.orderId, required this.errorType});
 
   @override
   String get name => 'order_payment_failed';
 
   @override
   Map<String, dynamic> get properties => {
-        'order_id': orderId,
-        'error_type': errorType,
-      };
+    'order_id': orderId,
+    'error_type': errorType,
+  };
 }
 
 /// Pickup was confirmed by the business or the user.
@@ -98,19 +95,16 @@ class OrderPickupConfirmedEvent extends AnalyticsEvent {
   final String orderId;
   final String businessId;
 
-  OrderPickupConfirmedEvent({
-    required this.orderId,
-    required this.businessId,
-  });
+  OrderPickupConfirmedEvent({required this.orderId, required this.businessId});
 
   @override
   String get name => 'order_pickup_confirmed';
 
   @override
   Map<String, dynamic> get properties => {
-        'order_id': orderId,
-        'business_id': businessId,
-      };
+    'order_id': orderId,
+    'business_id': businessId,
+  };
 }
 
 /// Order was cancelled.
@@ -132,8 +126,8 @@ class OrderCancelledEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'order_id': orderId,
-        'reason': reason,
-        'by': by,
-      };
+    'order_id': orderId,
+    'reason': reason,
+    'by': by,
+  };
 }

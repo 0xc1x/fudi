@@ -31,20 +31,27 @@ void main() {
         expect(circuitBreaker.failureCount, 0);
       });
 
-      test('failure increments count but stays closed under threshold', () async {
-        try {
-          await circuitBreaker.execute(() => Future.error(const ConnectionException()));
-        } on ConnectionException {
-          // expected
-        }
-        expect(circuitBreaker.failureCount, 1);
-        expect(circuitBreaker.state, CircuitState.closed);
-      });
+      test(
+        'failure increments count but stays closed under threshold',
+        () async {
+          try {
+            await circuitBreaker.execute(
+              () => Future.error(const ConnectionException()),
+            );
+          } on ConnectionException {
+            // expected
+          }
+          expect(circuitBreaker.failureCount, 1);
+          expect(circuitBreaker.state, CircuitState.closed);
+        },
+      );
 
       test('reaches threshold and opens circuit', () async {
         for (var i = 0; i < 3; i++) {
           try {
-            await circuitBreaker.execute(() => Future.error(const ConnectionException()));
+            await circuitBreaker.execute(
+              () => Future.error(const ConnectionException()),
+            );
           } on ConnectionException {
             // expected
           }
@@ -58,7 +65,9 @@ void main() {
       setUp(() async {
         for (var i = 0; i < 3; i++) {
           try {
-            await circuitBreaker.execute(() => Future.error(const ConnectionException()));
+            await circuitBreaker.execute(
+              () => Future.error(const ConnectionException()),
+            );
           } on ConnectionException {
             // expected
           }
@@ -86,7 +95,9 @@ void main() {
       setUp(() async {
         for (var i = 0; i < 3; i++) {
           try {
-            await circuitBreaker.execute(() => Future.error(const ConnectionException()));
+            await circuitBreaker.execute(
+              () => Future.error(const ConnectionException()),
+            );
           } on ConnectionException {
             // expected
           }
@@ -103,7 +114,9 @@ void main() {
 
       test('failed probe reopens the circuit', () async {
         try {
-          await circuitBreaker.execute(() => Future.error(const ConnectionException()));
+          await circuitBreaker.execute(
+            () => Future.error(const ConnectionException()),
+          );
         } on ConnectionException {
           // expected
         }
@@ -115,7 +128,9 @@ void main() {
       test('manual reset returns to closed state', () async {
         for (var i = 0; i < 3; i++) {
           try {
-            await circuitBreaker.execute(() => Future.error(const ConnectionException()));
+            await circuitBreaker.execute(
+              () => Future.error(const ConnectionException()),
+            );
           } on ConnectionException {
             // expected
           }
@@ -130,7 +145,10 @@ void main() {
 
     group('custom configuration', () {
       test('respects custom failure threshold', () async {
-        final cb = CircuitBreaker(failureThreshold: 5, resetTimeout: const Duration(seconds: 30));
+        final cb = CircuitBreaker(
+          failureThreshold: 5,
+          resetTimeout: const Duration(seconds: 30),
+        );
         for (var i = 0; i < 4; i++) {
           try {
             await cb.execute(() => Future.error(const ConnectionException()));
@@ -139,7 +157,9 @@ void main() {
           }
         }
         expect(cb.state, CircuitState.closed);
-        await cb.execute(() => Future.error(const ConnectionException())).catchError((_) => 0);
+        await cb
+            .execute(() => Future.error(const ConnectionException()))
+            .catchError((_) => 0);
         expect(cb.state, CircuitState.open);
       });
     });

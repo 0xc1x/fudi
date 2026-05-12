@@ -20,8 +20,8 @@ final paymentGatewayProvider = Provider<PaymentGateway>((ref) {
 
 final userOrdersProvider =
     AsyncNotifierProvider<UserOrdersNotifier, List<OrderModel>>(
-  UserOrdersNotifier.new,
-);
+      UserOrdersNotifier.new,
+    );
 
 class UserOrdersNotifier extends AsyncNotifier<List<OrderModel>> {
   @override
@@ -39,20 +39,15 @@ class UserOrdersNotifier extends AsyncNotifier<List<OrderModel>> {
   }
 }
 
-final orderDetailProvider =
-    FutureProvider.family<OrderModel, String>((ref, id) async {
+final orderDetailProvider = FutureProvider.family<OrderModel, String>((
+  ref,
+  id,
+) async {
   final repo = ref.watch(orderRepositoryProvider);
   return repo.getOrderById(id);
 });
 
-enum ReservationStep {
-  idle,
-  reserving,
-  paying,
-  success,
-  review,
-  error,
-}
+enum ReservationStep { idle, reserving, paying, success, review, error }
 
 class ReservationState {
   const ReservationState({
@@ -84,8 +79,8 @@ class ReservationState {
 
 final reservationControllerProvider =
     NotifierProvider<ReservationController, ReservationState>(
-  ReservationController.new,
-);
+      ReservationController.new,
+    );
 
 class ReservationController extends Notifier<ReservationState> {
   @override
@@ -100,8 +95,10 @@ class ReservationController extends Notifier<ReservationState> {
   }) async {
     state = state.copyWith(step: ReservationStep.reserving);
 
-    final reservationResult =
-        await _orderRepo.reserveOffer(offerId: offerId, couponId: couponId);
+    final reservationResult = await _orderRepo.reserveOffer(
+      offerId: offerId,
+      couponId: couponId,
+    );
 
     if (reservationResult is ReservationFailure) {
       state = state.copyWith(
@@ -144,8 +141,8 @@ class ReservationController extends Notifier<ReservationState> {
 
 final orderCancelProvider =
     AsyncNotifierProvider<OrderCancelNotifier, CancelOrderState>(
-  OrderCancelNotifier.new,
-);
+      OrderCancelNotifier.new,
+    );
 
 class CancelOrderState {
   const CancelOrderState({
@@ -188,7 +185,9 @@ class OrderCancelNotifier extends AsyncNotifier<CancelOrderState> {
         ref.invalidate(userOrdersProvider);
         ref.invalidate(orderDetailProvider(orderId));
       } else {
-        state = AsyncData(CancelOrderState(errorMessage: result.message ?? 'Error al cancelar'));
+        state = AsyncData(
+          CancelOrderState(errorMessage: result.message ?? 'Error al cancelar'),
+        );
       }
     } catch (e) {
       state = AsyncData(CancelOrderState(errorMessage: e.toString()));

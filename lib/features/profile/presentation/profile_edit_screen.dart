@@ -85,7 +85,8 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
               const SizedBox(height: FudiSpacing.xs),
               TextFormField(
                 controller: _nameController,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Requerido' : null,
                 decoration: InputDecoration(
                   hintText: 'Tu nombre',
                   border: OutlineInputBorder(
@@ -191,15 +192,19 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           .from('profiles')
           .update({
             'full_name': _nameController.text.trim(),
-            'phone': _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-            'city': _cityController.text.trim().isEmpty ? null : _cityController.text.trim(),
+            'phone': _phoneController.text.trim().isEmpty
+                ? null
+                : _phoneController.text.trim(),
+            'city': _cityController.text.trim().isEmpty
+                ? null
+                : _cityController.text.trim(),
           })
           .eq('id', userId);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Perfil actualizado')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Perfil actualizado')));
         Navigator.of(context).pop();
       }
     } catch (e) {

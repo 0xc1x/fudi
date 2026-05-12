@@ -24,9 +24,7 @@ class FudiBottomNav extends ConsumerWidget {
     final appMode = ref.watch(appModeProvider);
     final location = GoRouterState.of(context).matchedLocation;
 
-    final items = appMode == AppMode.consumer
-        ? _consumerItems
-        : _businessItems;
+    final items = appMode == AppMode.consumer ? _consumerItems : _businessItems;
 
     final currentIndex = _calculateSelectedIndex(location, appMode);
 

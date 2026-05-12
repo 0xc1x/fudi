@@ -34,10 +34,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _errorMessage = null);
     ref.read(authSessionNotifierProvider.notifier).clearAuthError();
 
-    await ref.read(authControllerProvider.notifier).signIn(
-      email: _emailController.text.trim(),
-      password: _passwordController.text,
-    );
+    await ref
+        .read(authControllerProvider.notifier)
+        .signIn(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
 
     if (!mounted) return;
 
@@ -52,8 +54,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _openForgotPasswordDialog() async {
-    final emailController =
-        TextEditingController(text: _emailController.text.trim());
+    final emailController = TextEditingController(
+      text: _emailController.text.trim(),
+    );
     final formKey = GlobalKey<FormState>();
 
     await showDialog<void>(
@@ -109,7 +112,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 if (!formKey.currentState!.validate()) return;
 
                 try {
-                  await ref.read(authControllerProvider.notifier).sendPasswordResetEmail(
+                  await ref
+                      .read(authControllerProvider.notifier)
+                      .sendPasswordResetEmail(
                         email: emailController.text.trim(),
                       );
 
@@ -128,9 +133,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   final message = error is FudiException
                       ? error.userMessage()
                       : 'No pudimos enviar el correo de recuperación.';
-                  ScaffoldMessenger.of(dialogContext).showSnackBar(
-                    SnackBar(content: Text(message)),
-                  );
+                  ScaffoldMessenger.of(
+                    dialogContext,
+                  ).showSnackBar(SnackBar(content: Text(message)));
                 }
               },
               child: const Text('Enviar enlace'),
@@ -211,33 +216,49 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: const Text('Olvidaste tu contraseña'),
                       ),
                     ),
-    const SizedBox(height: 8),
-    FilledButton(
-      onPressed: isLoading ? null : _submit,
-      child: Text(isLoading ? 'Ingresando...' : 'Iniciar sesión'),
-    ),
-    if (_errorMessage != null) ...[
-      const SizedBox(height: 12),
-      MaterialBanner(
-        content: Text(
-          _errorMessage!,
-          style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-        actions: [
-          TextButton(
-            onPressed: () => setState(() => _errorMessage = null),
-            child: Text(
-              'Cerrar',
-              style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
-            ),
-          ),
-        ],
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        margin: EdgeInsets.zero,
-      ),
-    ],
-    const SizedBox(height: 24),
+                    const SizedBox(height: 8),
+                    FilledButton(
+                      onPressed: isLoading ? null : _submit,
+                      child: Text(
+                        isLoading ? 'Ingresando...' : 'Iniciar sesión',
+                      ),
+                    ),
+                    if (_errorMessage != null) ...[
+                      const SizedBox(height: 12),
+                      MaterialBanner(
+                        content: Text(
+                          _errorMessage!,
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onErrorContainer,
+                          ),
+                        ),
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.errorContainer,
+                        actions: [
+                          TextButton(
+                            onPressed: () =>
+                                setState(() => _errorMessage = null),
+                            child: Text(
+                              'Cerrar',
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onErrorContainer,
+                              ),
+                            ),
+                          ),
+                        ],
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        margin: EdgeInsets.zero,
+                      ),
+                    ],
+                    const SizedBox(height: 24),
                     Row(
                       children: const [
                         Expanded(child: Divider()),

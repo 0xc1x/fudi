@@ -66,16 +66,17 @@ class BusinessCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      type,
-                      style: FudiTypography.bodySmall,
-                    ),
+                    Text(type, style: FudiTypography.bodySmall),
                     const SizedBox(height: 6),
                     Row(
                       children: [
                         FudiStarRating(rating: rating, size: 12),
                         const SizedBox(width: 8),
-                        const Icon(Icons.location_on_outlined, size: 12, color: FudiColors.mutedForeground),
+                        const Icon(
+                          Icons.location_on_outlined,
+                          size: 12,
+                          color: FudiColors.mutedForeground,
+                        ),
                         const SizedBox(width: 2),
                         Text(distance, style: FudiTypography.bodySmall),
                       ],
@@ -87,7 +88,10 @@ class BusinessCard extends StatelessWidget {
               // ─── Deals Count ────────────────────────────────────────
               if (activeDealsCount > 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: FudiColors.secondary,
                     borderRadius: BorderRadius.circular(FudiRadius.sm),

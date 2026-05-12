@@ -20,11 +20,8 @@ class UiGalleryScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(FudiSpacing.lg),
         children: [
-          _Section(
-            title: 'Logo',
-            child: const FudiLogo(size: 40),
-          ),
-          
+          _Section(title: 'Logo', child: const FudiLogo(size: 40)),
+
           _Section(
             title: 'Typography',
             child: Column(
@@ -61,7 +58,8 @@ class UiGalleryScreen extends StatelessWidget {
           _Section(
             title: 'Deal Card',
             child: DealCard(
-              imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=400',
+              imageUrl:
+                  'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=400',
               businessName: 'Panadería La Esperanza',
               businessType: 'Bakery • Repostería',
               originalPrice: 15.00,
@@ -85,7 +83,8 @@ class UiGalleryScreen extends StatelessWidget {
                   status: 'completed',
                   date: DateTime.now().subtract(const Duration(days: 1)),
                   totalPrice: 12.50,
-                  imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=200',
+                  imageUrl:
+                      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=200',
                   onTap: () {},
                 ),
                 const SizedBox(height: 8),
@@ -95,7 +94,8 @@ class UiGalleryScreen extends StatelessWidget {
                   status: 'ready',
                   date: DateTime.now(),
                   totalPrice: 8.99,
-                  imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=200',
+                  imageUrl:
+                      'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=200',
                   onTap: () {},
                 ),
               ],
@@ -105,7 +105,8 @@ class UiGalleryScreen extends StatelessWidget {
           _Section(
             title: 'Business Card',
             child: BusinessCard(
-              imageUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=200',
+              imageUrl:
+                  'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=200',
               name: 'Restaurante El Gourmet',
               type: 'Comida Italiana',
               rating: 4.2,
@@ -114,7 +115,7 @@ class UiGalleryScreen extends StatelessWidget {
               onTap: () {},
             ),
           ),
-          
+
           const SizedBox(height: 40),
         ],
       ),

@@ -100,12 +100,33 @@ String _resolveAny(List<String> keys) {
 
 const _dartDefine = {
   'SUPABASE_URL': String.fromEnvironment('SUPABASE_URL', defaultValue: ''),
-  'SUPABASE_ANON_KEY': String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: ''),
+  'SUPABASE_ANON_KEY': String.fromEnvironment(
+    'SUPABASE_ANON_KEY',
+    defaultValue: '',
+  ),
   'SENTRY_DSN': String.fromEnvironment('SENTRY_DSN', defaultValue: ''),
-  'GOOGLE_MAPS_API_KEY': String.fromEnvironment('GOOGLE_MAPS_API_KEY', defaultValue: ''),
-  'AUTH_RESET_REDIRECT_URL': String.fromEnvironment('AUTH_RESET_REDIRECT_URL', defaultValue: ''),
-  'FIREBASE_API_KEY': String.fromEnvironment('FIREBASE_API_KEY', defaultValue: ''),
-  'FIREBASE_PROJECT_ID': String.fromEnvironment('FIREBASE_PROJECT_ID', defaultValue: ''),
-  'FIREBASE_MESSAGING_SENDER_ID': String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID', defaultValue: ''),
-  'FIREBASE_APP_ID': String.fromEnvironment('FIREBASE_APP_ID', defaultValue: ''),
+  'GOOGLE_MAPS_API_KEY': String.fromEnvironment(
+    'GOOGLE_MAPS_API_KEY',
+    defaultValue: '',
+  ),
+  'AUTH_RESET_REDIRECT_URL': String.fromEnvironment(
+    'AUTH_RESET_REDIRECT_URL',
+    defaultValue: '',
+  ),
+  'FIREBASE_API_KEY': String.fromEnvironment(
+    'FIREBASE_API_KEY',
+    defaultValue: '',
+  ),
+  'FIREBASE_PROJECT_ID': String.fromEnvironment(
+    'FIREBASE_PROJECT_ID',
+    defaultValue: '',
+  ),
+  'FIREBASE_MESSAGING_SENDER_ID': String.fromEnvironment(
+    'FIREBASE_MESSAGING_SENDER_ID',
+    defaultValue: '',
+  ),
+  'FIREBASE_APP_ID': String.fromEnvironment(
+    'FIREBASE_APP_ID',
+    defaultValue: '',
+  ),
 };

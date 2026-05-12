@@ -7,7 +7,7 @@ import 'fudi_logo.dart';
 import 'fudi_spacing.dart';
 
 /// Scaffold base para todas las pantallas de Fudi.
-/// 
+///
 /// Incluye:
 /// - Manejo automático de banner offline.
 /// - Navegación inferior opcional.

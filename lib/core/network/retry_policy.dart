@@ -39,10 +39,7 @@ class RetryPolicy {
   );
 
   /// No retry — for non-idempotent or fast-fail operations.
-  static const none = RetryPolicy(
-    maxAttempts: 1,
-    initialDelay: Duration.zero,
-  );
+  static const none = RetryPolicy(maxAttempts: 1, initialDelay: Duration.zero);
 
   /// Whether the given HTTP method is idempotent and safe to retry.
   ///
@@ -81,9 +78,11 @@ class RetryPolicy {
   Duration delayForAttempt(int attempt) {
     if (attempt <= 0) return Duration.zero;
 
-    final exponentialDelay = initialDelay *
-        pow(backoffMultiplier, attempt - 1).toInt();
-    final cappedDelay = exponentialDelay > maxDelay ? maxDelay : exponentialDelay;
+    final exponentialDelay =
+        initialDelay * pow(backoffMultiplier, attempt - 1).toInt();
+    final cappedDelay = exponentialDelay > maxDelay
+        ? maxDelay
+        : exponentialDelay;
 
     // Add jitter: random 0–500ms
     final jitter = Random().nextInt(500);

@@ -21,10 +21,7 @@ class ReservationSuccess extends ReservationResult {
 }
 
 class ReservationFailure extends ReservationResult {
-  const ReservationFailure({
-    required this.errorCode,
-    required this.message,
-  });
+  const ReservationFailure({required this.errorCode, required this.message});
 
   final String errorCode;
   final String message;

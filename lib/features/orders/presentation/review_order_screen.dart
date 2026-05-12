@@ -40,9 +40,8 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
         _startCountdown(order);
         return _buildContent(context, order);
       },
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (error, _) => Scaffold(
         appBar: AppBar(),
         body: Center(child: Text('Error: $error')),
@@ -86,10 +85,7 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
               ),
             ),
             const SizedBox(height: FudiSpacing.lg),
-            Text(
-              '¡Reserva confirmada!',
-              style: FudiTypography.headlineMedium,
-            ),
+            Text('¡Reserva confirmada!', style: FudiTypography.headlineMedium),
             const SizedBox(height: FudiSpacing.sm),
             Text(
               'Presenta este código en el negocio',
@@ -119,7 +115,9 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
                 ),
                 child: Text(
                   'Ver mis pedidos',
-                  style: FudiTypography.labelMedium.copyWith(color: Colors.white),
+                  style: FudiTypography.labelMedium.copyWith(
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -128,7 +126,9 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
               onPressed: () => context.go(RouteNames.homePath),
               child: Text(
                 'Volver al inicio',
-                style: FudiTypography.bodyMedium.copyWith(color: FudiColors.primary),
+                style: FudiTypography.bodyMedium.copyWith(
+                  color: FudiColors.primary,
+                ),
               ),
             ),
           ],
@@ -171,9 +171,9 @@ class _PickupCodeCard extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: code));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Código copiado')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Código copiado')));
               },
               icon: const Icon(Icons.copy_rounded, size: 16),
               label: const Text('Copiar código'),
@@ -277,10 +277,11 @@ class _SummaryRow extends StatelessWidget {
           Text(label, style: FudiTypography.bodyMedium),
           Text(
             value,
-            style: (isBold ? FudiTypography.labelMedium : FudiTypography.bodyMedium)
-                .copyWith(
-              color: isBold ? FudiColors.primary : null,
-            ),
+            style:
+                (isBold
+                        ? FudiTypography.labelMedium
+                        : FudiTypography.bodyMedium)
+                    .copyWith(color: isBold ? FudiColors.primary : null),
           ),
         ],
       ),

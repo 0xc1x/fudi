@@ -46,8 +46,12 @@ class UserProperties {
     if (signupDate != null) map['signup_date'] = signupDate!.toIso8601String();
     if (totalOrders != null) map['total_orders'] = totalOrders!;
     if (totalSaved != null) map['total_saved'] = totalSaved!;
-    if (favoriteCategories != null) map['favorite_categories'] = favoriteCategories!;
-    if (notificationRadiusKm != null) map['notification_radius_km'] = notificationRadiusKm!;
+    if (favoriteCategories != null) {
+      map['favorite_categories'] = favoriteCategories!;
+    }
+    if (notificationRadiusKm != null) {
+      map['notification_radius_km'] = notificationRadiusKm!;
+    }
     if (isBusiness != null) map['is_business'] = isBusiness!;
     if (businessId != null) map['business_id'] = businessId!;
 

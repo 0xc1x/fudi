@@ -25,16 +25,18 @@ class PaymentRejectedException extends PaymentException {
 }
 
 class PaymentTimeoutException extends PaymentException {
-  const PaymentTimeoutException({super.message = 'El pago excedió el tiempo límite'})
-      : super(code: 'PAY_002', severity: ErrorSeverity.medium);
+  const PaymentTimeoutException({
+    super.message = 'El pago excedió el tiempo límite',
+  }) : super(code: 'PAY_002', severity: ErrorSeverity.medium);
 }
 
 class RefundFailedException extends PaymentException {
   const RefundFailedException({super.message = 'Reembolso fallido'})
-      : super(code: 'PAY_003', severity: ErrorSeverity.high);
+    : super(code: 'PAY_003', severity: ErrorSeverity.high);
 }
 
 class PaymentGatewayUnavailableException extends PaymentException {
-  const PaymentGatewayUnavailableException({super.message = 'Pasarela no disponible'})
-      : super(code: 'PAY_004', severity: ErrorSeverity.high);
+  const PaymentGatewayUnavailableException({
+    super.message = 'Pasarela no disponible',
+  }) : super(code: 'PAY_004', severity: ErrorSeverity.high);
 }

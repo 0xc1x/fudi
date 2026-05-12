@@ -26,10 +26,10 @@ class OfferListViewedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'source': source,
-        'count': count,
-        if (filters != null) 'filters': filters!,
-      };
+    'source': source,
+    'count': count,
+    if (filters != null) 'filters': filters!,
+  };
 }
 
 /// The user viewed a single offer's detail screen.
@@ -51,11 +51,11 @@ class OfferDetailViewedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'offer_id': offerId,
-        'business_id': businessId,
-        'price': price,
-        if (discountPct != null) 'discount_pct': discountPct!,
-      };
+    'offer_id': offerId,
+    'business_id': businessId,
+    'price': price,
+    if (discountPct != null) 'discount_pct': discountPct!,
+  };
 }
 
 /// The user performed a search.
@@ -75,10 +75,10 @@ class OfferSearchPerformedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'query': query,
-        if (category != null) 'category': category!,
-        'results_count': resultsCount,
-      };
+    'query': query,
+    if (category != null) 'category': category!,
+    'results_count': resultsCount,
+  };
 }
 
 /// The user applied a filter on the offer list.
@@ -96,9 +96,9 @@ class OfferFilterAppliedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'filter_type': filterType,
-        'filter_value': filterValue,
-      };
+    'filter_type': filterType,
+    'filter_value': filterValue,
+  };
 }
 
 /// The user interacted with the map view.
@@ -127,7 +127,7 @@ class OfferFavoritedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'offer_id': offerId,
-        'business_id': businessId,
-      };
+    'offer_id': offerId,
+    'business_id': businessId,
+  };
 }

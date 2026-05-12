@@ -13,18 +13,18 @@ import 'core/ui/fudi_theme.dart';
 import 'features/auth/presentation/auth_state_provider.dart';
 
 void main() async {
-// 1. Ensure Flutter bindings are initialized before any async work
-WidgetsFlutterBinding.ensureInitialized();
+  // 1. Ensure Flutter bindings are initialized before any async work
+  WidgetsFlutterBinding.ensureInitialized();
 
-// 2. Determine environment (compile-time constant or fallback to dev)
-const envString = String.fromEnvironment('APP_ENV', defaultValue: 'dev');
-final environment = AppEnvironment.fromString(envString);
+  // 2. Determine environment (compile-time constant or fallback to dev)
+  const envString = String.fromEnvironment('APP_ENV', defaultValue: 'dev');
+  final environment = AppEnvironment.fromString(envString);
 
-// 3. Load environment-specific .env file (from assets or filesystem)
-await _loadEnv(environment);
+  // 3. Load environment-specific .env file (from assets or filesystem)
+  await _loadEnv(environment);
 
-// 4. Build AppConfig from loaded env vars
-final config = AppConfig.fromEnv(environment);
+  // 4. Build AppConfig from loaded env vars
+  final config = AppConfig.fromEnv(environment);
 
   // 5. Initialize Supabase
   await Supabase.initialize(
@@ -121,9 +121,7 @@ class FudiApp extends ConsumerWidget {
       theme: FudiTheme.light(),
       routerConfig: router,
       builder: (context, child) {
-        return AuthFeedbackListener(
-          child: child ?? const SizedBox.shrink(),
-        );
+        return AuthFeedbackListener(child: child ?? const SizedBox.shrink());
       },
     );
   }

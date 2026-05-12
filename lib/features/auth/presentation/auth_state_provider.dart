@@ -21,8 +21,8 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 
 final authSessionNotifierProvider =
     NotifierProvider<AuthSessionNotifier, AuthSessionState>(
-  AuthSessionNotifier.new,
-);
+      AuthSessionNotifier.new,
+    );
 
 final authRefreshListenableProvider = Provider<ChangeNotifier>((ref) {
   final notifier = ref.watch(authSessionNotifierProvider.notifier);
@@ -130,10 +130,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
   AuthSessionNotifier get _sessionNotifier =>
       ref.read(authSessionNotifierProvider.notifier);
 
-  Future<void> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> signIn({required String email, required String password}) async {
     state = const AsyncValue.loading();
     SentryBreadcrumb.userAction('submit', 'login_form');
     await _analytics.track(AuthLoginStartedEvent(method: AuthMethod.email));
@@ -179,7 +176,11 @@ class AuthController extends Notifier<AsyncValue<void>> {
     required bool analyticsConsentGranted,
   }) async {
     state = const AsyncValue.loading();
-    SentryBreadcrumb.userAction('submit', 'signup_form', extra: {'role': role.name});
+    SentryBreadcrumb.userAction(
+      'submit',
+      'signup_form',
+      extra: {'role': role.name},
+    );
 
     try {
       final result = await _repository.signUpWithEmail(
@@ -203,10 +204,7 @@ class AuthController extends Notifier<AsyncValue<void>> {
       }
 
       await _analytics.track(
-        AuthSignupCompletedEvent(
-          method: AuthMethod.email,
-          role: role.name,
-        ),
+        AuthSignupCompletedEvent(method: AuthMethod.email, role: role.name),
       );
 
       state = const AsyncValue.data(null);
@@ -226,24 +224,21 @@ class AuthController extends Notifier<AsyncValue<void>> {
     state = const AsyncValue.data(null);
   }
 
-  Future<void> sendPasswordResetEmail({
-    required String email,
-  }) async {
+  Future<void> sendPasswordResetEmail({required String email}) async {
     state = const AsyncValue.loading();
     SentryBreadcrumb.userAction('submit', 'forgot_password_form');
 
     state = await AsyncValue.guard(() async {
       await _repository.sendPasswordResetEmail(
         email: email,
-        redirectTo:
-            _config.hasAuthResetRedirectUrl ? _config.authResetRedirectUrl : null,
+        redirectTo: _config.hasAuthResetRedirectUrl
+            ? _config.authResetRedirectUrl
+            : null,
       );
     });
   }
 
-  Future<void> updatePassword({
-    required String newPassword,
-  }) async {
+  Future<void> updatePassword({required String newPassword}) async {
     state = const AsyncValue.loading();
     SentryBreadcrumb.userAction('submit', 'update_password_form');
 
@@ -257,15 +252,13 @@ class AuthController extends Notifier<AsyncValue<void>> {
 }
 
 class AuthFeedbackListener extends ConsumerStatefulWidget {
-  const AuthFeedbackListener({
-    required this.child,
-    super.key,
-  });
+  const AuthFeedbackListener({required this.child, super.key});
 
   final Widget child;
 
   @override
-  ConsumerState<AuthFeedbackListener> createState() => _AuthFeedbackListenerState();
+  ConsumerState<AuthFeedbackListener> createState() =>
+      _AuthFeedbackListenerState();
 }
 
 class _AuthFeedbackListenerState extends ConsumerState<AuthFeedbackListener> {
@@ -305,7 +298,7 @@ class _AuthFeedbackListenerState extends ConsumerState<AuthFeedbackListener> {
 
   void _removeListener() {
     if (_listener != null) {
-    final listenable = ref.read(authRefreshListenableProvider);
+      final listenable = ref.read(authRefreshListenableProvider);
       listenable.removeListener(_listener!);
       _listener = null;
     }
@@ -318,9 +311,9 @@ class _AuthFeedbackListenerState extends ConsumerState<AuthFeedbackListener> {
     if (notice != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(notice)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(notice)));
       });
     }
   }

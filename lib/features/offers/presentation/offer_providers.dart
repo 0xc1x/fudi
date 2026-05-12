@@ -36,8 +36,8 @@ final userLocationProvider = FutureProvider<Position?>((ref) async {
 
 final popularOffersProvider =
     AsyncNotifierProvider<PopularOffersNotifier, List<Offer>>(
-  PopularOffersNotifier.new,
-);
+      PopularOffersNotifier.new,
+    );
 
 class PopularOffersNotifier extends AsyncNotifier<List<Offer>> {
   @override
@@ -57,8 +57,8 @@ class PopularOffersNotifier extends AsyncNotifier<List<Offer>> {
 
 final nearbyOffersProvider =
     AsyncNotifierProvider<NearbyOffersNotifier, List<Offer>>(
-  NearbyOffersNotifier.new,
-);
+      NearbyOffersNotifier.new,
+    );
 
 class NearbyOffersNotifier extends AsyncNotifier<List<Offer>> {
   @override
@@ -95,16 +95,18 @@ class NearbyOffersNotifier extends AsyncNotifier<List<Offer>> {
   }
 }
 
-final offerDetailProvider =
-    FutureProvider.family<Offer, String>((ref, id) async {
+final offerDetailProvider = FutureProvider.family<Offer, String>((
+  ref,
+  id,
+) async {
   final repo = ref.watch(offerRepositoryProvider);
   return repo.getOfferById(id);
 });
 
 final filteredOffersProvider =
     AsyncNotifierProvider<FilteredOffersNotifier, List<Offer>>(
-  FilteredOffersNotifier.new,
-);
+      FilteredOffersNotifier.new,
+    );
 
 class FilteredOffersNotifier extends AsyncNotifier<List<Offer>> {
   @override

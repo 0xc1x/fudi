@@ -63,8 +63,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     );
   }
 
-  Widget _buildContent(BuildContext context, Offer offer, ReservationState state) {
-    final isProcessing = state.step == ReservationStep.reserving ||
+  Widget _buildContent(
+    BuildContext context,
+    Offer offer,
+    ReservationState state,
+  ) {
+    final isProcessing =
+        state.step == ReservationStep.reserving ||
         state.step == ReservationStep.paying;
     final total = offer.discountedPrice - _couponDiscount;
 
@@ -203,10 +208,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   }
 
   void _confirmAndPay(Offer offer) {
-    ref.read(reservationControllerProvider.notifier).reserveAndPay(
-          offerId: offer.id,
-          couponId: _couponId,
-        );
+    ref
+        .read(reservationControllerProvider.notifier)
+        .reserveAndPay(offerId: offer.id, couponId: _couponId);
   }
 }
 
@@ -296,8 +300,11 @@ class _PriceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = isBold ? FudiTypography.labelMedium : FudiTypography.bodyMedium;
-    final effectiveColor = color ?? (isBold ? FudiColors.primary : FudiColors.foreground);
+    final style = isBold
+        ? FudiTypography.labelMedium
+        : FudiTypography.bodyMedium;
+    final effectiveColor =
+        color ?? (isBold ? FudiColors.primary : FudiColors.foreground);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

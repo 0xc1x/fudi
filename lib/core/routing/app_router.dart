@@ -43,10 +43,7 @@ GoRouter createAppRouter(
         sessionNotifier: authSessionNotifier,
       );
     },
-    observers: [
-      SentryNavigatorObserver(),
-      _SentryRouteObserver(),
-    ],
+    observers: [SentryNavigatorObserver(), _SentryRouteObserver()],
     routes: [
       // ─── Rutas sin BottomNav ─────────────────────────────────────
       GoRoute(
@@ -67,7 +64,8 @@ GoRouter createAppRouter(
       GoRoute(
         path: RouteNames.landingPath,
         name: RouteNames.landing,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Fudi Landing'),
+        builder: (context, state) =>
+            const _PlaceholderScreen(title: 'Fudi Landing'),
       ),
       GoRoute(
         path: '/ui-gallery',
@@ -76,122 +74,122 @@ GoRouter createAppRouter(
 
       // ─── Shell para Consumidor (con BottomNav) ───────────────────
       ShellRoute(
-        builder: (context, state, child) => FudiScaffold(
-          showBottomNav: true,
-          body: child,
-        ),
+        builder: (context, state, child) =>
+            FudiScaffold(showBottomNav: true, body: child),
         routes: [
-        GoRoute(
-          path: RouteNames.homePath,
-          name: RouteNames.home,
-          builder: (context, state) => const HomeScreen(),
-        ),
-        GoRoute(
-          path: RouteNames.explorePath,
-          name: RouteNames.explore,
-          builder: (context, state) => const ExploreScreen(),
-        ),
-        GoRoute(
-          path: RouteNames.ordersPath,
-          name: RouteNames.orders,
-          builder: (context, state) => const OrderHistoryScreen(),
-        ),
+          GoRoute(
+            path: RouteNames.homePath,
+            name: RouteNames.home,
+            builder: (context, state) => const HomeScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.explorePath,
+            name: RouteNames.explore,
+            builder: (context, state) => const ExploreScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.ordersPath,
+            name: RouteNames.orders,
+            builder: (context, state) => const OrderHistoryScreen(),
+          ),
           GoRoute(
             path: RouteNames.favoritesPath,
             name: RouteNames.favorites,
-            builder: (context, state) => const _PlaceholderScreen(title: 'Favoritos'),
+            builder: (context, state) =>
+                const _PlaceholderScreen(title: 'Favoritos'),
           ),
-        GoRoute(
-          path: RouteNames.profilePath,
-          name: RouteNames.profile,
-          builder: (context, state) => const ProfileScreen(),
-        ),
+          GoRoute(
+            path: RouteNames.profilePath,
+            name: RouteNames.profile,
+            builder: (context, state) => const ProfileScreen(),
+          ),
         ],
       ),
 
-// ─── Shell para Negocio (con BottomNav) ──────────────────────
-    ShellRoute(
-      builder: (context, state, child) => FudiScaffold(
-        showBottomNav: true,
-        body: child,
+      // ─── Shell para Negocio (con BottomNav) ──────────────────────
+      ShellRoute(
+        builder: (context, state, child) =>
+            FudiScaffold(showBottomNav: true, body: child),
+        routes: [
+          GoRoute(
+            path: RouteNames.businessProductsPath,
+            name: RouteNames.businessProducts,
+            builder: (context, state) =>
+                const _PlaceholderScreen(title: 'Mis Productos'),
+          ),
+          GoRoute(
+            path: RouteNames.businessOrdersPath,
+            name: RouteNames.businessOrders,
+            builder: (context, state) =>
+                const _PlaceholderScreen(title: 'Pedidos Recibidos'),
+          ),
+          GoRoute(
+            path: RouteNames.businessLocationsPath,
+            name: RouteNames.businessLocations,
+            builder: (context, state) =>
+                const _PlaceholderScreen(title: 'Gestión de Locales'),
+          ),
+          // Sub-rutas de Business (sin tab propio, se acceden desde Gestión)
+          GoRoute(
+            path: RouteNames.businessStatisticsPath,
+            name: RouteNames.businessStatistics,
+            builder: (context, state) =>
+                const _PlaceholderScreen(title: 'Estadísticas'),
+          ),
+          GoRoute(
+            path: RouteNames.businessPaymentsPath,
+            name: RouteNames.businessPayments,
+            builder: (context, state) =>
+                const _PlaceholderScreen(title: 'Pagos y Payouts'),
+          ),
+          GoRoute(
+            path: RouteNames.businessProfilePath,
+            name: RouteNames.businessProfile,
+            builder: (context, state) =>
+                const _PlaceholderScreen(title: 'Perfil de Negocio'),
+          ),
+        ],
       ),
-      routes: [
-        GoRoute(
-          path: RouteNames.businessProductsPath,
-          name: RouteNames.businessProducts,
-          builder: (context, state) => const _PlaceholderScreen(title: 'Mis Productos'),
-        ),
-        GoRoute(
-          path: RouteNames.businessOrdersPath,
-          name: RouteNames.businessOrders,
-          builder: (context, state) => const _PlaceholderScreen(title: 'Pedidos Recibidos'),
-        ),
-        GoRoute(
-          path: RouteNames.businessLocationsPath,
-          name: RouteNames.businessLocations,
-          builder: (context, state) => const _PlaceholderScreen(title: 'Gestión de Locales'),
-        ),
-        // Sub-rutas de Business (sin tab propio, se acceden desde Gestión)
-        GoRoute(
-          path: RouteNames.businessStatisticsPath,
-          name: RouteNames.businessStatistics,
-          builder: (context, state) => const _PlaceholderScreen(title: 'Estadísticas'),
-        ),
-        GoRoute(
-          path: RouteNames.businessPaymentsPath,
-          name: RouteNames.businessPayments,
-          builder: (context, state) => const _PlaceholderScreen(title: 'Pagos y Payouts'),
-        ),
-        GoRoute(
-          path: RouteNames.businessProfilePath,
-          name: RouteNames.businessProfile,
-          builder: (context, state) => const _PlaceholderScreen(title: 'Perfil de Negocio'),
-        ),
-      ],
-    ),
 
       // ─── Rutas de Detalle (sin BottomNav por defecto) ─────────────
-  GoRoute(
-      path: RouteNames.productPath,
-      name: RouteNames.product,
-      builder: (context, state) => ProductDetailScreen(
-        id: state.pathParameters['id']!,
+      GoRoute(
+        path: RouteNames.productPath,
+        name: RouteNames.product,
+        builder: (context, state) =>
+            ProductDetailScreen(id: state.pathParameters['id']!),
       ),
-    ),
-    GoRoute(
-      path: RouteNames.checkoutPath,
-      name: RouteNames.checkout,
-      builder: (context, state) => CheckoutScreen(
-        offerId: state.pathParameters['id']!,
+      GoRoute(
+        path: RouteNames.checkoutPath,
+        name: RouteNames.checkout,
+        builder: (context, state) =>
+            CheckoutScreen(offerId: state.pathParameters['id']!),
       ),
-    ),
-    GoRoute(
-      path: RouteNames.orderDetailPath,
-      name: RouteNames.orderDetail,
-      builder: (context, state) => OrderDetailScreen(
-        id: state.pathParameters['id']!,
+      GoRoute(
+        path: RouteNames.orderDetailPath,
+        name: RouteNames.orderDetail,
+        builder: (context, state) =>
+            OrderDetailScreen(id: state.pathParameters['id']!),
       ),
-    ),
-    GoRoute(
-      path: RouteNames.reviewOrderPath,
-      name: RouteNames.reviewOrder,
-      builder: (context, state) => ReviewOrderScreen(
-        id: state.pathParameters['id']!,
+      GoRoute(
+        path: RouteNames.reviewOrderPath,
+        name: RouteNames.reviewOrder,
+        builder: (context, state) =>
+            ReviewOrderScreen(id: state.pathParameters['id']!),
       ),
-    ),
 
-    // Perfil extendido
-  GoRoute(
-      path: RouteNames.profileEditPath,
-      name: RouteNames.profileEdit,
-      builder: (context, state) => const ProfileEditScreen(),
-    ),
+      // Perfil extendido
+      GoRoute(
+        path: RouteNames.profileEditPath,
+        name: RouteNames.profileEdit,
+        builder: (context, state) => const ProfileEditScreen(),
+      ),
 
       // Otras rutas informativas...
       GoRoute(
         path: RouteNames.aboutPath,
         name: RouteNames.about,
-        builder: (context, state) => const _PlaceholderScreen(title: 'Sobre Fudi'),
+        builder: (context, state) =>
+            const _PlaceholderScreen(title: 'Sobre Fudi'),
       ),
     ],
   );
@@ -209,10 +207,7 @@ class _PlaceholderScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            Text(title, style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 16),
             const Text('🚧 Implementación en curso...'),
           ],

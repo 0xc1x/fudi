@@ -30,7 +30,11 @@ void main() {
 
       test('creates breadcrumb with extra data', () {
         expect(
-          () => SentryBreadcrumb.userAction('tap', 'reserve_button', extra: {'offer_id': 'o1'}),
+          () => SentryBreadcrumb.userAction(
+            'tap',
+            'reserve_button',
+            extra: {'offer_id': 'o1'},
+          ),
           returnsNormally,
         );
       });
@@ -53,7 +57,11 @@ void main() {
 
       test('creates breadcrumb with duration', () {
         expect(
-          () => SentryBreadcrumb.apiCall('GET', '/offers', duration: const Duration(milliseconds: 250)),
+          () => SentryBreadcrumb.apiCall(
+            'GET',
+            '/offers',
+            duration: const Duration(milliseconds: 250),
+          ),
           returnsNormally,
         );
       });
@@ -69,7 +77,12 @@ void main() {
 
       test('creates breadcrumb with gateway and status', () {
         expect(
-          () => SentryBreadcrumb.payment('payment_completed', 'ord-123', gateway: 'placetopay', status: 'approved'),
+          () => SentryBreadcrumb.payment(
+            'payment_completed',
+            'ord-123',
+            gateway: 'placetopay',
+            status: 'approved',
+          ),
           returnsNormally,
         );
       });

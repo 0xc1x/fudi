@@ -21,10 +21,10 @@ class BusinessOfferCreatedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'business_id': businessId,
-        'offer_id': offerId,
-        'price': price,
-      };
+    'business_id': businessId,
+    'offer_id': offerId,
+    'price': price,
+  };
 }
 
 /// A business updated an existing offer.
@@ -46,10 +46,10 @@ class BusinessOfferUpdatedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'business_id': businessId,
-        'offer_id': offerId,
-        'change_type': changeType,
-      };
+    'business_id': businessId,
+    'offer_id': offerId,
+    'change_type': changeType,
+  };
 }
 
 /// A business disabled an offer.
@@ -69,10 +69,10 @@ class BusinessOfferDisabledEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'business_id': businessId,
-        'offer_id': offerId,
-        'reason': reason,
-      };
+    'business_id': businessId,
+    'offer_id': offerId,
+    'reason': reason,
+  };
 }
 
 /// A business performed an action on an order (confirm, reject, etc.).
@@ -94,10 +94,10 @@ class BusinessOrderManagedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'business_id': businessId,
-        'order_id': orderId,
-        'action': action,
-      };
+    'business_id': businessId,
+    'order_id': orderId,
+    'action': action,
+  };
 }
 
 /// A business viewed their dashboard.
@@ -128,7 +128,7 @@ class BusinessPayoutRequestedEvent extends AnalyticsEvent {
 
   @override
   Map<String, dynamic> get properties => {
-        'business_id': businessId,
-        'amount': amount,
-      };
+    'business_id': businessId,
+    'amount': amount,
+  };
 }

@@ -22,18 +22,24 @@ class ProductDetailScreen extends ConsumerWidget {
 
     return offerAsync.when(
       data: (offer) => _OfferDetailContent(offer: offer),
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (error, _) => Scaffold(
         appBar: AppBar(),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: FudiColors.destructive),
+              const Icon(
+                Icons.error_outline,
+                size: 48,
+                color: FudiColors.destructive,
+              ),
               const SizedBox(height: FudiSpacing.md),
-              Text('Error al cargar la oferta', style: FudiTypography.bodyMedium),
+              Text(
+                'Error al cargar la oferta',
+                style: FudiTypography.bodyMedium,
+              ),
               const SizedBox(height: FudiSpacing.md),
               FilledButton(
                 onPressed: () => ref.invalidate(offerDetailProvider(id)),
@@ -55,7 +61,8 @@ class _OfferDetailContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final reservationState = ref.watch(reservationControllerProvider);
-    final isReserving = reservationState.step == ReservationStep.reserving ||
+    final isReserving =
+        reservationState.step == ReservationStep.reserving ||
         reservationState.step == ReservationStep.paying;
 
     return Scaffold(
@@ -71,12 +78,19 @@ class _OfferDetailContent extends ConsumerWidget {
                       fit: BoxFit.cover,
                       errorWidget: (_, __, ___) => Container(
                         color: FudiColors.muted,
-                        child: const Icon(Icons.broken_image_outlined, size: 64),
+                        child: const Icon(
+                          Icons.broken_image_outlined,
+                          size: 64,
+                        ),
                       ),
                     )
                   : Container(
                       color: FudiColors.muted,
-                      child: const Icon(Icons.restaurant, size: 64, color: FudiColors.mutedForeground),
+                      child: const Icon(
+                        Icons.restaurant,
+                        size: 64,
+                        color: FudiColors.mutedForeground,
+                      ),
                     ),
             ),
           ),
@@ -88,7 +102,10 @@ class _OfferDetailContent extends ConsumerWidget {
                 children: [
                   if (offer.categoryLabel.isNotEmpty)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: FudiColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
@@ -106,11 +123,21 @@ class _OfferDetailContent extends ConsumerWidget {
                   const SizedBox(height: FudiSpacing.sm),
                   Row(
                     children: [
-                      Icon(Icons.store_outlined, size: 16, color: FudiColors.mutedForeground),
+                      Icon(
+                        Icons.store_outlined,
+                        size: 16,
+                        color: FudiColors.mutedForeground,
+                      ),
                       const SizedBox(width: 4),
-                      Text(offer.business.name, style: FudiTypography.bodyMedium),
+                      Text(
+                        offer.business.name,
+                        style: FudiTypography.bodyMedium,
+                      ),
                       const SizedBox(width: FudiSpacing.md),
-                      FudiStarRating(rating: offer.business.rating, showText: true),
+                      FudiStarRating(
+                        rating: offer.business.rating,
+                        showText: true,
+                      ),
                     ],
                   ),
                   const SizedBox(height: FudiSpacing.lg),
@@ -135,7 +162,10 @@ class _OfferDetailContent extends ConsumerWidget {
                       ),
                       const SizedBox(width: FudiSpacing.sm),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: FudiColors.secondary,
                           borderRadius: BorderRadius.circular(4),
@@ -164,8 +194,8 @@ class _OfferDetailContent extends ConsumerWidget {
                     valueColor: offer.stock > 3
                         ? FudiColors.success
                         : offer.stock > 0
-                            ? FudiColors.warning
-                            : FudiColors.destructive,
+                        ? FudiColors.warning
+                        : FudiColors.destructive,
                   ),
                   const SizedBox(height: FudiSpacing.sm),
                   _InfoRow(
@@ -184,15 +214,24 @@ class _OfferDetailContent extends ConsumerWidget {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.location_on_outlined, color: FudiColors.primary),
+                        Icon(
+                          Icons.location_on_outlined,
+                          color: FudiColors.primary,
+                        ),
                         const SizedBox(width: FudiSpacing.sm),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(offer.business.name, style: FudiTypography.labelMedium),
+                              Text(
+                                offer.business.name,
+                                style: FudiTypography.labelMedium,
+                              ),
                               const SizedBox(height: 2),
-                              Text(offer.business.address, style: FudiTypography.bodySmall),
+                              Text(
+                                offer.business.address,
+                                style: FudiTypography.bodySmall,
+                              ),
                             ],
                           ),
                         ),
@@ -224,14 +263,17 @@ class _OfferDetailContent extends ConsumerWidget {
                 ? const SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
                   )
                 : Text(
                     offer.isOutOfStock
                         ? 'Agotado'
                         : offer.isExpired
-                            ? 'Ventana de pickup cerrada'
-                            : 'Reservar por \$${offer.discountedPrice.toStringAsFixed(0)}',
+                        ? 'Ventana de pickup cerrada'
+                        : 'Reservar por \$${offer.discountedPrice.toStringAsFixed(0)}',
                     style: FudiTypography.labelMedium.copyWith(
                       color: Colors.white,
                     ),

@@ -9,44 +9,60 @@ import 'package:fudi/core/error/payment_exceptions.dart';
 
 void main() {
   group('FudiException Hierarchy', () {
-    test('ConnectionException should be a NetworkException and FudiException', () {
-      const exception = ConnectionException();
-      expect(exception, isA<NetworkException>());
-      expect(exception, isA<FudiException>());
-      expect(exception.code, 'NET_001');
-      expect(exception.severity, ErrorSeverity.low);
-      expect(exception.feature, 'network');
-    });
+    test(
+      'ConnectionException should be a NetworkException and FudiException',
+      () {
+        const exception = ConnectionException();
+        expect(exception, isA<NetworkException>());
+        expect(exception, isA<FudiException>());
+        expect(exception.code, 'NET_001');
+        expect(exception.severity, ErrorSeverity.low);
+        expect(exception.feature, 'network');
+      },
+    );
 
-    test('UnauthorizedException should be an AuthException and FudiException', () {
-      const exception = UnauthorizedException();
-      expect(exception, isA<AuthException>());
-      expect(exception, isA<FudiException>());
-      expect(exception.code, 'AUTH_001');
-      expect(exception.severity, ErrorSeverity.medium);
-      expect(exception.feature, 'auth');
-    });
+    test(
+      'UnauthorizedException should be an AuthException and FudiException',
+      () {
+        const exception = UnauthorizedException();
+        expect(exception, isA<AuthException>());
+        expect(exception, isA<FudiException>());
+        expect(exception.code, 'AUTH_001');
+        expect(exception.severity, ErrorSeverity.medium);
+        expect(exception.feature, 'auth');
+      },
+    );
 
-    test('PaymentRejectedException should be a PaymentException and FudiException', () {
-      const exception = PaymentRejectedException(rejectionReason: 'Insufficient funds');
-      expect(exception, isA<PaymentException>());
-      expect(exception, isA<FudiException>());
-      expect(exception.code, 'PAY_001');
-      expect(exception.rejectionReason, 'Insufficient funds');
-      expect(exception.severity, ErrorSeverity.medium);
-      expect(exception.feature, 'payments');
-    });
+    test(
+      'PaymentRejectedException should be a PaymentException and FudiException',
+      () {
+        const exception = PaymentRejectedException(
+          rejectionReason: 'Insufficient funds',
+        );
+        expect(exception, isA<PaymentException>());
+        expect(exception, isA<FudiException>());
+        expect(exception.code, 'PAY_001');
+        expect(exception.rejectionReason, 'Insufficient funds');
+        expect(exception.severity, ErrorSeverity.medium);
+        expect(exception.feature, 'payments');
+      },
+    );
 
-    test('OfferUnavailableException should be a BusinessRuleException and FudiException', () {
-      const exception = OfferUnavailableException();
-      expect(exception, isA<BusinessRuleException>());
-      expect(exception, isA<FudiException>());
-      expect(exception.code, 'BIZ_001');
-      expect(exception.feature, 'business');
-    });
+    test(
+      'OfferUnavailableException should be a BusinessRuleException and FudiException',
+      () {
+        const exception = OfferUnavailableException();
+        expect(exception, isA<BusinessRuleException>());
+        expect(exception, isA<FudiException>());
+        expect(exception.code, 'BIZ_001');
+        expect(exception.feature, 'business');
+      },
+    );
 
     test('ValidationException should be a DataException and FudiException', () {
-      const exception = ValidationException(fieldErrors: {'email': 'Invalid format'});
+      const exception = ValidationException(
+        fieldErrors: {'email': 'Invalid format'},
+      );
       expect(exception, isA<DataException>());
       expect(exception, isA<FudiException>());
       expect(exception.code, 'DATA_001');
@@ -65,8 +81,7 @@ void main() {
     });
 
     test('custom feature and severity can be overridden', () {
-      const exception = ConnectionException()
-          as FudiException;
+      const exception = ConnectionException() as FudiException;
       expect(exception.severity, ErrorSeverity.low);
       expect(exception.feature, 'network');
     });
@@ -100,7 +115,10 @@ void main() {
       expect(ServerException().userMessage(), contains('problema temporal'));
       expect(UnauthorizedException().userMessage(), contains('sesión'));
       expect(PaymentRejectedException().userMessage(), contains('rechazado'));
-      expect(OfferUnavailableException().userMessage(), contains('no está disponible'));
+      expect(
+        OfferUnavailableException().userMessage(),
+        contains('no está disponible'),
+      );
       expect(ValidationException().userMessage(), contains('datos'));
       expect(NotFoundException().userMessage(), contains('encontramos'));
     });

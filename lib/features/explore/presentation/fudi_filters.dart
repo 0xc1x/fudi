@@ -38,7 +38,9 @@ class FudiFilterState {
     return FudiFilterState(
       category: clearCategory ? null : (category ?? this.category),
       maxPrice: clearMaxPrice ? null : (maxPrice ?? this.maxPrice),
-      maxDistanceKm: clearMaxDistance ? null : (maxDistanceKm ?? this.maxDistanceKm),
+      maxDistanceKm: clearMaxDistance
+          ? null
+          : (maxDistanceKm ?? this.maxDistanceKm),
       searchQuery: clearSearchQuery ? null : (searchQuery ?? this.searchQuery),
     );
   }
@@ -63,12 +65,12 @@ class FudiFiltersSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(FudiRadius.xl)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(FudiRadius.xl),
+        ),
       ),
-      builder: (_) => FudiFiltersSheet(
-        currentFilters: currentFilters,
-        onApply: onApply,
-      ),
+      builder: (_) =>
+          FudiFiltersSheet(currentFilters: currentFilters, onApply: onApply),
     );
   }
 
@@ -79,12 +81,7 @@ class FudiFiltersSheet extends StatefulWidget {
 class _FudiFiltersSheetState extends State<FudiFiltersSheet> {
   late FudiFilterState _filters;
 
-  static const _categories = [
-    'Japanese',
-    'Bakery',
-    'Italian',
-    'Cafe',
-  ];
+  static const _categories = ['Japanese', 'Bakery', 'Italian', 'Cafe'];
 
   static const _distanceOptions = [2.0, 5.0, 10.0];
   static const _priceOptions = [10000.0, 20000.0, 50000.0];

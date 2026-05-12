@@ -8,8 +8,8 @@ import 'analytics_tracker.dart';
 
 class FirebaseTracker implements AnalyticsTracker {
   FirebaseTracker({FirebaseAnalytics? analytics})
-      : _analytics = analytics,
-        _initialized = analytics != null;
+    : _analytics = analytics,
+      _initialized = analytics != null;
 
   FirebaseAnalytics? _analytics;
   bool _initialized;
@@ -85,7 +85,9 @@ class FirebaseTracker implements AnalyticsTracker {
     try {
       final map = properties.toMap();
       for (final entry in map.entries) {
-        final key = entry.key.length > 40 ? entry.key.substring(0, 40) : entry.key;
+        final key = entry.key.length > 40
+            ? entry.key.substring(0, 40)
+            : entry.key;
         final value = _truncateValue(entry.value);
         await analytics.setUserProperty(name: key, value: value);
       }
@@ -118,7 +120,9 @@ class FirebaseTracker implements AnalyticsTracker {
     final entries = properties.entries.take(25);
 
     for (final entry in entries) {
-      final key = entry.key.length > 40 ? entry.key.substring(0, 40) : entry.key;
+      final key = entry.key.length > 40
+          ? entry.key.substring(0, 40)
+          : entry.key;
       final value = entry.value;
       if (value is String || value is int || value is double || value is bool) {
         sanitized[key] = value;

@@ -2,16 +2,11 @@ import 'package:flutter/material.dart';
 import 'fudi_typography.dart';
 
 /// Logo de Fudi estilizado.
-/// 
-/// Actualmente usa texto e iconos del sistema, 
+///
+/// Actualmente usa texto e iconos del sistema,
 /// a reemplazar por SvgPicture cuando esté disponible.
 class FudiLogo extends StatelessWidget {
-  const FudiLogo({
-    super.key,
-    this.size = 24,
-    this.showText = true,
-    this.color,
-  });
+  const FudiLogo({super.key, this.size = 24, this.showText = true, this.color});
 
   final double size;
   final bool showText;
@@ -24,11 +19,7 @@ class FudiLogo extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          Icons.restaurant_menu_rounded,
-          size: size,
-          color: effectiveColor,
-        ),
+        Icon(Icons.restaurant_menu_rounded, size: size, color: effectiveColor),
         if (showText) ...[
           const SizedBox(width: 8),
           Text(

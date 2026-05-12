@@ -114,5 +114,5 @@ enum CircuitState {
   open,
 
   /// Probing — one request is allowed to test recovery.
-  halfOpen;
+  halfOpen,
 }

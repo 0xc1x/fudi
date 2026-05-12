@@ -13,26 +13,32 @@ sealed class DataException extends FudiException {
 class ValidationException extends DataException {
   final Map<String, String>? fieldErrors;
 
-  const ValidationException({super.message = 'Datos inválidos', this.fieldErrors})
-      : super(code: 'DATA_001', severity: ErrorSeverity.low);
+  const ValidationException({
+    super.message = 'Datos inválidos',
+    this.fieldErrors,
+  }) : super(code: 'DATA_001', severity: ErrorSeverity.low);
 }
 
 class ConflictException extends DataException {
   const ConflictException({super.message = 'Conflicto de datos'})
-      : super(code: 'DATA_004', severity: ErrorSeverity.medium);
+    : super(code: 'DATA_004', severity: ErrorSeverity.medium);
 }
 
 class NotFoundException extends DataException {
   const NotFoundException({super.message = 'Recurso no encontrado'})
-      : super(code: 'DATA_002', severity: ErrorSeverity.medium);
+    : super(code: 'DATA_002', severity: ErrorSeverity.medium);
 }
 
 class CacheException extends DataException {
   const CacheException({super.message = 'Error de caché'})
-      : super(code: 'DATA_003', severity: ErrorSeverity.low);
+    : super(code: 'DATA_003', severity: ErrorSeverity.low);
 }
 
 class UnknownDataException extends DataException {
-  const UnknownDataException({required super.message, super.code, super.context, super.severity})
-      : super(feature: 'data');
+  const UnknownDataException({
+    required super.message,
+    super.code,
+    super.context,
+    super.severity,
+  }) : super(feature: 'data');
 }

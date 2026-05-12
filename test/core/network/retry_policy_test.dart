@@ -85,7 +85,10 @@ void main() {
       });
 
       test('PaymentGatewayUnavailableException is retryable', () {
-        expect(RetryPolicy.isRetryable(const PaymentGatewayUnavailableException()), true);
+        expect(
+          RetryPolicy.isRetryable(const PaymentGatewayUnavailableException()),
+          true,
+        );
       });
 
       test('UnauthorizedException is NOT retryable', () {
@@ -93,11 +96,17 @@ void main() {
       });
 
       test('PaymentRejectedException is NOT retryable', () {
-        expect(RetryPolicy.isRetryable(const PaymentRejectedException()), false);
+        expect(
+          RetryPolicy.isRetryable(const PaymentRejectedException()),
+          false,
+        );
       });
 
       test('OfferUnavailableException is NOT retryable', () {
-        expect(RetryPolicy.isRetryable(const OfferUnavailableException()), false);
+        expect(
+          RetryPolicy.isRetryable(const OfferUnavailableException()),
+          false,
+        );
       });
     });
 
@@ -115,7 +124,10 @@ void main() {
       test('delay increases with attempts (exponential)', () {
         final delay1 = RetryPolicy.network.delayForAttempt(1);
         final delay2 = RetryPolicy.network.delayForAttempt(2);
-        expect(delay2.inMilliseconds, greaterThanOrEqualTo(delay1.inMilliseconds - 500));
+        expect(
+          delay2.inMilliseconds,
+          greaterThanOrEqualTo(delay1.inMilliseconds - 500),
+        );
       });
 
       test('delay is capped at maxDelay', () {
