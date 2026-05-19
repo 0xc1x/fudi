@@ -435,11 +435,6 @@ mkdir -p lib/shared
 
 ## FASE 6: Features Business (Dashboard de negocios)
 
-### 6.1 Business mode switching
-
-**Mockup:** AppModeContext.tsx -> business_mode_provider.dart
-**Logica:** Toggle consumer/business, solo si user tiene business asociado, BottomNav cambia
-
 ---
 
 ### 6.2 Business Products (3 pantallas)

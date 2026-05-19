@@ -3,7 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/di/core_providers.dart';
 import '../../../core/network/payment_gateway.dart';
 import '../data/mock_payment_gateway.dart';
+import '../data/supabase_coupon_repository.dart';
 import '../data/supabase_order_repository.dart';
+import '../data/supabase_review_repository.dart';
+import '../domain/coupon.dart';
+import '../domain/coupon_repository.dart';
 import '../domain/order_model.dart';
 import '../domain/order_repository.dart';
 import '../domain/reservation_result.dart';
@@ -14,8 +18,29 @@ final orderRepositoryProvider = Provider<OrderRepository>((ref) {
   );
 });
 
+final couponRepositoryProvider = Provider<CouponRepository>((ref) {
+  return SupabaseCouponRepository(
+    supabaseClient: ref.watch(supabaseClientProvider),
+  );
+});
+
+final validateCouponProvider =
+    FutureProvider.family<Coupon?, ({String code, String businessId})>((
+  ref,
+  arg,
+) async {
+  final repo = ref.watch(couponRepositoryProvider);
+  return repo.getCouponByCode(arg.code, arg.businessId);
+});
+
 final paymentGatewayProvider = Provider<PaymentGateway>((ref) {
   return MockPaymentGateway();
+});
+
+final reviewRepositoryProvider = Provider<SupabaseReviewRepository>((ref) {
+  return SupabaseReviewRepository(
+    supabaseClient: ref.watch(supabaseClientProvider),
+  );
 });
 
 final userOrdersProvider =
@@ -144,6 +169,9 @@ final orderCancelProvider =
       OrderCancelNotifier.new,
     );
 
+final submitReviewProvider =
+    AsyncNotifierProvider<SubmitReviewNotifier, void>(SubmitReviewNotifier.new);
+
 class CancelOrderState {
   const CancelOrderState({
     this.isCanceling = false,
@@ -196,5 +224,31 @@ class OrderCancelNotifier extends AsyncNotifier<CancelOrderState> {
 
   void reset() {
     state = const AsyncData(CancelOrderState());
+  }
+}
+
+class SubmitReviewNotifier extends AsyncNotifier<void> {
+  @override
+  Future<void> build() async {}
+
+  Future<void> submit({
+    required String orderId,
+    required String businessId,
+    required int productRating,
+    required int businessRating,
+    String? comment,
+  }) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ref
+          .read(reviewRepositoryProvider)
+          .submitReview(
+            orderId: orderId,
+            businessId: businessId,
+            productRating: productRating,
+            businessRating: businessRating,
+            comment: comment,
+          );
+    });
   }
 }

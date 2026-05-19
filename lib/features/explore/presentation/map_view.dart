@@ -134,7 +134,7 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
               child: _SelectedOfferCard(
                 offer: _selectedOffer!,
                 onClose: () => setState(() => _selectedOffer = null),
-                onReserve: () => context.go('/product/${_selectedOffer!.id}'),
+                onReserve: () => context.push('/product/${_selectedOffer!.id}'),
               ),
             ),
 

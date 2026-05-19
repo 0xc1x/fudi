@@ -1,13 +1,15 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
-import '../../../core/routing/route_names.dart';
+import '../../../core/ui/fudi_bottom_action_bar.dart';
 import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_info_banner.dart';
+import '../../../core/ui/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
+import '../../../core/ui/fudi_sticky_page_header.dart';
+import '../../../core/ui/fudi_surface_card.dart';
+import '../../../core/ui/fudi_star_rating.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../domain/order_model.dart';
 import '../presentation/order_providers.dart';
@@ -22,12 +24,13 @@ class ReviewOrderScreen extends ConsumerStatefulWidget {
 }
 
 class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
-  Timer? _countdownTimer;
-  Duration _remaining = Duration.zero;
+  final _commentController = TextEditingController();
+  int _productRating = 0;
+  int _businessRating = 0;
 
   @override
   void dispose() {
-    _countdownTimer?.cancel();
+    _commentController.dispose();
     super.dispose();
   }
 
@@ -36,76 +39,156 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
     final orderAsync = ref.watch(orderDetailProvider(widget.id));
 
     return orderAsync.when(
-      data: (order) {
-        _startCountdown(order);
-        return _buildContent(context, order);
-      },
+      data: (order) => _buildContent(context, order),
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (error, _) => Scaffold(
-        appBar: AppBar(),
+        appBar: const FudiStickyPageHeader(title: 'Dejar reseña'),
         body: Center(child: Text('Error: $error')),
       ),
     );
   }
 
-  void _startCountdown(OrderModel order) {
-    final pickupEnd = order.createdAt.add(const Duration(hours: 22));
-    _remaining = pickupEnd.difference(DateTime.now());
-    if (_remaining.isNegative) _remaining = Duration.zero;
-
-    _countdownTimer?.cancel();
-    _countdownTimer = Timer.periodic(const Duration(minutes: 1), (_) {
-      if (!mounted) return;
-      setState(() {
-        _remaining = pickupEnd.difference(DateTime.now());
-        if (_remaining.isNegative) _remaining = Duration.zero;
-      });
-    });
-  }
-
   Widget _buildContent(BuildContext context, OrderModel order) {
+    ref.listen(submitReviewProvider, (previous, next) {
+      next.whenOrNull(
+        data: (_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Reseña publicada exitosamente')),
+          );
+          Navigator.of(context).pop();
+        },
+        error: (error, _) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error.toString()),
+              backgroundColor: FudiColors.destructive,
+            ),
+          );
+        },
+      );
+    });
+
+    final submitReview = ref.watch(submitReviewProvider);
+    final isSubmitting = submitReview.isLoading;
+
     return Scaffold(
+      appBar: const FudiStickyPageHeader(title: 'Dejar reseña'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(FudiSpacing.lg),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: FudiSpacing.xl),
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: FudiColors.secondary,
-                shape: BoxShape.circle,
+            _OrderSummaryCard(order: order),
+            const SizedBox(height: FudiSpacing.lg),
+            _RatingSection(
+              title: '¿Cómo estuvo el producto?',
+              subtitle: _ratingLabel(
+                rating: _productRating,
+                empty: 'Toca las estrellas para calificar',
               ),
-              child: const Icon(
-                Icons.check_rounded,
-                color: FudiColors.primary,
-                size: 48,
+              value: _productRating,
+              onChanged: (value) => setState(() => _productRating = value),
+            ),
+            const SizedBox(height: FudiSpacing.lg),
+            _RatingSection(
+              title: '¿Cómo fue tu experiencia con el negocio?',
+              subtitle: _ratingLabel(
+                rating: _businessRating,
+                empty: 'Califica el servicio y la recogida',
+              ),
+              value: _businessRating,
+              onChanged: (value) => setState(() => _businessRating = value),
+            ),
+            const SizedBox(height: FudiSpacing.lg),
+            FudiSurfaceCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Cuéntanos más (opcional)', style: FudiTypography.labelSmall),
+                  const SizedBox(height: FudiSpacing.md),
+                  TextField(
+                    controller: _commentController,
+                    maxLength: 500,
+                    maxLines: 4,
+                    decoration: InputDecoration(
+                      hintText: '¿Qué te gustó más? ¿Algo que podría mejorar?',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(FudiRadius.lg),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: FudiSpacing.lg),
-            Text('¡Reserva confirmada!', style: FudiTypography.headlineMedium),
-            const SizedBox(height: FudiSpacing.sm),
-            Text(
-              'Presenta este código en el negocio',
-              style: FudiTypography.bodyMedium.copyWith(
-                color: FudiColors.mutedForeground,
+            FudiSurfaceCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Agregar foto (opcional)', style: FudiTypography.labelSmall),
+                  const SizedBox(height: FudiSpacing.md),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(FudiSpacing.xl),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(FudiRadius.lg),
+                      border: Border.all(
+                        color: FudiColors.borderSolid,
+                        style: BorderStyle.solid,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.camera_alt_outlined,
+                          size: 40,
+                          color: FudiColors.mutedForeground,
+                        ),
+                        const SizedBox(height: FudiSpacing.sm),
+                        Text(
+                          'Próximamente podrás adjuntar fotos desde esta pantalla.',
+                          textAlign: TextAlign.center,
+                          style: FudiTypography.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: FudiSpacing.xl),
-            _PickupCodeCard(code: order.pickupCode),
-            const SizedBox(height: FudiSpacing.xl),
-            if (_remaining > Duration.zero) ...[
-              _CountdownCard(remaining: _remaining),
-              const SizedBox(height: FudiSpacing.lg),
-            ],
-            _OrderSummaryCard(order: order),
-            const SizedBox(height: FudiSpacing.xl),
+            const SizedBox(height: FudiSpacing.lg),
+            const FudiInfoBanner(
+              title: 'Consejos para tu reseña',
+              message:
+                  'Sé específico sobre la calidad del producto, la variedad disponible y la experiencia de recogida.',
+              icon: FudiIcons.star,
+              backgroundColor: Color(0xFFEFF6FF),
+              borderColor: Color(0xFFBFDBFE),
+              foregroundColor: Color(0xFF1D4ED8),
+            ),
+            const SizedBox(height: 120),
+          ],
+        ),
+      ),
+      bottomNavigationBar: FudiBottomActionBar(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: () => context.go(RouteNames.ordersPath),
+                onPressed: isSubmitting || _productRating == 0 || _businessRating == 0
+                    ? null
+                    : () => ref
+                        .read(submitReviewProvider.notifier)
+                        .submit(
+                          orderId: order.id,
+                          businessId: order.businessId,
+                          productRating: _productRating,
+                          businessRating: _businessRating,
+                          comment: _commentController.text,
+                        ),
                 style: FilledButton.styleFrom(
                   backgroundColor: FudiColors.primary,
                   minimumSize: const Size.fromHeight(56),
@@ -113,114 +196,45 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
                     borderRadius: BorderRadius.circular(FudiRadius.lg),
                   ),
                 ),
-                child: Text(
-                  'Ver mis pedidos',
-                  style: FudiTypography.labelMedium.copyWith(
-                    color: Colors.white,
-                  ),
-                ),
+                child: isSubmitting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        'Publicar reseña',
+                        style: FudiTypography.labelMedium.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
               ),
             ),
-            const SizedBox(height: FudiSpacing.sm),
-            TextButton(
-              onPressed: () => context.go(RouteNames.homePath),
-              child: Text(
-                'Volver al inicio',
-                style: FudiTypography.bodyMedium.copyWith(
-                  color: FudiColors.primary,
-                ),
+            if (_productRating == 0 || _businessRating == 0) ...[
+              const SizedBox(height: FudiSpacing.sm),
+              Text(
+                'Por favor califica el producto y el negocio',
+                style: FudiTypography.bodySmall,
               ),
-            ),
+            ],
           ],
         ),
       ),
     );
   }
-}
 
-class _PickupCodeCard extends StatelessWidget {
-  const _PickupCodeCard({required this.code});
-
-  final String code;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(FudiSpacing.xl),
-        child: Column(
-          children: [
-            Text(
-              'Código de recogida',
-              style: FudiTypography.bodyMedium.copyWith(
-                color: FudiColors.mutedForeground,
-              ),
-            ),
-            const SizedBox(height: FudiSpacing.md),
-            SelectableText(
-              code,
-              style: const TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 8,
-                color: FudiColors.primary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: FudiSpacing.md),
-            OutlinedButton.icon(
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: code));
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(const SnackBar(content: Text('Código copiado')));
-              },
-              icon: const Icon(Icons.copy_rounded, size: 16),
-              label: const Text('Copiar código'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: FudiColors.primary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CountdownCard extends StatelessWidget {
-  const _CountdownCard({required this.remaining});
-
-  final Duration remaining;
-
-  @override
-  Widget build(BuildContext context) {
-    final hours = remaining.inHours;
-    final minutes = remaining.inMinutes.remainder(60);
-    final isUrgent = remaining.inMinutes < 60;
-
-    return Card(
-      color: isUrgent ? FudiColors.destructive.withValues(alpha: 0.05) : null,
-      child: Padding(
-        padding: const EdgeInsets.all(FudiSpacing.md),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.access_time_rounded,
-              color: isUrgent ? FudiColors.destructive : FudiColors.accent,
-            ),
-            const SizedBox(width: FudiSpacing.sm),
-            Text(
-              'Tiempo restante: ${hours}h ${minutes}m',
-              style: FudiTypography.labelMedium.copyWith(
-                color: isUrgent ? FudiColors.destructive : FudiColors.accent,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  String _ratingLabel({required int rating, required String empty}) {
+    return switch (rating) {
+      1 => 'Malo',
+      2 => 'Regular',
+      3 => 'Bueno',
+      4 => 'Muy bueno',
+      5 => 'Excelente',
+      _ => empty,
+    };
   }
 }
 
@@ -231,17 +245,53 @@ class _OrderSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return FudiSurfaceCard(
       child: Padding(
         padding: const EdgeInsets.all(FudiSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Resumen del pedido', style: FudiTypography.labelMedium),
+            Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(FudiRadius.lg),
+                  child: order.offerImageUrl != null
+                      ? CachedNetworkImage(
+                          imageUrl: order.offerImageUrl!,
+                          width: 64,
+                          height: 64,
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          width: 64,
+                          height: 64,
+                          color: FudiColors.muted,
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.restaurant_rounded),
+                        ),
+                ),
+                const SizedBox(width: FudiSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(order.businessName, style: FudiTypography.labelMedium),
+                      const SizedBox(height: FudiSpacing.xs),
+                      Text(order.offerTitle, style: FudiTypography.bodySmall),
+                      const SizedBox(height: FudiSpacing.xs),
+                      Text(
+                        order.orderNumber,
+                        style: FudiTypography.bodySmall.copyWith(
+                          color: FudiColors.mutedForeground,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: FudiSpacing.md),
             const Divider(),
-            _SummaryRow(label: 'Pedido', value: '#${order.orderNumber}'),
-            _SummaryRow(label: 'Oferta', value: order.offerTitle),
-            _SummaryRow(label: 'Negocio', value: order.businessName),
             _SummaryRow(label: 'Estado', value: order.status.label),
             const Divider(),
             _SummaryRow(
@@ -251,6 +301,49 @@ class _OrderSummaryCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _RatingSection extends StatelessWidget {
+  const _RatingSection({
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String title;
+  final String subtitle;
+  final int value;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return FudiSurfaceCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: FudiTypography.labelSmall),
+          const SizedBox(height: FudiSpacing.md),
+          Center(
+            child: FudiStarRating(
+              rating: value.toDouble(),
+              size: 32,
+              showText: false,
+              onTap: onChanged,
+            ),
+          ),
+          const SizedBox(height: FudiSpacing.sm),
+          Center(
+            child: Text(
+              subtitle,
+              style: FudiTypography.bodySmall,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
       ),
     );
   }

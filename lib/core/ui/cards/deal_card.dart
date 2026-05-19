@@ -19,6 +19,8 @@ class DealCard extends StatelessWidget {
     required this.pickupUntil,
     this.categoryLabel,
     this.onTap,
+    this.isFavorite = false,
+    this.onFavoriteToggle,
   });
 
   final String imageUrl;
@@ -32,6 +34,8 @@ class DealCard extends StatelessWidget {
   final TimeOfDay pickupUntil;
   final String? categoryLabel;
   final VoidCallback? onTap;
+  final bool isFavorite;
+  final VoidCallback? onFavoriteToggle;
 
   int get _discountPercent => originalPrice > 0
       ? ((1 - discountedPrice / originalPrice) * 100).round()
@@ -89,6 +93,14 @@ class DealCard extends StatelessWidget {
             left: FudiSpacing.sm,
             child: _LowStockBadge(count: availableQuantity),
           ),
+        Positioned(
+          top: FudiSpacing.sm,
+          left: FudiSpacing.sm,
+          child: _FavoriteButton(
+            isFavorite: isFavorite,
+            onToggle: onFavoriteToggle,
+          ),
+        ),
       ],
     );
   }
@@ -282,3 +294,37 @@ class _RatingPill extends StatelessWidget {
     );
   }
 }
+
+class _FavoriteButton extends StatelessWidget {
+  const _FavoriteButton({required this.isFavorite, this.onToggle});
+
+  final bool isFavorite;
+  final VoidCallback? onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onToggle,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Icon(
+          isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+          size: 18,
+          color: isFavorite ? FudiColors.destructive : FudiColors.mutedForeground,
+        ),
+      ),
+    );
+  }
+}
+

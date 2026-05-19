@@ -123,7 +123,7 @@ class _OrderList extends ConsumerWidget {
             date: order.createdAt,
             totalPrice: order.price,
             imageUrl: order.offerImageUrl ?? '',
-            onTap: () => context.go('/orders/${order.id}'),
+            onTap: () => context.push('/orders/${order.id}'),
           );
         },
       ),

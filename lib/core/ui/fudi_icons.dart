@@ -43,4 +43,6 @@ class FudiIcons {
   static const IconData eyeOff = Icons.visibility_off_rounded;
   static const IconData userCircle = Icons.person_rounded;
   static const IconData arrowLeft = Icons.arrow_back_rounded;
+  static const IconData messageSquare = Icons.chat_bubble_rounded;
+  static const IconData phone = Icons.phone_rounded;
 }

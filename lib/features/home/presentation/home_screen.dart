@@ -11,15 +11,10 @@ import '../../../core/ui/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../offers/domain/offer.dart';
+import '../../offers/domain/offer_repository.dart';
 import '../../offers/presentation/offer_providers.dart';
-
-const _categories = [
-  (id: null, name: 'Todos'),
-  (id: 'bakery', name: 'Panadería'),
-  (id: 'cafe', name: 'Cafeterías'),
-  (id: 'italian', name: 'Italiano'),
-  (id: 'japanese', name: 'Japonés'),
-];
+import '../../profile/domain/saved_address_model.dart';
+import '../../profile/presentation/profile_providers.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -49,6 +44,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final popularAsync = ref.watch(popularOffersProvider);
     final nearbyAsync = ref.watch(nearbyOffersProvider);
     final locationAsync = ref.watch(userLocationProvider);
+    final statsAsync = ref.watch(categoryStatsProvider);
 
     final hasLocation =
         locationAsync.whenOrNull(
@@ -64,18 +60,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ref.read(popularOffersProvider.notifier).filterByCategory(_selectedCategoryId);
           ref.read(nearbyOffersProvider.notifier).filterByCategory(_selectedCategoryId);
         } else {
-          ref.read(popularOffersProvider.notifier).refresh();
-          ref.read(nearbyOffersProvider.notifier).refresh();
+          await ref.read(popularOffersProvider.notifier).refresh();
+          await ref.read(nearbyOffersProvider.notifier).refresh();
         }
+        ref.invalidate(categoryStatsProvider);
       },
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(child: _HomeHeader(greeting: _greeting)),
-        SliverToBoxAdapter(
-          child: _CategoryChips(
-            selectedCategoryId: _selectedCategoryId,
-            onSelected: _onCategorySelected,
+        statsAsync.when(
+          data: (stats) => SliverToBoxAdapter(
+            child: _CategoryChips(
+              stats: stats,
+              selectedCategoryId: _selectedCategoryId,
+              onSelected: _onCategorySelected,
+            ),
           ),
+          loading: () => const SliverToBoxAdapter(child: SizedBox(height: 40)),
+          error: (_, _) => const SliverToBoxAdapter(child: SizedBox.shrink()),
         ),
             SliverToBoxAdapter(
               child: _SectionHeader(
@@ -179,7 +181,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       categoryLabel: offer.categoryLabel.isNotEmpty
           ? offer.categoryLabel
           : null,
-      onTap: () => context.go('/product/${offer.id}'),
+      onTap: () => context.push('/product/${offer.id}'),
     );
   }
 
@@ -240,23 +242,18 @@ class _HomeHeader extends StatelessWidget {
   }
 }
 
-class _LocationSelector extends StatefulWidget {
+class _LocationSelector extends ConsumerStatefulWidget {
   const _LocationSelector();
 
   @override
-  State<_LocationSelector> createState() => _LocationSelectorState();
+  ConsumerState<_LocationSelector> createState() => _LocationSelectorState();
 }
 
-class _LocationSelectorState extends State<_LocationSelector> {
+class _LocationSelectorState extends ConsumerState<_LocationSelector> {
   final _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
   bool _isOpen = false;
   int _selectedIndex = 0;
-
-  static const _locations = [
-    (name: 'Casa', address: 'Bogotá, Colombia'),
-    (name: 'Trabajo', address: 'Centro, Bogotá'),
-  ];
 
   @override
   void dispose() {
@@ -282,6 +279,9 @@ class _LocationSelectorState extends State<_LocationSelector> {
     final overlay = Overlay.of(context);
     final renderBox = context.findRenderObject() as RenderBox;
     final size = renderBox.size;
+    final addressesAsync = ref.read(savedAddressesProvider);
+
+    final List<SavedAddressModel> addresses = addressesAsync.whenOrNull(data: (d) => d) ?? [];
 
     _overlayEntry = OverlayEntry(
       builder: (context) => Stack(
@@ -311,26 +311,34 @@ class _LocationSelectorState extends State<_LocationSelector> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(FudiRadius.lg),
-                  child: Column(
+                      child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      for (var i = 0; i < _locations.length; i++)
-                        _LocationOption(
-                          name: _locations[i].name,
-                          address: _locations[i].address,
-                          isSelected: i == _selectedIndex,
-                          onTap: () {
-                            setState(() => _selectedIndex = i);
-                            setState(() => _isOpen = false);
-                            _removeOverlay();
-                          },
-                        ),
+                      if (addresses.isEmpty)
+                        const _LocationOption(
+                          name: 'Ubicación actual',
+                          address: 'Usando GPS',
+                          isSelected: true,
+                          onTap: null,
+                        )
+                      else
+                        for (var i = 0; i < addresses.length; i++)
+                          _LocationOption(
+                            name: addresses[i].label,
+                            address: addresses[i].address,
+                            isSelected: i == _selectedIndex,
+                            onTap: () {
+                              setState(() => _selectedIndex = i);
+                              setState(() => _isOpen = false);
+                              _removeOverlay();
+                            },
+                          ),
                       const Divider(height: 1, thickness: 1),
                       InkWell(
                         onTap: () {
                           setState(() => _isOpen = false);
                           _removeOverlay();
-                          GoRouter.of(context).go('/profile/addresses');
+                          context.push('/profile/addresses');
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
@@ -346,7 +354,7 @@ class _LocationSelectorState extends State<_LocationSelector> {
                               ),
                               const SizedBox(width: FudiSpacing.sm),
                               Text(
-                                '+ Agregar nueva dirección',
+                                '+ Gestionar direcciones',
                                 style: FudiTypography.bodySmall.copyWith(
                                   color: FudiColors.primary,
                                 ),
@@ -370,6 +378,13 @@ class _LocationSelectorState extends State<_LocationSelector> {
 
   @override
   Widget build(BuildContext context) {
+    final addressesAsync = ref.watch(savedAddressesProvider);
+    final label = addressesAsync.when(
+      data: (d) => d.isNotEmpty ? d[_selectedIndex < d.length ? _selectedIndex : 0].label : 'Ubicación',
+      loading: () => 'Cargando...',
+      error: (_, _) => 'Ubicación',
+    );
+
     return CompositedTransformTarget(
       link: _layerLink,
       child: GestureDetector(
@@ -380,7 +395,7 @@ class _LocationSelectorState extends State<_LocationSelector> {
             const Icon(FudiIcons.mapPin, size: 16, color: FudiColors.primary),
             const SizedBox(width: 4),
             Text(
-              _locations[_selectedIndex].name,
+              label,
               style: FudiTypography.labelSmall.copyWith(
                 color: FudiColors.primary,
                 fontWeight: FontWeight.w700,
@@ -413,7 +428,7 @@ class _LocationOption extends StatelessWidget {
   final String name;
   final String address;
   final bool isSelected;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -476,15 +491,23 @@ class _LocationOption extends StatelessWidget {
 
 class _CategoryChips extends StatelessWidget {
   const _CategoryChips({
+    required this.stats,
     required this.selectedCategoryId,
     required this.onSelected,
   });
 
+  final List<CategoryStat> stats;
   final String? selectedCategoryId;
   final ValueChanged<String?> onSelected;
 
   @override
   Widget build(BuildContext context) {
+    // Add "All" option
+    final allStats = [
+      const CategoryStat(id: 'all', name: 'Todos', count: 0, emoji: '✨'),
+      ...stats,
+    ];
+
     return Container(
       color: FudiColors.background,
       padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),
@@ -493,15 +516,16 @@ class _CategoryChips extends StatelessWidget {
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg),
-          itemCount: _categories.length,
+          itemCount: allStats.length,
           separatorBuilder: (_, _) => const SizedBox(width: FudiSpacing.sm),
           itemBuilder: (context, index) {
-            final cat = _categories[index];
-            final isActive = cat.id == selectedCategoryId;
+            final cat = allStats[index];
+            final catId = cat.id == 'all' ? null : cat.id;
+            final isActive = catId == selectedCategoryId;
             return _CategoryChip(
               label: cat.name,
               isActive: isActive,
-              onTap: () => onSelected(cat.id),
+              onTap: () => onSelected(catId),
             );
           },
         ),

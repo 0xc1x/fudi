@@ -225,6 +225,91 @@ class SupabaseOfferRepository implements OfferRepository {
     return response.map(_mapOfferFromJson).toList();
   }
 
+  @override
+  Future<List<CategoryStat>> getCategoryStats() async {
+    try {
+      // Get counts from Supabase
+      final response = await _supabaseClient
+          .from('offers')
+          .select('category')
+          .eq('is_active', true)
+          .gt('stock', 0)
+          .gt('pickup_end', DateTime.now().toUtc().toIso8601String());
+
+      final counts = <String, int>{};
+      for (final row in response) {
+        final cat = row['category'] as String?;
+        if (cat != null) {
+          counts[cat] = (counts[cat] ?? 0) + 1;
+        }
+      }
+
+      // Map to CategoryStat with emoji/name mapping
+      final stats = counts.entries.map((e) {
+        final (name, emoji) = _getCategoryInfo(e.key);
+        return CategoryStat(
+          id: e.key,
+          name: name,
+          count: e.value,
+          emoji: emoji,
+        );
+      }).toList();
+
+      // Sort by count descending
+      stats.sort((a, b) => b.count.compareTo(a.count));
+      return stats;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  @override
+  Future<List<AreaStat>> getPopularAreas() async {
+    try {
+      // In a real app, we might use a specific table or RPC
+      // For now, we'll derive it from business addresses (first part of address)
+      final response = await _supabaseClient
+          .from('offers')
+          .select('businesses(address)')
+          .eq('is_active', true)
+          .gt('stock', 0)
+          .gt('pickup_end', DateTime.now().toUtc().toIso8601String());
+
+      final areaCounts = <String, int>{};
+      for (final row in response) {
+        final business = row['businesses'] as Map<String, dynamic>?;
+        final address = business?['address'] as String?;
+        if (address != null) {
+          final area = address.split(',').first.trim();
+          areaCounts[area] = (areaCounts[area] ?? 0) + 1;
+        }
+      }
+
+      final stats = areaCounts.entries
+          .map((e) => AreaStat(name: e.key, deals: e.value))
+          .toList();
+      
+      stats.sort((a, b) => b.deals.compareTo(a.deals));
+      return stats.take(5).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  (String, String) _getCategoryInfo(String id) {
+    return switch (id.toLowerCase()) {
+      'bakery' => ('Panadería', '🥖'),
+      'restaurant' => ('Restaurante', '🍽️'),
+      'cafe' => ('Café', '☕'),
+      'grocery' => ('Mercado', '🛒'),
+      'pastry' => ('Pastelería', '🍰'),
+      'asian' => ('Asiática', '🍜'),
+      'italian' => ('Italiana', '🍕'),
+      'healthy' => ('Saludable', '🥗'),
+      _ => (id[0].toUpperCase() + id.substring(1), '📦'),
+    };
+  }
+
   Offer _mapOfferFromJson(Map<String, dynamic> json) {
     final businessJson = json['businesses'] as Map<String, dynamic>;
 

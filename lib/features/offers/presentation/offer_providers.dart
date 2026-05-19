@@ -138,6 +138,16 @@ final offerDetailProvider = FutureProvider.family<Offer, String>((
   return repo.getOfferById(id);
 });
 
+  final categoryStatsProvider = FutureProvider<List<CategoryStat>>((ref) async {
+  final repo = ref.watch(offerRepositoryProvider);
+  return repo.getCategoryStats();
+  });
+
+  final popularAreasProvider = FutureProvider<List<AreaStat>>((ref) async {
+  final repo = ref.watch(offerRepositoryProvider);
+  return repo.getPopularAreas();
+  });
+
 final filteredOffersProvider =
     AsyncNotifierProvider<FilteredOffersNotifier, List<Offer>>(
       FilteredOffersNotifier.new,

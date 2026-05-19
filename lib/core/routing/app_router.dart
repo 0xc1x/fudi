@@ -6,6 +6,7 @@ import '../../features/auth/presentation/auth_state_provider.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/signup_screen.dart';
 import '../../features/auth/presentation/update_password_screen.dart';
+import '../../features/business/presentation/business_profile_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/offers/presentation/product_detail_screen.dart';
 import '../../features/orders/presentation/checkout_screen.dart';
@@ -15,13 +16,53 @@ import '../../features/orders/presentation/order_history_screen.dart';
 import '../../features/orders/presentation/order_detail_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/profile/presentation/profile_edit_screen.dart';
+import '../../features/profile/presentation/favorites_screen.dart';
+import '../../features/profile/presentation/saved_addresses_screen.dart';
+import '../../features/profile/presentation/payment_methods_screen.dart';
+import '../../features/profile/presentation/notification_settings_screen.dart';
+import '../../features/profile/presentation/general_settings_screen.dart';
+import '../../features/landing/presentation/landing_screen.dart';
+import '../../features/landing/presentation/about_screen.dart';
+import '../../features/landing/presentation/help_center_screen.dart';
+import '../../features/landing/presentation/terms_screen.dart';
+import '../../features/landing/presentation/privacy_screen.dart';
+import '../../features/landing/presentation/how_it_works_screen.dart';
+import '../../features/landing/presentation/for_business_screen.dart';
 import '../observability/sentry_breadcrumb.dart';
 import '../ui/fudi_scaffold.dart';
 import '../ui/ui_gallery_screen.dart';
 import 'route_guards.dart';
 import 'route_names.dart';
 
-/// Configuración del router con ShellRoute para navegación persistente.
+final _hideBottomNavPaths = {
+  RouteNames.productPath,
+  RouteNames.checkoutPath,
+  RouteNames.orderDetailPath,
+  RouteNames.reviewOrderPath,
+  RouteNames.businessProfileViewPath,
+  RouteNames.profileEditPath,
+  RouteNames.profileNotificationsPath,
+  RouteNames.profileSettingsPath,
+  RouteNames.paymentMethodsPath,
+  RouteNames.savedAddressesPath,
+  RouteNames.helpPath,
+  RouteNames.aboutPath,
+  RouteNames.termsPath,
+  RouteNames.privacyPath,
+  RouteNames.howItWorksPath,
+  RouteNames.forBusinessPath,
+};
+
+bool _shouldHideBottomNav(GoRouterState state) {
+  final location = state.matchedLocation;
+  for (final path in _hideBottomNavPaths) {
+    if (location.startsWith(path.replaceAll('/:id', ''))) {
+      return true;
+    }
+  }
+  return false;
+}
+
 GoRouter createAppRouter(
   AuthSessionNotifier authSessionNotifier,
   Listenable refreshListenable,
@@ -64,18 +105,19 @@ GoRouter createAppRouter(
       GoRoute(
         path: RouteNames.landingPath,
         name: RouteNames.landing,
-        builder: (context, state) =>
-            const _PlaceholderScreen(title: 'Fudi Landing'),
+        builder: (context, state) => const LandingScreen(),
       ),
       GoRoute(
         path: '/ui-gallery',
         builder: (context, state) => const UiGalleryScreen(),
       ),
 
-      // ─── Shell para Consumidor (con BottomNav) ───────────────────
+      // ─── Shell para Consumidor (con BottomNav condicional) ─────
       ShellRoute(
-        builder: (context, state, child) =>
-            FudiScaffold(showBottomNav: true, body: child),
+        builder: (context, state, child) => FudiScaffold(
+          showBottomNav: !_shouldHideBottomNav(state),
+          body: child,
+        ),
         routes: [
           GoRoute(
             path: RouteNames.homePath,
@@ -95,13 +137,104 @@ GoRouter createAppRouter(
           GoRoute(
             path: RouteNames.favoritesPath,
             name: RouteNames.favorites,
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: 'Favoritos'),
+            builder: (context, state) => const FavoritesScreen(),
           ),
           GoRoute(
             path: RouteNames.profilePath,
             name: RouteNames.profile,
             builder: (context, state) => const ProfileScreen(),
+          ),
+
+          // ─── Rutas de Detalle (dentro del Shell, sin BottomNav) ──
+          GoRoute(
+            path: RouteNames.businessProfileViewPath,
+            name: RouteNames.businessProfileView,
+            builder: (context, state) => BusinessProfileScreen(
+              businessId: state.pathParameters['id']!,
+            ),
+          ),
+          GoRoute(
+            path: RouteNames.productPath,
+            name: RouteNames.product,
+            builder: (context, state) =>
+                ProductDetailScreen(id: state.pathParameters['id']!),
+          ),
+          GoRoute(
+            path: RouteNames.checkoutPath,
+            name: RouteNames.checkout,
+            builder: (context, state) =>
+                CheckoutScreen(offerId: state.pathParameters['id']!),
+          ),
+          GoRoute(
+            path: RouteNames.orderDetailPath,
+            name: RouteNames.orderDetail,
+            builder: (context, state) =>
+                OrderDetailScreen(id: state.pathParameters['id']!),
+          ),
+          GoRoute(
+            path: RouteNames.reviewOrderPath,
+            name: RouteNames.reviewOrder,
+            builder: (context, state) =>
+                ReviewOrderScreen(id: state.pathParameters['id']!),
+          ),
+
+          // Perfil extendido
+          GoRoute(
+            path: RouteNames.profileEditPath,
+            name: RouteNames.profileEdit,
+            builder: (context, state) => const ProfileEditScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.profileNotificationsPath,
+            name: RouteNames.profileNotifications,
+            builder: (context, state) => const NotificationSettingsScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.profileSettingsPath,
+            name: RouteNames.profileSettings,
+            builder: (context, state) => const GeneralSettingsScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.paymentMethodsPath,
+            name: RouteNames.paymentMethods,
+            builder: (context, state) => const PaymentMethodsScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.savedAddressesPath,
+            name: RouteNames.savedAddresses,
+            builder: (context, state) => const SavedAddressesScreen(),
+          ),
+
+          // Rutas informativas
+          GoRoute(
+            path: RouteNames.aboutPath,
+            name: RouteNames.about,
+            builder: (context, state) => const AboutScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.helpPath,
+            name: RouteNames.help,
+            builder: (context, state) => const HelpCenterScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.termsPath,
+            name: RouteNames.terms,
+            builder: (context, state) => const TermsScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.privacyPath,
+            name: RouteNames.privacy,
+            builder: (context, state) => const PrivacyScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.howItWorksPath,
+            name: RouteNames.howItWorks,
+            builder: (context, state) => const HowItWorksScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.forBusinessPath,
+            name: RouteNames.forBusiness,
+            builder: (context, state) => const ForBusinessScreen(),
           ),
         ],
       ),
@@ -129,7 +262,6 @@ GoRouter createAppRouter(
             builder: (context, state) =>
                 const _PlaceholderScreen(title: 'Gestión de Locales'),
           ),
-          // Sub-rutas de Business (sin tab propio, se acceden desde Gestión)
           GoRoute(
             path: RouteNames.businessStatisticsPath,
             name: RouteNames.businessStatistics,
@@ -149,47 +281,6 @@ GoRouter createAppRouter(
                 const _PlaceholderScreen(title: 'Perfil de Negocio'),
           ),
         ],
-      ),
-
-      // ─── Rutas de Detalle (sin BottomNav por defecto) ─────────────
-      GoRoute(
-        path: RouteNames.productPath,
-        name: RouteNames.product,
-        builder: (context, state) =>
-            ProductDetailScreen(id: state.pathParameters['id']!),
-      ),
-      GoRoute(
-        path: RouteNames.checkoutPath,
-        name: RouteNames.checkout,
-        builder: (context, state) =>
-            CheckoutScreen(offerId: state.pathParameters['id']!),
-      ),
-      GoRoute(
-        path: RouteNames.orderDetailPath,
-        name: RouteNames.orderDetail,
-        builder: (context, state) =>
-            OrderDetailScreen(id: state.pathParameters['id']!),
-      ),
-      GoRoute(
-        path: RouteNames.reviewOrderPath,
-        name: RouteNames.reviewOrder,
-        builder: (context, state) =>
-            ReviewOrderScreen(id: state.pathParameters['id']!),
-      ),
-
-      // Perfil extendido
-      GoRoute(
-        path: RouteNames.profileEditPath,
-        name: RouteNames.profileEdit,
-        builder: (context, state) => const ProfileEditScreen(),
-      ),
-
-      // Otras rutas informativas...
-      GoRoute(
-        path: RouteNames.aboutPath,
-        name: RouteNames.about,
-        builder: (context, state) =>
-            const _PlaceholderScreen(title: 'Sobre Fudi'),
       ),
     ],
   );

@@ -10,25 +10,11 @@ import '../../../core/ui/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../offers/domain/offer.dart';
+import '../../offers/domain/offer_repository.dart';
 import '../../offers/presentation/offer_providers.dart';
+import 'explore_screen_content.dart';
 import 'fudi_filters.dart';
 import 'map_view.dart';
-
-const _categories = [
-  (id: 'bakery', name: 'Panadería', count: 24, emoji: '🥖'),
-  (id: 'restaurant', name: 'Restaurantes', count: 45, emoji: '🍽️'),
-  (id: 'cafe', name: 'Cafeterías', count: 18, emoji: '☕'),
-  (id: 'grocery', name: 'Supermercados', count: 12, emoji: '🛒'),
-  (id: 'pastry', name: 'Pastelería', count: 15, emoji: '🍰'),
-  (id: 'asian', name: 'Comida Asiática', count: 22, emoji: '🍜'),
-];
-
-const _popularAreas = [
-  (name: 'Chapinero', deals: 32),
-  (name: 'Zona Rosa', deals: 28),
-  (name: 'La Candelaria', deals: 41),
-  (name: 'Usaquén', deals: 19),
-];
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
@@ -61,6 +47,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     }
 
     final offersAsync = ref.watch(filteredOffersProvider);
+    final statsAsync = ref.watch(categoryStatsProvider);
+    final areasAsync = ref.watch(popularAreasProvider);
 
     return Scaffold(
       body: CustomScrollView(
@@ -86,17 +74,27 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 onClearAll: _clearAllFilters,
               ),
             ),
-          SliverToBoxAdapter(
-            child: _CategoryGrid(
-              selectedCategory: _selectedCategory,
-              onCategoryTap: _handleCategoryTap,
+          statsAsync.when(
+            data: (stats) => SliverToBoxAdapter(
+              child: _CategoryGrid(
+                stats: stats,
+                selectedCategory: _selectedCategory,
+                onCategoryTap: _handleCategoryTap,
+              ),
             ),
+            loading: () => const SliverToBoxAdapter(child: SizedBox(height: 100, child: Center(child: CircularProgressIndicator()))),
+            error: (_, _) => const SliverToBoxAdapter(child: SizedBox.shrink()),
           ),
-          SliverToBoxAdapter(
-            child: _PopularAreasSection(
-              selectedArea: _selectedArea,
-              onAreaTap: _handleAreaTap,
+          areasAsync.when(
+            data: (areas) => SliverToBoxAdapter(
+              child: _PopularAreasSection(
+                areas: areas,
+                selectedArea: _selectedArea,
+                onAreaTap: _handleAreaTap,
+              ),
             ),
+            loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
+            error: (_, _) => const SliverToBoxAdapter(child: SizedBox.shrink()),
           ),
           const SliverToBoxAdapter(child: _TipSection()),
           SliverToBoxAdapter(
@@ -162,7 +160,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       categoryLabel: offer.categoryLabel.isNotEmpty
           ? offer.categoryLabel
           : null,
-      onTap: () => context.go('/product/${offer.id}'),
+      onTap: () => context.push('/product/${offer.id}'),
     );
   }
 
@@ -398,15 +396,19 @@ class _HeaderPillButton extends StatelessWidget {
 
 class _CategoryGrid extends StatelessWidget {
   const _CategoryGrid({
+    required this.stats,
     required this.selectedCategory,
     required this.onCategoryTap,
   });
 
+  final List<CategoryStat> stats;
   final String? selectedCategory;
   final ValueChanged<String> onCategoryTap;
 
   @override
   Widget build(BuildContext context) {
+    if (stats.isEmpty) return const SizedBox.shrink();
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         FudiSpacing.lg,
@@ -426,7 +428,7 @@ class _CategoryGrid extends StatelessWidget {
             mainAxisSpacing: FudiSpacing.sm,
             crossAxisSpacing: FudiSpacing.sm,
             childAspectRatio: 1.35,
-            children: _categories.map((cat) {
+            children: stats.map((cat) {
               final isSelected = selectedCategory == cat.id;
               return _CategoryCard(
                 emoji: cat.emoji,
@@ -505,15 +507,19 @@ class _CategoryCard extends StatelessWidget {
 
 class _PopularAreasSection extends StatelessWidget {
   const _PopularAreasSection({
+    required this.areas,
     required this.selectedArea,
     required this.onAreaTap,
   });
 
+  final List<AreaStat> areas;
   final String? selectedArea;
   final ValueChanged<String> onAreaTap;
 
   @override
   Widget build(BuildContext context) {
+    if (areas.isEmpty) return const SizedBox.shrink();
+
     return Padding(
       padding: const EdgeInsets.all(FudiSpacing.lg),
       child: Column(
@@ -521,7 +527,7 @@ class _PopularAreasSection extends StatelessWidget {
         children: [
           Text('Zonas populares', style: FudiTypography.headlineSmall),
           const SizedBox(height: FudiSpacing.md),
-          ..._popularAreas.map((area) {
+          ...areas.map((area) {
             final isSelected = selectedArea == area.name;
             return Padding(
               padding: const EdgeInsets.only(bottom: FudiSpacing.sm),
@@ -656,8 +662,7 @@ class _TipSection extends StatelessWidget {
             Text('Consejo', style: FudiTypography.h3),
             const SizedBox(height: FudiSpacing.sm),
             Text(
-              'Las mejores ofertas suelen aparecer entre las 18:00 y 20:00. '
-              '¡Activa las notificaciones para no perderte ninguna!',
+              ExploreScreenContent.tips.join(' '),
               style: FudiTypography.bodyMedium.copyWith(
                 color: FudiColors.mutedForeground,
               ),
@@ -814,21 +819,23 @@ class _EmptyExploreState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(FudiSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(FudiIcons.search, size: 48, color: FudiColors.mutedForeground),
-            SizedBox(height: FudiSpacing.md),
-            Text('No se encontraron ofertas', style: FudiTypography.bodyMedium),
-            SizedBox(height: FudiSpacing.xs),
-            Text(
-              'Intenta cambiar los filtros o la búsqueda',
-              style: FudiTypography.bodySmall,
-            ),
-          ],
+        padding: const EdgeInsets.all(FudiSpacing.xl),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(FudiIcons.search, size: 48, color: FudiColors.mutedForeground),
+              const SizedBox(height: FudiSpacing.md),
+              Text('No se encontraron ofertas', style: FudiTypography.bodyMedium),
+              const SizedBox(height: FudiSpacing.xs),
+              Text(
+                'Intenta cambiar los filtros o la búsqueda',
+                style: FudiTypography.bodySmall,
+              ),
+            ],
+          ),
         ),
       ),
     );

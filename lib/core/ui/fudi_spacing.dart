@@ -40,4 +40,7 @@ class FudiRadius {
 
   /// full - 9999.0 (rounded-full)
   static const double full = 9999.0;
+
+  /// xxl - 24.0 (extra extra large)
+  static const double xxl = 24.0;
 }

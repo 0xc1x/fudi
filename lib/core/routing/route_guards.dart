@@ -56,6 +56,7 @@ class RouteGuards {
     RouteNames.profileEditPath,
     RouteNames.profileNotificationsPath,
     RouteNames.profileSettingsPath,
+    RouteNames.businessProfileViewPath,
   };
 
   /// Auth guard: redirects unauthenticated users to login.
@@ -180,7 +181,7 @@ class RouteGuards {
   }
 
   static bool isBusinessRoute(String path) {
-    return path.startsWith('/business');
+    return path.startsWith('/business/') || path == '/business';
   }
 
   static String defaultPathFor(UserRole role) {

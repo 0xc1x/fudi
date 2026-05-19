@@ -11,6 +11,7 @@ class FudiStarRating extends StatelessWidget {
     this.size = 16,
     this.color = FudiColors.ring,
     this.showText = false,
+    this.onTap,
   });
 
   final double rating;
@@ -18,6 +19,7 @@ class FudiStarRating extends StatelessWidget {
   final double size;
   final Color color;
   final bool showText;
+  final ValueChanged<int>? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,18 @@ class FudiStarRating extends StatelessWidget {
             } else {
               icon = Icons.star_outline_rounded;
             }
-            return Icon(icon, size: size, color: color);
+            final star = Icon(icon, size: size, color: color);
+            if (onTap == null) {
+              return star;
+            }
+            return InkWell(
+              onTap: () => onTap!(index + 1),
+              borderRadius: BorderRadius.circular(FudiRadius.full),
+              child: Padding(
+                padding: const EdgeInsets.all(2),
+                child: star,
+              ),
+            );
           }),
         ),
         if (showText) ...[

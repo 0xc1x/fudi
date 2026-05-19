@@ -79,6 +79,9 @@ class RouteNames {
   static const business = 'business';
   static const businessPath = '/business';
 
+  static const businessProfileView = 'business-profile-view';
+  static const businessProfileViewPath = '/business-profile/:id';
+
   static const businessOrders = 'business-orders';
   static const businessOrdersPath = '/business/orders';
 
