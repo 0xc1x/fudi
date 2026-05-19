@@ -38,7 +38,7 @@ dependencies:
   flutter_svg: ^2.2.4
   smooth_page_indicator: ^2.0.1
   cupertino_icons: ^1.0.8
-  meta: ^1.11.0
+  meta: ^1.17.0
   state_notifier: ^1.0.0
 
   # Utils
@@ -67,3 +67,4 @@ flutter:
   assets:
   - .env.dev
   - assets/images/
+

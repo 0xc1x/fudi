@@ -6,6 +6,9 @@ import '../../../core/di/core_providers.dart';
 import '../../../core/routing/route_names.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/fudi_exception_l10n.dart';
+import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_icons.dart';
+import '../../../core/ui/app_logo.dart';
 import 'auth_state_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -19,6 +22,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
   String? _errorMessage;
 
   @override
@@ -154,143 +158,398 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isLoading = authState.isLoading;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Iniciar sesión')),
+      backgroundColor: FudiColors.muted,
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Bienvenido a Fudi',
-                      style: Theme.of(context).textTheme.headlineMedium,
+        child: Column(
+          children: [
+            Container(
+              color: FudiColors.background,
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: FudiColors.muted,
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Inicia sesión para reservar y gestionar tus pedidos.',
-                      style: Theme.of(context).textTheme.bodyMedium,
+                    child: IconButton(
+                      onPressed: () => context.go(RouteNames.homePath),
+                      icon: const Icon(FudiIcons.chevronLeft, size: 20),
+                      padding: EdgeInsets.zero,
                     ),
-                    const SizedBox(height: 24),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'Correo electrónico',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Ingresa tu correo';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Correo inválido';
-                        }
-                        return null;
-                      },
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    'Iniciar sesión',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Contraseña',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Ingresa tu contraseña';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: isLoading ? null : _openForgotPasswordDialog,
-                        child: const Text('Olvidaste tu contraseña'),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    FilledButton(
-                      onPressed: isLoading ? null : _submit,
-                      child: Text(
-                        isLoading ? 'Ingresando...' : 'Iniciar sesión',
-                      ),
-                    ),
-                    if (_errorMessage != null) ...[
-                      const SizedBox(height: 12),
-                      MaterialBanner(
-                        content: Text(
-                          _errorMessage!,
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onErrorContainer,
-                          ),
-                        ),
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.errorContainer,
-                        actions: [
-                          TextButton(
-                            onPressed: () =>
-                                setState(() => _errorMessage = null),
-                            child: Text(
-                              'Cerrar',
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onErrorContainer,
-                              ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 448),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          const AppLogo(size: AppLogoSize.lg, variant: AppLogoVariant.light),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Bienvenido de vuelta',
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Inicia sesión para rescatar comida y ahorrar',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: FudiColors.mutedForeground,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: FudiColors.background,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: FudiColors.borderSolid),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Correo electrónico',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    TextFormField(
+                                      controller: _emailController,
+                                      keyboardType: TextInputType.emailAddress,
+                                      decoration: InputDecoration(
+                                        prefixIcon: const Icon(FudiIcons.mail, size: 20, color: FudiColors.mutedForeground),
+                                        hintText: 'tu@email.com',
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: FudiColors.borderSolid),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: FudiColors.borderSolid),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: FudiColors.primary, width: 2),
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (value == null || value.trim().isEmpty) {
+                                          return 'Ingresa tu correo';
+                                        }
+                                        if (!value.contains('@')) {
+                                          return 'Correo inválido';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Contraseña',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    TextFormField(
+                                      controller: _passwordController,
+                                      obscureText: _obscurePassword,
+                                      decoration: InputDecoration(
+                                        prefixIcon: const Icon(FudiIcons.lock, size: 20, color: FudiColors.mutedForeground),
+                                        suffixIcon: IconButton(
+                                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                                          icon: Icon(
+                                            _obscurePassword ? FudiIcons.eye : FudiIcons.eyeOff,
+                                            size: 20,
+                                            color: FudiColors.mutedForeground,
+                                          ),
+                                        ),
+                                        hintText: '••••••••',
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: FudiColors.borderSolid),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: FudiColors.borderSolid),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          borderSide: const BorderSide(color: FudiColors.primary, width: 2),
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Ingresa tu contraseña';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                    onPressed: isLoading ? null : _openForgotPasswordDialog,
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: FudiColors.primary,
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: Size.zero,
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    child: const Text('¿Olvidaste tu contraseña?'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (_errorMessage != null) ...[
+                            const SizedBox(height: 12),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.errorContainer,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      _errorMessage!,
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onErrorContainer,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () => setState(() => _errorMessage = null),
+                                    icon: Icon(
+                                      Icons.close_rounded,
+                                      size: 18,
+                                      color: Theme.of(context).colorScheme.onErrorContainer,
+                                    ),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: FilledButton(
+                              onPressed: isLoading ? null : _submit,
+                              style: FilledButton.styleFrom(
+                                backgroundColor: FudiColors.primary,
+                                foregroundColor: FudiColors.primaryForeground,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 4,
+                              ),
+                              child: isLoading
+                                  ? const Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: FudiColors.primaryForeground,
+                                          ),
+                                        ),
+                                        SizedBox(width: 8),
+                                        Text('Iniciando sesión...'),
+                                      ],
+                                    )
+                                  : const Text('Iniciar sesión', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          const Row(
+                            children: [
+                              Expanded(child: Divider(color: FudiColors.borderSolid)),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                child: Text(
+                                  'o continuar con',
+                                  style: TextStyle(color: FudiColors.mutedForeground, fontSize: 13),
+                                ),
+                              ),
+                              Expanded(child: Divider(color: FudiColors.borderSolid)),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: null,
+                                  style: OutlinedButton.styleFrom(
+                                    backgroundColor: FudiColors.background,
+                                    side: const BorderSide(color: FudiColors.borderSolid),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CustomPaint(
+                                          painter: _GoogleIconPainter(),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const Text('Google'),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: null,
+                                  style: OutlinedButton.styleFrom(
+                                    backgroundColor: FudiColors.background,
+                                    side: const BorderSide(color: FudiColors.borderSolid),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.apple, size: 20, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                                      const SizedBox(width: 8),
+                                      const Text('Apple'),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          Text.rich(
+                            TextSpan(
+                              text: '¿No tienes una cuenta? ',
+                              style: TextStyle(color: FudiColors.mutedForeground),
+                              children: [
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.baseline,
+                                  baseline: TextBaseline.alphabetic,
+                                  child: GestureDetector(
+                                    onTap: () => context.go(RouteNames.signupPath),
+                                    child: Text(
+                                      'Regístrate gratis',
+                                      style: TextStyle(
+                                        color: FudiColors.primary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ],
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        margin: EdgeInsets.zero,
                       ),
-                    ],
-                    const SizedBox(height: 24),
-                    Row(
-                      children: const [
-                        Expanded(child: Divider()),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: Text('o continúa con'),
-                        ),
-                        Expanded(child: Divider()),
-                      ],
                     ),
-                    const SizedBox(height: 16),
-                    OutlinedButton(
-                      onPressed: null,
-                      child: const Text('Google — próximamente'),
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton(
-                      onPressed: null,
-                      child: const Text('Apple — próximamente'),
-                    ),
-                    const SizedBox(height: 24),
-                    TextButton(
-                      onPressed: () => context.go(RouteNames.signupPath),
-                      child: const Text('¿No tienes cuenta? Crear cuenta'),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
+}
+
+class _GoogleIconPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final r = size.width / 2;
+
+    final paint4285F4 = Paint()..color = const Color(0xFF4285F4);
+    final paint34A853 = Paint()..color = const Color(0xFF34A853);
+    final paintFBBC05 = Paint()..color = const Color(0xFFFBBC05);
+    final paintEA4335 = Paint()..color = const Color(0xFFEA4335);
+
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: r),
+      -0.15,
+      1.83,
+      false,
+      paint4285F4,
+    );
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: r),
+      1.68,
+      1.46,
+      false,
+      paint34A853,
+    );
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: r),
+      3.14,
+      1.57,
+      false,
+      paintFBBC05,
+    );
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: r),
+      4.71,
+      1.46,
+      false,
+      paintEA4335,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

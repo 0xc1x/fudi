@@ -36,8 +36,8 @@ final userLocationProvider = FutureProvider<Position?>((ref) async {
 
 final popularOffersProvider =
     AsyncNotifierProvider<PopularOffersNotifier, List<Offer>>(
-      PopularOffersNotifier.new,
-    );
+  PopularOffersNotifier.new,
+);
 
 class PopularOffersNotifier extends AsyncNotifier<List<Offer>> {
   @override
@@ -53,6 +53,17 @@ class PopularOffersNotifier extends AsyncNotifier<List<Offer>> {
       return repo.getPopularOffers();
     });
   }
+
+  Future<void> filterByCategory(String? category) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(offerRepositoryProvider);
+      if (category == null || category.isEmpty) {
+        return repo.getPopularOffers();
+      }
+      return repo.getPopularOffersFiltered(category: category);
+    });
+  }
 }
 
 final nearbyOffersProvider =
@@ -61,6 +72,8 @@ final nearbyOffersProvider =
     );
 
 class NearbyOffersNotifier extends AsyncNotifier<List<Offer>> {
+  String? _category;
+
   @override
   Future<List<Offer>> build() async {
     final repo = ref.watch(offerRepositoryProvider);
@@ -73,6 +86,7 @@ class NearbyOffersNotifier extends AsyncNotifier<List<Offer>> {
     return repo.getNearbyOffers(
       lat: position.latitude,
       lng: position.longitude,
+      category: _category,
     );
   }
 
@@ -90,6 +104,27 @@ class NearbyOffersNotifier extends AsyncNotifier<List<Offer>> {
       return repo.getNearbyOffers(
         lat: position.latitude,
         lng: position.longitude,
+        category: _category,
+      );
+    });
+  }
+
+  Future<void> filterByCategory(String? category) async {
+    _category = (category != null && category.isNotEmpty) ? category : null;
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(offerRepositoryProvider);
+      final position = await ref.read(userLocationProvider.future);
+
+      if (position == null) {
+        if (_category == null) return repo.getPopularOffers();
+        return repo.getPopularOffersFiltered(category: _category);
+      }
+
+      return repo.getNearbyOffers(
+        lat: position.latitude,
+        lng: position.longitude,
+        category: _category,
       );
     });
   }

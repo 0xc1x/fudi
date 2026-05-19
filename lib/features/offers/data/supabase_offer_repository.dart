@@ -15,22 +15,51 @@ class SupabaseOfferRepository implements OfferRepository {
 
   static const _earthRadiusKm = 6371.0;
 
+  static const _selectFields = '''
+    id, business_id, title, description, image, category,
+    original_price, discounted_price, rating, stock, initial_stock,
+    pickup_start, pickup_end, is_active,
+    businesses:business_id (
+      id, name, type, image, latitude, longitude, rating, address
+    )
+  ''';
+
   @override
   Future<List<Offer>> getPopularOffers({int limit = 10}) async {
     try {
       final response = await _supabaseClient
           .from('offers')
-          .select('''
-            id, business_id, title, description, image, category,
-            original_price, discounted_price, rating, stock, initial_stock,
-            pickup_start, pickup_end, is_active,
-            businesses:business_id (
-              id, name, type, image, latitude, longitude, rating, address
-            )
-          ''')
+          .select(_selectFields)
           .eq('is_active', true)
           .gt('stock', 0)
           .gt('pickup_end', DateTime.now().toUtc().toIso8601String())
+          .order('rating', ascending: false, nullsFirst: false)
+          .limit(limit);
+
+      return response.map(_mapOfferFromJson).toList();
+    } catch (e) {
+      throw UnknownDataException(message: 'Error al cargar ofertas populares');
+    }
+  }
+
+  @override
+  Future<List<Offer>> getPopularOffersFiltered({
+    String? category,
+    int limit = 10,
+  }) async {
+    try {
+      var query = _supabaseClient
+          .from('offers')
+          .select(_selectFields)
+          .eq('is_active', true)
+          .gt('stock', 0)
+          .gt('pickup_end', DateTime.now().toUtc().toIso8601String());
+
+      if (category != null && category.isNotEmpty) {
+        query = query.eq('category', category);
+      }
+
+      final response = await query
           .order('rating', ascending: false, nullsFirst: false)
           .limit(limit);
 
@@ -46,9 +75,10 @@ class SupabaseOfferRepository implements OfferRepository {
     required double lng,
     double radiusKm = 5,
     int limit = 20,
+    String? category,
   }) async {
     try {
-      final allOffers = await _fetchActiveOffers();
+      final allOffers = await _fetchActiveOffers(category: category);
       final nearby =
           allOffers.where((offer) {
             if (offer.business.latitude == null ||
@@ -97,14 +127,7 @@ class SupabaseOfferRepository implements OfferRepository {
     try {
       var query = _supabaseClient
           .from('offers')
-          .select('''
-          id, business_id, title, description, image, category,
-          original_price, discounted_price, rating, stock, initial_stock,
-          pickup_start, pickup_end, is_active,
-          businesses:business_id (
-            id, name, type, image, latitude, longitude, rating, address
-          )
-        ''')
+          .select(_selectFields)
           .eq('is_active', true)
           .gt('stock', 0)
           .gt('pickup_end', DateTime.now().toUtc().toIso8601String());
@@ -154,14 +177,7 @@ class SupabaseOfferRepository implements OfferRepository {
     try {
       final response = await _supabaseClient
           .from('offers')
-          .select('''
-            id, business_id, title, description, image, category,
-            original_price, discounted_price, rating, stock, initial_stock,
-            pickup_start, pickup_end, is_active,
-            businesses:business_id (
-              id, name, type, image, latitude, longitude, rating, address
-            )
-          ''')
+          .select(_selectFields)
           .eq('id', id)
           .maybeSingle();
 
@@ -191,20 +207,19 @@ class SupabaseOfferRepository implements OfferRepository {
         });
   }
 
-  Future<List<Offer>> _fetchActiveOffers() async {
-    final response = await _supabaseClient
+  Future<List<Offer>> _fetchActiveOffers({String? category}) async {
+    var query = _supabaseClient
         .from('offers')
-        .select('''
-          id, business_id, title, description, image, category,
-          original_price, discounted_price, rating, stock, initial_stock,
-          pickup_start, pickup_end, is_active,
-          businesses:business_id (
-            id, name, type, image, latitude, longitude, rating, address
-          )
-        ''')
+        .select(_selectFields)
         .eq('is_active', true)
         .gt('stock', 0)
-        .gt('pickup_end', DateTime.now().toUtc().toIso8601String())
+        .gt('pickup_end', DateTime.now().toUtc().toIso8601String());
+
+    if (category != null && category.isNotEmpty) {
+      query = query.eq('category', category);
+    }
+
+    final response = await query
         .order('rating', ascending: false, nullsFirst: false);
 
     return response.map(_mapOfferFromJson).toList();

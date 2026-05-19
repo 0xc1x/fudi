@@ -14,11 +14,11 @@ import '../../offers/domain/offer.dart';
 import '../../offers/presentation/offer_providers.dart';
 
 const _categories = [
-  'Todos',
-  'Panadería',
-  'Restaurantes',
-  'Cafeterías',
-  'Supermercados',
+  (id: null, name: 'Todos'),
+  (id: 'bakery', name: 'Panadería'),
+  (id: 'cafe', name: 'Cafeterías'),
+  (id: 'italian', name: 'Italiano'),
+  (id: 'japanese', name: 'Japonés'),
 ];
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -29,13 +29,19 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _selectedCategory = 0;
+  String? _selectedCategoryId;
 
   String get _greeting {
     final hour = DateTime.now().hour;
     if (hour < 12) return 'Buenos días';
     if (hour < 18) return 'Buenas tardes';
     return 'Buenas noches';
+  }
+
+  void _onCategorySelected(String? categoryId) {
+    setState(() => _selectedCategoryId = categoryId);
+    ref.read(popularOffersProvider.notifier).filterByCategory(categoryId);
+    ref.read(nearbyOffersProvider.notifier).filterByCategory(categoryId);
   }
 
   @override
@@ -53,19 +59,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: () async {
+      onRefresh: () async {
+        if (_selectedCategoryId != null) {
+          ref.read(popularOffersProvider.notifier).filterByCategory(_selectedCategoryId);
+          ref.read(nearbyOffersProvider.notifier).filterByCategory(_selectedCategoryId);
+        } else {
           ref.read(popularOffersProvider.notifier).refresh();
           ref.read(nearbyOffersProvider.notifier).refresh();
-        },
+        }
+      },
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(child: _HomeHeader(greeting: _greeting)),
-            SliverToBoxAdapter(
-              child: _CategoryChips(
-                selectedIndex: _selectedCategory,
-                onSelected: (i) => setState(() => _selectedCategory = i),
-              ),
-            ),
+        SliverToBoxAdapter(
+          child: _CategoryChips(
+            selectedCategoryId: _selectedCategoryId,
+            onSelected: _onCategorySelected,
+          ),
+        ),
             SliverToBoxAdapter(
               child: _SectionHeader(
                 title: 'Ofertas Populares',
@@ -464,10 +475,13 @@ class _LocationOption extends StatelessWidget {
 }
 
 class _CategoryChips extends StatelessWidget {
-  const _CategoryChips({required this.selectedIndex, required this.onSelected});
+  const _CategoryChips({
+    required this.selectedCategoryId,
+    required this.onSelected,
+  });
 
-  final int selectedIndex;
-  final ValueChanged<int> onSelected;
+  final String? selectedCategoryId;
+  final ValueChanged<String?> onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -482,11 +496,12 @@ class _CategoryChips extends StatelessWidget {
           itemCount: _categories.length,
           separatorBuilder: (_, _) => const SizedBox(width: FudiSpacing.sm),
           itemBuilder: (context, index) {
-            final isActive = index == selectedIndex;
+            final cat = _categories[index];
+            final isActive = cat.id == selectedCategoryId;
             return _CategoryChip(
-              label: _categories[index],
+              label: cat.name,
               isActive: isActive,
-              onTap: () => onSelected(index),
+              onTap: () => onSelected(cat.id),
             );
           },
         ),

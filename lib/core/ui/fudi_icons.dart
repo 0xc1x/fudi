@@ -37,4 +37,10 @@ class FudiIcons {
   static const IconData x = Icons.close_rounded;
   static const IconData storefront = Icons.storefront_rounded;
   static const IconData error = Icons.error_outline_rounded;
+  static const IconData mail = Icons.mail_rounded;
+  static const IconData lock = Icons.lock_rounded;
+  static const IconData eye = Icons.visibility_rounded;
+  static const IconData eyeOff = Icons.visibility_off_rounded;
+  static const IconData userCircle = Icons.person_rounded;
+  static const IconData arrowLeft = Icons.arrow_back_rounded;
 }
