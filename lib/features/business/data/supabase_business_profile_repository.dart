@@ -3,6 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/error/data_exceptions.dart';
+import '../../../core/error/fudi_exception.dart';
+import '../../../core/error/postgrest_exception_mapper.dart';
 import '../domain/business_profile.dart';
 import '../domain/business_profile_repository.dart';
 
@@ -47,6 +49,10 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
 
       return _mapBusinessProfile(response, hours, reviews, totalRescued);
     } on NotFoundException {
+      rethrow;
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'business_profile');
+    } on FudiException {
       rethrow;
     } catch (e) {
       throw UnknownDataException(
@@ -132,10 +138,10 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
 
       final randomSuffix = Random().nextInt(9999).toString().padLeft(4, '0');
       final slug = '${profile.name
-          .toLowerCase()
-          .trim()
-          .replaceAll(RegExp(r'[^a-z0-9]'), '-')
-          .replaceAll(RegExp(r'-+'), '-')}-$randomSuffix';
+        .toLowerCase()
+        .trim()
+        .replaceAll(RegExp(r'[^a-z0-9]'), '-')
+        .replaceAll(RegExp(r'-+'), '-')}-$randomSuffix';
 
       final businessData = {
         'owner_id': ownerId,
@@ -199,8 +205,12 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
           'longitude': profile.longitude,
         });
       }
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'business_profile');
+    } on FudiException {
+      rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al crear el negocio: $e');
+      throw UnknownDataException(message: 'Error al crear el negocio');
     }
   }
 

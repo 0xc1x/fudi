@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/di/core_providers.dart';
+import '../../../core/error/user_friendly_message.dart';
 import '../../../core/routing/route_names.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_icons.dart';
@@ -48,7 +49,7 @@ class FavoritesScreen extends ConsumerWidget {
       appBar: const FudiStickyPageHeader(title: 'Favoritos'),
       body: favoritesAsync.when(
         loading: () => const _FavoritesLoadingState(),
-        error: (error, _) => _FavoritesErrorState(message: error.toString()),
+        error: (error, _) => _FavoritesErrorState(message: userFriendlyMessage(error)),
         data: (favorites) {
           if (favorites.isEmpty) {
             return _FavoritesEmptyState(

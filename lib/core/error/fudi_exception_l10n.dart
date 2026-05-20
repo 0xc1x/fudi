@@ -10,7 +10,8 @@ extension FudiExceptionL10n on FudiException {
     return switch (this) {
       ConnectionException() =>
         'Sin conexión. Verifica tu internet e intenta de nuevo.',
-      TimeoutException() => 'La operación tardó demasiado. Intenta de nuevo.',
+      TimeoutException() =>
+        'La operación tardó demasiado. Intenta de nuevo.',
       ServerException() =>
         'Tenemos un problema temporal. Intenta en unos minutos.',
       RateLimitException() =>
@@ -20,9 +21,12 @@ extension FudiExceptionL10n on FudiException {
       ForbiddenException() => 'No tienes permisos para esta acción.',
       InvalidCredentialsException() =>
         'Credenciales inválidas. Verifica tus datos.',
+      AuthConflictException() =>
+        'Ya existe una cuenta con ese correo.',
       PaymentRejectedException() =>
         'Tu pago fue rechazado. Verifica tu método de pago.',
-      PaymentTimeoutException() => 'El pago tardó demasiado. Intenta de nuevo.',
+      PaymentTimeoutException() =>
+        'El pago tardó demasiado. Intenta de nuevo.',
       PaymentGatewayUnavailableException() =>
         'El sistema de pagos no está disponible. Intenta en unos minutos.',
       RefundFailedException() => 'El reembolso falló. Contacta soporte.',
@@ -32,10 +36,16 @@ extension FudiExceptionL10n on FudiException {
       OrderAlreadyReservedException() => 'Esta orden ya fue reservada.',
       DuplicateReservationException() =>
         'Ya tienes una reserva para esta oferta.',
-      ValidationException() => 'Revisa los datos ingresados.',
-      ConflictException() => 'Ya existe información registrada con esos datos.',
+      ValidationException(:final fieldErrors) => fieldErrors != null &&
+              fieldErrors.isNotEmpty
+          ? fieldErrors.values.first
+          : 'Revisa los datos ingresados.',
+      ConflictException() =>
+        'Ya existe información registrada con esos datos.',
       NotFoundException() => 'No encontramos lo que buscas.',
       CacheException() => 'Error de caché. Intenta de nuevo.',
+      UnknownDataException() =>
+        'Ocurrió un error inesperado. Intenta de nuevo.',
       _ => 'Ocurrió un error inesperado. Intenta de nuevo.',
     };
   }
@@ -50,6 +60,7 @@ extension FudiExceptionL10n on FudiException {
       TokenExpiredException() => 'login',
       ForbiddenException() => 'contact_support',
       InvalidCredentialsException() => 'check_credentials',
+      AuthConflictException() => 'check_credentials',
       PaymentRejectedException() => 'change_payment_method',
       PaymentTimeoutException() => 'retry',
       PaymentGatewayUnavailableException() => 'retry_later',
@@ -63,17 +74,19 @@ extension FudiExceptionL10n on FudiException {
       ConflictException() => 'review_data',
       NotFoundException() => 'go_home',
       CacheException() => 'retry',
+      UnknownDataException() => 'retry',
       _ => 'retry',
     };
   }
 
   bool get isRetryable => switch (this) {
-    ConnectionException() => true,
-    TimeoutException() => true,
-    ServerException() => true,
-    RateLimitException() => true,
-    PaymentTimeoutException() => true,
-    PaymentGatewayUnavailableException() => true,
-    _ => false,
-  };
+        ConnectionException() => true,
+        TimeoutException() => true,
+        ServerException() => true,
+        RateLimitException() => true,
+        PaymentTimeoutException() => true,
+        PaymentGatewayUnavailableException() => true,
+        UnknownDataException() => true,
+        _ => false,
+      };
 }

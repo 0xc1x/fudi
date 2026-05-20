@@ -2,6 +2,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/error/data_exceptions.dart';
+import '../../../core/error/fudi_exception.dart';
+import '../../../core/error/postgrest_exception_mapper.dart';
 import '../../offers/domain/offer.dart';
 import '../domain/business_catalog_repository.dart';
 
@@ -30,6 +32,10 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
           .order('created_at', ascending: false);
 
       return response.map((json) => _mapOfferFromJson(json)).toList();
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'catalog');
+    } on FudiException {
+      rethrow;
     } catch (e) {
       throw UnknownDataException(message: 'Error al cargar el catálogo');
     }
@@ -56,8 +62,12 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
           .single();
 
       return _mapOfferFromJson(response);
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'catalog');
+    } on FudiException {
+      rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al crear la oferta: $e');
+      throw UnknownDataException(message: 'Error al crear la oferta');
     }
   }
 
@@ -83,8 +93,12 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
           .single();
 
       return _mapOfferFromJson(response);
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'catalog');
+    } on FudiException {
+      rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al actualizar la oferta: $e');
+      throw UnknownDataException(message: 'Error al actualizar la oferta');
     }
   }
 
@@ -106,6 +120,10 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
   Future<void> deleteOffer(String offerId) async {
     try {
       await _supabaseClient.from('offers').delete().eq('id', offerId);
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'catalog');
+    } on FudiException {
+      rethrow;
     } catch (e) {
       throw UnknownDataException(message: 'Error al eliminar la oferta');
     }
@@ -118,6 +136,10 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
           .from('offers')
           .update({'is_active': isActive})
           .eq('id', offerId);
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'catalog');
+    } on FudiException {
+      rethrow;
     } catch (e) {
       throw UnknownDataException(message: 'Error al cambiar el estado de la oferta');
     }

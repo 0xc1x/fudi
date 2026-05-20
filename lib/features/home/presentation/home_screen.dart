@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../core/error/user_friendly_message.dart';
 import '../../../core/routing/route_names.dart';
 import '../../../core/ui/app_logo.dart';
 import '../../../core/ui/cards/deal_card.dart';
@@ -113,52 +114,52 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
               loading: () =>
                   const SliverToBoxAdapter(child: _PopularLoadingSkeleton()),
-              error: (error, _) => SliverToBoxAdapter(
-                child: _ErrorState(message: error.toString()),
-              ),
-            ),
-            if (!hasLocation)
-              const SliverToBoxAdapter(child: _LocationPrompt()),
-            if (hasLocation) ...[
-              SliverToBoxAdapter(
-                child: _SectionHeader(
-                  title: 'Cerca de Ti',
-                  onSeeAll: () => context.go(RouteNames.explorePath),
-                ),
-              ),
-              nearbyAsync.when(
-                data: (offers) => offers.isEmpty
-                    ? const SliverToBoxAdapter(child: _EmptyNearbyState())
-                    : SliverPadding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: FudiSpacing.lg,
-                        ),
-                        sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) => Padding(
-                              padding: const EdgeInsets.only(
-                                bottom: FudiSpacing.md,
-                              ),
-                              child: _buildDealCard(context, offers[index]),
-                            ),
-                            childCount: offers.length,
-                          ),
-                        ),
-                      ),
-                loading: () => SliverPadding(
+        error: (error, _) => SliverToBoxAdapter(
+          child: _ErrorState(message: userFriendlyMessage(error)),
+        ),
+      ),
+      if (!hasLocation)
+        const SliverToBoxAdapter(child: _LocationPrompt()),
+      if (hasLocation) ...[
+        SliverToBoxAdapter(
+          child: _SectionHeader(
+            title: 'Cerca de Ti',
+            onSeeAll: () => context.go(RouteNames.explorePath),
+          ),
+        ),
+        nearbyAsync.when(
+          data: (offers) => offers.isEmpty
+              ? const SliverToBoxAdapter(child: _EmptyNearbyState())
+              : SliverPadding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: FudiSpacing.lg,
                   ),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      (_, _) => const _DealCardSkeleton(),
-                      childCount: 3,
+                      (context, index) => Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: FudiSpacing.md,
+                        ),
+                        child: _buildDealCard(context, offers[index]),
+                      ),
+                      childCount: offers.length,
                     ),
                   ),
                 ),
-                error: (error, _) => SliverToBoxAdapter(
-                  child: _ErrorState(message: error.toString()),
-                ),
+          loading: () => SliverPadding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: FudiSpacing.lg,
+            ),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (_, _) => const _DealCardSkeleton(),
+                childCount: 3,
+              ),
+            ),
+          ),
+          error: (error, _) => SliverToBoxAdapter(
+            child: _ErrorState(message: userFriendlyMessage(error)),
+          ),
               ),
             ],
             const SliverToBoxAdapter(child: SizedBox(height: FudiSpacing.xxl)),

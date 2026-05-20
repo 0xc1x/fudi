@@ -4,6 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/error/business_exceptions.dart';
 import '../../../core/error/data_exceptions.dart';
+import '../../../core/error/fudi_exception.dart';
+import '../../../core/error/postgrest_exception_mapper.dart';
 import '../domain/offer.dart';
 import '../domain/offer_repository.dart';
 
@@ -37,6 +39,10 @@ class SupabaseOfferRepository implements OfferRepository {
           .limit(limit);
 
       return response.map(_mapOfferFromJson).toList();
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'offers');
+    } on FudiException {
+      rethrow;
     } catch (e) {
       throw UnknownDataException(message: 'Error al cargar ofertas populares');
     }
@@ -64,6 +70,10 @@ class SupabaseOfferRepository implements OfferRepository {
           .limit(limit);
 
       return response.map(_mapOfferFromJson).toList();
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'offers');
+    } on FudiException {
+      rethrow;
     } catch (e) {
       throw UnknownDataException(message: 'Error al cargar ofertas populares');
     }
@@ -109,6 +119,10 @@ class SupabaseOfferRepository implements OfferRepository {
           });
 
       return nearby.take(limit).toList();
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'offers');
+    } on FudiException {
+      rethrow;
     } catch (e) {
       if (e is DataException || e is BusinessRuleException) rethrow;
       throw UnknownDataException(message: 'Error al cargar ofertas cercanas');
@@ -166,6 +180,10 @@ class SupabaseOfferRepository implements OfferRepository {
       }
 
       return offers;
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'offers');
+    } on FudiException {
+      rethrow;
     } catch (e) {
       if (e is DataException || e is BusinessRuleException) rethrow;
       throw UnknownDataException(message: 'Error al filtrar ofertas');
@@ -187,6 +205,10 @@ class SupabaseOfferRepository implements OfferRepository {
 
       return _mapOfferFromJson(response);
     } on OfferUnavailableException {
+      rethrow;
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'offers');
+    } on FudiException {
       rethrow;
     } catch (e) {
       throw UnknownDataException(message: 'Error al cargar la oferta');

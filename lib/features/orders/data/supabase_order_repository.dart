@@ -2,6 +2,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/error/business_exceptions.dart';
 import '../../../core/error/data_exceptions.dart';
+import '../../../core/error/fudi_exception.dart';
+import '../../../core/error/postgrest_exception_mapper.dart';
 import '../domain/order_model.dart';
 import '../domain/order_repository.dart';
 import '../domain/order_status.dart';
@@ -54,6 +56,10 @@ class SupabaseOrderRepository implements OrderRepository {
       return ReservationFailure(errorCode: errorCode, message: message);
     } on BusinessRuleException {
       rethrow;
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'orders');
+    } on FudiException {
+      rethrow;
     } catch (e, st) {
       throw UnknownDataException(
         message: 'Error al procesar la reserva',
@@ -81,8 +87,11 @@ class SupabaseOrderRepository implements OrderRepository {
         .order('created_at', ascending: false);
 
       return response.map(_mapOrderFromJson).toList();
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'orders');
+    } on FudiException {
+      rethrow;
     } catch (e) {
-      if (e is DataException) rethrow;
       throw UnknownDataException(message: 'Error al cargar pedidos');
     }
   }
@@ -108,6 +117,10 @@ class SupabaseOrderRepository implements OrderRepository {
 
       return _mapOrderFromJson(response);
     } on DataException {
+      rethrow;
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'orders');
+    } on FudiException {
       rethrow;
     } catch (e) {
       throw UnknownDataException(message: 'Error al cargar el pedido');
@@ -174,6 +187,10 @@ class SupabaseOrderRepository implements OrderRepository {
         message: result['message'] as String? ?? 'Error al cancelar',
       );
     } on BusinessRuleException {
+      rethrow;
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'orders');
+    } on FudiException {
       rethrow;
     } catch (e) {
       throw UnknownDataException(message: 'Error al cancelar el pedido');

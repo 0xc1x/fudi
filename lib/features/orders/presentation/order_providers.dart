@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/core_providers.dart';
+import '../../../core/error/user_friendly_message.dart';
 import '../../../core/network/payment_gateway.dart';
 import '../data/mock_payment_gateway.dart';
 import '../data/supabase_coupon_repository.dart';
@@ -218,7 +219,7 @@ class OrderCancelNotifier extends AsyncNotifier<CancelOrderState> {
         );
       }
     } catch (e) {
-      state = AsyncData(CancelOrderState(errorMessage: e.toString()));
+      state = AsyncData(CancelOrderState(errorMessage: userFriendlyMessage(e)));
     }
   }
 

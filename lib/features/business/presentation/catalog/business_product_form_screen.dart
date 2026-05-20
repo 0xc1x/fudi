@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/error/user_friendly_message.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
@@ -203,7 +204,7 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(userFriendlyMessage(e)), backgroundColor: Colors.red),
         );
       }
     } finally {

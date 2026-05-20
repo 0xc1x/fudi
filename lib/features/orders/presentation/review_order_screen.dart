@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+import '../../../core/error/user_friendly_message.dart';
 import '../../../core/ui/fudi_bottom_action_bar.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_info_banner.dart';
@@ -58,14 +59,14 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
           );
           Navigator.of(context).pop();
         },
-        error: (error, _) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(error.toString()),
-              backgroundColor: FudiColors.destructive,
-            ),
-          );
-        },
+    error: (error, _) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(userFriendlyMessage(error)),
+          backgroundColor: FudiColors.destructive,
+        ),
+      );
+    },
       );
     });
 

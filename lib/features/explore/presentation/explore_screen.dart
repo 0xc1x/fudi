@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../core/error/user_friendly_message.dart';
 import '../../../core/ui/app_logo.dart';
 import '../../../core/ui/cards/deal_card.dart';
 import '../../../core/ui/fudi_colors.dart';
@@ -135,9 +136,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 ),
               ),
             ),
-            error: (error, _) => SliverFillRemaining(
-              child: _ErrorState(message: error.toString()),
-            ),
+        error: (error, _) => SliverFillRemaining(
+          child: _ErrorState(message: userFriendlyMessage(error)),
+        ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: FudiSpacing.xxl)),
         ],

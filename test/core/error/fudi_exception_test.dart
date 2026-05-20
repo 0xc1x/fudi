@@ -148,6 +148,27 @@ void main() {
       expect(ValidationException().isRetryable, false);
       expect(NotFoundException().isRetryable, false);
     });
+
+    test('UnknownDataException is retryable', () {
+      expect(const UnknownDataException(message: 'test').isRetryable, true);
+    });
+
+    test('ValidationException with fieldErrors shows first field error', () {
+      const exception = ValidationException(
+        fieldErrors: {'discountedPrice': 'Debe ser menor al original'},
+      );
+      expect(exception.userMessage(), 'Debe ser menor al original');
+    });
+
+    test('ValidationException without fieldErrors shows generic message', () {
+      const exception = ValidationException();
+      expect(exception.userMessage(), contains('datos'));
+    });
+
+    test('AuthConflictException shows duplicate email message', () {
+      const exception = AuthConflictException();
+      expect(exception.userMessage(), contains('correo'));
+    });
   });
 
   group('FudiException toString', () {

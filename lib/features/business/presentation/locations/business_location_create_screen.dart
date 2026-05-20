@@ -5,6 +5,7 @@ import 'package:geocoding/geocoding.dart' as geo;
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../core/error/user_friendly_message.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_icons.dart';
@@ -200,16 +201,9 @@ class _BusinessLocationCreateScreenState extends ConsumerState<BusinessLocationC
         }
     } catch (e) {
       if (mounted) {
-        String message = 'Ocurrió un error inesperado';
-        final errorStr = e.toString();
-        if (errorStr.contains('23505')) {
-          message = 'Ya existe un local con un nombre similar. Por favor intenta con uno diferente.';
-        } else {
-          message = 'Error: $e'.replaceAll('Exception: ', '').split('\n').first;
-        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(message),
+            content: Text(userFriendlyMessage(e)),
             backgroundColor: Colors.redAccent,
             behavior: SnackBarBehavior.floating,
           ),
