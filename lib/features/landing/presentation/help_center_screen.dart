@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/routing/route_names.dart';
 import '../../../core/ui/fudi_colors.dart';
-import '../../../core/ui/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
-import '../../../core/ui/fudi_sticky_page_header.dart';
-import '../../../core/ui/fudi_surface_card.dart';
-import '../../../core/ui/fudi_typography.dart';
+
 
 class HelpCenterScreen extends StatelessWidget {
   const HelpCenterScreen({super.key});
@@ -41,71 +40,34 @@ class HelpCenterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const FudiStickyPageHeader(title: 'Centro de ayuda'),
+      backgroundColor: const Color(0xFFF8F9FA),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left, color: Colors.black),
+          onPressed: () => context.go(RouteNames.landingPath),
+        ),
+        title: Row(
+          children: [
+            const Icon(Icons.help_outline, color: FudiColors.primary, size: 20),
+            const SizedBox(width: 8),
+            const Text('Centro de ayuda', style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(FudiSpacing.lg),
+        padding: const EdgeInsets.all(FudiSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Contacta con nosotros', style: FudiTypography.labelMedium),
-            const SizedBox(height: FudiSpacing.md),
-            FudiSurfaceCard(
-              padding: EdgeInsets.zero,
-              child: Column(
-                children: [
-                  _ContactOption(
-                    icon: FudiIcons.messageSquare,
-                    label: 'Chat en vivo',
-                    onTap: () {},
-                  ),
-                  const Divider(height: 1, indent: FudiSpacing.xxl),
-                  _ContactOption(
-                    icon: FudiIcons.mail,
-                    label: 'Email',
-                    onTap: () {},
-                  ),
-                  const Divider(height: 1, indent: FudiSpacing.xxl),
-                  _ContactOption(
-                    icon: FudiIcons.phone,
-                    label: 'Teléfono',
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: FudiSpacing.xl),
-            ...List.generate(_faqCategories.length, (i) {
-              final category = _faqCategories[i];
-              return Padding(
-                padding: EdgeInsets.only(
-                  bottom: i < _faqCategories.length - 1
-                      ? FudiSpacing.xl
-                      : FudiSpacing.xxl,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(category.title, style: FudiTypography.labelMedium),
-                    const SizedBox(height: FudiSpacing.md),
-                    FudiSurfaceCard(
-                      padding: EdgeInsets.zero,
-                      child: Column(
-                        children: List.generate(
-                          category.questions.length,
-                          (qIdx) => Column(
-                            children: [
-                              _FAQQuestion(question: category.questions[qIdx]),
-                              if (qIdx < category.questions.length - 1)
-                                const Divider(height: 1, indent: FudiSpacing.xxl),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
+            const Text('Contacta con nosotros', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            _ContactButton(icon: Icons.chat_bubble_outline, label: 'Chat en vivo', onTap: () {}),
+            _ContactButton(icon: Icons.mail_outline, label: 'Email', onTap: () {}),
+            _ContactButton(icon: Icons.phone_outlined, label: 'Teléfono', onTap: () {}),
+            const SizedBox(height: 32),
+            ..._faqCategories.map((category) => _FAQCategory(category: category)),
           ],
         ),
       ),
@@ -113,67 +75,82 @@ class HelpCenterScreen extends StatelessWidget {
   }
 }
 
-class _ContactOption extends StatelessWidget {
-  const _ContactOption({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
+class _ContactButton extends StatelessWidget {
+  const _ContactButton({required this.icon, required this.label, required this.onTap});
   final IconData icon;
   final String label;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(FudiRadius.xl),
-      child: Padding(
-        padding: const EdgeInsets.all(FudiSpacing.lg),
-        child: Row(
-          children: [
-            Icon(icon, size: 20, color: FudiColors.primary),
-            const SizedBox(width: FudiSpacing.md),
-            Expanded(
-              child: Text(label, style: FudiTypography.labelSmall),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: FudiColors.muted.withValues(alpha: 0.5)),
             ),
-            const Icon(
-              FudiIcons.chevronRight,
-              size: 20,
-              color: FudiColors.mutedForeground,
+            child: Row(
+              children: [
+                Icon(icon, color: FudiColors.primary, size: 24),
+                const SizedBox(width: 16),
+                Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Spacer(),
+                const Icon(Icons.chevron_right, color: FudiColors.mutedForeground),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _FAQQuestion extends StatelessWidget {
-  const _FAQQuestion({required this.question});
-
-  final String question;
+class _FAQCategory extends StatelessWidget {
+  const _FAQCategory({required this.category});
+  final ({String title, List<String> questions}) category;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {},
-      borderRadius: BorderRadius.circular(FudiRadius.xl),
-      child: Padding(
-        padding: const EdgeInsets.all(FudiSpacing.lg),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(question, style: FudiTypography.labelSmall),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(category.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: FudiColors.muted.withValues(alpha: 0.5)),
             ),
-            const Icon(
-              FudiIcons.chevronRight,
-              size: 20,
-              color: FudiColors.mutedForeground,
+            child: Column(
+              children: List.generate(category.questions.length, (index) {
+                final question = category.questions[index];
+                return Column(
+                  children: [
+                    ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      title: Text(question, style: const TextStyle(fontWeight: FontWeight.w500)),
+                      trailing: const Icon(Icons.chevron_right, color: FudiColors.mutedForeground),
+                      onTap: () {},
+                    ),
+                    if (index < category.questions.length - 1)
+                      const SizedBox(height: 1, width: double.infinity),
+                  ],
+                );
+              }),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

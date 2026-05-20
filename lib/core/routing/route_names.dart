@@ -91,6 +91,9 @@ class RouteNames {
   static const businessProducts = 'business-products';
   static const businessProductsPath = '/business/products';
 
+  static const businessProductCreate = 'business-product-create';
+  static const businessProductCreatePath = '/business/products/create';
+
   static const businessProductDetail = 'business-product-detail';
   static const businessProductDetailPath = '/business/products/:id';
 
@@ -114,6 +117,9 @@ class RouteNames {
 
   static const businessLocations = 'business-locations';
   static const businessLocationsPath = '/business/locations';
+
+  static const businessLocationCreate = 'business-location-create';
+  static const businessLocationCreatePath = '/business/locations/create';
 
   static const businessLocationDetail = 'business-location-detail';
   static const businessLocationDetailPath = '/business/locations/:id';

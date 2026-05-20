@@ -28,6 +28,12 @@ import '../../features/landing/presentation/terms_screen.dart';
 import '../../features/landing/presentation/privacy_screen.dart';
 import '../../features/landing/presentation/how_it_works_screen.dart';
 import '../../features/landing/presentation/for_business_screen.dart';
+import '../../features/business/presentation/dashboard/business_dashboard_screen.dart';
+import '../../features/business/presentation/catalog/business_products_screen.dart';
+import '../../features/business/presentation/catalog/business_product_form_screen.dart';
+import '../../features/business/presentation/orders/business_orders_screen.dart';
+import '../../features/business/presentation/orders/business_order_detail_screen.dart';
+import '../../features/business/presentation/locations/business_location_create_screen.dart';
 import '../observability/sentry_breadcrumb.dart';
 import '../ui/fudi_scaffold.dart';
 import '../ui/ui_gallery_screen.dart';
@@ -247,26 +253,53 @@ GoRouter createAppRouter(
           GoRoute(
             path: RouteNames.businessProductsPath,
             name: RouteNames.businessProducts,
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: 'Mis Productos'),
+            builder: (context, state) => const BusinessProductsScreen(),
+            routes: [
+              GoRoute(
+                path: 'create',
+                name: RouteNames.businessProductCreate,
+                builder: (context, state) => const BusinessProductFormScreen(),
+              ),
+              GoRoute(
+                path: 'edit/:id',
+                name: RouteNames.businessProductEdit,
+                builder: (context, state) => BusinessProductFormScreen(
+                  productId: state.pathParameters['id'],
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: RouteNames.businessOrdersPath,
             name: RouteNames.businessOrders,
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: 'Pedidos Recibidos'),
+            builder: (context, state) => const BusinessOrdersScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                name: RouteNames.businessOrderDetail,
+                builder: (context, state) => BusinessOrderDetailScreen(
+                  orderId: state.pathParameters['id']!,
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: RouteNames.businessLocationsPath,
             name: RouteNames.businessLocations,
             builder: (context, state) =>
                 const _PlaceholderScreen(title: 'Gestión de Locales'),
+            routes: [
+              GoRoute(
+                path: 'create',
+                name: RouteNames.businessLocationCreate,
+                builder: (context, state) => const BusinessLocationCreateScreen(),
+              ),
+            ],
           ),
           GoRoute(
             path: RouteNames.businessStatisticsPath,
             name: RouteNames.businessStatistics,
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: 'Estadísticas'),
+            builder: (context, state) => const BusinessDashboardScreen(),
           ),
           GoRoute(
             path: RouteNames.businessPaymentsPath,

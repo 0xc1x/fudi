@@ -166,7 +166,7 @@ class _BusinessProfileContentState
               Positioned(
                 left: 0,
                 right: 0,
-                bottom: -48,
+                bottom: -32,
                 child: Container(
                   decoration: const BoxDecoration(
                     color: FudiColors.background,
@@ -175,33 +175,75 @@ class _BusinessProfileContentState
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Color(0x1A000000),
-                        blurRadius: 12,
-                        offset: Offset(0, 4),
+                        color: Color(0x0D000000),
+                        blurRadius: 10,
+                        offset: Offset(0, -4),
                       ),
                     ],
                   ),
-                  padding: const EdgeInsets.fromLTRB(
-                    FudiSpacing.lg,
-                    FudiSpacing.xl + 40,
-                    FudiSpacing.lg,
-                    FudiSpacing.lg,
-                  ),
+                  padding: const EdgeInsets.all(FudiSpacing.lg),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Business Logo
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(FudiRadius.lg),
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 4,
+                          ),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x1A000000),
+                              blurRadius: 8,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius:
+                              BorderRadius.circular(FudiRadius.lg - 4),
+                          child: profile.imageUrl != null
+                              ? CachedNetworkImage(
+                                  imageUrl: profile.imageUrl!,
+                                  fit: BoxFit.cover,
+                                  errorWidget: (_, _, _) => Container(
+                                    color: FudiColors.muted,
+                                    child: const Icon(
+                                      Icons.store,
+                                      size: 32,
+                                      color: FudiColors.mutedForeground,
+                                    ),
+                                  ),
+                                )
+                              : Container(
+                                  color: FudiColors.muted,
+                                  child: const Icon(
+                                    Icons.store,
+                                    size: 32,
+                                    color: FudiColors.mutedForeground,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(width: FudiSpacing.md),
+                      // Business Information
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               profile.name,
-                              style: FudiTypography.h1.copyWith(
+                              style: FudiTypography.h2.copyWith(
                                 fontWeight: FontWeight.w800,
-                                fontSize: 22,
+                                fontSize: 24,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 2),
                             Text(
                               profile.type,
                               style: FudiTypography.bodyMedium.copyWith(
@@ -231,53 +273,6 @@ class _BusinessProfileContentState
                   ),
                 ),
               ),
-              Positioned(
-                left: FudiSpacing.lg + 4,
-                bottom: -8,
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(FudiRadius.lg),
-                    border: Border.all(
-                      color: FudiColors.background,
-                      width: 4,
-                    ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x1A000000),
-                        blurRadius: 8,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius:
-                        BorderRadius.circular(FudiRadius.lg - 4),
-                    child: profile.imageUrl != null
-                        ? CachedNetworkImage(
-                            imageUrl: profile.imageUrl!,
-                            fit: BoxFit.cover,
-                            errorWidget: (_, _, _) => Container(
-                              color: FudiColors.muted,
-                              child: const Icon(
-                                Icons.store,
-                                size: 32,
-                                color: FudiColors.mutedForeground,
-                              ),
-                            ),
-                          )
-                        : Container(
-                            color: FudiColors.muted,
-                            child: const Icon(
-                              Icons.store,
-                              size: 32,
-                              color: FudiColors.mutedForeground,
-                            ),
-                          ),
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -285,7 +280,7 @@ class _BusinessProfileContentState
         // ─── Content Sections ─────────────────────────────
         SliverToBoxAdapter(
           child: Transform.translate(
-            offset: const Offset(0, -48),
+            offset: const Offset(0, -32),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: FudiSpacing.lg,

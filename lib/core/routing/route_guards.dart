@@ -118,7 +118,7 @@ class RouteGuards {
 
     // Business trying to access consumer-only routes
     if (role == 'business' && isConsumerOnlyRoute(currentPath)) {
-      return RouteNames.businessProductsPath;
+      return RouteNames.businessStatisticsPath;
     }
 
     return null; // No redirect needed
@@ -187,7 +187,7 @@ class RouteGuards {
   static String defaultPathFor(UserRole role) {
     switch (role) {
       case UserRole.business:
-        return RouteNames.businessProductsPath;
+        return RouteNames.businessStatisticsPath;
       case UserRole.admin:
       case UserRole.user:
         return RouteNames.homePath;

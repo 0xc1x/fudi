@@ -26,12 +26,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   String? _selectedCategoryId;
 
-  String get _greeting {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Buenos días';
-    if (hour < 18) return 'Buenas tardes';
-    return 'Buenas noches';
-  }
 
   void _onCategorySelected(String? categoryId) {
     setState(() => _selectedCategoryId = categoryId);
@@ -53,21 +47,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ) ??
         false;
 
+    final selectedAddress = ref.watch(userSelectedAddressProvider);
+
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
       body: RefreshIndicator(
-      onRefresh: () async {
-        if (_selectedCategoryId != null) {
-          ref.read(popularOffersProvider.notifier).filterByCategory(_selectedCategoryId);
-          ref.read(nearbyOffersProvider.notifier).filterByCategory(_selectedCategoryId);
-        } else {
-          await ref.read(popularOffersProvider.notifier).refresh();
-          await ref.read(nearbyOffersProvider.notifier).refresh();
-        }
-        ref.invalidate(categoryStatsProvider);
-      },
+        onRefresh: () async {
+          if (_selectedCategoryId != null) {
+            ref.read(popularOffersProvider.notifier).filterByCategory(_selectedCategoryId);
+            ref.read(nearbyOffersProvider.notifier).filterByCategory(_selectedCategoryId);
+          } else {
+            await ref.read(popularOffersProvider.notifier).refresh();
+            await ref.read(nearbyOffersProvider.notifier).refresh();
+          }
+          ref.invalidate(categoryStatsProvider);
+        },
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(child: _HomeHeader(greeting: _greeting)),
+            SliverToBoxAdapter(
+              child: _HomeHeader(
+                selectedLocation: selectedAddress,
+                onLocationTap: () => context.push('/profile/addresses'),
+              ),
+            ),
         statsAsync.when(
           data: (stats) => SliverToBoxAdapter(
             child: _CategoryChips(
@@ -194,221 +196,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 class _HomeHeader extends StatelessWidget {
-  const _HomeHeader({required this.greeting});
+  const _HomeHeader({required this.selectedLocation, required this.onLocationTap});
 
-  final String greeting;
+  final SavedAddressModel? selectedLocation;
+  final VoidCallback onLocationTap;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: FudiColors.ring,
-      padding: const EdgeInsets.fromLTRB(
-        FudiSpacing.lg,
-        FudiSpacing.lg + 8,
-        FudiSpacing.lg,
-        FudiSpacing.lg,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg, vertical: FudiSpacing.md),
       child: SafeArea(
         bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      greeting,
-                      style: FudiTypography.bodyMedium.copyWith(
-                        color: FudiColors.primary,
-                      ),
-                    ),
-                    const SizedBox(height: FudiSpacing.xs),
-                    const _LocationSelector(),
-                  ],
-                ),
-                const AppLogo(
-                  size: AppLogoSize.lg,
-                  variant: AppLogoVariant.light,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LocationSelector extends ConsumerStatefulWidget {
-  const _LocationSelector();
-
-  @override
-  ConsumerState<_LocationSelector> createState() => _LocationSelectorState();
-}
-
-class _LocationSelectorState extends ConsumerState<_LocationSelector> {
-  final _layerLink = LayerLink();
-  OverlayEntry? _overlayEntry;
-  bool _isOpen = false;
-  int _selectedIndex = 0;
-
-  @override
-  void dispose() {
-    _removeOverlay();
-    super.dispose();
-  }
-
-  void _removeOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-  }
-
-  void _toggleDropdown() {
-    setState(() => _isOpen = !_isOpen);
-    if (_isOpen) {
-      _showDropdown();
-    } else {
-      _removeOverlay();
-    }
-  }
-
-  void _showDropdown() {
-    final overlay = Overlay.of(context);
-    final renderBox = context.findRenderObject() as RenderBox;
-    final size = renderBox.size;
-    final addressesAsync = ref.read(savedAddressesProvider);
-
-    final List<SavedAddressModel> addresses = addressesAsync.whenOrNull(data: (d) => d) ?? [];
-
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: () {
-                setState(() => _isOpen = false);
-                _removeOverlay();
-              },
-              behavior: HitTestBehavior.opaque,
-              child: const SizedBox.expand(),
-            ),
-          ),
-          CompositedTransformFollower(
-            link: _layerLink,
-            offset: Offset(0, size.height + FudiSpacing.sm),
-            child: Material(
-              color: FudiColors.background,
-              borderRadius: BorderRadius.circular(FudiRadius.lg),
-              elevation: 8,
-              child: Container(
-                constraints: const BoxConstraints(minWidth: 150),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(FudiRadius.lg),
-                  border: Border.all(color: FudiColors.borderSolid),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(FudiRadius.lg),
-                      child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (addresses.isEmpty)
-                        const _LocationOption(
-                          name: 'Ubicación actual',
-                          address: 'Usando GPS',
-                          isSelected: true,
-                          onTap: null,
-                        )
-                      else
-                        for (var i = 0; i < addresses.length; i++)
-                          _LocationOption(
-                            name: addresses[i].label,
-                            address: addresses[i].address,
-                            isSelected: i == _selectedIndex,
-                            onTap: () {
-                              setState(() => _selectedIndex = i);
-                              setState(() => _isOpen = false);
-                              _removeOverlay();
-                            },
-                          ),
-                      const Divider(height: 1, thickness: 1),
-                      InkWell(
-                        onTap: () {
-                          setState(() => _isOpen = false);
-                          _removeOverlay();
-                          context.push('/profile/addresses');
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: FudiSpacing.lg,
-                            vertical: FudiSpacing.md,
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                FudiIcons.mapPin,
-                                size: 16,
-                                color: FudiColors.primary,
-                              ),
-                              const SizedBox(width: FudiSpacing.sm),
-                              Text(
-                                '+ Gestionar direcciones',
-                                style: FudiTypography.bodySmall.copyWith(
-                                  color: FudiColors.primary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    overlay.insert(_overlayEntry!);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final addressesAsync = ref.watch(savedAddressesProvider);
-    final label = addressesAsync.when(
-      data: (d) => d.isNotEmpty ? d[_selectedIndex < d.length ? _selectedIndex : 0].label : 'Ubicación',
-      loading: () => 'Cargando...',
-      error: (_, _) => 'Ubicación',
-    );
-
-    return CompositedTransformTarget(
-      link: _layerLink,
-      child: GestureDetector(
-        onTap: _toggleDropdown,
         child: Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Icon(FudiIcons.mapPin, size: 16, color: FudiColors.primary),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: FudiTypography.labelSmall.copyWith(
-                color: FudiColors.primary,
-                fontWeight: FontWeight.w700,
-              ),
+            _LocationSelector(
+              selectedLocation: selectedLocation,
+              onTap: onLocationTap,
             ),
-            AnimatedRotation(
-              turns: _isOpen ? 0.5 : 0,
-              duration: const Duration(milliseconds: 200),
-              child: const Icon(
-                FudiIcons.chevronDown,
-                size: 16,
-                color: FudiColors.primary,
-              ),
+            const AppLogo(
+              size: AppLogoSize.lg,
+              variant: AppLogoVariant.light,
             ),
           ],
         ),
@@ -417,77 +226,36 @@ class _LocationSelectorState extends ConsumerState<_LocationSelector> {
   }
 }
 
-class _LocationOption extends StatelessWidget {
-  const _LocationOption({
-    required this.name,
-    required this.address,
-    required this.isSelected,
-    required this.onTap,
-  });
+class _LocationSelector extends StatelessWidget {
+  const _LocationSelector({required this.selectedLocation, required this.onTap});
 
-  final String name;
-  final String address;
-  final bool isSelected;
-  final VoidCallback? onTap;
+  final SavedAddressModel? selectedLocation;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: Container(
-        color: isSelected ? FudiColors.primary.withValues(alpha: 0.05) : null,
-        padding: const EdgeInsets.symmetric(
-          horizontal: FudiSpacing.lg,
-          vertical: FudiSpacing.md,
-        ),
-        child: Row(
-          children: [
-            Icon(
-              FudiIcons.mapPin,
-              size: 16,
-              color: isSelected
-                  ? FudiColors.primary
-                  : FudiColors.mutedForeground,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.location_on, size: 18, color: FudiColors.primary),
+          const SizedBox(width: 4),
+          Text(
+            selectedLocation?.label ?? 'Seleccionar ubicación',
+            style: const TextStyle(
+              color: FudiColors.primary,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
             ),
-            const SizedBox(width: FudiSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: FudiTypography.bodySmall.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: isSelected
-                          ? FudiColors.primary
-                          : FudiColors.foreground,
-                    ),
-                  ),
-                  Text(
-                    address,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: FudiColors.mutedForeground,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (isSelected)
-              Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: FudiColors.primary,
-                  shape: BoxShape.circle,
-                ),
-              ),
-          ],
-        ),
+          ),
+          const Icon(Icons.keyboard_arrow_down, size: 18, color: FudiColors.primary),
+        ],
       ),
     );
   }
 }
+
 
 class _CategoryChips extends StatelessWidget {
   const _CategoryChips({

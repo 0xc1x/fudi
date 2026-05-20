@@ -259,7 +259,7 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
                                         ],
                                       ),
                                       Text(
-                                        '(${_reviewCount(offer.rating)} reseñas)',
+                                        '(${offer.business.reviewCount} reseñas)',
                                         style: FudiTypography.bodySmall.copyWith(
                                           color: FudiColors.mutedForeground,
                                         ),
@@ -566,12 +566,6 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
     return 'Cerca de ti';
   }
 
-  int _reviewCount(double rating) {
-    if (rating >= 4.8) return 53;
-    if (rating >= 4.6) return 42;
-    if (rating >= 4.4) return 28;
-    return 15;
-  }
 }
 
 class _CircleButton extends StatelessWidget {

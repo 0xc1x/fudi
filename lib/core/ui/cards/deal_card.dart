@@ -118,7 +118,7 @@ class DealCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   businessName,
-                  style: FudiTypography.labelMedium,
+                  style: FudiTypography.h3.copyWith(fontWeight: FontWeight.bold),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -182,7 +182,7 @@ class DealCard extends StatelessWidget {
                   ),
                   Text(
                     '\$${discountedPrice.toStringAsFixed(2)}',
-                    style: FudiTypography.price,
+                    style: FudiTypography.priceLarge,
                   ),
                 ],
               ),

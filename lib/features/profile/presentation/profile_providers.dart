@@ -60,3 +60,20 @@ final consumerPreferencesProvider =
     FutureProvider<ConsumerPreferences>((ref) async {
   return ref.watch(consumerProfileRepositoryProvider).getPreferences();
 });
+
+final userSelectedAddressProvider = NotifierProvider<SelectedAddressNotifier, SavedAddressModel?>(SelectedAddressNotifier.new);
+
+class SelectedAddressNotifier extends Notifier<SavedAddressModel?> {
+  @override
+  SavedAddressModel? build() {
+    final addresses = ref.watch(savedAddressesProvider).asData?.value;
+    if (addresses != null && addresses.isNotEmpty) {
+      return addresses.first;
+    }
+    return null;
+  }
+
+  void select(SavedAddressModel address) {
+    state = address;
+  }
+}

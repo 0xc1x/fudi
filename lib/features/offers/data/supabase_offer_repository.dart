@@ -20,7 +20,7 @@ class SupabaseOfferRepository implements OfferRepository {
     original_price, discounted_price, rating, stock, initial_stock,
     pickup_start, pickup_end, is_active,
     businesses:business_id (
-      id, name, type, image, latitude, longitude, rating, address
+      id, name, type, image, latitude, longitude, rating, address, review_count
     )
   ''';
 
@@ -325,6 +325,7 @@ class SupabaseOfferRepository implements OfferRepository {
         longitude: _toDouble(businessJson['longitude']),
         rating: _toDouble(businessJson['rating']) ?? 0.0,
         address: businessJson['address'] as String? ?? '',
+        reviewCount: businessJson['review_count'] as int? ?? 0,
       ),
       title: json['title'] as String,
       description: json['description'] as String?,

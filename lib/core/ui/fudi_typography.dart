@@ -103,4 +103,11 @@ class FudiTypography {
     decoration: TextDecoration.lineThrough,
     color: FudiColors.mutedForeground,
   );
+
+  /// Price Text Large - used in Home cards
+  static const TextStyle priceLarge = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    color: FudiColors.primary,
+  );
 }

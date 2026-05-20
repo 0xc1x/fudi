@@ -1,4 +1,6 @@
+import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/error/data_exceptions.dart';
 import '../domain/business_profile.dart';
@@ -19,7 +21,6 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
   @override
   Future<BusinessProfile> getBusinessProfile(String businessId) async {
     try {
-      // Fetch business row
       final response = await _supabaseClient
           .from('businesses')
           .select(_businessSelectFields)
@@ -30,14 +31,12 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
         throw const NotFoundException(message: 'Negocio no encontrado');
       }
 
-      // Fetch hours and reviews in parallel
       final hoursFuture = getBusinessHours(businessId);
       final reviewsFuture = getBusinessReviews(businessId);
 
       final hours = await hoursFuture;
       final reviews = await reviewsFuture;
 
-      // Count total rescued from completed orders
       final ordersResponse = await _supabaseClient
           .from('orders')
           .select('id')
@@ -67,7 +66,6 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
 
       if (response.isEmpty) return [];
 
-      // Group consecutive days with same hours
       return _groupHours(response.map(_mapHourEntry).toList());
     } catch (_) {
       return [];
@@ -96,6 +94,127 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
       return response.map(_mapReview).toList();
     } catch (_) {
       return [];
+    }
+  }
+
+  @override
+  Future<List<BusinessProfile>> getBusinessesByOwnerId(String ownerId) async {
+    try {
+      final response = await _supabaseClient
+          .from('businesses')
+          .select(_businessSelectFields)
+          .eq('owner_id', ownerId)
+          .order('name');
+
+      return response.map((json) => _mapBusinessProfile(json, [], [], 0)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  @override
+  Future<void> createBusiness(BusinessProfile profile, String ownerId, {XFile? logoFile, XFile? coverFile}) async {
+    try {
+      String? logoUrl;
+      String? coverUrl;
+
+      if (logoFile != null) {
+        logoUrl = await _uploadXFile(logoFile, 'logos/${ownerId}_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      } else if (profile.imageUrl != null && profile.imageUrl!.startsWith('http')) {
+        logoUrl = profile.imageUrl;
+      }
+
+      if (coverFile != null) {
+        coverUrl = await _uploadXFile(coverFile, 'covers/${ownerId}_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      } else if (profile.coverImageUrl != null && profile.coverImageUrl!.startsWith('http')) {
+        coverUrl = profile.coverImageUrl;
+      }
+
+      final randomSuffix = Random().nextInt(9999).toString().padLeft(4, '0');
+      final slug = '${profile.name
+          .toLowerCase()
+          .trim()
+          .replaceAll(RegExp(r'[^a-z0-9]'), '-')
+          .replaceAll(RegExp(r'-+'), '-')}-$randomSuffix';
+
+      final businessData = {
+        'owner_id': ownerId,
+        'name': profile.name,
+        'slug': slug,
+        'type': profile.type.toLowerCase(),
+        'address': profile.address,
+        'phone': profile.phone,
+        'email': profile.email,
+        'description': profile.description,
+        'image': logoUrl,
+        'cover_image': coverUrl,
+        'website': profile.website,
+        'latitude': profile.latitude,
+        'longitude': profile.longitude,
+        'rating': 0.0,
+        'review_count': 0,
+      };
+
+      final response = await _supabaseClient
+          .from('businesses')
+          .insert(businessData)
+          .select('id')
+          .single();
+
+      final businessId = response['id'] as String;
+
+      if (profile.hours.isNotEmpty) {
+        final hoursData = profile.hours.map((h) {
+          final isClosed = h.hours.toLowerCase().contains('cerrado');
+          String open = '00:00';
+          String close = '00:00';
+
+          if (!isClosed) {
+            final parts = h.hours.split('-').map((s) => s.trim()).toList();
+            if (parts.length == 2) {
+              open = _parseToTime(parts[0]);
+              close = _parseToTime(parts[1]);
+            }
+          }
+
+          return {
+            'business_id': businessId,
+            'day': _mapDayToDb(h.day),
+            'open_time': open,
+            'close_time': close,
+            'is_closed': isClosed,
+          };
+        }).toList();
+
+        await _supabaseClient.from('business_hours').insert(hoursData);
+      }
+
+      if (profile.address.isNotEmpty && profile.latitude != null && profile.longitude != null) {
+        await _supabaseClient.from('business_locations').insert({
+          'business_id': businessId,
+          'name': profile.name,
+          'address': profile.address,
+          'phone': profile.phone,
+          'latitude': profile.latitude,
+          'longitude': profile.longitude,
+        });
+      }
+    } catch (e) {
+      throw UnknownDataException(message: 'Error al crear el negocio: $e');
+    }
+  }
+
+  Future<String> _uploadXFile(XFile xFile, String remotePath) async {
+    try {
+      final bytes = await xFile.readAsBytes();
+
+      await _supabaseClient.storage
+          .from('business_images')
+          .uploadBinary(remotePath, bytes, fileOptions: const FileOptions(contentType: 'image/jpeg', upsert: true));
+
+      return _supabaseClient.storage.from('business_images').getPublicUrl(remotePath);
+    } catch (e) {
+      return xFile.path;
     }
   }
 
@@ -147,8 +266,6 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
     );
   }
 
-  /// Groups consecutive days with identical hours into ranges
-  /// like "Lunes - Viernes: 6:00 - 21:00".
   List<BusinessHours> _groupHours(
     List<({String day, String open, String close, bool isClosed})> entries,
   ) {
@@ -221,7 +338,26 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
     );
   }
 
-  // ─── Utility ──────────────────────────────────────────────────
+  String _parseToTime(String time) {
+    final parts = time.split(':');
+    if (parts.length == 2) {
+      return '${parts[0].padLeft(2, '0')}:${parts[1].padLeft(2, '0')}:00';
+    }
+    return '00:00:00';
+  }
+
+  String _mapDayToDb(String day) {
+    final mapping = {
+      'Lunes': 'monday',
+      'Martes': 'tuesday',
+      'Miércoles': 'wednesday',
+      'Jueves': 'thursday',
+      'Viernes': 'friday',
+      'Sábado': 'saturday',
+      'Domingo': 'sunday',
+    };
+    return mapping[day] ?? day.toLowerCase();
+  }
 
   double? _toDouble(dynamic value) {
     if (value == null) return null;
@@ -231,7 +367,6 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
     return null;
   }
 
-  /// Formats "HH:MM:SS" or "HH:MM" to "HH:MM".
   String _formatTime(String time) {
     final parts = time.split(':');
     if (parts.length >= 2) {
@@ -240,7 +375,6 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
     return time;
   }
 
-  /// Maps the DB enum to a user-friendly Spanish label.
   String _mapBusinessType(String? type) {
     return switch (type?.toLowerCase()) {
       'restaurant' => 'Restaurante',
@@ -252,7 +386,6 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
     };
   }
 
-  /// Formats a DateTime to a Spanish "Month Year" string.
   String _formatMemberSince(DateTime dt) {
     const months = [
       '', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',

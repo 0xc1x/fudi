@@ -22,7 +22,8 @@
     "postgres-mcp": "^1.0.4",
     "figma-mcp": "^0.1.4",
     "@mseep/linear-mcp": "^78.0.1",
-    "@aaronsb/slack-mcp": "^1.4.0"
+    "@aaronsb/slack-mcp": "^1.4.0",
+    "chrome-devtools-mcp": "latest"
   },
   "devDependencies": {
     "dotenv": "^16.4.0"

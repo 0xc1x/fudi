@@ -1,3 +1,5 @@
+import '../../offers/domain/offer.dart';
+
 /// Domain model for a business profile.
 ///
 /// Represents the full business data shown on the Business Profile screen.
@@ -45,6 +47,20 @@ class BusinessProfile {
   final String? memberSince;
   final List<BusinessHours> hours;
   final List<BusinessReview> reviews;
+
+  /// Helper to convert to [BusinessInfo] (lighter version for offer cards).
+  BusinessInfo toInfo() {
+    return BusinessInfo(
+      id: id,
+      name: name,
+      type: type,
+      address: address,
+      imageUrl: imageUrl,
+      latitude: latitude,
+      longitude: longitude,
+      rating: rating,
+    );
+  }
 }
 
 /// A single day's opening hours for a business.

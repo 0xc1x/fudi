@@ -10,6 +10,7 @@ class BusinessInfo {
     this.imageUrl,
     this.latitude,
     this.longitude,
+    this.reviewCount = 0,
   });
 
   final String id;
@@ -20,6 +21,7 @@ class BusinessInfo {
   final double? longitude;
   final double rating;
   final String address;
+  final int reviewCount;
 }
 
 class Offer {
@@ -39,6 +41,8 @@ class Offer {
     this.description,
     this.imageUrl,
     this.category,
+    this.includes,
+    this.allergens,
   });
 
   final String id;
@@ -48,6 +52,8 @@ class Offer {
   final String? description;
   final String? imageUrl;
   final String? category;
+  final String? includes;
+  final String? allergens;
   final double originalPrice;
   final double discountedPrice;
   final double rating;
