@@ -85,6 +85,20 @@
       "package": "@mseep/linear-mcp",
       "enabledByDefault": false,
       "description": "Integration con Linear para gestión de tareas"
+    },
+    "chrome-devtools": {
+      "transport": "stdio",
+      "package": "chrome-devtools-mcp",
+      "requiredEnv": [],
+      "enabledByDefault": true,
+      "description": "Inspección de páginas web via Chrome DevTools Protocol — snapshots, screenshots, red, performance, JS execution"
+    },
+    "context7": {
+      "transport": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "requiredEnv": [],
+      "enabledByDefault": true,
+      "description": "Documentación actualizada de cualquier librería/framework en tiempo real"
     }
   }
 }

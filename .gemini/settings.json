@@ -44,13 +44,24 @@
     "openaiDeveloperDocs": {
       "httpUrl": "https://developers.openai.com/mcp",
       "trust": true
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp"],
+      "trust": true
+    },
+    "context7": {
+      "httpUrl": "https://mcp.context7.com/mcp",
+      "trust": true
     }
   },
   "mcp": {
     "allowed": [
       "github",
       "supabase-db",
-      "openaiDeveloperDocs"
+      "openaiDeveloperDocs",
+      "chrome-devtools",
+      "context7"
     ]
   }
 }

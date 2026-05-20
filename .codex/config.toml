@@ -13,3 +13,12 @@ enabled = true
 [mcp_servers.openaiDeveloperDocs]
 url = "https://developers.openai.com/mcp"
 enabled = true
+
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = ["-y", "chrome-devtools-mcp"]
+enabled = true
+
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"
+enabled = true

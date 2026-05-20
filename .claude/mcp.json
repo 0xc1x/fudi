@@ -1,28 +1,22 @@
 {
-  "servers": {
+  "mcpServers": {
     "github": {
-      "type": "stdio",
       "command": "node",
-      "args": [
-        "${workspaceFolder}/.ai/mcp/launchers/github.mjs"
-      ]
+      "args": ["./.ai/mcp/launchers/github.mjs"]
     },
     "supabase": {
-      "type": "http",
       "url": "https://mcp.supabase.com/mcp?project_ref=sxqopofoynsqkztozlix"
     },
     "openaiDeveloperDocs": {
-      "type": "http",
       "url": "https://developers.openai.com/mcp"
     },
     "chrome-devtools": {
-      "type": "stdio",
       "command": "npx",
       "args": ["-y", "chrome-devtools-mcp"]
     },
     "context7": {
-      "type": "http",
-      "url": "https://mcp.context7.com/mcp"
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
     }
   }
 }
