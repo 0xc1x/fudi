@@ -31,6 +31,7 @@ import '../../features/landing/presentation/for_business_screen.dart';
 import '../../features/business/presentation/dashboard/business_dashboard_screen.dart';
 import '../../features/business/presentation/catalog/business_products_screen.dart';
 import '../../features/business/presentation/catalog/business_product_form_screen.dart';
+import '../../features/business/presentation/catalog/business_product_detail_screen.dart';
 import '../../features/business/presentation/orders/business_orders_screen.dart';
 import '../../features/business/presentation/orders/business_order_detail_screen.dart';
 import '../../features/business/presentation/locations/business_location_create_screen.dart';
@@ -57,6 +58,9 @@ final _hideBottomNavPaths = {
   RouteNames.privacyPath,
   RouteNames.howItWorksPath,
   RouteNames.forBusinessPath,
+  RouteNames.businessProductDetailPath,
+  RouteNames.businessProductCreatePath,
+  RouteNames.businessProductEditPath,
 };
 
 bool _shouldHideBottomNav(GoRouterState state) {
@@ -245,30 +249,39 @@ GoRouter createAppRouter(
         ],
       ),
 
-      // ─── Shell para Negocio (con BottomNav) ──────────────────────
-      ShellRoute(
-        builder: (context, state, child) =>
-            FudiScaffold(showBottomNav: true, body: child),
+// ─── Shell para Negocio (con BottomNav) ──────────────────────
+ShellRoute(
+  builder: (context, state, child) => FudiScaffold(
+    showBottomNav: !_shouldHideBottomNav(state),
+    body: child,
+  ),
         routes: [
-          GoRoute(
-            path: RouteNames.businessProductsPath,
-            name: RouteNames.businessProducts,
-            builder: (context, state) => const BusinessProductsScreen(),
-            routes: [
-              GoRoute(
-                path: 'create',
-                name: RouteNames.businessProductCreate,
-                builder: (context, state) => const BusinessProductFormScreen(),
+        GoRoute(
+          path: RouteNames.businessProductsPath,
+          name: RouteNames.businessProducts,
+          builder: (context, state) => const BusinessProductsScreen(),
+          routes: [
+            GoRoute(
+              path: ':id',
+              name: RouteNames.businessProductDetail,
+              builder: (context, state) => BusinessProductDetailScreen(
+                productId: state.pathParameters['id']!,
               ),
-              GoRoute(
-                path: 'edit/:id',
-                name: RouteNames.businessProductEdit,
-                builder: (context, state) => BusinessProductFormScreen(
-                  productId: state.pathParameters['id'],
-                ),
+            ),
+            GoRoute(
+              path: 'create',
+              name: RouteNames.businessProductCreate,
+              builder: (context, state) => const BusinessProductFormScreen(),
+            ),
+            GoRoute(
+              path: 'edit/:id',
+              name: RouteNames.businessProductEdit,
+              builder: (context, state) => BusinessProductFormScreen(
+                productId: state.pathParameters['id'],
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
           GoRoute(
             path: RouteNames.businessOrdersPath,
             name: RouteNames.businessOrders,
