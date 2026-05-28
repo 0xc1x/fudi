@@ -5,6 +5,7 @@ import 'package:internet_connection_checker_plus/internet_connection_checker_plu
 import 'fudi_bottom_nav.dart';
 import 'fudi_logo.dart';
 import 'fudi_spacing.dart';
+import 'atoms/icons/fudi_icons.dart';
 
 /// Scaffold base para todas las pantallas de Fudi.
 ///
@@ -47,7 +48,9 @@ class FudiScaffold extends ConsumerWidget {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      title: title != null ? Text(title!) : const FudiLogo(),
+      title: title != null
+          ? Text(title!)
+          : const FudiLogo(variant: FudiLogoVariant.icon),
       actions: actions,
     );
   }
@@ -96,7 +99,7 @@ class _OfflineBannerState extends State<_OfflineBanner> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.wifi_off_rounded,
+            FudiIcons.offline,
             size: 16,
             color: Theme.of(context).colorScheme.onErrorContainer,
           ),

@@ -6,8 +6,8 @@ import '../../../core/routing/route_names.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/fudi_exception_l10n.dart';
 import '../../../core/ui/fudi_colors.dart';
-import '../../../core/ui/fudi_icons.dart';
-import '../../../core/ui/app_logo.dart';
+import '../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../../core/ui/fudi_logo.dart';
 import '../domain/user_profile.dart';
 import 'auth_state_provider.dart';
 
@@ -134,7 +134,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          const AppLogo(size: AppLogoSize.lg, variant: AppLogoVariant.light),
+                          const FudiLogo(variant: FudiLogoVariant.icon, size: FudiLogoSize.lg),
                           const SizedBox(height: 12),
                           Text(
                             'Únete a Fudi',

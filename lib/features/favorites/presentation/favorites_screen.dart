@@ -7,7 +7,7 @@ import '../../../core/di/core_providers.dart';
 import '../../../core/error/user_friendly_message.dart';
 import '../../../core/routing/route_names.dart';
 import '../../../core/ui/fudi_colors.dart';
-import '../../../core/ui/fudi_icons.dart';
+import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_info_banner.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_sticky_page_header.dart';

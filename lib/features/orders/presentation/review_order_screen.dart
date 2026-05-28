@@ -6,7 +6,7 @@ import '../../../core/error/user_friendly_message.dart';
 import '../../../core/ui/fudi_bottom_action_bar.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_info_banner.dart';
-import '../../../core/ui/fudi_icons.dart';
+import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_sticky_page_header.dart';
 import '../../../core/ui/fudi_surface_card.dart';

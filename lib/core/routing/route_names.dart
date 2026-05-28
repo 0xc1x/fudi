@@ -17,6 +17,11 @@
 class RouteNames {
   RouteNames._();
 
+  // ─── Initial ────────────────────────────────────────────────────
+
+  static const splash = 'splash';
+  static const splashPath = '/splash';
+
   // ─── Auth ───────────────────────────────────────────────────────
 
   static const login = 'login';

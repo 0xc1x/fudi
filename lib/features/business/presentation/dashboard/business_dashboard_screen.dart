@@ -6,7 +6,7 @@ import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
-import '../../../../core/ui/fudi_icons.dart';
+import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../business_providers.dart';
 import '../../domain/business_stats.dart';
 import '../components/no_business_prompt.dart';

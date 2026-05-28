@@ -54,6 +54,7 @@ dependencies:
   url_launcher: ^6.3.2
   image_picker: ^1.2.2
   geocoding: ^4.0.0
+  lucide_icons: ^0.257.0
 
 dev_dependencies:
   flutter_test:
@@ -70,4 +71,5 @@ flutter:
   assets:
   - .env.dev
   - assets/images/
+  - assets/svgs/
 

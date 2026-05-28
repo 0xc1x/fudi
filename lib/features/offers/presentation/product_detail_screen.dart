@@ -4,10 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../core/ui/fudi_colors.dart';
-import '../../../core/ui/fudi_icons.dart';
+import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_surface_card.dart';
 import '../../../core/ui/fudi_typography.dart';
+import '../../../core/utils/geo_utils.dart';
 import '../../orders/presentation/order_providers.dart';
 import '../domain/offer.dart';
 import '../presentation/offer_providers.dart';
@@ -562,8 +563,11 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
   }
 
   String _formatDistance(Offer offer) {
-    if (offer.business.latitude == null) return 'Cerca de ti';
-    return 'Cerca de ti';
+    final pos = ref.read(userLocationProvider).asData?.value;
+    return GeoUtils.formatDistance(
+      offer.business.latitude, offer.business.longitude,
+      userLat: pos?.latitude, userLng: pos?.longitude,
+    );
   }
 
 }

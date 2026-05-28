@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
-import '../../../../core/ui/fudi_icons.dart';
 import '../business_providers.dart';
 import '../../../offers/domain/offer.dart';
 

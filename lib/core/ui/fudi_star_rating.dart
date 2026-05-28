@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'fudi_colors.dart';
 import 'fudi_spacing.dart';
+import 'atoms/icons/fudi_icons.dart';
 
 /// Visualización de calificación con estrellas.
 class FudiStarRating extends StatelessWidget {
@@ -31,11 +32,11 @@ class FudiStarRating extends StatelessWidget {
           children: List.generate(maxRating, (index) {
             IconData icon;
             if (index < rating.floor()) {
-              icon = Icons.star_rounded;
+              icon = FudiIcons.star;
             } else if (index < rating && (rating - index) >= 0.5) {
-              icon = Icons.star_half_rounded;
+              icon = FudiIcons.starHalf;
             } else {
-              icon = Icons.star_outline_rounded;
+              icon = FudiIcons.star; // Lucide star es outline por defecto si no se rellena
             }
             final star = Icon(icon, size: size, color: color);
             if (onTap == null) {

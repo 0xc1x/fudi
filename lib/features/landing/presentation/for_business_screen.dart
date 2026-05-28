@@ -27,7 +27,7 @@ class ForBusinessScreen extends StatelessWidget {
             ),
           ),
         ),
-        title: const FudiLogo(variant: FudiLogoVariant.primary, size: FudiLogoSize.md),
+        title: const FudiLogo(size: FudiLogoSize.md),
         centerTitle: false,
       ),
       body: SingleChildScrollView(

@@ -4,7 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/fudi_spacing.dart';
-import '../../../../core/ui/fudi_icons.dart';
+import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 
 class MapPickerScreen extends StatefulWidget {
   const MapPickerScreen({super.key, this.initialLocation});

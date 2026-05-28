@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_logo.dart';
 import '../../../../core/ui/fudi_typography.dart';
-import '../../../../core/ui/fudi_icons.dart';
-import '../../../../core/ui/app_logo.dart';
 import '../business_providers.dart';
 import '../components/no_business_prompt.dart';
 import '../../domain/business_profile.dart';
@@ -27,24 +27,39 @@ class BusinessProductsScreen extends ConsumerWidget {
 
           final allBusinessesAsync = ref.watch(userBusinessesProvider);
           final offersAsync = ref.watch(businessOffersProvider(business.id));
+          final allBusinesses = allBusinessesAsync.asData?.value ?? [business];
 
-          return offersAsync.when(
-            data: (offers) => _BusinessProductsContent(
-              business: business,
-              allBusinesses: allBusinessesAsync.asData?.value ?? [business],
-              offers: offers,
+          return Scaffold(
+            backgroundColor: FudiColors.muted,
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(kToolbarHeight + 20),
+              child: _BusinessAppBar(
+                business: business,
+                allBusinesses: allBusinesses,
+              ),
             ),
-            loading: () => _BusinessProductsContent(
-              business: business,
-              allBusinesses: allBusinessesAsync.asData?.value ?? [business],
-              offers: const [],
-              isLoading: true,
+            body: offersAsync.when(
+              data: (offers) => _BusinessProductsContent(
+                business: business,
+                allBusinesses: allBusinesses,
+                offers: offers,
+              ),
+              loading: () => _BusinessProductsContent(
+                business: business,
+                allBusinesses: allBusinesses,
+                offers: const [],
+                isLoading: true,
+              ),
+              error: (e, _) => Center(child: Text('Error: $e')),
             ),
-            error: (e, _) => Center(child: Text('Error: $e')),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        loading: () => const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+        error: (e, _) => Scaffold(
+          body: Center(child: Text('Error: $e')),
+        ),
       ),
     );
   }
@@ -74,12 +89,6 @@ class _BusinessProductsContent extends ConsumerWidget {
 
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(
-          child: _BusinessHeader(
-            business: business,
-            allBusinesses: allBusinesses,
-          ),
-        ),
         SliverToBoxAdapter(
           child: _StatsRow(
             activeCount: activeCount,
@@ -132,58 +141,59 @@ class _BusinessProductsContent extends ConsumerWidget {
   }
 }
 
-class _BusinessHeader extends ConsumerWidget {
-  const _BusinessHeader({required this.business, required this.allBusinesses});
+class _BusinessAppBar extends ConsumerWidget implements PreferredSizeWidget {
+  const _BusinessAppBar({
+    required this.business,
+    required this.allBusinesses,
+  });
 
   final BusinessProfile business;
   final List<BusinessProfile> allBusinesses;
 
   @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 20);
+
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      color: FudiColors.ring,
-      padding: const EdgeInsets.symmetric(
-        horizontal: FudiSpacing.lg,
-        vertical: FudiSpacing.md,
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Mis Productos',
-                    style: FudiTypography.h2.copyWith(
-                      color: FudiColors.foreground,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  _LocationSelector(
-                    business: business,
-                    allBusinesses: allBusinesses,
-                    onSelected: (id) => ref
-                        .read(selectedBusinessIdProvider.notifier)
-                        .select(id),
-                  ),
-                ],
-              ),
+    return AppBar(
+      backgroundColor: FudiColors.ring,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      toolbarHeight: kToolbarHeight + 20,
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Mis Productos',
+            style: FudiTypography.h2.copyWith(
+              color: FudiColors.foreground,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
             ),
-            const AppLogo(size: AppLogoSize.lg, variant: AppLogoVariant.light),
-          ],
-        ),
+          ),
+          const SizedBox(height: 2),
+          _BusinessSelector(
+            business: business,
+            allBusinesses: allBusinesses,
+            onSelected: (id) => ref
+                .read(selectedBusinessIdProvider.notifier)
+                .select(id),
+          ),
+        ],
       ),
+      centerTitle: false,
+      actions: const [
+        Padding(
+          padding: EdgeInsets.only(right: FudiSpacing.md),
+          child: FudiLogo(variant: FudiLogoVariant.icon, size: FudiLogoSize.md),
+        ),
+      ],
     );
   }
 }
 
-class _LocationSelector extends StatelessWidget {
-  const _LocationSelector({
+class _BusinessSelector extends StatelessWidget {
+  const _BusinessSelector({
     required this.business,
     required this.allBusinesses,
     required this.onSelected,

@@ -5,7 +5,7 @@ import '../../features/auth/domain/app_mode.dart';
 import '../../features/auth/presentation/app_mode_provider.dart';
 import '../routing/route_names.dart';
 import 'fudi_colors.dart';
-import 'fudi_icons.dart';
+import 'atoms/icons/fudi_icons.dart';
 import 'fudi_spacing.dart';
 
 /// Navegación inferior de Fudi.

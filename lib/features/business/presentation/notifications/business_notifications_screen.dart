@@ -4,7 +4,7 @@ import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
-import '../../../../core/ui/fudi_icons.dart';
+import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 
 class BusinessNotificationsScreen extends StatefulWidget {
   const BusinessNotificationsScreen({super.key});

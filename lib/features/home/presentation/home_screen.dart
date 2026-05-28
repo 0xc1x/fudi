@@ -5,12 +5,13 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../core/error/user_friendly_message.dart';
 import '../../../core/routing/route_names.dart';
-import '../../../core/ui/app_logo.dart';
+import '../../../core/ui/fudi_logo.dart';
 import '../../../core/ui/cards/deal_card.dart';
 import '../../../core/ui/fudi_colors.dart';
-import '../../../core/ui/fudi_icons.dart';
+import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
+import '../../../core/utils/geo_utils.dart';
 import '../../offers/domain/offer.dart';
 import '../../offers/domain/offer_repository.dart';
 import '../../offers/presentation/offer_providers.dart';
@@ -50,8 +51,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     final selectedAddress = ref.watch(userSelectedAddressProvider);
 
-    return Scaffold(
+  return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: _HomeAppBar(
+          selectedLocation: selectedAddress,
+          onLocationTap: () => context.push('/profile/addresses'),
+        ),
+      ),
       body: RefreshIndicator(
         onRefresh: () async {
           if (_selectedCategoryId != null) {
@@ -65,13 +73,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         },
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(
-              child: _HomeHeader(
-                selectedLocation: selectedAddress,
-                onLocationTap: () => context.push('/profile/addresses'),
-              ),
-            ),
-        statsAsync.when(
+            statsAsync.when(
           data: (stats) => SliverToBoxAdapter(
             child: _CategoryChips(
               stats: stats,
@@ -189,40 +191,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   String _formatDistance(Offer offer) {
-    if (offer.business.latitude == null || offer.business.longitude == null) {
-      return '';
-    }
-    return '${offer.business.latitude!.toStringAsFixed(1)}km';
+    final pos = ref.read(userLocationProvider).asData?.value;
+    return GeoUtils.formatDistance(
+      offer.business.latitude, offer.business.longitude,
+      userLat: pos?.latitude, userLng: pos?.longitude,
+    );
   }
 }
 
-class _HomeHeader extends StatelessWidget {
-  const _HomeHeader({required this.selectedLocation, required this.onLocationTap});
+class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _HomeAppBar({
+    required this.selectedLocation,
+    required this.onLocationTap,
+  });
 
   final SavedAddressModel? selectedLocation;
   final VoidCallback onLocationTap;
 
   @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      color: FudiColors.ring,
-      padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg, vertical: FudiSpacing.md),
-      child: SafeArea(
-        bottom: false,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _LocationSelector(
-              selectedLocation: selectedLocation,
-              onTap: onLocationTap,
-            ),
-            const AppLogo(
-              size: AppLogoSize.lg,
-              variant: AppLogoVariant.light,
-            ),
-          ],
-        ),
+    return AppBar(
+      backgroundColor: FudiColors.ring,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      title: _LocationSelector(
+        selectedLocation: selectedLocation,
+        onTap: onLocationTap,
       ),
+      centerTitle: false,
+      actions: const [
+        Padding(
+          padding: EdgeInsets.only(right: FudiSpacing.md),
+          child: FudiLogo(variant: FudiLogoVariant.icon, size: FudiLogoSize.md),
+        ),
+      ],
     );
   }
 }

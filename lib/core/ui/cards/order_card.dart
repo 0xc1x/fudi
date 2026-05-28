@@ -5,6 +5,7 @@ import '../../../features/orders/domain/order_status.dart';
 import '../fudi_colors.dart';
 import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
+import '../atoms/icons/fudi_icons.dart';
 
 /// Tarjeta de pedido utilizada en el Historial de Pedidos.
 class OrderCard extends StatelessWidget {
@@ -51,7 +52,7 @@ class OrderCard extends StatelessWidget {
                     width: 80,
                     height: 80,
                     color: FudiColors.muted,
-                    child: const Icon(Icons.shopping_bag_outlined),
+                    child: const Icon(FudiIcons.orders),
                   ),
                 ),
               ),

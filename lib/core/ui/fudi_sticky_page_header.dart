@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'fudi_colors.dart';
-import 'fudi_icons.dart';
+import 'atoms/icons/fudi_icons.dart';
 import 'fudi_spacing.dart';
 import 'fudi_typography.dart';
 

@@ -4,6 +4,7 @@ import '../fudi_colors.dart';
 import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
 import '../fudi_star_rating.dart';
+import '../atoms/icons/fudi_icons.dart';
 
 /// Tarjeta de negocio utilizada en listas de búsqueda o exploración.
 class BusinessCard extends StatelessWidget {
@@ -48,7 +49,7 @@ class BusinessCard extends StatelessWidget {
                     width: 64,
                     height: 64,
                     color: FudiColors.muted,
-                    child: const Icon(Icons.storefront_rounded),
+                    child: const Icon(FudiIcons.store),
                   ),
                 ),
               ),
@@ -73,7 +74,7 @@ class BusinessCard extends StatelessWidget {
                         FudiStarRating(rating: rating, size: 12),
                         const SizedBox(width: 8),
                         const Icon(
-                          Icons.location_on_outlined,
+                          FudiIcons.mapPin,
                           size: 12,
                           color: FudiColors.mutedForeground,
                         ),

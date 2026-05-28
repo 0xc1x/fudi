@@ -7,8 +7,8 @@ import '../../../core/routing/route_names.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/fudi_exception_l10n.dart';
 import '../../../core/ui/fudi_colors.dart';
-import '../../../core/ui/fudi_icons.dart';
-import '../../../core/ui/app_logo.dart';
+import '../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../../core/ui/fudi_logo.dart';
 import 'auth_state_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -200,7 +200,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          const AppLogo(size: AppLogoSize.lg, variant: AppLogoVariant.light),
+                          const FudiLogo(variant: FudiLogoVariant.icon, size: FudiLogoSize.lg),
                           const SizedBox(height: 16),
                           Text(
                             'Bienvenido de vuelta',
@@ -359,7 +359,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   IconButton(
                                     onPressed: () => setState(() => _errorMessage = null),
                                     icon: Icon(
-                                      Icons.close_rounded,
+                                      FudiIcons.x,
                                       size: 18,
                                       color: Theme.of(context).colorScheme.onErrorContainer,
                                     ),

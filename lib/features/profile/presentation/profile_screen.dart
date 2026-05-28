@@ -5,7 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../core/routing/route_names.dart';
 import '../../../core/ui/fudi_colors.dart';
-import '../../../core/ui/fudi_icons.dart';
+import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../auth/domain/user_profile.dart';

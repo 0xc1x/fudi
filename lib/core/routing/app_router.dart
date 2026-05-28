@@ -24,6 +24,7 @@ import '../../features/profile/presentation/payment_methods_screen.dart';
 import '../../features/profile/presentation/notification_settings_screen.dart';
 import '../../features/profile/presentation/general_settings_screen.dart';
 import '../../features/landing/presentation/landing_screen.dart';
+import '../../features/landing/presentation/splash_screen.dart';
 import '../../features/landing/presentation/about_screen.dart';
 import '../../features/landing/presentation/help_center_screen.dart';
 import '../../features/landing/presentation/terms_screen.dart';
@@ -92,12 +93,24 @@ bool _shouldHideBottomNav(GoRouterState state) {
   return false;
 }
 
+final _hideAppBarPaths = {
+  RouteNames.homePath,
+  RouteNames.explorePath,
+  RouteNames.ordersPath,
+  RouteNames.favoritesPath,
+  RouteNames.businessProductsPath,
+};
+
+bool _shouldHideAppBar(GoRouterState state) {
+  return _hideAppBarPaths.contains(state.matchedLocation);
+}
+
 GoRouter createAppRouter(
   AuthSessionNotifier authSessionNotifier,
   Listenable refreshListenable,
 ) {
   return GoRouter(
-    initialLocation: RouteNames.homePath,
+    initialLocation: RouteNames.splashPath,
     debugLogDiagnostics: true,
     refreshListenable: refreshListenable,
     redirect: (context, state) {
@@ -116,6 +129,11 @@ GoRouter createAppRouter(
     observers: [SentryNavigatorObserver(), _SentryRouteObserver()],
     routes: [
       // ─── Rutas sin BottomNav ─────────────────────────────────────
+      GoRoute(
+        path: RouteNames.splashPath,
+        name: RouteNames.splash,
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         path: RouteNames.loginPath,
         name: RouteNames.login,
@@ -141,12 +159,13 @@ GoRouter createAppRouter(
         builder: (context, state) => const UiGalleryScreen(),
       ),
 
-      // ─── Shell para Consumidor (con BottomNav condicional) ─────
-      ShellRoute(
-        builder: (context, state, child) => FudiScaffold(
-          showBottomNav: !_shouldHideBottomNav(state),
-          body: child,
-        ),
+    // ─── Shell para Consumidor (con BottomNav condicional) ─────
+    ShellRoute(
+      builder: (context, state, child) => FudiScaffold(
+        showBottomNav: !_shouldHideBottomNav(state),
+        showAppBar: !_shouldHideAppBar(state),
+        body: child,
+      ),
         routes: [
           GoRoute(
             path: RouteNames.homePath,
@@ -267,12 +286,13 @@ GoRouter createAppRouter(
         ],
       ),
 
-      // ─── Shell para Negocio (con BottomNav) ──────────────────────
-      ShellRoute(
-        builder: (context, state, child) => FudiScaffold(
-          showBottomNav: !_shouldHideBottomNav(state),
-          body: child,
-        ),
+    // ─── Shell para Negocio (con BottomNav) ──────────────────────
+    ShellRoute(
+      builder: (context, state, child) => FudiScaffold(
+        showBottomNav: !_shouldHideBottomNav(state),
+        showAppBar: !_shouldHideAppBar(state),
+        body: child,
+      ),
         routes: [
           GoRoute(
             path: RouteNames.businessProductsPath,

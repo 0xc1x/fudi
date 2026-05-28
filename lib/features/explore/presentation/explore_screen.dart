@@ -4,12 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../core/error/user_friendly_message.dart';
-import '../../../core/ui/app_logo.dart';
+import '../../../core/ui/fudi_logo.dart';
 import '../../../core/ui/cards/deal_card.dart';
 import '../../../core/ui/fudi_colors.dart';
-import '../../../core/ui/fudi_icons.dart';
+import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
+import '../../../core/utils/geo_utils.dart';
 import '../../offers/domain/offer.dart';
 import '../../offers/domain/offer_repository.dart';
 import '../../offers/presentation/offer_providers.dart';
@@ -166,11 +167,13 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   }
 
   String _formatDistance(Offer offer) {
-    if (offer.business.latitude == null || offer.business.longitude == null) {
-      return '';
-    }
-    return '${offer.business.latitude!.toStringAsFixed(1)}km';
+    final pos = ref.read(userLocationProvider).asData?.value;
+    return GeoUtils.formatDistance(
+      offer.business.latitude, offer.business.longitude,
+      userLat: pos?.latitude, userLng: pos?.longitude,
+    );
   }
+
 
   void _toggleViewMode() {
     setState(() => _viewModeMap = !_viewModeMap);
@@ -282,7 +285,7 @@ class _ExploreHeader extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AppLogo(size: AppLogoSize.lg, variant: AppLogoVariant.light),
+            const FudiLogo(variant: FudiLogoVariant.icon, size: FudiLogoSize.lg),
             const SizedBox(height: FudiSpacing.md),
             Text(
               'Explorar',

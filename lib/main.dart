@@ -117,7 +117,7 @@ class FudiApp extends ConsumerWidget {
 
     return MaterialApp.router(
       title: 'Fudi',
-      debugShowCheckedModeBanner: config.isDev,
+      debugShowCheckedModeBanner: false,//config.isDev,
       theme: FudiTheme.light(),
       routerConfig: router,
       builder: (context, child) {

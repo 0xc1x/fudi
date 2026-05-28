@@ -4,6 +4,7 @@ import 'package:shimmer/shimmer.dart';
 import '../fudi_colors.dart';
 import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
+import '../atoms/icons/fudi_icons.dart';
 
 class DealCard extends StatelessWidget {
   const DealCard({
@@ -76,7 +77,7 @@ class DealCard extends StatelessWidget {
             height: 180,
             color: FudiColors.muted,
             child: const Icon(
-              Icons.broken_image_outlined,
+              FudiIcons.imageOff,
               color: FudiColors.mutedForeground,
             ),
           ),
@@ -133,7 +134,7 @@ class DealCard extends StatelessWidget {
           Row(
             children: [
               const Icon(
-                Icons.location_on_outlined,
+                FudiIcons.mapPin,
                 size: 14,
                 color: FudiColors.mutedForeground,
               ),
@@ -148,7 +149,7 @@ class DealCard extends StatelessWidget {
               ),
               const SizedBox(width: FudiSpacing.md),
               const Icon(
-                Icons.access_time_rounded,
+                FudiIcons.clock,
                 size: 14,
                 color: FudiColors.mutedForeground,
               ),
@@ -280,7 +281,7 @@ class _RatingPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.star, size: 14, color: FudiColors.primary),
+          const Icon(FudiIcons.star, size: 14, color: FudiColors.primary),
           const SizedBox(width: 2),
           Text(
             rating.toStringAsFixed(1),
@@ -319,7 +320,7 @@ class _FavoriteButton extends StatelessWidget {
           ],
         ),
         child: Icon(
-          isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+          isFavorite ? FudiIcons.favorites : FudiIcons.heartOutline,
           size: 18,
           color: isFavorite ? FudiColors.destructive : FudiColors.mutedForeground,
         ),

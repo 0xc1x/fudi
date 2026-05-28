@@ -115,7 +115,6 @@ class _StickyNavbar extends StatelessWidget {
           GestureDetector(
             onTap: () => context.go(RouteNames.landingPath),
             child: FudiLogo(
-              variant: FudiLogoVariant.primary,
               size: FudiLogoSize.md,
             ),
           ),
@@ -217,7 +216,7 @@ class _MobileDrawer extends StatelessWidget {
           children: [
             const Padding(
               padding: EdgeInsets.all(FudiSpacing.xl),
-              child: FudiLogo(variant: FudiLogoVariant.primary, size: FudiLogoSize.lg),
+              child: FudiLogo(size: FudiLogoSize.lg),
             ),
             const Divider(),
             _DrawerItem(
@@ -1087,7 +1086,7 @@ class _SliverFooter extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const FudiLogo(variant: FudiLogoVariant.white, size: FudiLogoSize.lg),
+                          const FudiLogo(color: Colors.white, size: FudiLogoSize.lg),
                           const SizedBox(height: 32),
                           Text(
                             'Rescata comida, ahorra dinero y ayuda al planeta. Juntos podemos hacer la diferencia.',
