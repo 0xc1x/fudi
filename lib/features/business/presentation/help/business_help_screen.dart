@@ -1,81 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/routing/route_names.dart';
-import '../../../core/ui/fudi_colors.dart';
-import '../../../core/ui/fudi_icons.dart';
-import '../../../core/ui/fudi_spacing.dart';
-import '../../../core/ui/fudi_surface_card.dart';
-import '../../../core/ui/fudi_typography.dart';
+import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_icons.dart';
+import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_surface_card.dart';
+import '../../../../core/ui/fudi_typography.dart';
 
-class HelpCenterScreen extends StatefulWidget {
-  const HelpCenterScreen({super.key});
+class BusinessHelpScreen extends StatefulWidget {
+  const BusinessHelpScreen({super.key});
 
   @override
-  State<HelpCenterScreen> createState() => _HelpCenterScreenState();
+  State<BusinessHelpScreen> createState() => _BusinessHelpScreenState();
 }
 
-class _HelpCenterScreenState extends State<HelpCenterScreen> {
+class _BusinessHelpScreenState extends State<BusinessHelpScreen> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
   String? _expandedFAQ;
 
   static const _faqItems = [
     _FAQItem(
-      id: 'c1',
-      question: '¿Cómo funciona Fudi?',
+      id: '1',
+      question: '¿Cómo creo un nuevo producto?',
       answer:
-          'Fudi conecta restaurantes y tiendas con excedente de comida con personas que quieren comprarla a precios reducidos. Encuentra ofertas cerca de ti, haz tu pedido y recógelo en el horario indicado.',
-      category: 'about',
+          'Ve a la sección de Productos, toca el botón \'Crear nuevo producto\' y completa la información requerida: nombre, descripción, precio original, precio con descuento, cantidad disponible y horario de recogida.',
+      category: 'products',
     ),
     _FAQItem(
-      id: 'c2',
-      question: '¿Qué es una bolsa sorpresa?',
+      id: '2',
+      question: '¿Cuándo recibo mis pagos?',
       answer:
-          'Una bolsa sorpresa es un paquete de comida que el negocio no pudo vender durante el día. El contenido varía según lo disponible, pero siempre vale más de lo que pagas.',
-      category: 'about',
-    ),
-    _FAQItem(
-      id: 'c3',
-      question: '¿Cómo hago un pedido?',
-      answer:
-          'Busca ofertas en la app, selecciona la que te interese, elige la cantidad y confirma tu pedido. Recibirás un código de recogida para presentar en el local.',
-      category: 'orders',
-    ),
-    _FAQItem(
-      id: 'c4',
-      question: '¿Puedo cancelar un pedido?',
-      answer:
-          'Puedes cancelar un pedido mientras no haya sido confirmado por el negocio. Una vez confirmado, no es posible cancelar ni obtener reembolso.',
-      category: 'orders',
-    ),
-    _FAQItem(
-      id: 'c5',
-      question: '¿Qué pasa si llego tarde a la recogida?',
-      answer:
-          'Si llegas fuera del horario de recogida, el negocio puede negarse a entregarte el pedido. Te recomendamos llegar puntualmente. Si tienes un imprevisto, contacta al negocio directamente.',
-      category: 'orders',
-    ),
-    _FAQItem(
-      id: 'c6',
-      question: '¿Qué métodos de pago aceptan?',
-      answer:
-          'Aceptamos tarjetas de crédito y débito principales. El pago se procesa de forma segura al momento de confirmar tu pedido.',
+          'Los pagos se procesan dos veces al mes (días 5 y 20). El dinero se transfiere a tu cuenta bancaria registrada en 2-3 días hábiles después de la fecha de procesamiento.',
       category: 'payments',
     ),
     _FAQItem(
-      id: 'c7',
-      question: '¿Puedo obtener un reembolso?',
+      id: '3',
+      question: '¿Cómo valido un pedido en el momento de la recogida?',
       answer:
-          'Los reembolsos se procesan solo en casos excepcionales, como productos en mal estado o errores del negocio. Contacta a soporte dentro de las 24 horas posteriores a la recogida.',
-      category: 'payments',
+          'El cliente te mostrará su código de recogida de 6 dígitos. En la sección de Pedidos, toca \'Validar código\' en el pedido correspondiente e ingresa el código que te muestra el cliente.',
+      category: 'orders',
     ),
     _FAQItem(
-      id: 'c8',
-      question: '¿Cómo ayuda Fudi al medio ambiente?',
+      id: '4',
+      question: '¿Qué hago si un cliente no recoge su pedido?',
       answer:
-          'Cada pedido en Fudi evita que comida perfectly good termine en la basura. Reducimos el desperdicio alimentario y las emisiones asociadas a la producción y transporte de alimentos que nadie consume.',
-      category: 'about',
+          'Si un cliente no aparece durante el horario de recogida, contacta al soporte. El pedido se marcará como no recogido y el cliente no será reembolsado según nuestros términos de servicio.',
+      category: 'orders',
+    ),
+    _FAQItem(
+      id: '5',
+      question: '¿Puedo editar un producto después de publicarlo?',
+      answer:
+          'Sí, puedes editar cualquier producto en cualquier momento. Ve al detalle del producto y toca \'Editar\'. Los cambios se aplicarán inmediatamente.',
+      category: 'products',
+    ),
+    _FAQItem(
+      id: '6',
+      question: '¿Cómo funcionan las reseñas?',
+      answer:
+          'Los clientes pueden dejar reseñas después de recoger su pedido. Las reseñas son públicas y ayudan a otros usuarios a tomar decisiones. Responde a las reseñas para mostrar tu compromiso con el servicio.',
+      category: 'general',
     ),
   ];
 
@@ -138,7 +123,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: Padding(
         padding: const EdgeInsets.only(left: FudiSpacing.sm),
         child: IconButton(
-          onPressed: () => context.go(RouteNames.profilePath),
+          onPressed: () => context.pop(),
           icon: Container(
             width: 40,
             height: 40,
@@ -150,11 +135,11 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-      title: Row(
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(FudiIcons.helpCircle, size: 20, color: FudiColors.primary),
-          const SizedBox(width: FudiSpacing.sm),
           Text('Centro de ayuda', style: FudiTypography.h4),
+          Text('Soporte y recursos', style: FudiTypography.bodySmall),
         ],
       ),
       backgroundColor: FudiColors.background,
@@ -272,30 +257,30 @@ class _ContactChip extends StatelessWidget {
 class _CategoriesSection extends StatelessWidget {
   static const _categories = [
     _CategoryItem(
-      icon: Icons.eco_rounded,
-      label: 'Sobre Fudi',
-      subtitle: 'Cómo funciona y misión',
+      icon: FudiIcons.package_,
+      label: 'Gestión de productos',
+      subtitle: 'Crear, editar y administrar',
       bgColor: Color(0xFFE8F5E9),
       iconColor: FudiColors.primary,
     ),
     _CategoryItem(
-      icon: FudiIcons.shoppingBag,
-      label: 'Pedidos y recogidas',
-      subtitle: 'Comprar, recoger y cancelar',
+      icon: Icons.attach_money_rounded,
+      label: 'Pagos y facturación',
+      subtitle: 'Cobros y métodos de pago',
       bgColor: Color(0xFFDCFCE7),
       iconColor: Color(0xFF16A34A),
     ),
     _CategoryItem(
-      icon: Icons.payment_rounded,
-      label: 'Pagos y reembolsos',
-      subtitle: 'Métodos de pago y devoluciones',
+      icon: Icons.menu_book_rounded,
+      label: 'Guías y tutoriales',
+      subtitle: 'Aprende a usar la plataforma',
       bgColor: Color(0xFFFFEDD5),
       iconColor: Color(0xFFEA580C),
     ),
     _CategoryItem(
       icon: Icons.shield_rounded,
-      label: 'Políticas y privacidad',
-      subtitle: 'Términos y protección de datos',
+      label: 'Políticas y seguridad',
+      subtitle: 'Términos y privacidad',
       bgColor: Color(0xFFEFF6FF),
       iconColor: Color(0xFF2563EB),
     ),

@@ -66,33 +66,53 @@ class _BusinessProductsContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final activeCount = offers.where((o) => o.isActive).length;
-    final soldToday = offers.fold<int>(0, (sum, o) => sum + (o.initialStock - o.stock));
+    final soldToday = offers.fold<int>(
+      0,
+      (sum, o) => sum + (o.initialStock - o.stock),
+    );
     final availableCount = offers.fold<int>(0, (sum, o) => sum + o.stock);
 
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(child: _BusinessHeader(
-          business: business,
-          allBusinesses: allBusinesses,
-        )),
-        SliverToBoxAdapter(child: _StatsRow(
-          activeCount: activeCount,
-          soldToday: soldToday,
-          availableCount: availableCount,
-        )),
-        SliverToBoxAdapter(child: _CreateProductButton(
-          onTap: () => context.push('/business/products/create'),
-        )),
-        SliverToBoxAdapter(child: Padding(
-          padding: const EdgeInsets.fromLTRB(FudiSpacing.lg, FudiSpacing.md, FudiSpacing.lg, FudiSpacing.sm),
-          child: Text('Todos los productos', style: FudiTypography.h4),
-        )),
-        if (isLoading)
-          const SliverToBoxAdapter(child: Center(child: CircularProgressIndicator()))
-        else if (offers.isEmpty)
-          SliverToBoxAdapter(child: _EmptyProductsState(
+        SliverToBoxAdapter(
+          child: _BusinessHeader(
+            business: business,
+            allBusinesses: allBusinesses,
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: _StatsRow(
+            activeCount: activeCount,
+            soldToday: soldToday,
+            availableCount: availableCount,
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: _CreateProductButton(
             onTap: () => context.push('/business/products/create'),
-          ))
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              FudiSpacing.lg,
+              FudiSpacing.md,
+              FudiSpacing.lg,
+              FudiSpacing.sm,
+            ),
+            child: Text('Todos los productos', style: FudiTypography.h4),
+          ),
+        ),
+        if (isLoading)
+          const SliverToBoxAdapter(
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (offers.isEmpty)
+          SliverToBoxAdapter(
+            child: _EmptyProductsState(
+              onTap: () => context.push('/business/products/create'),
+            ),
+          )
         else
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg),
@@ -113,10 +133,7 @@ class _BusinessProductsContent extends ConsumerWidget {
 }
 
 class _BusinessHeader extends ConsumerWidget {
-  const _BusinessHeader({
-    required this.business,
-    required this.allBusinesses,
-  });
+  const _BusinessHeader({required this.business, required this.allBusinesses});
 
   final BusinessProfile business;
   final List<BusinessProfile> allBusinesses;
@@ -125,7 +142,10 @@ class _BusinessHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       color: FudiColors.ring,
-      padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg, vertical: FudiSpacing.md),
+      padding: const EdgeInsets.symmetric(
+        horizontal: FudiSpacing.lg,
+        vertical: FudiSpacing.md,
+      ),
       child: SafeArea(
         bottom: false,
         child: Row(
@@ -135,16 +155,21 @@ class _BusinessHeader extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Mis Productos', style: FudiTypography.h2.copyWith(
-                    color: FudiColors.foreground,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  )),
+                  Text(
+                    'Mis Productos',
+                    style: FudiTypography.h2.copyWith(
+                      color: FudiColors.foreground,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: 2),
                   _LocationSelector(
                     business: business,
                     allBusinesses: allBusinesses,
-                    onSelected: (id) => ref.read(selectedBusinessIdProvider.notifier).select(id),
+                    onSelected: (id) => ref
+                        .read(selectedBusinessIdProvider.notifier)
+                        .select(id),
                   ),
                 ],
               ),
@@ -176,11 +201,14 @@ class _LocationSelector extends StatelessWidget {
         children: [
           const Icon(FudiIcons.mapPin, size: 14, color: FudiColors.primary),
           const SizedBox(width: 4),
-          Text(business.name, style: const TextStyle(
-            fontSize: 12,
-            color: FudiColors.primary,
-            fontWeight: FontWeight.w500,
-          )),
+          Text(
+            business.name,
+            style: const TextStyle(
+              fontSize: 12,
+              color: FudiColors.primary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       );
     }
@@ -188,34 +216,57 @@ class _LocationSelector extends StatelessWidget {
     return PopupMenuButton<String>(
       onSelected: onSelected,
       offset: const Offset(0, 32),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(FudiRadius.md)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(FudiRadius.md),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(FudiIcons.mapPin, size: 14, color: FudiColors.primary),
           const SizedBox(width: 4),
-          Text(business.name, style: const TextStyle(
-            fontSize: 12,
+          Text(
+            business.name,
+            style: const TextStyle(
+              fontSize: 12,
+              color: FudiColors.primary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const Icon(
+            FudiIcons.chevronDown,
+            size: 14,
             color: FudiColors.primary,
-            fontWeight: FontWeight.w500,
-          )),
-          const Icon(FudiIcons.chevronDown, size: 14, color: FudiColors.primary),
+          ),
         ],
       ),
-      itemBuilder: (context) => allBusinesses.map((b) => PopupMenuItem(
-        value: b.id,
-        child: Row(
-          children: [
-            Icon(FudiIcons.mapPin, size: 16,
-              color: b.id == business.id ? FudiColors.primary : FudiColors.mutedForeground),
-            const SizedBox(width: 8),
-            Text(b.name, style: TextStyle(
-              fontWeight: b.id == business.id ? FontWeight.bold : FontWeight.normal,
-              fontSize: 14,
-            )),
-          ],
-        ),
-      )).toList(),
+      itemBuilder: (context) => allBusinesses
+          .map(
+            (b) => PopupMenuItem(
+              value: b.id,
+              child: Row(
+                children: [
+                  Icon(
+                    FudiIcons.mapPin,
+                    size: 16,
+                    color: b.id == business.id
+                        ? FudiColors.primary
+                        : FudiColors.mutedForeground,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    b.name,
+                    style: TextStyle(
+                      fontWeight: b.id == business.id
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 }
@@ -237,23 +288,29 @@ class _StatsRow extends StatelessWidget {
       padding: const EdgeInsets.all(FudiSpacing.lg),
       child: Row(
         children: [
-          Expanded(child: _StatCard(
-            value: '$activeCount',
-            label: 'Activos',
-            valueColor: FudiColors.primary,
-          )),
+          Expanded(
+            child: _StatCard(
+              value: '$activeCount',
+              label: 'Activos',
+              valueColor: FudiColors.primary,
+            ),
+          ),
           const SizedBox(width: FudiSpacing.md),
-          Expanded(child: _StatCard(
-            value: '$soldToday',
-            label: 'Vendidos hoy',
-            valueColor: Colors.green,
-          )),
+          Expanded(
+            child: _StatCard(
+              value: '$soldToday',
+              label: 'Vendidos hoy',
+              valueColor: Colors.green,
+            ),
+          ),
           const SizedBox(width: FudiSpacing.md),
-          Expanded(child: _StatCard(
-            value: '$availableCount',
-            label: 'Disponibles',
-            valueColor: Colors.orange,
-          )),
+          Expanded(
+            child: _StatCard(
+              value: '$availableCount',
+              label: 'Disponibles',
+              valueColor: Colors.orange,
+            ),
+          ),
         ],
       ),
     );
@@ -282,11 +339,14 @@ class _StatCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(value, style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: valueColor,
-          )),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: valueColor,
+            ),
+          ),
           const SizedBox(height: 4),
           Text(label, style: FudiTypography.bodySmall.copyWith(fontSize: 11)),
         ],
@@ -319,13 +379,20 @@ class _CreateProductButton extends StatelessWidget {
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.add_rounded, color: FudiColors.primaryForeground, size: 20),
-              SizedBox(width: 8),
-              Text('Crear nuevo producto', style: TextStyle(
+              Icon(
+                Icons.add_rounded,
                 color: FudiColors.primaryForeground,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              )),
+                size: 20,
+              ),
+              SizedBox(width: 8),
+              Text(
+                'Crear nuevo producto',
+                style: TextStyle(
+                  color: FudiColors.primaryForeground,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
         ),
@@ -345,7 +412,11 @@ class _ProductCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: offer.isActive ? FudiColors.background : FudiColors.muted,
         borderRadius: BorderRadius.circular(FudiRadius.xl),
-        border: Border.all(color: offer.isActive ? FudiColors.borderSolid : FudiColors.borderSolid),
+        border: Border.all(
+          color: offer.isActive
+              ? FudiColors.borderSolid
+              : FudiColors.borderSolid,
+        ),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0D000000),
@@ -380,7 +451,9 @@ class _ProductCard extends ConsumerWidget {
                               style: FudiTypography.h4.copyWith(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
-                                color: offer.isActive ? FudiColors.foreground : FudiColors.mutedForeground,
+                                color: offer.isActive
+                                    ? FudiColors.foreground
+                                    : FudiColors.mutedForeground,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -412,13 +485,33 @@ class _ProductCard extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Text('Stock: ${offer.stock}', style: FudiTypography.bodySmall.copyWith(fontSize: 11)),
+                          Text(
+                            'Stock: ${offer.stock}',
+                            style: FudiTypography.bodySmall.copyWith(
+                              fontSize: 11,
+                            ),
+                          ),
                           const SizedBox(width: 8),
-                          Text('•', style: FudiTypography.bodySmall.copyWith(fontSize: 11)),
+                          Text(
+                            '•',
+                            style: FudiTypography.bodySmall.copyWith(
+                              fontSize: 11,
+                            ),
+                          ),
                           const SizedBox(width: 8),
-                          Text('Hasta ${_formatPickupEnd(offer)}', style: FudiTypography.bodySmall.copyWith(fontSize: 11)),
+                          Text(
+                            'Hasta ${_formatPickupEnd(offer)}',
+                            style: FudiTypography.bodySmall.copyWith(
+                              fontSize: 11,
+                            ),
+                          ),
                           const SizedBox(width: 8),
-                          Text('•', style: FudiTypography.bodySmall.copyWith(fontSize: 11)),
+                          Text(
+                            '•',
+                            style: FudiTypography.bodySmall.copyWith(
+                              fontSize: 11,
+                            ),
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             '${offer.initialStock - offer.stock} vendidos',
@@ -475,11 +568,17 @@ class _ProductImage extends StatelessWidget {
                     height: 80,
                     fit: BoxFit.cover,
                     errorWidget: (_, _, _) => const Center(
-                      child: Icon(FudiIcons.package_, color: FudiColors.mutedForeground),
+                      child: Icon(
+                        FudiIcons.package_,
+                        color: FudiColors.mutedForeground,
+                      ),
                     ),
                   )
                 : const Center(
-                    child: Icon(FudiIcons.package_, color: FudiColors.mutedForeground),
+                    child: Icon(
+                      FudiIcons.package_,
+                      color: FudiColors.mutedForeground,
+                    ),
                   ),
           ),
           if (!offer.isActive)
@@ -519,7 +618,9 @@ class _StatusBadge extends StatelessWidget {
             height: 6,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isActive ? const Color(0xFF16A34A) : FudiColors.mutedForeground,
+              color: isActive
+                  ? const Color(0xFF16A34A)
+                  : FudiColors.mutedForeground,
             ),
           ),
           const SizedBox(width: 6),
@@ -528,7 +629,9 @@ class _StatusBadge extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: isActive ? const Color(0xFF15803D) : FudiColors.mutedForeground,
+              color: isActive
+                  ? const Color(0xFF15803D)
+                  : FudiColors.mutedForeground,
             ),
           ),
         ],
@@ -545,31 +648,51 @@ class _ProductMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, color: FudiColors.mutedForeground, size: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(FudiRadius.md)),
+      icon: const Icon(
+        Icons.more_vert,
+        color: FudiColors.mutedForeground,
+        size: 20,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(FudiRadius.md),
+      ),
       onSelected: (value) async {
         if (value == 'toggle') {
-          await ref.read(businessCatalogRepositoryProvider).toggleOfferStatus(offer.id, !offer.isActive);
+          await ref
+              .read(businessCatalogRepositoryProvider)
+              .toggleOfferStatus(offer.id, !offer.isActive);
           ref.invalidate(businessOffersProvider(offer.businessId));
         } else if (value == 'edit') {
-          if (context.mounted) context.push('/business/products/edit/${offer.id}');
+      if (context.mounted) {
+          context.push('/business/products/edit/${offer.id}');
+        }
         } else if (value == 'delete') {
           final confirmed = await showDialog<bool>(
             context: context,
             builder: (ctx) => AlertDialog(
               title: const Text('Eliminar producto'),
-              content: const Text('¿Estás seguro de que deseas eliminar este producto?'),
+              content: const Text(
+                '¿Estás seguro de que deseas eliminar este producto?',
+              ),
               actions: [
-                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('Cancelar'),
+                ),
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text('Eliminar', style: TextStyle(color: FudiColors.destructive)),
+                  child: const Text(
+                    'Eliminar',
+                    style: TextStyle(color: FudiColors.destructive),
+                  ),
                 ),
               ],
             ),
           );
           if (confirmed == true) {
-            await ref.read(businessCatalogRepositoryProvider).deleteOffer(offer.id);
+            await ref
+                .read(businessCatalogRepositoryProvider)
+                .deleteOffer(offer.id);
             ref.invalidate(businessOffersProvider(offer.businessId));
           }
         }
@@ -599,7 +722,11 @@ class _ProductMenu extends ConsumerWidget {
           value: 'delete',
           child: Row(
             children: [
-              Icon(Icons.delete_outline_rounded, size: 18, color: FudiColors.destructive),
+              Icon(
+                Icons.delete_outline_rounded,
+                size: 18,
+                color: FudiColors.destructive,
+              ),
               SizedBox(width: 8),
               Text('Eliminar', style: TextStyle(color: FudiColors.destructive)),
             ],
@@ -622,9 +749,16 @@ class _EmptyProductsState extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
-            const Icon(FudiIcons.package_, size: 64, color: FudiColors.mutedForeground),
+            const Icon(
+              FudiIcons.package_,
+              size: 64,
+              color: FudiColors.mutedForeground,
+            ),
             const SizedBox(height: FudiSpacing.md),
-            const Text('No tienes productos publicados', style: FudiTypography.h4),
+            const Text(
+              'No tienes productos publicados',
+              style: FudiTypography.h4,
+            ),
             const SizedBox(height: FudiSpacing.sm),
             TextButton(
               onPressed: onTap,

@@ -23,7 +23,9 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
   @override
   void initState() {
     super.initState();
-    _currentLocation = widget.initialLocation ?? const LatLng(-0.22985, -78.52495); // Default to Quito
+    _currentLocation =
+        widget.initialLocation ??
+        const LatLng(-0.22985, -78.52495); // Default to Quito
     _determinePosition();
   }
 
@@ -64,7 +66,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
         _currentLocation = LatLng(position.latitude, position.longitude);
         _loading = false;
       });
-      
+
       _mapController?.animateCamera(
         CameraUpdate.newLatLngZoom(_currentLocation, 16),
       );
@@ -73,7 +75,11 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
       setState(() => _loading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No se pudo obtener tu ubicación actual. Puedes mover el mapa manualmente.')),
+          const SnackBar(
+            content: Text(
+              'No se pudo obtener tu ubicación actual. Puedes mover el mapa manualmente.',
+            ),
+          ),
         );
       }
     }
@@ -108,11 +114,13 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
               zoomControlsEnabled: false,
               mapToolbarEnabled: false,
             ),
-          
+
           if (!_loading)
             Center(
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 35), // Adjust for pin center
+                padding: const EdgeInsets.only(
+                  bottom: 35,
+                ), // Adjust for pin center
                 child: Icon(
                   Icons.location_on,
                   size: 50,
@@ -120,7 +128,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 ),
               ),
             ),
-            
+
           Positioned(
             bottom: 0,
             left: 0,
@@ -131,7 +139,11 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 boxShadow: [
-                  BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -2)),
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    offset: Offset(0, -2),
+                  ),
                 ],
               ),
               child: Column(
@@ -153,16 +165,21 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                         backgroundColor: FudiColors.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: const Text('Confirmar ubicación', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Confirmar ubicación',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          
+
           Positioned(
             top: FudiSpacing.md,
             right: FudiSpacing.md,

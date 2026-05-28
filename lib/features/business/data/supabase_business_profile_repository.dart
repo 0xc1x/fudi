@@ -10,7 +10,7 @@ import '../domain/business_profile_repository.dart';
 
 class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
   SupabaseBusinessProfileRepository({required SupabaseClient supabaseClient})
-      : _supabaseClient = supabaseClient;
+    : _supabaseClient = supabaseClient;
 
   final SupabaseClient _supabaseClient;
 
@@ -112,36 +112,48 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
           .eq('owner_id', ownerId)
           .order('name');
 
-      return response.map((json) => _mapBusinessProfile(json, [], [], 0)).toList();
+      return response
+          .map((json) => _mapBusinessProfile(json, [], [], 0))
+          .toList();
     } catch (_) {
       return [];
     }
   }
 
   @override
-  Future<void> createBusiness(BusinessProfile profile, String ownerId, {XFile? logoFile, XFile? coverFile}) async {
+  Future<void> createBusiness(
+    BusinessProfile profile,
+    String ownerId, {
+    XFile? logoFile,
+    XFile? coverFile,
+  }) async {
     try {
       String? logoUrl;
       String? coverUrl;
 
       if (logoFile != null) {
-        logoUrl = await _uploadXFile(logoFile, 'logos/${ownerId}_${DateTime.now().millisecondsSinceEpoch}.jpg');
-      } else if (profile.imageUrl != null && profile.imageUrl!.startsWith('http')) {
+        logoUrl = await _uploadXFile(
+          logoFile,
+          'logos/${ownerId}_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
+      } else if (profile.imageUrl != null &&
+          profile.imageUrl!.startsWith('http')) {
         logoUrl = profile.imageUrl;
       }
 
       if (coverFile != null) {
-        coverUrl = await _uploadXFile(coverFile, 'covers/${ownerId}_${DateTime.now().millisecondsSinceEpoch}.jpg');
-      } else if (profile.coverImageUrl != null && profile.coverImageUrl!.startsWith('http')) {
+        coverUrl = await _uploadXFile(
+          coverFile,
+          'covers/${ownerId}_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
+      } else if (profile.coverImageUrl != null &&
+          profile.coverImageUrl!.startsWith('http')) {
         coverUrl = profile.coverImageUrl;
       }
 
       final randomSuffix = Random().nextInt(9999).toString().padLeft(4, '0');
-      final slug = '${profile.name
-        .toLowerCase()
-        .trim()
-        .replaceAll(RegExp(r'[^a-z0-9]'), '-')
-        .replaceAll(RegExp(r'-+'), '-')}-$randomSuffix';
+      final slug =
+          '${profile.name.toLowerCase().trim().replaceAll(RegExp(r'[^a-z0-9]'), '-').replaceAll(RegExp(r'-+'), '-')}-$randomSuffix';
 
       final businessData = {
         'owner_id': ownerId,
@@ -195,7 +207,9 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
         await _supabaseClient.from('business_hours').insert(hoursData);
       }
 
-      if (profile.address.isNotEmpty && profile.latitude != null && profile.longitude != null) {
+      if (profile.address.isNotEmpty &&
+          profile.latitude != null &&
+          profile.longitude != null) {
         await _supabaseClient.from('business_locations').insert({
           'business_id': businessId,
           'name': profile.name,
@@ -220,9 +234,18 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
 
       await _supabaseClient.storage
           .from('business_images')
-          .uploadBinary(remotePath, bytes, fileOptions: const FileOptions(contentType: 'image/jpeg', upsert: true));
+          .uploadBinary(
+            remotePath,
+            bytes,
+            fileOptions: const FileOptions(
+              contentType: 'image/jpeg',
+              upsert: true,
+            ),
+          );
 
-      return _supabaseClient.storage.from('business_images').getPublicUrl(remotePath);
+      return _supabaseClient.storage
+          .from('business_images')
+          .getPublicUrl(remotePath);
     } catch (e) {
       return xFile.path;
     }
@@ -297,7 +320,8 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
 
     for (var i = 1; i < entries.length; i++) {
       final entry = entries[i];
-      final sameHours = entry.open == rangeEnd.open &&
+      final sameHours =
+          entry.open == rangeEnd.open &&
           entry.close == rangeEnd.close &&
           entry.isClosed == rangeEnd.isClosed;
 
@@ -398,8 +422,18 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
 
   String _formatMemberSince(DateTime dt) {
     const months = [
-      '', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre',
+      '',
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
       'Diciembre',
     ];
     return '${months[dt.month]} ${dt.year}';

@@ -18,8 +18,10 @@ final businessProfileRepositoryProvider = Provider<BusinessProfileRepository>(
 /// ```dart
 /// final profileAsync = ref.watch(businessProfileProvider(businessId));
 /// ```
-final businessProfileProvider =
-    FutureProvider.family<BusinessProfile, String>((ref, businessId) async {
+final businessProfileProvider = FutureProvider.family<BusinessProfile, String>((
+  ref,
+  businessId,
+) async {
   final repo = ref.watch(businessProfileRepositoryProvider);
   return repo.getBusinessProfile(businessId);
 });

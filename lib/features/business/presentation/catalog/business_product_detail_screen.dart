@@ -39,20 +39,14 @@ class BusinessProductDetailScreen extends ConsumerWidget {
             }
             return _ProductDetailContent(offer: offer);
           },
-          loading: () => const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          ),
-          error: (e, _) => Scaffold(
-            body: Center(child: Text('Error: $e')),
-          ),
+          loading: () =>
+              const Scaffold(body: Center(child: CircularProgressIndicator())),
+          error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
         );
       },
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
-      error: (e, _) => Scaffold(
-        body: Center(child: Text('Error: $e')),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
     );
   }
 }
@@ -108,7 +102,10 @@ class _DetailHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg, vertical: FudiSpacing.md),
+      padding: const EdgeInsets.symmetric(
+        horizontal: FudiSpacing.lg,
+        vertical: FudiSpacing.md,
+      ),
       child: SafeArea(
         bottom: false,
         child: Row(
@@ -130,16 +127,21 @@ class _DetailHeader extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Detalle del producto', style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: FudiColors.foreground,
-                  )),
+                  const Text(
+                    'Detalle del producto',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: FudiColors.foreground,
+                    ),
+                  ),
                   Text(
                     offer.isActive ? 'Activo' : 'Inactivo',
                     style: TextStyle(
                       fontSize: 12,
-                      color: offer.isActive ? Colors.green : FudiColors.mutedForeground,
+                      color: offer.isActive
+                          ? Colors.green
+                          : FudiColors.mutedForeground,
                     ),
                   ),
                 ],
@@ -175,14 +177,22 @@ class _ProductHeroImage extends StatelessWidget {
                   errorWidget: (_, _, _) => Container(
                     color: FudiColors.muted,
                     child: const Center(
-                      child: Icon(FudiIcons.package_, size: 64, color: FudiColors.mutedForeground),
+                      child: Icon(
+                        FudiIcons.package_,
+                        size: 64,
+                        color: FudiColors.mutedForeground,
+                      ),
                     ),
                   ),
                 )
               : Container(
                   color: FudiColors.muted,
                   child: const Center(
-                    child: Icon(FudiIcons.package_, size: 64, color: FudiColors.mutedForeground),
+                    child: Icon(
+                      FudiIcons.package_,
+                      size: 64,
+                      color: FudiColors.mutedForeground,
+                    ),
                   ),
                 ),
         ),
@@ -192,7 +202,10 @@ class _ProductHeroImage extends StatelessWidget {
             color: Colors.black54,
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(FudiRadius.full),
@@ -202,7 +215,10 @@ class _ProductHeroImage extends StatelessWidget {
                   children: [
                     Icon(FudiIcons.eyeOff, size: 16),
                     SizedBox(width: 8),
-                    Text('Producto inactivo', style: TextStyle(fontWeight: FontWeight.w500)),
+                    Text(
+                      'Producto inactivo',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
                   ],
                 ),
               ),
@@ -218,7 +234,11 @@ class _ProductHeroImage extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(FudiRadius.full),
                 boxShadow: const [
-                  BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 2)),
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
                 ],
               ),
               child: Text(
@@ -248,28 +268,34 @@ class _StatsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: _StatCard(
-          icon: FudiIcons.package_,
-          iconColor: FudiColors.primary,
-          value: '$_sold',
-          label: 'Vendidos',
-        )),
+        Expanded(
+          child: _StatCard(
+            icon: FudiIcons.package_,
+            iconColor: FudiColors.primary,
+            value: '$_sold',
+            label: 'Vendidos',
+          ),
+        ),
         const SizedBox(width: FudiSpacing.md),
-        Expanded(child: _StatCard(
-          icon: Icons.account_balance_wallet_rounded,
-          iconColor: Colors.green,
-          value: '\$${_revenue.toStringAsFixed(2)}',
-          label: 'Ingresos',
-          valueColor: Colors.green,
-        )),
+        Expanded(
+          child: _StatCard(
+            icon: Icons.account_balance_wallet_rounded,
+            iconColor: Colors.green,
+            value: '\$${_revenue.toStringAsFixed(2)}',
+            label: 'Ingresos',
+            valueColor: Colors.green,
+          ),
+        ),
         const SizedBox(width: FudiSpacing.md),
-        Expanded(child: _StatCard(
-          icon: Icons.trending_up_rounded,
-          iconColor: Colors.orange,
-          value: '${offer.initialStock}',
-          label: 'Creados',
-          valueColor: Colors.orange,
-        )),
+        Expanded(
+          child: _StatCard(
+            icon: Icons.trending_up_rounded,
+            iconColor: Colors.orange,
+            value: '${offer.initialStock}',
+            label: 'Creados',
+            valueColor: Colors.orange,
+          ),
+        ),
       ],
     );
   }
@@ -303,11 +329,14 @@ class _StatCard extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: iconColor),
           const SizedBox(height: 4),
-          Text(value, style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: valueColor ?? FudiColors.foreground,
-          )),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: valueColor ?? FudiColors.foreground,
+            ),
+          ),
           const SizedBox(height: 2),
           Text(label, style: FudiTypography.bodySmall),
         ],
@@ -327,7 +356,8 @@ class _QuickActions extends ConsumerWidget {
       children: [
         Expanded(
           child: FilledButton(
-            onPressed: () => context.push('/business/products/edit/${offer.id}'),
+            onPressed: () =>
+                context.push('/business/products/edit/${offer.id}'),
             style: FilledButton.styleFrom(
               backgroundColor: FudiColors.primary,
               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -338,9 +368,19 @@ class _QuickActions extends ConsumerWidget {
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.edit_rounded, size: 16, color: FudiColors.primaryForeground),
+                Icon(
+                  Icons.edit_rounded,
+                  size: 16,
+                  color: FudiColors.primaryForeground,
+                ),
                 SizedBox(width: 6),
-                Text('Editar', style: TextStyle(color: FudiColors.primaryForeground, fontWeight: FontWeight.w500)),
+                Text(
+                  'Editar',
+                  style: TextStyle(
+                    color: FudiColors.primaryForeground,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           ),
@@ -349,13 +389,17 @@ class _QuickActions extends ConsumerWidget {
         Expanded(
           child: OutlinedButton(
             onPressed: () async {
-              await ref.read(businessCatalogRepositoryProvider).toggleOfferStatus(offer.id, !offer.isActive);
+              await ref
+                  .read(businessCatalogRepositoryProvider)
+                  .toggleOfferStatus(offer.id, !offer.isActive);
               ref.invalidate(businessOffersProvider(offer.businessId));
               if (context.mounted) context.pop();
             },
             style: OutlinedButton.styleFrom(
               backgroundColor: offer.isActive ? FudiColors.muted : Colors.green,
-              foregroundColor: offer.isActive ? FudiColors.foreground : Colors.white,
+              foregroundColor: offer.isActive
+                  ? FudiColors.foreground
+                  : Colors.white,
               side: BorderSide.none,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
@@ -365,9 +409,15 @@ class _QuickActions extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(offer.isActive ? FudiIcons.eyeOff : FudiIcons.eye, size: 16),
+                Icon(
+                  offer.isActive ? FudiIcons.eyeOff : FudiIcons.eye,
+                  size: 16,
+                ),
                 const SizedBox(width: 6),
-                Text(offer.isActive ? 'Ocultar' : 'Activar', style: const TextStyle(fontWeight: FontWeight.w500)),
+                Text(
+                  offer.isActive ? 'Ocultar' : 'Activar',
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
               ],
             ),
           ),
@@ -380,18 +430,28 @@ class _QuickActions extends ConsumerWidget {
                 context: context,
                 builder: (ctx) => AlertDialog(
                   title: const Text('Eliminar producto'),
-                  content: const Text('¿Estás seguro de que deseas eliminar este producto?'),
+                  content: const Text(
+                    '¿Estás seguro de que deseas eliminar este producto?',
+                  ),
                   actions: [
-                    TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text('Cancelar'),
+                    ),
                     TextButton(
                       onPressed: () => Navigator.pop(ctx, true),
-                      child: const Text('Eliminar', style: TextStyle(color: FudiColors.destructive)),
+                      child: const Text(
+                        'Eliminar',
+                        style: TextStyle(color: FudiColors.destructive),
+                      ),
                     ),
                   ],
                 ),
               );
               if (confirmed == true) {
-                await ref.read(businessCatalogRepositoryProvider).deleteOffer(offer.id);
+                await ref
+                    .read(businessCatalogRepositoryProvider)
+                    .deleteOffer(offer.id);
                 ref.invalidate(businessOffersProvider(offer.businessId));
                 if (context.mounted) context.pop();
               }
@@ -445,39 +505,55 @@ class _ProductInfoCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(FudiRadius.xxl),
         border: Border.all(color: FudiColors.borderSolid),
         boxShadow: const [
-          BoxShadow(color: Color(0x0D000000), blurRadius: 8, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Color(0x0D000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(offer.title, style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: FudiColors.foreground,
-          )),
+          Text(
+            offer.title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: FudiColors.foreground,
+            ),
+          ),
           const SizedBox(height: 8),
           if (offer.description != null && offer.description!.isNotEmpty)
-            Text(offer.description!, style: FudiTypography.bodyMedium.copyWith(
-              color: FudiColors.mutedForeground,
-              height: 1.6,
-            )),
+            Text(
+              offer.description!,
+              style: FudiTypography.bodyMedium.copyWith(
+                color: FudiColors.mutedForeground,
+                height: 1.6,
+              ),
+            ),
           const SizedBox(height: 16),
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text('\$${offer.discountedPrice.toStringAsFixed(2)}', style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: FudiColors.primary,
-              )),
+              Text(
+                '\$${offer.discountedPrice.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: FudiColors.primary,
+                ),
+              ),
               const SizedBox(width: 12),
-              Text('\$${offer.originalPrice.toStringAsFixed(2)}', style: const TextStyle(
-                fontSize: 18,
-                decoration: TextDecoration.lineThrough,
-                color: FudiColors.mutedForeground,
-              )),
+              Text(
+                '\$${offer.originalPrice.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  decoration: TextDecoration.lineThrough,
+                  color: FudiColors.mutedForeground,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -489,7 +565,10 @@ class _ProductInfoCard extends StatelessWidget {
             crossAxisSpacing: 12,
             childAspectRatio: 3.2,
             children: [
-              _InfoField(label: 'Cantidad disponible', value: '${offer.stock} unidades'),
+              _InfoField(
+                label: 'Cantidad disponible',
+                value: '${offer.stock} unidades',
+              ),
               _InfoField(label: 'Disponible hasta', value: _formatPickupEnd()),
               _InfoField(
                 label: 'Vendidos hoy',
@@ -499,13 +578,18 @@ class _ProductInfoCard extends StatelessWidget {
               _InfoField(
                 label: 'Estado',
                 value: offer.isActive ? 'Activo' : 'Inactivo',
-                valueColor: offer.isActive ? Colors.green : FudiColors.mutedForeground,
+                valueColor: offer.isActive
+                    ? Colors.green
+                    : FudiColors.mutedForeground,
               ),
               _InfoField(label: 'Recogida desde', value: _formatPickupStart()),
               if (offer.category != null && offer.category!.isNotEmpty)
                 _InfoField(label: 'Categoría', value: offer.categoryLabel)
               else
-                _InfoField(label: 'Horario', value: '${_formatPickupStart()} - ${_formatPickupEnd()}'),
+                _InfoField(
+                  label: 'Horario',
+                  value: '${_formatPickupStart()} - ${_formatPickupEnd()}',
+                ),
             ],
           ),
         ],
@@ -515,11 +599,7 @@ class _ProductInfoCard extends StatelessWidget {
 }
 
 class _InfoField extends StatelessWidget {
-  const _InfoField({
-    required this.label,
-    required this.value,
-    this.valueColor,
-  });
+  const _InfoField({required this.label, required this.value, this.valueColor});
 
   final String label;
   final String value;
@@ -533,11 +613,14 @@ class _InfoField extends StatelessWidget {
       children: [
         Text(label, style: FudiTypography.bodySmall.copyWith(fontSize: 11)),
         const SizedBox(height: 2),
-        Text(value, style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: valueColor ?? FudiColors.foreground,
-        )),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: valueColor ?? FudiColors.foreground,
+          ),
+        ),
       ],
     );
   }
@@ -550,7 +633,11 @@ class _IncludesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = offer.includes!.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+    final items = offer.includes!
+        .split(',')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
 
     return Container(
       padding: const EdgeInsets.all(FudiSpacing.lg),
@@ -559,29 +646,52 @@ class _IncludesCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(FudiRadius.xxl),
         border: Border.all(color: FudiColors.borderSolid),
         boxShadow: const [
-          BoxShadow(color: Color(0x0D000000), blurRadius: 8, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Color(0x0D000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('¿Qué incluye?', style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: FudiColors.foreground,
-          )),
-          const SizedBox(height: 12),
-          ...items.map((item) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('✓', style: TextStyle(color: FudiColors.primary, fontWeight: FontWeight.bold, fontSize: 14)),
-                const SizedBox(width: 8),
-                Expanded(child: Text(item, style: FudiTypography.bodyMedium.copyWith(color: FudiColors.mutedForeground))),
-              ],
+          const Text(
+            '¿Qué incluye?',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: FudiColors.foreground,
             ),
-          )),
+          ),
+          const SizedBox(height: 12),
+          ...items.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '✓',
+                    style: TextStyle(
+                      color: FudiColors.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      item,
+                      style: FudiTypography.bodyMedium.copyWith(
+                        color: FudiColors.mutedForeground,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -595,7 +705,11 @@ class _AllergensCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final allergens = offer.allergens!.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+    final allergens = offer.allergens!
+        .split(',')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
 
     return Container(
       padding: const EdgeInsets.all(FudiSpacing.lg),
@@ -604,33 +718,50 @@ class _AllergensCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(FudiRadius.xxl),
         border: Border.all(color: FudiColors.borderSolid),
         boxShadow: const [
-          BoxShadow(color: Color(0x0D000000), blurRadius: 8, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Color(0x0D000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Alérgenos', style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: FudiColors.foreground,
-          )),
+          const Text(
+            'Alérgenos',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: FudiColors.foreground,
+            ),
+          ),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: allergens.map((allergen) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF7ED),
-                borderRadius: BorderRadius.circular(FudiRadius.full),
-                border: Border.all(color: const Color(0xFFFED7AA)),
-              ),
-              child: Text(allergen, style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFFC2410C),
-              )),
-            )).toList(),
+            children: allergens
+                .map(
+                  (allergen) => Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF7ED),
+                      borderRadius: BorderRadius.circular(FudiRadius.full),
+                      border: Border.all(color: const Color(0xFFFED7AA)),
+                    ),
+                    child: Text(
+                      allergen,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFFC2410C),
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
           ),
         ],
       ),
@@ -648,9 +779,18 @@ class _PerformanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final stockPercent = offer.initialStock > 0 ? (offer.stock / offer.initialStock).clamp(0.0, 1.0) : 0.0;
-    final soldPercent = offer.initialStock > 0 ? (_sold / offer.initialStock).clamp(0.0, 1.0) : 0.0;
-    final revenuePercent = _revenue > 0 ? (_revenue / (offer.initialStock * offer.discountedPrice)).clamp(0.0, 1.0) : 0.0;
+    final stockPercent = offer.initialStock > 0
+        ? (offer.stock / offer.initialStock).clamp(0.0, 1.0)
+        : 0.0;
+    final soldPercent = offer.initialStock > 0
+        ? (_sold / offer.initialStock).clamp(0.0, 1.0)
+        : 0.0;
+    final revenuePercent = _revenue > 0
+        ? (_revenue / (offer.initialStock * offer.discountedPrice)).clamp(
+            0.0,
+            1.0,
+          )
+        : 0.0;
 
     return Container(
       padding: const EdgeInsets.all(FudiSpacing.lg),
@@ -659,17 +799,24 @@ class _PerformanceCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(FudiRadius.xxl),
         border: Border.all(color: FudiColors.borderSolid),
         boxShadow: const [
-          BoxShadow(color: Color(0x0D000000), blurRadius: 8, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Color(0x0D000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Rendimiento', style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: FudiColors.foreground,
-          )),
+          const Text(
+            'Rendimiento',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: FudiColors.foreground,
+            ),
+          ),
           const SizedBox(height: 16),
           _ProgressBar(
             label: 'Total vendidos (histórico)',
@@ -722,13 +869,22 @@ class _ProgressBar extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Flexible(child: Text(label, style: FudiTypography.bodySmall, overflow: TextOverflow.ellipsis)),
+            Flexible(
+              child: Text(
+                label,
+                style: FudiTypography.bodySmall,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             const SizedBox(width: 8),
-            Text(value, style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: valueColor ?? FudiColors.foreground,
-            )),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: valueColor ?? FudiColors.foreground,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 6),

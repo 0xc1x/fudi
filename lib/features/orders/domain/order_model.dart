@@ -19,6 +19,9 @@ class OrderModel {
     this.offerImageUrl,
     this.businessAddress,
     this.businessPhone,
+    this.customerName,
+    this.customerPhone,
+    this.customerEmail,
   });
 
   final String id;
@@ -39,6 +42,9 @@ class OrderModel {
   final String businessName;
   final String? businessAddress;
   final String? businessPhone;
+  final String? customerName;
+  final String? customerPhone;
+  final String? customerEmail;
 
   double get discount => originalPrice - price;
 

@@ -7,6 +7,8 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/signup_screen.dart';
 import '../../features/auth/presentation/update_password_screen.dart';
 import '../../features/business/presentation/business_profile_screen.dart';
+import '../../features/business/presentation/business_edit_screen.dart';
+import '../../features/business/presentation/business_management_profile_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/offers/presentation/product_detail_screen.dart';
 import '../../features/orders/presentation/checkout_screen.dart';
@@ -35,6 +37,15 @@ import '../../features/business/presentation/catalog/business_product_detail_scr
 import '../../features/business/presentation/orders/business_orders_screen.dart';
 import '../../features/business/presentation/orders/business_order_detail_screen.dart';
 import '../../features/business/presentation/locations/business_location_create_screen.dart';
+import '../../features/business/presentation/locations/business_locations_screen.dart';
+import '../../features/business/presentation/locations/business_location_detail_screen.dart';
+import '../../features/business/presentation/locations/business_location_edit_screen.dart';
+import '../../features/business/presentation/payments/business_payments_screen.dart';
+import '../../features/business/presentation/payments/business_payment_detail_screen.dart';
+import '../../features/business/presentation/coupons/business_coupons_screen.dart';
+import '../../features/business/presentation/coupons/business_coupon_edit_screen.dart';
+import '../../features/business/presentation/notifications/business_notifications_screen.dart';
+import '../../features/business/presentation/help/business_help_screen.dart';
 import '../observability/sentry_breadcrumb.dart';
 import '../ui/fudi_scaffold.dart';
 import '../ui/ui_gallery_screen.dart';
@@ -61,13 +72,21 @@ final _hideBottomNavPaths = {
   RouteNames.businessProductDetailPath,
   RouteNames.businessProductCreatePath,
   RouteNames.businessProductEditPath,
+  RouteNames.businessLocationCreatePath,
+  RouteNames.businessLocationEditPath,
+  RouteNames.businessCouponCreatePath,
+  RouteNames.businessCouponEditPath,
 };
 
 bool _shouldHideBottomNav(GoRouterState state) {
   final location = state.matchedLocation;
   for (final path in _hideBottomNavPaths) {
-    if (location.startsWith(path.replaceAll('/:id', ''))) {
-      return true;
+    if (path.contains('/:id')) {
+      final base = path.substring(0, path.indexOf('/:id'));
+      if (location == base) continue;
+      if (location.startsWith('$base/')) return true;
+    } else {
+      if (location.startsWith(path)) return true;
     }
   }
   return false;
@@ -159,9 +178,8 @@ GoRouter createAppRouter(
           GoRoute(
             path: RouteNames.businessProfileViewPath,
             name: RouteNames.businessProfileView,
-            builder: (context, state) => BusinessProfileScreen(
-              businessId: state.pathParameters['id']!,
-            ),
+            builder: (context, state) =>
+                BusinessProfileScreen(businessId: state.pathParameters['id']!),
           ),
           GoRoute(
             path: RouteNames.productPath,
@@ -249,39 +267,39 @@ GoRouter createAppRouter(
         ],
       ),
 
-// ─── Shell para Negocio (con BottomNav) ──────────────────────
-ShellRoute(
-  builder: (context, state, child) => FudiScaffold(
-    showBottomNav: !_shouldHideBottomNav(state),
-    body: child,
-  ),
-        routes: [
-        GoRoute(
-          path: RouteNames.businessProductsPath,
-          name: RouteNames.businessProducts,
-          builder: (context, state) => const BusinessProductsScreen(),
-          routes: [
-            GoRoute(
-              path: ':id',
-              name: RouteNames.businessProductDetail,
-              builder: (context, state) => BusinessProductDetailScreen(
-                productId: state.pathParameters['id']!,
-              ),
-            ),
-            GoRoute(
-              path: 'create',
-              name: RouteNames.businessProductCreate,
-              builder: (context, state) => const BusinessProductFormScreen(),
-            ),
-            GoRoute(
-              path: 'edit/:id',
-              name: RouteNames.businessProductEdit,
-              builder: (context, state) => BusinessProductFormScreen(
-                productId: state.pathParameters['id'],
-              ),
-            ),
-          ],
+      // ─── Shell para Negocio (con BottomNav) ──────────────────────
+      ShellRoute(
+        builder: (context, state, child) => FudiScaffold(
+          showBottomNav: !_shouldHideBottomNav(state),
+          body: child,
         ),
+        routes: [
+          GoRoute(
+            path: RouteNames.businessProductsPath,
+            name: RouteNames.businessProducts,
+            builder: (context, state) => const BusinessProductsScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                name: RouteNames.businessProductDetail,
+                builder: (context, state) => BusinessProductDetailScreen(
+                  productId: state.pathParameters['id']!,
+                ),
+              ),
+              GoRoute(
+                path: 'create',
+                name: RouteNames.businessProductCreate,
+                builder: (context, state) => const BusinessProductFormScreen(),
+              ),
+              GoRoute(
+                path: 'edit/:id',
+                name: RouteNames.businessProductEdit,
+                builder: (context, state) => BusinessProductFormScreen(
+                  productId: state.pathParameters['id'],
+                ),
+              ),
+            ],
+          ),
           GoRoute(
             path: RouteNames.businessOrdersPath,
             name: RouteNames.businessOrders,
@@ -299,13 +317,27 @@ ShellRoute(
           GoRoute(
             path: RouteNames.businessLocationsPath,
             name: RouteNames.businessLocations,
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: 'Gestión de Locales'),
+            builder: (context, state) => const BusinessLocationsScreen(),
             routes: [
               GoRoute(
                 path: 'create',
                 name: RouteNames.businessLocationCreate,
-                builder: (context, state) => const BusinessLocationCreateScreen(),
+                builder: (context, state) =>
+                    const BusinessLocationCreateScreen(),
+              ),
+              GoRoute(
+                path: ':id',
+                name: RouteNames.businessLocationDetail,
+                builder: (context, state) => BusinessLocationDetailScreen(
+                  locationId: state.pathParameters['id']!,
+                ),
+              ),
+              GoRoute(
+                path: 'edit/:id',
+                name: RouteNames.businessLocationEdit,
+                builder: (context, state) => BusinessLocationEditScreen(
+                  locationId: state.pathParameters['id'],
+                ),
               ),
             ],
           ),
@@ -317,41 +349,61 @@ ShellRoute(
           GoRoute(
             path: RouteNames.businessPaymentsPath,
             name: RouteNames.businessPayments,
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: 'Pagos y Payouts'),
+            builder: (context, state) => const BusinessPaymentsScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                name: RouteNames.businessPaymentDetail,
+                builder: (context, state) => BusinessPaymentDetailScreen(
+                  payoutId: state.pathParameters['id']!,
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: RouteNames.businessCouponsPath,
+            name: RouteNames.businessCoupons,
+            builder: (context, state) => const BusinessCouponsScreen(),
+            routes: [
+              GoRoute(
+                path: 'create',
+                name: RouteNames.businessCouponCreate,
+                builder: (context, state) => const BusinessCouponEditScreen(),
+              ),
+              GoRoute(
+                path: 'edit/:id',
+                name: RouteNames.businessCouponEdit,
+                builder: (context, state) => BusinessCouponEditScreen(
+                  couponId: state.pathParameters['id'],
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: RouteNames.businessNotificationsPath,
+            name: RouteNames.businessNotifications,
+            builder: (context, state) => const BusinessNotificationsScreen(),
           ),
           GoRoute(
             path: RouteNames.businessProfilePath,
             name: RouteNames.businessProfile,
             builder: (context, state) =>
-                const _PlaceholderScreen(title: 'Perfil de Negocio'),
+                const BusinessManagementProfileScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.businessEditPath,
+            name: RouteNames.businessEdit,
+            builder: (context, state) => const BusinessEditScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.businessHelpPath,
+            name: RouteNames.businessHelp,
+            builder: (context, state) => const BusinessHelpScreen(),
           ),
         ],
       ),
     ],
   );
-}
-
-class _PlaceholderScreen extends StatelessWidget {
-  const _PlaceholderScreen({required this.title});
-
-  final String title;
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.headlineMedium),
-            const SizedBox(height: 16),
-            const Text('🚧 Implementación en curso...'),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _SentryRouteObserver extends RouteObserver<PageRoute<dynamic>> {

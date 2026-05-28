@@ -7,7 +7,7 @@ import '../domain/business_order_repository.dart';
 
 class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
   SupabaseBusinessOrderRepository({required SupabaseClient supabaseClient})
-      : _supabaseClient = supabaseClient;
+    : _supabaseClient = supabaseClient;
 
   final SupabaseClient _supabaseClient;
 
@@ -15,7 +15,8 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
     id, user_id, offer_id, business_id, order_number, status, 
     price, original_price, pickup_code, pickup_time, coupon_id, created_at,
     offers!orders_offer_id_fkey(title, image),
-    businesses!orders_business_id_fkey(name, address, phone)
+    businesses!orders_business_id_fkey(name, address, phone),
+    profiles!orders_user_id_fkey(full_name, phone, email)
   ''';
 
   @override
@@ -51,13 +52,16 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
           .update({'status': status.dbValue})
           .eq('id', orderId);
     } catch (e) {
-      throw UnknownDataException(message: 'Error al actualizar el estado del pedido');
+      throw UnknownDataException(
+        message: 'Error al actualizar el estado del pedido',
+      );
     }
   }
 
   OrderModel _mapOrderFromJson(Map<String, dynamic> json) {
     final offer = json['offers'] as Map<String, dynamic>?;
     final business = json['businesses'] as Map<String, dynamic>?;
+    final customer = json['profiles'] as Map<String, dynamic>?;
 
     return OrderModel(
       id: json['id'] as String,
@@ -79,6 +83,9 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
       businessName: business?['name'] as String? ?? 'Negocio',
       businessAddress: business?['address'] as String?,
       businessPhone: business?['phone'] as String?,
+      customerName: customer?['full_name'] as String?,
+      customerPhone: customer?['phone'] as String?,
+      customerEmail: customer?['email'] as String?,
     );
   }
 }

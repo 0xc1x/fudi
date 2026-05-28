@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,6 +9,7 @@ import '../../../../core/ui/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../offers/domain/offer.dart';
+import '../../../offers/presentation/offer_providers.dart';
 import '../business_providers.dart';
 import '../business_profile_providers.dart';
 import '../../../auth/presentation/auth_state_provider.dart';
@@ -20,12 +20,14 @@ class BusinessProductFormScreen extends ConsumerStatefulWidget {
   final String? productId;
 
   @override
-  ConsumerState<BusinessProductFormScreen> createState() => _BusinessProductFormScreenState();
+  ConsumerState<BusinessProductFormScreen> createState() =>
+      _BusinessProductFormScreenState();
 }
 
-class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormScreen> {
+class _BusinessProductFormScreenState
+    extends ConsumerState<BusinessProductFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _originalPriceController = TextEditingController();
@@ -33,13 +35,16 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
   final _stockController = TextEditingController();
   final _includesController = TextEditingController();
   final _allergensController = TextEditingController();
-  
+
   String _selectedCategory = 'Sorpresa';
   XFile? _imageFile;
   TimeOfDay _startTime = const TimeOfDay(hour: 18, minute: 0);
   TimeOfDay _endTime = const TimeOfDay(hour: 20, minute: 0);
-  
+
   bool _isSubmitting = false;
+
+  String? _existingImageUrl;
+  bool _isLoadingProduct = false;
 
   final List<String> _categories = [
     'Sorpresa',
@@ -51,6 +56,56 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
     'Snacks',
     'Otro',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.productId != null) {
+      _loadProduct();
+    }
+  }
+
+  Future<void> _loadProduct() async {
+    setState(() => _isLoadingProduct = true);
+    try {
+      final offer = await ref.read(
+        offerDetailProvider(widget.productId!).future,
+      );
+      if (mounted) {
+        _nameController.text = offer.title;
+        _descriptionController.text = offer.description ?? '';
+        _originalPriceController.text = offer.originalPrice.toStringAsFixed(2);
+        _priceController.text = offer.discountedPrice.toStringAsFixed(2);
+        _stockController.text = offer.stock.toString();
+        _includesController.text = offer.includes ?? '';
+        _allergensController.text = offer.allergens ?? '';
+        _selectedCategory = offer.category ?? 'Sorpresa';
+        _startTime = TimeOfDay(
+          hour: offer.pickupStart.hour,
+          minute: offer.pickupStart.minute,
+        );
+        _endTime = TimeOfDay(
+          hour: offer.pickupEnd.hour,
+          minute: offer.pickupEnd.minute,
+        );
+        _existingImageUrl = offer.imageUrl;
+        setState(() {});
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error al cargar producto: ${userFriendlyMessage(e)}',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoadingProduct = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -66,7 +121,7 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    
+
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       backgroundColor: Colors.white,
@@ -110,10 +165,10 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
         maxHeight: 1024,
         imageQuality: 85,
       );
-      
-        if (image != null) {
-          setState(() => _imageFile = image);
-        }
+
+      if (image != null) {
+        setState(() => _imageFile = image);
+      }
     }
   }
 
@@ -153,13 +208,15 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
         final profileRepo = ref.read(businessProfileRepositoryProvider);
         final businesses = await profileRepo.getBusinessesByOwnerId(userId);
         if (businesses.isEmpty) {
-          throw Exception('No se encontró un local registrado. Por favor crea uno primero.');
+          throw Exception(
+            'No se encontró un local registrado. Por favor crea uno primero.',
+          );
         }
         business = businesses.first;
       }
 
       final repo = ref.read(businessCatalogRepositoryProvider);
-      
+
       final offer = Offer(
         id: widget.productId ?? '',
         businessId: business.id,
@@ -175,7 +232,7 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
         ),
         title: _nameController.text,
         description: _descriptionController.text,
-        imageUrl: _imageFile?.path ?? '',
+        imageUrl: _imageFile?.path ?? _existingImageUrl ?? '',
         originalPrice: double.parse(_originalPriceController.text),
         discountedPrice: double.parse(_priceController.text),
         stock: int.parse(_stockController.text),
@@ -185,8 +242,12 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
         pickupEnd: DateTime(2024, 1, 1, _endTime.hour, _endTime.minute),
         isActive: true,
         rating: 0.0,
-        includes: _includesController.text.isNotEmpty ? _includesController.text : null,
-        allergens: _allergensController.text.isNotEmpty ? _allergensController.text : null,
+        includes: _includesController.text.isNotEmpty
+            ? _includesController.text
+            : null,
+        allergens: _allergensController.text.isNotEmpty
+            ? _allergensController.text
+            : null,
       );
 
       if (widget.productId == null) {
@@ -204,7 +265,10 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFriendlyMessage(e)), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(userFriendlyMessage(e)),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -214,10 +278,24 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoadingProduct) {
+      return Scaffold(
+        backgroundColor: FudiColors.background,
+        appBar: AppBar(
+          title: const Text('Editar producto'),
+          backgroundColor: Colors.white,
+          elevation: 0,
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: FudiColors.background,
       appBar: AppBar(
-        title: Text(widget.productId == null ? 'Nuevo producto' : 'Editar producto'),
+        title: Text(
+          widget.productId == null ? 'Nuevo producto' : 'Editar producto',
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
       ),
@@ -237,7 +315,8 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
                     label: 'Nombre del producto',
                     controller: _nameController,
                     hint: 'Ej: Pack Sorpresa Panadería',
-                    validator: (v) => v?.isEmpty ?? true ? 'Campo requerido' : null,
+                    validator: (v) =>
+                        v?.isEmpty ?? true ? 'Campo requerido' : null,
                   ),
                   const SizedBox(height: FudiSpacing.md),
                   _buildDropdownField(
@@ -252,7 +331,8 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
                     controller: _descriptionController,
                     hint: 'Describe brevemente qué trae el producto...',
                     maxLines: 3,
-                    validator: (v) => v?.isEmpty ?? true ? 'Campo requerido' : null,
+                    validator: (v) =>
+                        v?.isEmpty ?? true ? 'Campo requerido' : null,
                   ),
                 ],
               ),
@@ -287,7 +367,8 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
                           hint: '0.00',
                           keyboardType: TextInputType.number,
                           prefixText: '\$ ',
-                          validator: (v) => v?.isEmpty ?? true ? 'Requerido' : null,
+                          validator: (v) =>
+                              v?.isEmpty ?? true ? 'Requerido' : null,
                         ),
                       ),
                       const SizedBox(width: FudiSpacing.md),
@@ -298,7 +379,8 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
                           hint: '0.00',
                           keyboardType: TextInputType.number,
                           prefixText: '\$ ',
-                          validator: (v) => v?.isEmpty ?? true ? 'Requerido' : null,
+                          validator: (v) =>
+                              v?.isEmpty ?? true ? 'Requerido' : null,
                         ),
                       ),
                     ],
@@ -346,9 +428,9 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: _isSubmitting 
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Guardar producto'),
+                  child: _isSubmitting
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('Guardar producto'),
                 ),
               ),
             ],
@@ -359,6 +441,11 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
   }
 
   Widget _buildImagePicker() {
+    final hasNewImage = _imageFile != null;
+    final hasExistingImage =
+        _existingImageUrl != null && _existingImageUrl!.isNotEmpty;
+    final showImage = hasNewImage || hasExistingImage;
+
     return GestureDetector(
       onTap: _pickImage,
       child: Container(
@@ -369,19 +456,26 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
           borderRadius: BorderRadius.circular(FudiRadius.xl),
           border: Border.all(color: FudiColors.borderSolid),
         ),
-        child: _imageFile != null
+        child: showImage
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(FudiRadius.xl),
-                child: kIsWeb
+                child: hasNewImage
                     ? Image.network(_imageFile!.path, fit: BoxFit.cover)
-                    : Image.network(_imageFile!.path, fit: BoxFit.cover),
+                    : Image.network(_existingImageUrl!, fit: BoxFit.cover),
               )
             : const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.camera_alt_rounded, size: 48, color: FudiColors.mutedForeground),
+                  Icon(
+                    Icons.camera_alt_rounded,
+                    size: 48,
+                    color: FudiColors.mutedForeground,
+                  ),
                   SizedBox(height: FudiSpacing.sm),
-                  Text('Subir foto del producto', style: FudiTypography.labelSmall),
+                  Text(
+                    'Subir foto del producto',
+                    style: FudiTypography.labelSmall,
+                  ),
                   Text('Opcional', style: FudiTypography.bodySmall),
                 ],
               ),
@@ -389,7 +483,10 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
     );
   }
 
-  Widget _buildSection({required String title, required List<Widget> children}) {
+  Widget _buildSection({
+    required String title,
+    required List<Widget> children,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -452,7 +549,9 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           initialValue: value,
-          items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+          items: items
+              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+              .toList(),
           onChanged: onChanged,
           decoration: InputDecoration(
             border: OutlineInputBorder(
@@ -497,7 +596,11 @@ class _BusinessProductFormScreenState extends ConsumerState<BusinessProductFormS
 }
 
 class _SourceOption extends StatelessWidget {
-  const _SourceOption({required this.icon, required this.label, required this.onTap});
+  const _SourceOption({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
   final IconData icon;
   final String label;
   final VoidCallback onTap;
@@ -506,7 +609,17 @@ class _SourceOption extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
-      child: Container(width: 100, padding: const EdgeInsets.symmetric(vertical: 16), child: Column(children: [Icon(icon, size: 32, color: FudiColors.primary), const SizedBox(height: 8), Text(label, style: const TextStyle(fontWeight: FontWeight.w500))])),
+      child: Container(
+        width: 100,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          children: [
+            Icon(icon, size: 32, color: FudiColors.primary),
+            const SizedBox(height: 8),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          ],
+        ),
+      ),
     );
   }
 }

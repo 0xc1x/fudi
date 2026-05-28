@@ -23,7 +23,11 @@ class NoBusinessPrompt extends StatelessWidget {
                 color: FudiColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(FudiIcons.storefront, size: 64, color: FudiColors.primary),
+              child: const Icon(
+                FudiIcons.storefront,
+                size: 64,
+                color: FudiColors.primary,
+              ),
             ),
             const SizedBox(height: 32),
             const Text(
@@ -41,14 +45,20 @@ class NoBusinessPrompt extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => context.pushNamed(RouteNames.businessLocationCreate),
+                onPressed: () =>
+                    context.pushNamed(RouteNames.businessLocationCreate),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: FudiColors.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                child: const Text('Configurar mi primer local', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Configurar mi primer local',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ],

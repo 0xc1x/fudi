@@ -65,10 +65,7 @@ class BusinessProfile {
 
 /// A single day's opening hours for a business.
 class BusinessHours {
-  const BusinessHours({
-    required this.day,
-    required this.hours,
-  });
+  const BusinessHours({required this.day, required this.hours});
 
   /// Display label, e.g. "Lunes - Viernes"
   final String day;

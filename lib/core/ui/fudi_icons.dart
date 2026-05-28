@@ -45,4 +45,8 @@ class FudiIcons {
   static const IconData arrowLeft = Icons.arrow_back_rounded;
   static const IconData messageSquare = Icons.chat_bubble_rounded;
   static const IconData phone = Icons.phone_rounded;
+  static const IconData qrCode = Icons.qr_code_rounded;
+  static const IconData trendingUp = Icons.trending_up_rounded;
+  static const IconData tag = Icons.sell_rounded;
+  static const IconData plus = Icons.add_rounded;
 }

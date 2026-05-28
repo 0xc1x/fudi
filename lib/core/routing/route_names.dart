@@ -115,6 +115,9 @@ class RouteNames {
   static const businessCouponEdit = 'business-coupon-edit';
   static const businessCouponEditPath = '/business/coupons/:id/edit';
 
+  static const businessCouponCreate = 'business-coupon-create';
+  static const businessCouponCreatePath = '/business/coupons/create';
+
   static const businessLocations = 'business-locations';
   static const businessLocationsPath = '/business/locations';
 

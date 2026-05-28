@@ -9,7 +9,7 @@ import '../domain/business_catalog_repository.dart';
 
 class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
   SupabaseBusinessCatalogRepository({required SupabaseClient supabaseClient})
-      : _supabaseClient = supabaseClient;
+    : _supabaseClient = supabaseClient;
 
   final SupabaseClient _supabaseClient;
 
@@ -47,7 +47,10 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
       String? imageUrl;
 
       if (imageFile != null) {
-        imageUrl = await _uploadXFile(imageFile, 'products/${offer.businessId}_${DateTime.now().millisecondsSinceEpoch}.jpg');
+        imageUrl = await _uploadXFile(
+          imageFile,
+          'products/${offer.businessId}_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
       } else if (offer.imageUrl != null && offer.imageUrl!.startsWith('http')) {
         imageUrl = offer.imageUrl;
       }
@@ -77,7 +80,10 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
       String? imageUrl;
 
       if (imageFile != null) {
-        imageUrl = await _uploadXFile(imageFile, 'products/${offer.businessId}_${DateTime.now().millisecondsSinceEpoch}.jpg');
+        imageUrl = await _uploadXFile(
+          imageFile,
+          'products/${offer.businessId}_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        );
       } else if (offer.imageUrl != null && offer.imageUrl!.startsWith('http')) {
         imageUrl = offer.imageUrl;
       }
@@ -108,9 +114,18 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
 
       await _supabaseClient.storage
           .from('product_images')
-          .uploadBinary(remotePath, bytes, fileOptions: const FileOptions(contentType: 'image/jpeg', upsert: true));
+          .uploadBinary(
+            remotePath,
+            bytes,
+            fileOptions: const FileOptions(
+              contentType: 'image/jpeg',
+              upsert: true,
+            ),
+          );
 
-      return _supabaseClient.storage.from('product_images').getPublicUrl(remotePath);
+      return _supabaseClient.storage
+          .from('product_images')
+          .getPublicUrl(remotePath);
     } catch (e) {
       return xFile.path;
     }
@@ -141,7 +156,9 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al cambiar el estado de la oferta');
+      throw UnknownDataException(
+        message: 'Error al cambiar el estado de la oferta',
+      );
     }
   }
 

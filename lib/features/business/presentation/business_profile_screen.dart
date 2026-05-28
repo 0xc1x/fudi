@@ -100,187 +100,189 @@ class _BusinessProfileContentState
         children: [
           CustomScrollView(
             slivers: [
-        SliverToBoxAdapter(
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              SizedBox(
-                height: 220,
-                width: double.infinity,
-                child: profile.coverImageUrl != null
-                    ? CachedNetworkImage(
-                        imageUrl: profile.coverImageUrl!,
-                        fit: BoxFit.cover,
-                        errorWidget: (_, _, _) => Container(
-                          color: FudiColors.primary,
-                          child: const Icon(
-                            Icons.store,
-                            size: 64,
-                            color: Colors.white,
+              SliverToBoxAdapter(
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    SizedBox(
+                      height: 220,
+                      width: double.infinity,
+                      child: profile.coverImageUrl != null
+                          ? CachedNetworkImage(
+                              imageUrl: profile.coverImageUrl!,
+                              fit: BoxFit.cover,
+                              errorWidget: (_, _, _) => Container(
+                                color: FudiColors.primary,
+                                child: const Icon(
+                                  Icons.store,
+                                  size: 64,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          : Container(
+                              color: FudiColors.primary,
+                              child: const Icon(
+                                Icons.store,
+                                size: 64,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                    Positioned(
+                      top: MediaQuery.of(context).padding.top + 12,
+                      left: 16,
+                      right: 16,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _CircleButton(
+                            onTap: () => context.pop(),
+                            icon: FudiIcons.chevronLeft,
                           ),
+                          Row(
+                            children: [
+                              _CircleButton(
+                                onTap: () =>
+                                    setState(() => _isFavorite = !_isFavorite),
+                                icon: _isFavorite
+                                    ? FudiIcons.heart
+                                    : FudiIcons.heartOutline,
+                                iconColor: _isFavorite
+                                    ? const Color(0xFFEF4444)
+                                    : FudiColors.foreground,
+                              ),
+                              const SizedBox(width: 8),
+                              _CircleButton(
+                                onTap: () {},
+                                icon: Icons.share_rounded,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: -32,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: FudiColors.background,
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(FudiRadius.xxl),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color(0x0D000000),
+                              blurRadius: 10,
+                              offset: Offset(0, -4),
+                            ),
+                          ],
                         ),
-                      )
-                    : Container(
-                        color: FudiColors.primary,
-                        child: const Icon(
-                          Icons.store,
-                          size: 64,
-                          color: Colors.white,
+                        padding: const EdgeInsets.all(FudiSpacing.lg),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Business Logo
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(
+                                  FudiRadius.lg,
+                                ),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 4,
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color(0x1A000000),
+                                    blurRadius: 8,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  FudiRadius.lg - 4,
+                                ),
+                                child: profile.imageUrl != null
+                                    ? CachedNetworkImage(
+                                        imageUrl: profile.imageUrl!,
+                                        fit: BoxFit.cover,
+                                        errorWidget: (_, _, _) => Container(
+                                          color: FudiColors.muted,
+                                          child: const Icon(
+                                            Icons.store,
+                                            size: 32,
+                                            color: FudiColors.mutedForeground,
+                                          ),
+                                        ),
+                                      )
+                                    : Container(
+                                        color: FudiColors.muted,
+                                        child: const Icon(
+                                          Icons.store,
+                                          size: 32,
+                                          color: FudiColors.mutedForeground,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                            const SizedBox(width: FudiSpacing.md),
+                            // Business Information
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    profile.name,
+                                    style: FudiTypography.h2.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 24,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    profile.type,
+                                    style: FudiTypography.bodyMedium.copyWith(
+                                      color: FudiColors.mutedForeground,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      _StarRating(rating: profile.rating),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        profile.rating.toStringAsFixed(1),
+                                        style: FudiTypography.labelSmall,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '(${profile.reviewCount} reseñas)',
+                                        style: FudiTypography.bodySmall,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-              ),
-              Positioned(
-                top: MediaQuery.of(context).padding.top + 12,
-                left: 16,
-                right: 16,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _CircleButton(
-                      onTap: () => context.pop(),
-                      icon: FudiIcons.chevronLeft,
-                    ),
-                    Row(
-                      children: [
-                        _CircleButton(
-                          onTap: () => setState(
-                            () => _isFavorite = !_isFavorite,
-                          ),
-                          icon: _isFavorite
-                              ? FudiIcons.heart
-                              : FudiIcons.heartOutline,
-                          iconColor: _isFavorite
-                              ? const Color(0xFFEF4444)
-                              : FudiColors.foreground,
-                        ),
-                        const SizedBox(width: 8),
-                        _CircleButton(
-                          onTap: () {},
-                          icon: Icons.share_rounded,
-                        ),
-                      ],
                     ),
                   ],
                 ),
               ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: -32,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: FudiColors.background,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(FudiRadius.xxl),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0x0D000000),
-                        blurRadius: 10,
-                        offset: Offset(0, -4),
-                      ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.all(FudiSpacing.lg),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Business Logo
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(FudiRadius.lg),
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 4,
-                          ),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x1A000000),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius:
-                              BorderRadius.circular(FudiRadius.lg - 4),
-                          child: profile.imageUrl != null
-                              ? CachedNetworkImage(
-                                  imageUrl: profile.imageUrl!,
-                                  fit: BoxFit.cover,
-                                  errorWidget: (_, _, _) => Container(
-                                    color: FudiColors.muted,
-                                    child: const Icon(
-                                      Icons.store,
-                                      size: 32,
-                                      color: FudiColors.mutedForeground,
-                                    ),
-                                  ),
-                                )
-                              : Container(
-                                  color: FudiColors.muted,
-                                  child: const Icon(
-                                    Icons.store,
-                                    size: 32,
-                                    color: FudiColors.mutedForeground,
-                                  ),
-                                ),
-                        ),
-                      ),
-                      const SizedBox(width: FudiSpacing.md),
-                      // Business Information
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              profile.name,
-                              style: FudiTypography.h2.copyWith(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 24,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              profile.type,
-                              style: FudiTypography.bodyMedium.copyWith(
-                                color: FudiColors.mutedForeground,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                _StarRating(rating: profile.rating),
-                                const SizedBox(width: 8),
-                                Text(
-                                  profile.rating.toStringAsFixed(1),
-                                  style: FudiTypography.labelSmall,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '(${profile.reviewCount} reseñas)',
-                                  style: FudiTypography.bodySmall,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
 
-        // ─── Content Sections ─────────────────────────────
-        SliverToBoxAdapter(
-          child: Transform.translate(
-            offset: const Offset(0, -32),
+              // ─── Content Sections ─────────────────────────────
+              SliverToBoxAdapter(
+                child: Transform.translate(
+                  offset: const Offset(0, -32),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: FudiSpacing.lg,
@@ -421,10 +423,7 @@ class _ContactInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Información de contacto',
-            style: FudiTypography.labelMedium,
-          ),
+          Text('Información de contacto', style: FudiTypography.labelMedium),
           const SizedBox(height: FudiSpacing.lg),
           // Address
           _ContactRow(
@@ -434,10 +433,8 @@ class _ContactInfoCard extends StatelessWidget {
             trailing: profile.latitude != null && profile.longitude != null
                 ? _TextLink(
                     text: 'Cómo llegar →',
-                    onTap: () => _openMaps(
-                      profile.latitude!,
-                      profile.longitude!,
-                    ),
+                    onTap: () =>
+                        _openMaps(profile.latitude!, profile.longitude!),
                   )
                 : null,
           ),
@@ -498,11 +495,7 @@ class _OpeningHoursCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(
-                FudiIcons.clock,
-                size: 20,
-                color: FudiColors.primary,
-              ),
+              const Icon(FudiIcons.clock, size: 20, color: FudiColors.primary),
               const SizedBox(width: FudiSpacing.sm),
               Text('Horario', style: FudiTypography.labelMedium),
             ],
@@ -520,10 +513,7 @@ class _OpeningHoursCard extends StatelessWidget {
                       color: FudiColors.mutedForeground,
                     ),
                   ),
-                  Text(
-                    h.hours,
-                    style: FudiTypography.labelSmall,
-                  ),
+                  Text(h.hours, style: FudiTypography.labelSmall),
                 ],
               ),
             ),
@@ -624,9 +614,7 @@ class _ReviewItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(bottom: FudiSpacing.lg),
       decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: FudiColors.borderSolid),
-        ),
+        border: Border(bottom: BorderSide(color: FudiColors.borderSolid)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -653,24 +641,15 @@ class _ReviewItem extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      review.userName,
-                      style: FudiTypography.labelSmall,
-                    ),
-                    Text(
-                      dateStr,
-                      style: FudiTypography.bodySmall,
-                    ),
+                    Text(review.userName, style: FudiTypography.labelSmall),
+                    Text(dateStr, style: FudiTypography.bodySmall),
                   ],
                 ),
                 const SizedBox(height: 2),
                 _StarRating(rating: review.rating.toDouble(), size: 14),
                 if (review.productName != null) ...[
                   const SizedBox(height: 2),
-                  Text(
-                    review.productName!,
-                    style: FudiTypography.bodySmall,
-                  ),
+                  Text(review.productName!, style: FudiTypography.bodySmall),
                 ],
                 if (review.comment != null) ...[
                   const SizedBox(height: 4),
@@ -692,8 +671,19 @@ class _ReviewItem extends StatelessWidget {
 
   String _formatDate(DateTime dt) {
     const months = [
-      '', 'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-      'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
+      '',
+      'ene',
+      'feb',
+      'mar',
+      'abr',
+      'may',
+      'jun',
+      'jul',
+      'ago',
+      'sep',
+      'oct',
+      'nov',
+      'dic',
     ];
     return '${dt.day} ${months[dt.month]}';
   }
@@ -707,8 +697,7 @@ class _LocationCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hasCoords =
-        profile.latitude != null && profile.longitude != null;
+    final hasCoords = profile.latitude != null && profile.longitude != null;
 
     return FudiSurfaceCard(
       child: Column(
@@ -731,19 +720,13 @@ class _LocationCard extends ConsumerWidget {
                 height: 192,
                 child: GoogleMap(
                   initialCameraPosition: CameraPosition(
-                    target: LatLng(
-                      profile.latitude!,
-                      profile.longitude!,
-                    ),
+                    target: LatLng(profile.latitude!, profile.longitude!),
                     zoom: 15,
                   ),
                   markers: {
                     Marker(
                       markerId: MarkerId(profile.id),
-                      position: LatLng(
-                        profile.latitude!,
-                        profile.longitude!,
-                      ),
+                      position: LatLng(profile.latitude!, profile.longitude!),
                       infoWindow: InfoWindow(title: profile.name),
                     ),
                   },
@@ -751,10 +734,8 @@ class _LocationCard extends ConsumerWidget {
                   mapToolbarEnabled: false,
                   myLocationButtonEnabled: false,
                   compassEnabled: false,
-                  onTap: (_) => _openMaps(
-                    profile.latitude!,
-                    profile.longitude!,
-                  ),
+                  onTap: (_) =>
+                      _openMaps(profile.latitude!, profile.longitude!),
                 ),
               ),
             ),
@@ -762,18 +743,13 @@ class _LocationCard extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: () => _openMaps(
-                  profile.latitude!,
-                  profile.longitude!,
-                ),
+                onPressed: () =>
+                    _openMaps(profile.latitude!, profile.longitude!),
                 style: FilledButton.styleFrom(
                   backgroundColor: FudiColors.primary,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: FudiSpacing.md,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(FudiRadius.lg),
+                    borderRadius: BorderRadius.circular(FudiRadius.lg),
                   ),
                 ),
                 child: Text(
@@ -843,11 +819,23 @@ class _StarRating extends StatelessWidget {
       children: List.generate(5, (i) {
         final starValue = i + 1;
         if (rating >= starValue) {
-          return Icon(Icons.star_rounded, size: size, color: const Color(0xFFFACC15));
+          return Icon(
+            Icons.star_rounded,
+            size: size,
+            color: const Color(0xFFFACC15),
+          );
         } else if (rating >= starValue - 0.5) {
-          return Icon(Icons.star_half_rounded, size: size, color: const Color(0xFFFACC15));
+          return Icon(
+            Icons.star_half_rounded,
+            size: size,
+            color: const Color(0xFFFACC15),
+          );
         }
-        return Icon(Icons.star_outline_rounded, size: size, color: const Color(0xFFFACC15));
+        return Icon(
+          Icons.star_outline_rounded,
+          size: size,
+          color: const Color(0xFFFACC15),
+        );
       }),
     );
   }
@@ -901,10 +889,7 @@ class _ContactRow extends StatelessWidget {
                     color: FudiColors.mutedForeground,
                   ),
                 ),
-              if (trailing != null) ...[
-                const SizedBox(height: 4),
-                trailing!,
-              ],
+              if (trailing != null) ...[const SizedBox(height: 4), trailing!],
             ],
           ),
         ),
@@ -926,9 +911,7 @@ class _TextLink extends StatelessWidget {
       onTap: onTap,
       child: Text(
         text,
-        style: FudiTypography.bodyMedium.copyWith(
-          color: FudiColors.primary,
-        ),
+        style: FudiTypography.bodyMedium.copyWith(color: FudiColors.primary),
       ),
     );
   }
