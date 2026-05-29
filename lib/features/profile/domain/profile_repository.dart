@@ -22,6 +22,8 @@ abstract class ProfileRepository {
 
   Future<void> setDefaultAddress(String userId, String addressId);
 
+  Future<void> updateSavedAddress(String userId, String addressId, SavedAddressInput input);
+
   Future<void> deleteSavedAddress(String userId, String addressId);
 
   Future<List<PaymentMethod>> getPaymentMethods(String userId);

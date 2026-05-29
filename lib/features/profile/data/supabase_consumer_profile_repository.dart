@@ -101,9 +101,28 @@ class SupabaseConsumerProfileRepository {
             latitude: (row['latitude'] as num).toDouble(),
             longitude: (row['longitude'] as num).toDouble(),
             isDefault: row['is_default'] as bool? ?? false,
+            type: _parseAddressType(row['type'] as String?),
+            references: row['references'] as String?,
+            housingType: _parseHousingType(row['housing_type'] as String?),
           ),
         )
         .toList();
+  }
+
+  static AddressType _parseAddressType(String? value) {
+    if (value == null) return AddressType.other;
+    return AddressType.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => AddressType.other,
+    );
+  }
+
+  static HousingType? _parseHousingType(String? value) {
+    if (value == null) return null;
+    return HousingType.values.cast<HousingType?>().firstWhere(
+      (e) => e?.name == value,
+      orElse: () => null,
+    );
   }
 
   Future<void> saveAddress({
@@ -111,6 +130,9 @@ class SupabaseConsumerProfileRepository {
     required String address,
     required double latitude,
     required double longitude,
+    AddressType type = AddressType.other,
+    String? references,
+    HousingType? housingType,
   }) async {
     final userId = _supabaseClient.auth.currentUser?.id;
     if (userId == null) return;
@@ -124,11 +146,50 @@ class SupabaseConsumerProfileRepository {
       'latitude': latitude,
       'longitude': longitude,
       'is_default': current.isEmpty,
+      'type': type.name,
+      'references': references,
+      'housing_type': housingType?.name,
     });
   }
 
   Future<void> deleteAddress(String id) async {
     await _supabaseClient.from('saved_addresses').delete().eq('id', id);
+  }
+
+  Future<void> updateAddress({
+    required String id,
+    required String label,
+    required String address,
+    required double latitude,
+    required double longitude,
+    AddressType type = AddressType.other,
+    String? references,
+    HousingType? housingType,
+    bool isDefault = false,
+  }) async {
+    final userId = _supabaseClient.auth.currentUser?.id;
+    if (userId == null) return;
+
+    if (isDefault) {
+      await _supabaseClient
+          .from('saved_addresses')
+          .update({'is_default': false})
+          .eq('user_id', userId);
+    }
+
+    await _supabaseClient
+        .from('saved_addresses')
+        .update({
+          'label': label,
+          'address': address,
+          'latitude': latitude,
+          'longitude': longitude,
+          'is_default': isDefault,
+          'type': type.name,
+          'references': references,
+          'housing_type': housingType?.name,
+        })
+        .eq('id', id);
   }
 
   Future<void> setDefaultAddress(String id) async {

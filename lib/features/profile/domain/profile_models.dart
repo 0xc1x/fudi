@@ -1,3 +1,7 @@
+enum AddressType { home, work, other }
+
+enum HousingType { apartment, house, office, building, other }
+
 class ProfileDetails {
   const ProfileDetails({
     required this.id,
@@ -155,6 +159,9 @@ class SavedAddress {
     required this.latitude,
     required this.longitude,
     required this.isDefault,
+    this.type = AddressType.other,
+    this.references,
+    this.housingType,
   });
 
   final String id;
@@ -163,6 +170,9 @@ class SavedAddress {
   final double latitude;
   final double longitude;
   final bool isDefault;
+  final AddressType type;
+  final String? references;
+  final HousingType? housingType;
 }
 
 class SavedAddressInput {
@@ -172,6 +182,9 @@ class SavedAddressInput {
     required this.latitude,
     required this.longitude,
     required this.isDefault,
+    this.type = AddressType.other,
+    this.references,
+    this.housingType,
   });
 
   final String label;
@@ -179,6 +192,9 @@ class SavedAddressInput {
   final double latitude;
   final double longitude;
   final bool isDefault;
+  final AddressType type;
+  final String? references;
+  final HousingType? housingType;
 }
 
 class PaymentMethod {

@@ -137,7 +137,7 @@ class SupabaseProfileRepository implements ProfileRepository {
   Future<List<SavedAddress>> getSavedAddresses(String userId) async {
     final response = await _supabaseClient
         .from('saved_addresses')
-        .select('id, label, address, latitude, longitude, is_default')
+        .select('id, label, address, latitude, longitude, is_default, type, "references", housing_type')
         .eq('user_id', userId)
         .order('is_default', ascending: false)
         .order('created_at', ascending: false);
@@ -161,7 +161,39 @@ class SupabaseProfileRepository implements ProfileRepository {
       'latitude': input.latitude,
       'longitude': input.longitude,
       'is_default': input.isDefault,
+      'type': input.type.name,
+      'references': input.references,
+      'housing_type': input.housingType?.name,
     });
+  }
+
+  @override
+  Future<void> updateSavedAddress(
+    String userId,
+    String addressId,
+    SavedAddressInput input,
+  ) async {
+    if (input.isDefault) {
+      await _supabaseClient
+          .from('saved_addresses')
+          .update({'is_default': false})
+          .eq('user_id', userId);
+    }
+
+    await _supabaseClient
+        .from('saved_addresses')
+        .update({
+          'label': input.label.trim(),
+          'address': input.address.trim(),
+          'latitude': input.latitude,
+          'longitude': input.longitude,
+          'is_default': input.isDefault,
+          'type': input.type.name,
+          'references': input.references,
+          'housing_type': input.housingType?.name,
+        })
+        .eq('user_id', userId)
+        .eq('id', addressId);
   }
 
   @override
@@ -302,6 +334,25 @@ class SupabaseProfileRepository implements ProfileRepository {
       latitude: _toDouble(json['latitude']) ?? 0,
       longitude: _toDouble(json['longitude']) ?? 0,
       isDefault: json['is_default'] as bool? ?? false,
+      type: _parseAddressType(json['type'] as String?),
+      references: json['references'] as String?,
+      housingType: _parseHousingType(json['housing_type'] as String?),
+    );
+  }
+
+  static AddressType _parseAddressType(String? value) {
+    if (value == null) return AddressType.other;
+    return AddressType.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => AddressType.other,
+    );
+  }
+
+  static HousingType? _parseHousingType(String? value) {
+    if (value == null) return null;
+    return HousingType.values.cast<HousingType?>().firstWhere(
+      (e) => e?.name == value,
+      orElse: () => null,
     );
   }
 

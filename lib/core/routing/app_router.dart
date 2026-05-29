@@ -98,6 +98,7 @@ final _hideAppBarPaths = {
   RouteNames.explorePath,
   RouteNames.ordersPath,
   RouteNames.favoritesPath,
+  RouteNames.profilePath,
   RouteNames.businessProductsPath,
 };
 

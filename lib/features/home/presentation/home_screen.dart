@@ -43,23 +43,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final statsAsync = ref.watch(categoryStatsProvider);
 
     final hasLocation =
-        locationAsync.whenOrNull(
-          data: (position) => position != null,
-          error: (_, _) => false,
-        ) ??
-        false;
+      locationAsync.whenOrNull(
+        data: (position) => position != null,
+        error: (_, _) => false,
+      ) ??
+      false;
 
-    final selectedAddress = ref.watch(userSelectedAddressProvider);
-
-  return Scaffold(
+    return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: _HomeAppBar(
-          selectedLocation: selectedAddress,
-          onLocationTap: () => context.push('/profile/addresses'),
-        ),
-      ),
+    appBar: PreferredSize(
+      preferredSize: const Size.fromHeight(kToolbarHeight),
+      child: _HomeAppBar(),
+    ),
       body: RefreshIndicator(
         onRefresh: () async {
           if (_selectedCategoryId != null) {
@@ -200,13 +195,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const _HomeAppBar({
-    required this.selectedLocation,
-    required this.onLocationTap,
-  });
-
-  final SavedAddressModel? selectedLocation;
-  final VoidCallback onLocationTap;
+  const _HomeAppBar();
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -217,10 +206,7 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: FudiColors.ring,
       elevation: 0,
       scrolledUnderElevation: 0,
-      title: _LocationSelector(
-        selectedLocation: selectedLocation,
-        onTap: onLocationTap,
-      ),
+      title: const _LocationSelector(),
       centerTitle: false,
       actions: const [
         Padding(
@@ -232,35 +218,345 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-class _LocationSelector extends StatelessWidget {
-  const _LocationSelector({required this.selectedLocation, required this.onTap});
+class _LocationSelector extends ConsumerStatefulWidget {
+  const _LocationSelector();
 
-  final SavedAddressModel? selectedLocation;
+  @override
+  ConsumerState<_LocationSelector> createState() => _LocationSelectorState();
+}
+
+class _LocationSelectorState extends ConsumerState<_LocationSelector>
+    with SingleTickerProviderStateMixin {
+  bool _isOpen = false;
+  late AnimationController _chevronController;
+  OverlayEntry? _overlayEntry;
+  final LayerLink _layerLink = LayerLink();
+
+  @override
+  void initState() {
+    super.initState();
+    _chevronController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    _chevronController.dispose();
+    super.dispose();
+  }
+
+  void _toggleDropdown() {
+    if (_isOpen) {
+      _closeDropdown();
+    } else {
+      _openDropdown();
+    }
+  }
+
+  void _openDropdown() {
+    final overlay = Overlay.of(context);
+    final renderBox = context.findRenderObject() as RenderBox;
+    final size = renderBox.size;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => _LocationDropdownOverlay(
+        layerLink: _layerLink,
+        buttonWidth: size.width,
+        onClose: _closeDropdown,
+        onAddressSelected: _onAddressSelected,
+        onAddAddress: _onAddAddress,
+      ),
+    );
+
+    overlay.insert(_overlayEntry!);
+    setState(() => _isOpen = true);
+    _chevronController.forward();
+  }
+
+  void _closeDropdown() {
+    _removeOverlay();
+    if (mounted) {
+      setState(() => _isOpen = false);
+      _chevronController.reverse();
+    }
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  void _onAddressSelected(SavedAddressModel address) {
+    ref.read(userSelectedAddressProvider.notifier).select(address);
+    _closeDropdown();
+  }
+
+  void _onAddAddress() {
+    _closeDropdown();
+    context.push(RouteNames.savedAddressesPath);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedAddress = ref.watch(userSelectedAddressProvider);
+
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: GestureDetector(
+        onTap: _toggleDropdown,
+        behavior: HitTestBehavior.opaque,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(FudiIcons.mapPin, size: 16, color: FudiColors.primary),
+            const SizedBox(width: FudiSpacing.xs),
+            Text(
+              selectedAddress?.label ?? 'Seleccionar ubicación',
+              style: const TextStyle(
+                color: FudiColors.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(width: 2),
+            RotationTransition(
+              turns: Tween(begin: 0.0, end: 0.5).animate(_chevronController),
+              child: const Icon(
+                FudiIcons.chevronDown,
+                size: 16,
+                color: FudiColors.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Full-screen dismiss barrier + positioned dropdown panel.
+///
+/// Uses [ConsumerWidget] to access providers directly instead of passing
+/// [WidgetRef] through the constructor — avoids stale-ref issues.
+class _LocationDropdownOverlay extends ConsumerWidget {
+  const _LocationDropdownOverlay({
+    required this.layerLink,
+    required this.buttonWidth,
+    required this.onClose,
+    required this.onAddressSelected,
+    required this.onAddAddress,
+  });
+
+  final LayerLink layerLink;
+  final double buttonWidth;
+  final VoidCallback onClose;
+  final ValueChanged<SavedAddressModel> onAddressSelected;
+  final VoidCallback onAddAddress;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final addressesAsync = ref.watch(savedAddressesProvider);
+    final selectedAddress = ref.watch(userSelectedAddressProvider);
+
+    return Stack(
+      children: [
+        // Dismiss barrier — covers entire screen
+        Positioned.fill(
+          child: GestureDetector(
+            onTap: onClose,
+            behavior: HitTestBehavior.opaque,
+            child: const ColoredBox(color: Colors.transparent),
+          ),
+        ),
+        // Dropdown panel positioned below the selector button
+        CompositedTransformFollower(
+          link: layerLink,
+          showWhenUnlinked: false,
+          offset: const Offset(0, _kDropdownTopOffset),
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              constraints: BoxConstraints(
+                minWidth: buttonWidth,
+                maxWidth: _kDropdownMaxWidth,
+              ),
+              decoration: BoxDecoration(
+                color: FudiColors.inputBackground,
+                borderRadius: BorderRadius.circular(FudiRadius.xl),
+                border: Border.all(color: FudiColors.borderSolid),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x1A000000),
+                    blurRadius: 20,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: addressesAsync.when(
+                data: (addresses) => _DropdownContent(
+                  addresses: addresses,
+                  selectedAddress: selectedAddress,
+                  onAddressSelected: onAddressSelected,
+                  onAddAddress: onAddAddress,
+                ),
+                loading: () => const Padding(
+                  padding: EdgeInsets.all(FudiSpacing.lg),
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                ),
+                error: (_, _) => Padding(
+                  padding: const EdgeInsets.all(FudiSpacing.lg),
+                  child: Text(
+                    'Error al cargar direcciones',
+                    style: FudiTypography.bodySmall.copyWith(
+                      color: FudiColors.destructive,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Inner content of the dropdown: address list + add link.
+class _DropdownContent extends StatelessWidget {
+  const _DropdownContent({
+    required this.addresses,
+    required this.selectedAddress,
+    required this.onAddressSelected,
+    required this.onAddAddress,
+  });
+
+  final List<SavedAddressModel> addresses;
+  final SavedAddressModel? selectedAddress;
+  final ValueChanged<SavedAddressModel> onAddressSelected;
+  final VoidCallback onAddAddress;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Address list
+        for (final address in addresses)
+          _AddressItem(
+            address: address,
+            isSelected: address.id == selectedAddress?.id,
+            onTap: () => onAddressSelected(address),
+          ),
+        // Divider + add new address link
+        const Divider(
+          height: 1,
+          thickness: 1,
+          color: FudiColors.borderSolid,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: FudiSpacing.lg,
+            vertical: FudiSpacing.md,
+          ),
+          child: GestureDetector(
+            onTap: onAddAddress,
+            child: Text(
+              '+ Agregar nueva dirección',
+              style: FudiTypography.bodyMedium.copyWith(
+                color: FudiColors.primary,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Single address row in the dropdown.
+class _AddressItem extends StatelessWidget {
+  const _AddressItem({
+    required this.address,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final SavedAddressModel address;
+  final bool isSelected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.location_on, size: 18, color: FudiColors.primary),
-          const SizedBox(width: 4),
-          Text(
-            selectedLocation?.label ?? 'Seleccionar ubicación',
-            style: const TextStyle(
-              color: FudiColors.primary,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
+      child: Container(
+        color: isSelected ? const Color(0x0DFA4743) : null,
+        padding: const EdgeInsets.symmetric(
+          horizontal: FudiSpacing.lg,
+          vertical: FudiSpacing.md,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Map pin icon — primary if selected, muted otherwise
+            Icon(
+              FudiIcons.mapPin,
+              size: 16,
+              color: isSelected ? FudiColors.primary : FudiColors.mutedForeground,
             ),
-          ),
-          const Icon(Icons.keyboard_arrow_down, size: 18, color: FudiColors.primary),
-        ],
+            const SizedBox(width: FudiSpacing.sm),
+            // Name + address
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    address.label,
+                    style: FudiTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: isSelected ? FudiColors.primary : FudiColors.foreground,
+                    ),
+                  ),
+                  Text(
+                    address.address,
+                    style: FudiTypography.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+            // Blue dot indicator for selected
+            if (isSelected) ...[
+              const SizedBox(width: FudiSpacing.sm),
+              Container(
+                width: 8,
+                height: 8,
+                margin: const EdgeInsets.only(top: 4),
+                decoration: const BoxDecoration(
+                  color: FudiColors.primary,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
 }
+
+/// Layout constants for the dropdown overlay.
+const double _kDropdownTopOffset = 8.0;
+const double _kDropdownMaxWidth = 280.0;
 
 
 class _CategoryChips extends StatelessWidget {
