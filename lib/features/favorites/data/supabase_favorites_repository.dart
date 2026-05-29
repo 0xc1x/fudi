@@ -1,20 +1,22 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../domain/favorite_offer.dart';
 import '../domain/favorites_repository.dart';
 
 class SupabaseFavoritesRepository implements FavoritesRepository {
   SupabaseFavoritesRepository({required SupabaseClient supabaseClient})
-    : _supabaseClient = supabaseClient;
+      : _client = supabaseClient;
 
-  final SupabaseClient _supabaseClient;
+  final SupabaseClient _client;
+
+  static const _table = 'favorites';
 
   @override
   Future<List<FavoriteOffer>> getFavorites(String userId) async {
-    final response = await _supabaseClient
-        .from('favorites')
+    final response = await _client
+        .from(_table)
         .select('''
           id,
+          offer_id,
           offers:offer_id (
             id,
             title,
@@ -32,26 +34,59 @@ class SupabaseFavoritesRepository implements FavoritesRepository {
         .eq('user_id', userId)
         .order('created_at', ascending: false);
 
-    return response.map(_mapFavorite).toList();
+    return (response as List).map(_mapFavorite).toList();
+  }
+
+  @override
+  Future<Set<String>> getFavoriteOfferIds(String userId) async {
+    final response = await _client
+        .from(_table)
+        .select('offer_id')
+        .eq('user_id', userId);
+
+    return (response as List)
+        .map((row) => row['offer_id'] as String)
+        .toSet();
+  }
+
+  @override
+  Future<String> addFavorite(String userId, String offerId) async {
+    final response = await _client
+        .from(_table)
+        .insert({'user_id': userId, 'offer_id': offerId})
+        .select('id')
+        .single();
+
+    return response['id'] as String;
   }
 
   @override
   Future<void> removeFavorite(String userId, String favoriteId) async {
-    await _supabaseClient
-        .from('favorites')
+    await _client
+        .from(_table)
         .delete()
         .eq('user_id', userId)
         .eq('id', favoriteId);
   }
 
-  FavoriteOffer _mapFavorite(Map<String, dynamic> json) {
+  @override
+  Future<void> removeFavoriteByOfferId(String userId, String offerId) async {
+    await _client
+        .from(_table)
+        .delete()
+        .eq('user_id', userId)
+        .eq('offer_id', offerId);
+  }
+
+  FavoriteOffer _mapFavorite(dynamic row) {
+    final json = row as Map<String, dynamic>;
     final offerJson = json['offers'] as Map<String, dynamic>? ?? const {};
     final businessJson =
         offerJson['businesses'] as Map<String, dynamic>? ?? const {};
 
     return FavoriteOffer(
       favoriteId: json['id'] as String,
-      offerId: offerJson['id'] as String? ?? '',
+      offerId: offerJson['id'] as String? ?? json['offer_id'] as String? ?? '',
       businessName: businessJson['name'] as String? ?? 'Negocio',
       address: businessJson['address'] as String? ?? '',
       category: offerJson['category'] as String?,

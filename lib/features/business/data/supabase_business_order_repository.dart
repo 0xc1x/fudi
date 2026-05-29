@@ -41,7 +41,7 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
         .stream(primaryKey: ['id'])
         .eq('business_id', businessId)
         .order('created_at', ascending: false)
-        .map((rows) => rows.map(_mapOrderFromJson).toList());
+        .asyncMap((_) => getBusinessOrders(businessId));
   }
 
   @override

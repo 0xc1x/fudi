@@ -14,25 +14,8 @@ import '../../../core/ui/fudi_sticky_page_header.dart';
 import '../../../core/ui/fudi_surface_card.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../auth/presentation/auth_state_provider.dart';
-import '../data/supabase_favorites_repository.dart';
 import '../domain/favorite_offer.dart';
-import '../domain/favorites_repository.dart';
-
-final favoritesRepositoryProvider = Provider<FavoritesRepository>((ref) {
-  return SupabaseFavoritesRepository(
-    supabaseClient: ref.watch(supabaseClientProvider),
-  );
-});
-
-final favoriteOffersProvider = FutureProvider<List<FavoriteOffer>>((ref) async {
-  final userId = ref.watch(
-    authSessionNotifierProvider.select((state) => state.profile?.id),
-  );
-  if (userId == null) return const [];
-
-  final repository = ref.watch(favoritesRepositoryProvider);
-  return repository.getFavorites(userId);
-});
+import 'favorites_providers.dart';
 
 class FavoritesScreen extends ConsumerWidget {
   const FavoritesScreen({super.key});
@@ -82,14 +65,9 @@ class FavoritesScreen extends ConsumerWidget {
                       onRemove: userId == null
                           ? null
                           : () async {
-                              final repository = ref.read(
-                                favoritesRepositoryProvider,
-                              );
-                              await repository.removeFavorite(
-                                userId,
-                                favorite.favoriteId,
-                              );
-                              ref.invalidate(favoriteOffersProvider);
+                              await ref
+                                  .read(favoritedOfferIdsProvider.notifier)
+                                  .toggleFavorite(favorite.offerId);
                             },
                     ),
                   ),
@@ -102,6 +80,7 @@ class FavoritesScreen extends ConsumerWidget {
     );
   }
 }
+
 
 class _FavoriteCard extends StatelessWidget {
   const _FavoriteCard({

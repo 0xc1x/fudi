@@ -18,7 +18,7 @@ import '../../features/orders/presentation/order_history_screen.dart';
 import '../../features/orders/presentation/order_detail_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/profile/presentation/profile_edit_screen.dart';
-import '../../features/profile/presentation/favorites_screen.dart';
+import '../../features/favorites/presentation/favorites_screen.dart';
 import '../../features/profile/presentation/saved_addresses_screen.dart';
 import '../../features/profile/presentation/payment_methods_screen.dart';
 import '../../features/profile/presentation/notification_settings_screen.dart';

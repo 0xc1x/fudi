@@ -28,6 +28,7 @@ class RouteGuards {
 
   /// Public routes accessible without authentication.
   static const _publicRoutes = {
+    RouteNames.splashPath,
     RouteNames.loginPath,
     RouteNames.signupPath,
     RouteNames.updatePasswordPath,

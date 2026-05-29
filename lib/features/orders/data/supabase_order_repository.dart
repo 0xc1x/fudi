@@ -133,12 +133,7 @@ class SupabaseOrderRepository implements OrderRepository {
         .from('orders')
         .stream(primaryKey: ['id'])
         .eq('id', id)
-        .map((events) {
-          if (events.isEmpty) {
-            throw const NotFoundException(message: 'Pedido no encontrado');
-          }
-          return _mapOrderFromJson(events.first);
-        });
+        .asyncMap((_) => getOrderById(id));
   }
 
   @override
@@ -152,7 +147,7 @@ class SupabaseOrderRepository implements OrderRepository {
         .stream(primaryKey: ['id'])
         .eq('user_id', userId)
         .order('created_at')
-        .map((events) => events.map(_mapOrderFromJson).toList());
+        .asyncMap((_) => getUserOrders());
   }
 
   @override

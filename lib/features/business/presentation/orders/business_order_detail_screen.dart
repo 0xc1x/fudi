@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
@@ -316,9 +315,9 @@ class _PickupInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pickupTimeStr = order.pickupTime != null
-        ? DateFormat.Hm().format(order.pickupTime!)
-        : 'Pendiente';
+  final pickupTimeStr = order.pickupTime != null
+      ? '${order.pickupTime!.hour.toString().padLeft(2, '0')}:${order.pickupTime!.minute.toString().padLeft(2, '0')}'
+      : 'Pendiente';
     return FudiSurfaceCard(
       padding: const EdgeInsets.all(FudiSpacing.md),
       child: Column(
@@ -420,8 +419,8 @@ class _StatusHistoryCard extends StatelessWidget {
       iconColor: pendingConfig.iconColor,
       bgColor: pendingConfig.backgroundColor,
       label: 'Pendiente',
-      time: DateFormat.Hm().format(order.createdAt),
-      date: DateFormat.yMMMd('es').format(order.createdAt),
+      time: '${order.createdAt.hour.toString().padLeft(2, '0')}:${order.createdAt.minute.toString().padLeft(2, '0')}',
+      date: '${order.createdAt.day.toString().padLeft(2, '0')}/${order.createdAt.month.toString().padLeft(2, '0')}/${order.createdAt.year}',
       note: 'Pedido recibido',
       isLast: order.status == OrderStatus.pending,
     ));
@@ -651,8 +650,8 @@ class _OrderInfoCard extends StatelessWidget {
                     color: FudiColors.mutedForeground,
                   ),
                 ),
-                Text(
-                  DateFormat.yMMMd('es').format(order.createdAt),
+        Text(
+          '${order.createdAt.day.toString().padLeft(2, '0')}/${order.createdAt.month.toString().padLeft(2, '0')}/${order.createdAt.year}',
                   style: FudiTypography.bodyMedium.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
@@ -689,38 +688,40 @@ class _ActionBottomBar extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (order.status == OrderStatus.pending ||
-              order.status == OrderStatus.confirmed)
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  await ref
-                      .read(businessOrderRepositoryProvider)
-                      .updateOrderStatus(
-                        order.id,
-                        OrderStatus.readyForPickup,
-                      );
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Pedido marcado como listo'),
-                      ),
+        if (order.status == OrderStatus.pending ||
+            order.status == OrderStatus.confirmed) ...[
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                await ref
+                    .read(businessOrderRepositoryProvider)
+                    .updateOrderStatus(
+                      order.id,
+                      OrderStatus.readyForPickup,
                     );
-                  }
-                },
-                icon: const Icon(Icons.check_circle_outline, size: 20),
-                label: const Text('Marcar como listo'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: FudiColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Pedido marcado como listo'),
+                    ),
+                  );
+                }
+              },
+              icon: const Icon(Icons.check_circle_outline, size: 20),
+              label: const Text('Marcar como listo'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: FudiColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),
+          ),
+          const SizedBox(height: FudiSpacing.sm),
+        ],
           if (order.status == OrderStatus.readyForPickup) ...[
             SizedBox(
               width: double.infinity,

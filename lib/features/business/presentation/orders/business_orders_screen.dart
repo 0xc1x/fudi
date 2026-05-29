@@ -58,8 +58,8 @@ class _OrdersContentState extends State<_OrdersContent> {
       .where((o) => _isToday(o.createdAt) && o.status.isActive)
       .toList();
 
-  List<OrderModel> get _completedOrders => widget.orders
-      .where((o) => o.status.isTerminal)
+  List<OrderModel> get _historyOrders => widget.orders
+      .where((o) => !(_isToday(o.createdAt) && o.status.isActive))
       .toList();
 
   int get _pendingCount =>
@@ -80,13 +80,13 @@ class _OrdersContentState extends State<_OrdersContent> {
   }
 
   List<Widget> _buildOrderList() {
-    final orders = _showToday ? _todayOrders : _completedOrders;
+    final orders = _showToday ? _todayOrders : _historyOrders;
     if (orders.isEmpty) {
       return [
-        _EmptyState(
+      _EmptyState(
           message: _showToday
-              ? 'No hay pedidos pendientes'
-              : 'No hay pedidos finalizados',
+          ? 'No hay pedidos pendientes'
+          : 'No hay pedidos en el historial',
         ),
       ];
     }
@@ -119,10 +119,10 @@ class _OrdersContentState extends State<_OrdersContent> {
                 todayCompletedCount: _todayCompletedCount,
               ),
               const SizedBox(height: FudiSpacing.md),
-              _TabSelector(
-                showToday: _showToday,
-                todayCount: _todayOrders.length,
-                completedCount: _completedOrders.length,
+        _TabSelector(
+          showToday: _showToday,
+          todayCount: _todayOrders.length,
+          historyCount: _historyOrders.length,
                 onTabChanged: (isToday) =>
                     setState(() => _showToday = isToday),
               ),
@@ -213,13 +213,13 @@ class _TabSelector extends StatelessWidget {
   const _TabSelector({
     required this.showToday,
     required this.todayCount,
-    required this.completedCount,
+    required this.historyCount,
     required this.onTabChanged,
   });
 
   final bool showToday;
   final int todayCount;
-  final int completedCount;
+  final int historyCount;
   final ValueChanged<bool> onTabChanged;
 
   @override
@@ -240,10 +240,10 @@ class _TabSelector extends StatelessWidget {
               onTap: () => onTabChanged(true),
             ),
           ),
-          Expanded(
-            child: _TabButton(
-              label: 'Historial ($completedCount)',
-              isActive: !showToday,
+        Expanded(
+          child: _TabButton(
+            label: 'Historial ($historyCount)',
+            isActive: !showToday,
               onTap: () => onTabChanged(false),
             ),
           ),

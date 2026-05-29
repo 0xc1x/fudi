@@ -42,10 +42,6 @@ final userOrdersProvider = FutureProvider<List<UserOrder>>((ref) async {
   return repo.getUserOrders(userId);
 });
 
-final favoriteOffersProvider = FutureProvider<List<Offer>>((ref) async {
-  return ref.watch(consumerProfileRepositoryProvider).getFavoriteOffers();
-});
-
 final savedAddressesProvider =
     FutureProvider<List<SavedAddressModel>>((ref) async {
   return ref.watch(consumerProfileRepositoryProvider).getSavedAddresses();

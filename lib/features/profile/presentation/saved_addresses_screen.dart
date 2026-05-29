@@ -828,12 +828,12 @@ class _AddAddressSheetState extends ConsumerState<_AddAddressSheet> {
                       : const Text('Guardar dirección'),
                 ),
 
-                const SizedBox(height: FudiSpacing.lg),
-              ],
-            ),
-          ),
-        ],
-      ),
+        const SizedBox(height: FudiSpacing.lg),
+      ],
+    ),
+    )),
+      ],
+    ),
     );
   }
 }

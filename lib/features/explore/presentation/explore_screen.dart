@@ -17,6 +17,7 @@ import '../../offers/presentation/offer_providers.dart';
 import 'explore_screen_content.dart';
 import 'fudi_filters.dart';
 import 'map_view.dart';
+import '../../favorites/presentation/favorites_providers.dart';
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
@@ -149,6 +150,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
   Widget _buildDealCard(BuildContext context, Offer offer) {
     final distance = _formatDistance(offer);
+    final isFavorite = ref.watch(favoritedOfferIdsProvider).contains(offer.id);
+
     return DealCard(
       imageUrl: offer.imageUrl ?? '',
       businessName: offer.business.name,
@@ -162,6 +165,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       categoryLabel: offer.categoryLabel.isNotEmpty
           ? offer.categoryLabel
           : null,
+      isFavorite: isFavorite,
+      onFavoriteToggle: () => ref
+          .read(favoritedOfferIdsProvider.notifier)
+          .toggleFavorite(offer.id),
       onTap: () => context.push('/product/${offer.id}'),
     );
   }

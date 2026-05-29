@@ -17,6 +17,7 @@ import '../../offers/domain/offer_repository.dart';
 import '../../offers/presentation/offer_providers.dart';
 import '../../profile/domain/saved_address_model.dart';
 import '../../profile/presentation/profile_providers.dart';
+import '../../favorites/presentation/favorites_providers.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -27,7 +28,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   String? _selectedCategoryId;
-
 
   void _onCategorySelected(String? categoryId) {
     setState(() => _selectedCategoryId = categoryId);
@@ -43,11 +43,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final statsAsync = ref.watch(categoryStatsProvider);
 
     final hasLocation =
-      locationAsync.whenOrNull(
-        data: (position) => position != null,
-        error: (_, _) => false,
-      ) ??
-      false;
+        locationAsync.whenOrNull(
+          data: (position) => position != null,
+          error: (_, _) => false,
+        ) ??
+        false;
 
     return Scaffold(
       backgroundColor: FudiColors.background,
@@ -58,8 +58,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: RefreshIndicator(
         onRefresh: () async {
           if (_selectedCategoryId != null) {
-            ref.read(popularOffersProvider.notifier).filterByCategory(_selectedCategoryId);
-            ref.read(nearbyOffersProvider.notifier).filterByCategory(_selectedCategoryId);
+            ref
+                .read(popularOffersProvider.notifier)
+                .filterByCategory(_selectedCategoryId);
+            ref
+                .read(nearbyOffersProvider.notifier)
+                .filterByCategory(_selectedCategoryId);
           } else {
             await ref.read(popularOffersProvider.notifier).refresh();
             await ref.read(nearbyOffersProvider.notifier).refresh();
@@ -69,16 +73,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: CustomScrollView(
           slivers: [
             statsAsync.when(
-          data: (stats) => SliverToBoxAdapter(
-            child: _CategoryChips(
-              stats: stats,
-              selectedCategoryId: _selectedCategoryId,
-              onSelected: _onCategorySelected,
+              data: (stats) => SliverToBoxAdapter(
+                child: _CategoryChips(
+                  stats: stats,
+                  selectedCategoryId: _selectedCategoryId,
+                  onSelected: _onCategorySelected,
+                ),
+              ),
+              loading: () =>
+                  const SliverToBoxAdapter(child: SizedBox(height: 40)),
+              error: (_, _) =>
+                  const SliverToBoxAdapter(child: SizedBox.shrink()),
             ),
-          ),
-          loading: () => const SliverToBoxAdapter(child: SizedBox(height: 40)),
-          error: (_, _) => const SliverToBoxAdapter(child: SizedBox.shrink()),
-        ),
             SliverToBoxAdapter(
               child: _SectionHeader(
                 title: 'Ofertas Populares',
@@ -111,52 +117,52 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
               loading: () =>
                   const SliverToBoxAdapter(child: _PopularLoadingSkeleton()),
-        error: (error, _) => SliverToBoxAdapter(
-          child: _ErrorState(message: userFriendlyMessage(error)),
-        ),
-      ),
-      if (!hasLocation)
-        const SliverToBoxAdapter(child: _LocationPrompt()),
-      if (hasLocation) ...[
-        SliverToBoxAdapter(
-          child: _SectionHeader(
-            title: 'Cerca de Ti',
-            onSeeAll: () => context.go(RouteNames.explorePath),
-          ),
-        ),
-        nearbyAsync.when(
-          data: (offers) => offers.isEmpty
-              ? const SliverToBoxAdapter(child: _EmptyNearbyState())
-              : SliverPadding(
+              error: (error, _) => SliverToBoxAdapter(
+                child: _ErrorState(message: userFriendlyMessage(error)),
+              ),
+            ),
+            if (!hasLocation)
+              const SliverToBoxAdapter(child: _LocationPrompt()),
+            if (hasLocation) ...[
+              SliverToBoxAdapter(
+                child: _SectionHeader(
+                  title: 'Cerca de Ti',
+                  onSeeAll: () => context.go(RouteNames.explorePath),
+                ),
+              ),
+              nearbyAsync.when(
+                data: (offers) => offers.isEmpty
+                    ? const SliverToBoxAdapter(child: _EmptyNearbyState())
+                    : SliverPadding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: FudiSpacing.lg,
+                        ),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) => Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: FudiSpacing.md,
+                              ),
+                              child: _buildDealCard(context, offers[index]),
+                            ),
+                            childCount: offers.length,
+                          ),
+                        ),
+                      ),
+                loading: () => SliverPadding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: FudiSpacing.lg,
                   ),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      (context, index) => Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: FudiSpacing.md,
-                        ),
-                        child: _buildDealCard(context, offers[index]),
-                      ),
-                      childCount: offers.length,
+                      (_, _) => const _DealCardSkeleton(),
+                      childCount: 3,
                     ),
                   ),
                 ),
-          loading: () => SliverPadding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: FudiSpacing.lg,
-            ),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (_, _) => const _DealCardSkeleton(),
-                childCount: 3,
-              ),
-            ),
-          ),
-          error: (error, _) => SliverToBoxAdapter(
-            child: _ErrorState(message: userFriendlyMessage(error)),
-          ),
+                error: (error, _) => SliverToBoxAdapter(
+                  child: _ErrorState(message: userFriendlyMessage(error)),
+                ),
               ),
             ],
             const SliverToBoxAdapter(child: SizedBox(height: FudiSpacing.xxl)),
@@ -168,6 +174,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildDealCard(BuildContext context, Offer offer) {
     final distance = _formatDistance(offer);
+    final isFavorite = ref.watch(favoritedOfferIdsProvider).contains(offer.id);
+
     return DealCard(
       imageUrl: offer.imageUrl ?? '',
       businessName: offer.business.name,
@@ -181,6 +189,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       categoryLabel: offer.categoryLabel.isNotEmpty
           ? offer.categoryLabel
           : null,
+      isFavorite: isFavorite,
+      onFavoriteToggle: () =>
+          ref.read(favoritedOfferIdsProvider.notifier).toggleFavorite(offer.id),
       onTap: () => context.push('/product/${offer.id}'),
     );
   }
@@ -188,8 +199,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String _formatDistance(Offer offer) {
     final pos = ref.read(userLocationProvider).asData?.value;
     return GeoUtils.formatDistance(
-      offer.business.latitude, offer.business.longitude,
-      userLat: pos?.latitude, userLng: pos?.longitude,
+      offer.business.latitude,
+      offer.business.longitude,
+      userLat: pos?.latitude,
+      userLng: pos?.longitude,
     );
   }
 }
@@ -198,7 +211,7 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const _HomeAppBar();
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(2000);
 
   @override
   Widget build(BuildContext context) {
@@ -212,7 +225,10 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: const [
         Padding(
           padding: EdgeInsets.only(right: FudiSpacing.md),
-          child: FudiLogo(variant: FudiLogoVariant.icon, size: FudiLogoSize.md),
+          child: FudiLogo(
+            variant: FudiLogoVariant.wordmark,
+            size: FudiLogoSize.xxl,
+          ),
         ),
       ],
     );
@@ -460,11 +476,7 @@ class _DropdownContent extends StatelessWidget {
             onTap: () => onAddressSelected(address),
           ),
         // Divider + add new address link
-        const Divider(
-          height: 1,
-          thickness: 1,
-          color: FudiColors.borderSolid,
-        ),
+        const Divider(height: 1, thickness: 1, color: FudiColors.borderSolid),
         Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: FudiSpacing.lg,
@@ -514,7 +526,9 @@ class _AddressItem extends StatelessWidget {
             Icon(
               FudiIcons.mapPin,
               size: 16,
-              color: isSelected ? FudiColors.primary : FudiColors.mutedForeground,
+              color: isSelected
+                  ? FudiColors.primary
+                  : FudiColors.mutedForeground,
             ),
             const SizedBox(width: FudiSpacing.sm),
             // Name + address
@@ -526,13 +540,12 @@ class _AddressItem extends StatelessWidget {
                     address.label,
                     style: FudiTypography.bodyMedium.copyWith(
                       fontWeight: FontWeight.w500,
-                      color: isSelected ? FudiColors.primary : FudiColors.foreground,
+                      color: isSelected
+                          ? FudiColors.primary
+                          : FudiColors.foreground,
                     ),
                   ),
-                  Text(
-                    address.address,
-                    style: FudiTypography.bodySmall,
-                  ),
+                  Text(address.address, style: FudiTypography.bodySmall),
                 ],
               ),
             ),
@@ -559,7 +572,6 @@ class _AddressItem extends StatelessWidget {
 /// Layout constants for the dropdown overlay.
 const double _kDropdownTopOffset = 8.0;
 const double _kDropdownMaxWidth = 280.0;
-
 
 class _CategoryChips extends StatelessWidget {
   const _CategoryChips({
@@ -631,7 +643,7 @@ class _CategoryChip extends StatelessWidget {
           color: isActive ? FudiColors.primary : FudiColors.card,
           borderRadius: BorderRadius.circular(FudiRadius.full),
           border: Border.all(
-            color: FudiColors.foreground,
+            color: FudiColors.primary.withValues(alpha: 0.5),
             width: isActive ? 1.5 : 1.0,
           ),
           boxShadow: isActive

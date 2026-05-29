@@ -13,7 +13,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
 
@@ -22,10 +23,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1000),
     );
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    
+
     _controller.forward();
 
     // Redirigir después de 2.5 segundos
@@ -45,12 +46,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FudiColors.background,
+      backgroundColor: FudiColors.primary,
       body: Stack(
         children: [
           // ─── Patrones de fondo ─────────────────────────────────────
           const _BackgroundPatterns(),
-          
+
           // ─── Contenido central ─────────────────────────────────────
           Center(
             child: FadeTransition(
@@ -58,15 +59,16 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const FudiLogo(
+                  FudiLogo(
                     variant: FudiLogoVariant.wordmark,
-                    size: FudiLogoSize.lg,
+                    width: MediaQuery.sizeOf(context).width * 0.8,
+                    color: FudiColors.accentForeground.withValues(alpha: 0.8),
                   ),
                   const SizedBox(height: FudiSpacing.md),
                   Text(
                     'Buena comida, mejores decisiones',
                     style: FudiTypography.bodyLarge.copyWith(
-                      color: FudiColors.primary.withValues(alpha: 0.8),
+                      color: FudiColors.accentForeground.withValues(alpha: 0.8),
                       fontWeight: FontWeight.w500,
                       letterSpacing: -0.5,
                     ),
