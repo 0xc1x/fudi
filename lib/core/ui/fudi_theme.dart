@@ -14,6 +14,10 @@ class FudiTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      fontFamily: 'DMSans',
+      splashFactory: NoSplash.splashFactory,
+      highlightColor: FudiColors.primary.withValues(alpha: 0.08),
+      hoverColor: FudiColors.secondary.withValues(alpha: 0.08),
       colorScheme: const ColorScheme.light(
         primary: FudiColors.primary,
         onPrimary: FudiColors.primaryForeground,
@@ -23,7 +27,7 @@ class FudiTheme {
         onError: FudiColors.destructiveForeground,
         surface: FudiColors.background,
         onSurface: FudiColors.foreground,
-        outline: FudiColors.borderSolid,
+        outline: FudiColors.foreground,
         surfaceContainerLow: FudiColors.muted,
       ),
       scaffoldBackgroundColor: FudiColors.background,
@@ -32,7 +36,7 @@ class FudiTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FudiRadius.lg),
-          side: const BorderSide(color: FudiColors.border),
+          side: const BorderSide(color: FudiColors.foreground, width: 1.0),
         ),
       ),
       textTheme: TextTheme(
@@ -54,14 +58,22 @@ class FudiTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: FudiColors.inputBackground,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(FudiRadius.md),
-          borderSide: const BorderSide(color: FudiColors.border),
+        fillColor: FudiColors.muted,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(FudiRadius.md),
+        borderSide: BorderSide(
+          color: FudiColors.border.withValues(alpha: 0.09),
         ),
-        enabledBorder: OutlineInputBorder(
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(FudiRadius.md),
+        borderSide: BorderSide(
+          color: FudiColors.border.withValues(alpha: 0.09),
+        ),
+      ),
+        focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(FudiRadius.md),
-          borderSide: const BorderSide(color: FudiColors.border),
+          borderSide: const BorderSide(color: FudiColors.primary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: FudiSpacing.lg,
@@ -73,12 +85,13 @@ class FudiTheme {
           backgroundColor: FudiColors.primary,
           foregroundColor: FudiColors.primaryForeground,
           textStyle: FudiTypography.labelMedium,
+          splashFactory: NoSplash.splashFactory,
           padding: const EdgeInsets.symmetric(
             horizontal: FudiSpacing.xl,
             vertical: FudiSpacing.lg,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(FudiRadius.md),
+            borderRadius: BorderRadius.circular(FudiRadius.full),
           ),
         ),
       ),

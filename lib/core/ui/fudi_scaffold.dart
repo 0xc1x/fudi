@@ -50,7 +50,10 @@ class FudiScaffold extends ConsumerWidget {
     return AppBar(
       title: title != null
           ? Text(title!)
-          : const FudiLogo(variant: FudiLogoVariant.wordmark),
+          : const FudiLogo(
+              variant: FudiLogoVariant.wordmark,
+              size: FudiLogoSize.xl,
+            ),
       actions: actions,
     );
   }

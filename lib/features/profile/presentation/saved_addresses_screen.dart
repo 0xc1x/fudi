@@ -575,47 +575,46 @@ class _AddAddressSheetState extends ConsumerState<_AddAddressSheet> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: bottomInset),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              color: FudiColors.background,
-              border: Border(
-                bottom: BorderSide(color: FudiColors.borderSolid),
-              ),
+  return Padding(
+    padding: EdgeInsets.only(bottom: bottomInset),
+    child: Column(
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            color: FudiColors.background,
+            border: Border(
+              bottom: BorderSide(color: FudiColors.borderSolid),
             ),
-            padding: const EdgeInsets.all(FudiSpacing.lg),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Agregar dirección',
-                    style: FudiTypography.h3,
-                  ),
+          ),
+          padding: const EdgeInsets.all(FudiSpacing.lg),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Agregar dirección',
+                  style: FudiTypography.h3,
                 ),
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(FudiIcons.x, size: 20),
-                    padding: EdgeInsets.zero,
-                    style: IconButton.styleFrom(
-                      backgroundColor: FudiColors.muted,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(FudiRadius.full),
-                      ),
+              ),
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(FudiIcons.x, size: 20),
+                  padding: EdgeInsets.zero,
+                  style: IconButton.styleFrom(
+                    backgroundColor: FudiColors.muted,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(FudiRadius.full),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+        ),
 
-          SingleChildScrollView(
+        Expanded(child: SingleChildScrollView(
             padding: const EdgeInsets.all(FudiSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

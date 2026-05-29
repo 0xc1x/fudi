@@ -5,6 +5,7 @@ import '../fudi_colors.dart';
 import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
 import '../atoms/icons/fudi_icons.dart';
+import '../atoms/fudi_button.dart';
 
 class DealCard extends StatelessWidget {
   const DealCard({
@@ -44,17 +45,35 @@ class DealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: FudiColors.background,
-      borderRadius: BorderRadius.circular(FudiRadius.xl),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(FudiRadius.xl),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [_buildImage(), _buildContent(context)],
+    return Container(
+      decoration: BoxDecoration(
+        color: FudiColors.card,
+        borderRadius: BorderRadius.circular(FudiRadius.lg),
+        border: Border.all(
+          color: FudiColors.border.withValues(alpha: 0.09),
+          width: 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: FudiColors.primary.withValues(alpha: 0.03),
+            blurRadius: 12,
+            spreadRadius: -2,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(FudiRadius.lg - 1),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [_buildImage(), _buildContent(context)],
+            ),
+          ),
         ),
       ),
     );
@@ -119,7 +138,9 @@ class DealCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   businessName,
-                  style: FudiTypography.h3.copyWith(fontWeight: FontWeight.bold),
+                  style: FudiTypography.h3.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -173,41 +194,32 @@ class DealCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '\$${originalPrice.toStringAsFixed(2)}',
-                    style: FudiTypography.priceOriginal,
-                  ),
-                  Text(
-                    '\$${discountedPrice.toStringAsFixed(2)}',
-                    style: FudiTypography.priceLarge,
-                  ),
-                ],
-              ),
-              const Spacer(),
-              FilledButton(
-                onPressed: onTap,
-                style: FilledButton.styleFrom(
-                  backgroundColor: FudiColors.primary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: FudiSpacing.lg,
-                    vertical: FudiSpacing.sm + 2,
-                  ),
-                  minimumSize: Size.zero,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(FudiRadius.full),
-                  ),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '\$${originalPrice.toStringAsFixed(2)}',
+                      style: FudiTypography.priceOriginal,
+                    ),
+                    Text(
+                      '\$${discountedPrice.toStringAsFixed(2)}',
+                      style: FudiTypography.priceLarge,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
-                child: Text(
-                  'Reservar',
-                  style: FudiTypography.labelSmall.copyWith(
-                    color: FudiColors.primaryForeground,
-                    fontWeight: FontWeight.w600,
-                  ),
+              ),
+              const SizedBox(width: FudiSpacing.sm),
+              FudiButton(
+                text: 'Reservar',
+                onPressed: onTap,
+                variant: FudiButtonVariant.primary,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: FudiSpacing.md,
+                  vertical: FudiSpacing.sm,
                 ),
               ),
             ],
@@ -322,10 +334,11 @@ class _FavoriteButton extends StatelessWidget {
         child: Icon(
           isFavorite ? FudiIcons.favorites : FudiIcons.heartOutline,
           size: 18,
-          color: isFavorite ? FudiColors.destructive : FudiColors.mutedForeground,
+          color: isFavorite
+              ? FudiColors.destructive
+              : FudiColors.mutedForeground,
         ),
       ),
     );
   }
 }
-

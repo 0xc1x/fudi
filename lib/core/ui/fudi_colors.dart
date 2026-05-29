@@ -14,7 +14,7 @@ class FudiColors {
 
   /// Soft Green (secondary) — #B1CDB6
   static const Color secondary = Color(0xFFB1CDB6);
-  static const Color secondaryForeground = Color(0xFF1D1D1B);
+  static const Color secondaryForeground = Color(0xFF1A1A18);
 
   /// Dark Slate/Green (accent) — #2D4142
   static const Color accent = Color(0xFF2D4142);
@@ -41,12 +41,12 @@ class FudiColors {
   /// Cream Background — #F5F1E8
   static const Color background = Color(0xFFF5F1E8);
 
-  /// Near Black Foreground — #1D1D1B
-  static const Color foreground = Color(0xFF1D1D1B);
+  /// Near Black Foreground — #1A1A18
+  static const Color foreground = Color(0xFF1A1A18);
 
   /// Light Cream Surface — #F7EFE4
   static const Color card = Color(0xFFF7EFE4);
-  static const Color cardForeground = Color(0xFF1D1D1B);
+  static const Color cardForeground = Color(0xFF1A1A18);
 
   /// Cream Muted (Secondary surface) — #F7EFE4
   static const Color muted = Color(0xFFF7EFE4);

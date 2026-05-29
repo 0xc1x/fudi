@@ -20,24 +20,25 @@ class FudiSurfaceCard extends StatelessWidget {
     return Container(
       margin: margin,
       decoration: BoxDecoration(
-        color: FudiColors.background,
-        borderRadius: BorderRadius.circular(FudiRadius.xl),
-        border: Border.all(color: FudiColors.borderSolid),
-        boxShadow: const [
+        color: FudiColors.card,
+        borderRadius: BorderRadius.circular(FudiRadius.lg),
+        border: Border.all(
+          color: FudiColors.border.withValues(alpha: 0.09),
+          width: 1.0,
+        ),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x0D000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
+            color: FudiColors.primary.withValues(alpha: 0.04),
+            blurRadius: 16,
+            spreadRadius: -2,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Material(
         type: MaterialType.transparency,
-        borderRadius: BorderRadius.circular(FudiRadius.xl),
-        child: Padding(
-          padding: padding,
-          child: child,
-        ),
+        borderRadius: BorderRadius.circular(FudiRadius.lg),
+        child: Padding(padding: padding, child: child),
       ),
     );
   }

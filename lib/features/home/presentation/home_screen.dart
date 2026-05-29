@@ -50,11 +50,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       false;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-    appBar: PreferredSize(
-      preferredSize: const Size.fromHeight(kToolbarHeight),
-      child: _HomeAppBar(),
-    ),
+      backgroundColor: FudiColors.background,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: const _HomeAppBar(),
+      ),
       body: RefreshIndicator(
         onRefresh: () async {
           if (_selectedCategoryId != null) {
@@ -203,7 +203,8 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: FudiColors.ring,
+      backgroundColor: FudiColors.background,
+      surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
       title: const _LocationSelector(),
@@ -316,7 +317,8 @@ class _LocationSelectorState extends ConsumerState<_LocationSelector>
             Text(
               selectedAddress?.label ?? 'Seleccionar ubicación',
               style: const TextStyle(
-                color: FudiColors.primary,
+                fontFamily: 'DMSans',
+                color: FudiColors.foreground,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -327,7 +329,7 @@ class _LocationSelectorState extends ConsumerState<_LocationSelector>
               child: const Icon(
                 FudiIcons.chevronDown,
                 size: 16,
-                color: FudiColors.primary,
+                color: FudiColors.foreground,
               ),
             ),
           ],
@@ -620,22 +622,38 @@ class _CategoryChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(
-          horizontal: FudiSpacing.md,
+          horizontal: FudiSpacing.lg,
           vertical: FudiSpacing.sm,
         ),
         decoration: BoxDecoration(
-          color: isActive ? FudiColors.primary : FudiColors.secondary,
+          color: isActive ? FudiColors.primary : FudiColors.card,
           borderRadius: BorderRadius.circular(FudiRadius.full),
+          border: Border.all(
+            color: FudiColors.foreground,
+            width: isActive ? 1.5 : 1.0,
+          ),
+          boxShadow: isActive
+              ? [
+                  BoxShadow(
+                    color: FudiColors.primary.withValues(alpha: 0.15),
+                    blurRadius: 8,
+                    spreadRadius: -1,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
-        child: Text(
-          label,
-          style: FudiTypography.bodySmall.copyWith(
-            color: isActive
-                ? FudiColors.primaryForeground
-                : FudiColors.secondaryForeground,
-            fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+        child: Center(
+          child: Text(
+            label,
+            style: FudiTypography.bodyMedium.copyWith(
+              color: isActive
+                  ? FudiColors.primaryForeground
+                  : FudiColors.foreground,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+            ),
           ),
         ),
       ),

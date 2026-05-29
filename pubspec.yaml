@@ -72,4 +72,13 @@ flutter:
   - .env.dev
   - assets/images/
   - assets/svgs/
+  fonts:
+    - family: Outfit
+      fonts:
+        - asset: assets/fonts/Outfit-VariableFont_wght.ttf
+    - family: DMSans
+      fonts:
+        - asset: assets/fonts/DMSans-VariableFont_opsz,wght.ttf
+        - asset: assets/fonts/DMSans-Italic-VariableFont_opsz,wght.ttf
+          style: italic
 

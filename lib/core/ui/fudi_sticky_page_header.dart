@@ -40,7 +40,7 @@ class FudiStickyPageHeader extends StatelessWidget
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(title, style: FudiTypography.labelMedium),
+          Text(title, style: FudiTypography.h3),
           if (subtitle != null)
             Text(subtitle!, style: FudiTypography.bodySmall),
         ],
@@ -71,9 +71,12 @@ class _BackButton extends StatelessWidget {
           child: Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: FudiColors.muted,
               shape: BoxShape.circle,
+              border: Border.all(
+                color: FudiColors.border.withValues(alpha: 0.09),
+              ),
             ),
             child: const Icon(FudiIcons.chevronLeft, size: 20),
           ),

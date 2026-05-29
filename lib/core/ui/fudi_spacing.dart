@@ -26,21 +26,21 @@ class FudiSpacing {
 class FudiRadius {
   FudiRadius._();
 
-  /// sm - 10.0 (calc(14-4))
-  static const double sm = 10.0;
+  /// sm - 12.0 (Badges, botones pequeños)
+  static const double sm = 12.0;
 
-  /// md - 12.0 (calc(14-2))
-  static const double md = 12.0;
+  /// md - 18.0 (Inputs, botones estándar, campos)
+  static const double md = 18.0;
 
-  /// lg - 14.0 (base --radius: 0.875rem)
-  static const double lg = 14.0;
+  /// lg - 24.0 (Tarjetas principales, Bento Box)
+  static const double lg = 24.0;
 
-  /// xl - 18.0 (calc(14+4))
-  static const double xl = 18.0;
+  /// xl - 24.0 (Mantener compatibilidad)
+  static const double xl = 24.0;
 
-  /// full - 9999.0 (rounded-full)
-  static const double full = 9999.0;
+  /// full - 99.0 (Pills, botones redondeados)
+  static const double full = 99.0;
 
-  /// xxl - 24.0 (extra extra large)
+  /// xxl - 24.0 (Mantener compatibilidad)
   static const double xxl = 24.0;
 }
