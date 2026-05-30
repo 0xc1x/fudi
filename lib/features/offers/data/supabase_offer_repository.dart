@@ -18,12 +18,12 @@ class SupabaseOfferRepository implements OfferRepository {
   static const _earthRadiusKm = 6371.0;
 
   static const _selectFields = '''
-    id, business_id, title, description, image, category,
-    original_price, discounted_price, rating, stock, initial_stock,
-    pickup_start, pickup_end, is_active,
-    businesses:business_id (
-      id, name, type, image, latitude, longitude, rating, address, review_count
-    )
+  id, business_id, title, description, image, category,
+  original_price, discounted_price, stock, initial_stock,
+  pickup_start, pickup_end, is_active, rating, review_count,
+  businesses:business_id (
+    id, name, type, image, latitude, longitude, rating, address, review_count
+  )
   ''';
 
   @override
@@ -34,9 +34,9 @@ class SupabaseOfferRepository implements OfferRepository {
           .select(_selectFields)
           .eq('is_active', true)
           .gt('stock', 0)
-          .gt('pickup_end', DateTime.now().toUtc().toIso8601String())
-          .order('rating', ascending: false, nullsFirst: false)
-          .limit(limit);
+      .gt('pickup_end', DateTime.now().toUtc().toIso8601String())
+      .order('created_at', ascending: false)
+      .limit(limit);
 
       return response.map(_mapOfferFromJson).toList();
     } on PostgrestException catch (e) {
@@ -66,8 +66,8 @@ class SupabaseOfferRepository implements OfferRepository {
       }
 
       final response = await query
-          .order('rating', ascending: false, nullsFirst: false)
-          .limit(limit);
+      .order('created_at', ascending: false)
+      .limit(limit);
 
       return response.map(_mapOfferFromJson).toList();
     } on PostgrestException catch (e) {
@@ -157,9 +157,8 @@ class SupabaseOfferRepository implements OfferRepository {
       }
 
       final response = await query.order(
-        'rating',
+        'created_at',
         ascending: false,
-        nullsFirst: false,
       );
       var offers = response.map(_mapOfferFromJson).toList();
 
@@ -237,14 +236,14 @@ class SupabaseOfferRepository implements OfferRepository {
         .gt('stock', 0)
         .gt('pickup_end', DateTime.now().toUtc().toIso8601String());
 
-    if (category != null && category.isNotEmpty) {
-      query = query.eq('category', category);
-    }
+      if (category != null && category.isNotEmpty) {
+        query = query.eq('category', category);
+      }
 
-    final response = await query
-        .order('rating', ascending: false, nullsFirst: false);
+      final response = await query
+      .order('created_at', ascending: false);
 
-    return response.map(_mapOfferFromJson).toList();
+      return response.map(_mapOfferFromJson).toList();
   }
 
   @override
@@ -335,33 +334,34 @@ class SupabaseOfferRepository implements OfferRepository {
   Offer _mapOfferFromJson(Map<String, dynamic> json) {
     final businessJson = json['businesses'] as Map<String, dynamic>;
 
-    return Offer(
-      id: json['id'] as String,
-      businessId: json['business_id'] as String,
-      business: BusinessInfo(
-        id: businessJson['id'] as String,
-        name: businessJson['name'] as String,
-        type: businessJson['type'] as String,
-        imageUrl: businessJson['image'] as String?,
-        latitude: _toDouble(businessJson['latitude']),
-        longitude: _toDouble(businessJson['longitude']),
-        rating: _toDouble(businessJson['rating']) ?? 0.0,
-        address: businessJson['address'] as String? ?? '',
-        reviewCount: businessJson['review_count'] as int? ?? 0,
-      ),
-      title: json['title'] as String,
-      description: json['description'] as String?,
-      imageUrl: json['image'] as String?,
-      category: json['category'] as String?,
-      originalPrice: _toDouble(json['original_price']) ?? 0.0,
-      discountedPrice: _toDouble(json['discounted_price']) ?? 0.0,
-      rating: _toDouble(json['rating']) ?? 0.0,
-      stock: json['stock'] as int? ?? 0,
-      initialStock: json['initial_stock'] as int? ?? 0,
-      pickupStart: DateTime.parse(json['pickup_start'] as String),
-      pickupEnd: DateTime.parse(json['pickup_end'] as String),
-      isActive: json['is_active'] as bool? ?? false,
-    );
+  return Offer(
+    id: json['id'] as String,
+    businessId: json['business_id'] as String,
+    business: BusinessInfo(
+      id: businessJson['id'] as String,
+      name: businessJson['name'] as String,
+      type: businessJson['type'] as String,
+      imageUrl: businessJson['image'] as String?,
+      latitude: _toDouble(businessJson['latitude']),
+      longitude: _toDouble(businessJson['longitude']),
+      rating: _toDouble(businessJson['rating']) ?? 0.0,
+      address: businessJson['address'] as String? ?? '',
+      reviewCount: businessJson['review_count'] as int? ?? 0,
+    ),
+    title: json['title'] as String,
+    description: json['description'] as String?,
+    imageUrl: json['image'] as String?,
+    category: json['category'] as String?,
+    originalPrice: _toDouble(json['original_price']) ?? 0.0,
+    discountedPrice: _toDouble(json['discounted_price']) ?? 0.0,
+    stock: json['stock'] as int? ?? 0,
+    initialStock: json['initial_stock'] as int? ?? 0,
+    pickupStart: DateTime.parse(json['pickup_start'] as String),
+    pickupEnd: DateTime.parse(json['pickup_end'] as String),
+    isActive: json['is_active'] as bool? ?? false,
+    rating: _toDouble(json['rating']) ?? 0.0,
+    reviewCount: json['review_count'] as int? ?? 0,
+  );
   }
 
   double? _toDouble(dynamic value) {

@@ -641,12 +641,22 @@ class _ReviewItem extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(review.userName, style: FudiTypography.labelSmall),
-                    Text(dateStr, style: FudiTypography.bodySmall),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                _StarRating(rating: review.rating.toDouble(), size: 14),
+            Text(review.userName, style: FudiTypography.labelSmall),
+            Text(dateStr, style: FudiTypography.bodySmall),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Row(
+          children: [
+            const Icon(Icons.star_rounded, size: 14, color: Color(0xFFFACC15)),
+            const SizedBox(width: 2),
+            Text('Producto ${review.productRating}', style: FudiTypography.bodySmall),
+            const SizedBox(width: FudiSpacing.sm),
+            const Icon(Icons.store_rounded, size: 14, color: Color(0xFFFACC15)),
+            const SizedBox(width: 2),
+            Text('Negocio ${review.businessRating}', style: FudiTypography.bodySmall),
+          ],
+        ),
                 if (review.productName != null) ...[
                   const SizedBox(height: 2),
                   Text(review.productName!, style: FudiTypography.bodySmall),

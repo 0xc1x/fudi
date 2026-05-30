@@ -14,12 +14,12 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
   final SupabaseClient _supabaseClient;
 
   static const _selectFields = '''
-    id, business_id, title, description, image, category,
-    original_price, discounted_price, rating, stock, initial_stock,
-    pickup_start, pickup_end, is_active, includes, allergens,
-    businesses:business_id (
-      id, name, type, image, latitude, longitude, rating, address
-    )
+  id, business_id, title, description, image, category,
+  original_price, discounted_price, stock, initial_stock,
+  pickup_start, pickup_end, is_active, includes, allergens, rating, review_count,
+  businesses:business_id (
+    id, name, type, image, latitude, longitude, rating, address
+  )
   ''';
 
   @override
@@ -188,13 +188,14 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
       allergens: json['allergens'] as String?,
       originalPrice: _toDouble(json['original_price']) ?? 0.0,
       discountedPrice: _toDouble(json['discounted_price']) ?? 0.0,
-      rating: _toDouble(json['rating']) ?? 0.0,
       stock: json['stock'] as int? ?? 0,
       initialStock: json['initial_stock'] as int? ?? 0,
       pickupStart: DateTime.parse(json['pickup_start'] as String),
-      pickupEnd: DateTime.parse(json['pickup_end'] as String),
-      isActive: json['is_active'] as bool? ?? false,
-    );
+    pickupEnd: DateTime.parse(json['pickup_end'] as String),
+    isActive: json['is_active'] as bool? ?? false,
+    rating: _toDouble(json['rating']) ?? 0.0,
+    reviewCount: json['review_count'] as int? ?? 0,
+  );
   }
 
   Map<String, dynamic> _mapOfferToJson(Offer offer) {

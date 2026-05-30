@@ -234,15 +234,14 @@ class _BusinessProductFormScreenState
         description: _descriptionController.text,
         imageUrl: _imageFile?.path ?? _existingImageUrl ?? '',
         originalPrice: double.parse(_originalPriceController.text),
-        discountedPrice: double.parse(_priceController.text),
-        stock: int.parse(_stockController.text),
-        initialStock: int.parse(_stockController.text),
+      discountedPrice: double.parse(_priceController.text),
+      stock: int.parse(_stockController.text),
+      initialStock: int.parse(_stockController.text),
         category: _selectedCategory,
         pickupStart: DateTime(2024, 1, 1, _startTime.hour, _startTime.minute),
         pickupEnd: DateTime(2024, 1, 1, _endTime.hour, _endTime.minute),
-        isActive: true,
-        rating: 0.0,
-        includes: _includesController.text.isNotEmpty
+      isActive: true,
+      includes: _includesController.text.isNotEmpty
             ? _includesController.text
             : null,
         allergens: _allergensController.text.isNotEmpty

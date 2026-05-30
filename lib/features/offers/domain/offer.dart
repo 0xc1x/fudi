@@ -32,12 +32,13 @@ class Offer {
     required this.title,
     required this.originalPrice,
     required this.discountedPrice,
-    required this.rating,
     required this.stock,
     required this.initialStock,
     required this.pickupStart,
     required this.pickupEnd,
     required this.isActive,
+    this.rating = 0,
+    this.reviewCount = 0,
     this.description,
     this.imageUrl,
     this.category,
@@ -56,12 +57,13 @@ class Offer {
   final String? allergens;
   final double originalPrice;
   final double discountedPrice;
-  final double rating;
   final int stock;
   final int initialStock;
   final DateTime pickupStart;
   final DateTime pickupEnd;
   final bool isActive;
+  final double rating;
+  final int reviewCount;
 
   double get discountPercentage =>
       ((originalPrice - discountedPrice) / originalPrice * 100);

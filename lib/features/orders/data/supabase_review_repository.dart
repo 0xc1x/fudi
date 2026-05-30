@@ -22,25 +22,17 @@ class SupabaseReviewRepository {
       );
     }
 
-    final sanitizedComment = comment?.trim();
-    final mergedComment = [
-      if (sanitizedComment != null && sanitizedComment.isNotEmpty)
-        sanitizedComment,
-      'Calificación producto: $productRating/5',
-      'Calificación negocio: $businessRating/5',
-    ].join('\n');
+  final sanitizedComment = comment?.trim().isNotEmpty == true
+      ? comment!.trim()
+      : null;
 
-    final averageRating = ((productRating + businessRating) / 2).round().clamp(
-      1,
-      5,
-    );
-
-    await _supabaseClient.from('reviews').upsert({
-      'user_id': userId,
-      'order_id': orderId,
-      'business_id': businessId,
-      'rating': averageRating,
-      'comment': mergedComment,
-    }, onConflict: 'user_id,order_id');
+  await _supabaseClient.from('reviews').upsert({
+    'user_id': userId,
+    'order_id': orderId,
+    'business_id': businessId,
+    'product_rating': productRating,
+    'business_rating': businessRating,
+    'comment': sanitizedComment,
+  }, onConflict: 'user_id,order_id');
   }
 }

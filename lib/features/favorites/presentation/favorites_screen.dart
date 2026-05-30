@@ -142,37 +142,39 @@ class _FavoriteCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: FudiSpacing.sm),
-                    Row(
-                      children: [
-                        const Icon(
-                          FudiIcons.star,
-                          size: 16,
-                          color: Colors.amber,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          favorite.rating.toStringAsFixed(1),
-                          style: FudiTypography.bodySmall,
-                        ),
-                        const SizedBox(width: FudiSpacing.sm),
-                        const Icon(
-                          FudiIcons.mapPin,
-                          size: 16,
-                          color: FudiColors.mutedForeground,
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            favorite.address,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: FudiTypography.bodySmall.copyWith(
+                      Row(
+                          children: [
+                            if (favorite.rating > 0) ...[
+                              const Icon(
+                                FudiIcons.star,
+                                size: 16,
+                                color: Color(0xFFFACC15),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                favorite.rating.toStringAsFixed(1),
+                                style: FudiTypography.bodySmall,
+                              ),
+                              const SizedBox(width: FudiSpacing.sm),
+                            ],
+                            const Icon(
+                              FudiIcons.mapPin,
+                              size: 16,
                               color: FudiColors.mutedForeground,
                             ),
-                          ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                favorite.address,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: FudiTypography.bodySmall.copyWith(
+                                  color: FudiColors.mutedForeground,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
                   ],
                 ),
               ),

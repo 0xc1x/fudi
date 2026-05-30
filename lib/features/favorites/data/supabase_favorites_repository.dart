@@ -15,22 +15,15 @@ class SupabaseFavoritesRepository implements FavoritesRepository {
     final response = await _client
         .from(_table)
         .select('''
-          id,
-          offer_id,
-          offers:offer_id (
-            id,
-            title,
-            category,
-            image,
-            original_price,
-            discounted_price,
-            rating,
-            businesses:business_id (
-              name,
-              address
-            )
-          )
-        ''')
+      id,
+      offer_id,
+      offers:offer_id (
+        id, title, category, image, original_price, discounted_price, rating,
+        businesses:business_id (
+          name, address
+        )
+      )
+      ''')
         .eq('user_id', userId)
         .order('created_at', ascending: false);
 

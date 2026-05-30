@@ -79,7 +79,8 @@ class BusinessReview {
   const BusinessReview({
     required this.id,
     required this.userName,
-    required this.rating,
+    required this.productRating,
+    required this.businessRating,
     required this.date,
     this.comment,
     this.productName,
@@ -87,7 +88,8 @@ class BusinessReview {
 
   final String id;
   final String userName;
-  final int rating;
+  final int productRating;
+  final int businessRating;
   final DateTime date;
   final String? comment;
   final String? productName;

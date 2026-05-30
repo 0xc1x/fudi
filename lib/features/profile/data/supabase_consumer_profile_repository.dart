@@ -25,48 +25,49 @@ class SupabaseConsumerProfileRepository {
     final response = await _supabaseClient
         .from('favorites')
         .select('''
-          offer_id,
-          offers!inner (
-            id, business_id, title, description, image, category,
-            original_price, discounted_price, rating, stock, initial_stock,
-            pickup_start, pickup_end, is_active,
-            businesses:business_id (
-              id, name, type, image, latitude, longitude, rating, address
-            )
-          )
-        ''')
+      offer_id,
+      offers!inner (
+        id, business_id, title, description, image, category,
+        original_price, discounted_price, stock, initial_stock,
+        pickup_start, pickup_end, is_active, rating, review_count,
+        businesses:business_id (
+          id, name, type, image, latitude, longitude, rating, address
+        )
+      )
+      ''')
         .eq('user_id', userId)
         .order('created_at', ascending: false);
 
     return response.map((row) {
       final offerJson = row['offers'] as Map<String, dynamic>;
       final businessJson = offerJson['businesses'] as Map<String, dynamic>;
-      return Offer(
-        id: offerJson['id'] as String,
-        businessId: offerJson['business_id'] as String,
-        business: BusinessInfo(
-          id: businessJson['id'] as String,
-          name: businessJson['name'] as String,
-          type: businessJson['type'] as String,
-          rating: (businessJson['rating'] as num?)?.toDouble() ?? 0,
-          address: businessJson['address'] as String? ?? '',
-          imageUrl: businessJson['image'] as String?,
-          latitude: (businessJson['latitude'] as num?)?.toDouble(),
-          longitude: (businessJson['longitude'] as num?)?.toDouble(),
-        ),
-        title: offerJson['title'] as String,
-        description: offerJson['description'] as String?,
-        imageUrl: offerJson['image'] as String?,
-        category: offerJson['category'] as String?,
-        originalPrice: (offerJson['original_price'] as num).toDouble(),
-        discountedPrice: (offerJson['discounted_price'] as num).toDouble(),
-        rating: (offerJson['rating'] as num?)?.toDouble() ?? 0,
-        stock: offerJson['stock'] as int? ?? 0,
-        initialStock: offerJson['initial_stock'] as int? ?? 0,
-        pickupStart: DateTime.parse(offerJson['pickup_start'] as String),
-        pickupEnd: DateTime.parse(offerJson['pickup_end'] as String),
-        isActive: offerJson['is_active'] as bool? ?? false,
-      );
+    return Offer(
+      id: offerJson['id'] as String,
+      businessId: offerJson['business_id'] as String,
+      business: BusinessInfo(
+        id: businessJson['id'] as String,
+        name: businessJson['name'] as String,
+        type: businessJson['type'] as String,
+        rating: (businessJson['rating'] as num?)?.toDouble() ?? 0,
+        address: businessJson['address'] as String? ?? '',
+        imageUrl: businessJson['image'] as String?,
+        latitude: (businessJson['latitude'] as num?)?.toDouble(),
+        longitude: (businessJson['longitude'] as num?)?.toDouble(),
+      ),
+      title: offerJson['title'] as String,
+      description: offerJson['description'] as String?,
+      imageUrl: offerJson['image'] as String?,
+      category: offerJson['category'] as String?,
+      originalPrice: (offerJson['original_price'] as num).toDouble(),
+      discountedPrice: (offerJson['discounted_price'] as num).toDouble(),
+      stock: offerJson['stock'] as int? ?? 0,
+      initialStock: offerJson['initial_stock'] as int? ?? 0,
+      pickupStart: DateTime.parse(offerJson['pickup_start'] as String),
+      pickupEnd: DateTime.parse(offerJson['pickup_end'] as String),
+      isActive: offerJson['is_active'] as bool? ?? false,
+      rating: (offerJson['rating'] as num?)?.toDouble() ?? 0,
+      reviewCount: offerJson['review_count'] as int? ?? 0,
+    );
     }).toList();
   }
 

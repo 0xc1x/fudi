@@ -87,12 +87,12 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
       final response = await _supabaseClient
           .from('reviews')
           .select('''
-            id, rating, comment, created_at,
-            profiles!reviews_user_id_fkey(full_name),
-            orders!reviews_order_id_fkey(
-              offers!orders_offer_id_fkey(title)
-            )
-          ''')
+        id, product_rating, business_rating, comment, created_at,
+        profiles!reviews_user_id_fkey(full_name),
+        orders!reviews_order_id_fkey(
+          offers!orders_offer_id_fkey(title)
+        )
+      ''')
           .eq('business_id', businessId)
           .order('created_at', ascending: false)
           .limit(limit);
@@ -358,19 +358,20 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
   }
 
   BusinessReview _mapReview(Map<String, dynamic> json) {
-    final profile = json['profiles'] as Map<String, dynamic>?;
-    final order = json['orders'] as Map<String, dynamic>?;
-    final offer = order?['offers'] as Map<String, dynamic>?;
+  final profile = json['profiles'] as Map<String, dynamic>?;
+  final order = json['orders'] as Map<String, dynamic>?;
+  final offer = order?['offers'] as Map<String, dynamic>?;
 
-    return BusinessReview(
-      id: json['id'] as String,
-      userName: profile?['full_name'] as String? ?? 'Usuario',
-      rating: json['rating'] as int,
-      date: DateTime.parse(json['created_at'] as String),
-      comment: json['comment'] as String?,
-      productName: offer?['title'] as String?,
-    );
-  }
+  return BusinessReview(
+    id: json['id'] as String,
+    userName: profile?['full_name'] as String? ?? 'Usuario',
+    productRating: json['product_rating'] as int,
+    businessRating: json['business_rating'] as int,
+    date: DateTime.parse(json['created_at'] as String),
+    comment: json['comment'] as String?,
+    productName: offer?['title'] as String?,
+  );
+}
 
   String _parseToTime(String time) {
     final parts = time.split(':');

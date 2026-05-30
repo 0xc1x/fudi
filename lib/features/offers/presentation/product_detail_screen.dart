@@ -242,31 +242,33 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
                                       ],
                                     ),
                                   ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.star_rounded,
-                                            size: 16,
-                                            color: Color(0xFFFACC15),
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            offer.rating.toStringAsFixed(1),
-                                            style: FudiTypography.labelSmall,
-                                          ),
-                                        ],
-                                      ),
-                                      Text(
-                                        '(${offer.business.reviewCount} reseñas)',
-                                        style: FudiTypography.bodySmall.copyWith(
-                                          color: FudiColors.mutedForeground,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+                if (offer.rating > 0) ...[
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.star_rounded,
+                        size: 16,
+                        color: Color(0xFFFACC15),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        offer.rating.toStringAsFixed(1),
+                        style: FudiTypography.labelSmall,
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '(${offer.reviewCount} reseñas)',
+                    style: FudiTypography.bodySmall.copyWith(
+                      color: FudiColors.mutedForeground,
+                    ),
+                  ),
+                ],
+          ],
+        ),
                                 ],
                               ),
                               const SizedBox(height: FudiSpacing.md),
