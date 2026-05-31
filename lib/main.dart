@@ -13,6 +13,7 @@ import 'core/di/core_providers.dart';
 import 'core/observability/sentry_init.dart';
 import 'core/ui/fudi_theme.dart';
 import 'features/auth/presentation/auth_state_provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 void main() async {
   // 1. Ensure Flutter bindings are initialized before any async work
@@ -56,34 +57,39 @@ void main() async {
   }
 
   // 7. Run the app with Riverpod + Sentry integration
-  runApp(
-    ProviderScope(
-      overrides: [
-        // Override the environment provider so the rest of the app
-        // reads the resolved environment without re-parsing
-        appEnvironmentProvider.overrideWithValue(environment),
-        appConfigProvider.overrideWithValue(config),
-      ],
-      child: const FudiApp(),
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = config.sentryDsn;
+      // Set tracesSampleRate to 1.0 to capture 100% of transactions for tracing.
+      // We recommend adjusting this value in production.
+      options.tracesSampleRate = 1.0;
+      // The sampling rate for profiling is relative to tracesSampleRate
+      // Setting to 1.0 will profile 100% of sampled transactions:
+      options.profilesSampleRate = 1.0;
+    },
+    appRunner: () => runApp(
+      SentryWidget(
+        child: ProviderScope(
+          overrides: [
+            // Override the environment provider so the rest of the app
+            // reads the resolved environment without re-parsing
+            appEnvironmentProvider.overrideWithValue(environment),
+            appConfigProvider.overrideWithValue(config),
+          ],
+          child: const FudiApp(),
+        ),
+      ),
     ),
   );
+  // TODO: Remove this line after sending the first sample event to sentry.
+  await Sentry.captureException(Exception('This is a sample exception.'));
 }
 
 /// Loads the .env file for the given [environment].
 ///
-/// On web: only `.env.dev` is bundled as an asset. Other environments
-/// must provide credentials via `--dart-define` compile-time constants.
-///
-/// On native: tries the target env file first, then falls back to
-/// `.env.dev`. In debug mode, silently skips if no file is found.
-///
-/// On web in non-dev environments: skips dotenv entirely and relies
-/// on `--dart-define` constants (AppConfig.fromEnv reads those too).
+/// On native: tries the target env file first, then falls back
+/// to `.env.dev`. In debug mode, silently skips if no file is found.
 Future<void> _loadEnv(AppEnvironment environment) async {
-  if (kIsWeb && environment != AppEnvironment.dev) {
-    return;
-  }
-
   final fileName = environment.envFileName;
 
   try {
@@ -122,7 +128,7 @@ class FudiApp extends ConsumerWidget {
 
     return MaterialApp.router(
       title: 'Fudi',
-      debugShowCheckedModeBanner: false,//config.isDev,
+      debugShowCheckedModeBanner: false, //config.isDev,
       theme: FudiTheme.light(),
       routerConfig: router,
       builder: (context, child) {

@@ -57,6 +57,7 @@ dependencies:
   lucide_icons: ^0.257.0
 
 dev_dependencies:
+  sentry_dart_plugin: ^3.4.0
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
@@ -69,9 +70,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-  - .env.dev
-  - assets/images/
-  - assets/svgs/
+    - .env.dev
+    - .env.staging
+    - assets/images/
+    - assets/svgs/
   fonts:
     - family: Outfit
       fonts:
@@ -82,3 +84,9 @@ flutter:
         - asset: assets/fonts/DMSans-Italic-VariableFont_opsz,wght.ttf
           style: italic
 
+
+sentry:
+  upload_debug_symbols: true
+  upload_source_maps: true
+  project: flutter
+  org: xcix
