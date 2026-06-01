@@ -817,7 +817,7 @@ class _CircleButton extends StatelessWidget {
 
 /// Inline star rating display (read-only).
 class _StarRating extends StatelessWidget {
-  const _StarRating({required this.rating, this.size = 16});
+  const _StarRating({required this.rating}) : size = 16;
 
   final double rating;
   final double size;

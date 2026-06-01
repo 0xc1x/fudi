@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/core_providers.dart';
 import '../../auth/presentation/auth_state_provider.dart';
-import '../../offers/domain/offer.dart';
 import '../data/supabase_consumer_profile_repository.dart';
 import '../data/supabase_profile_order_repository.dart';
 import '../domain/consumer_preferences.dart';
