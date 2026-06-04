@@ -8,6 +8,7 @@ import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
+import '../../../core/ui/fudi_logo.dart';
 import '../../auth/domain/user_profile.dart';
 import '../../auth/presentation/auth_state_provider.dart';
 import '../domain/user_order.dart';
@@ -39,7 +40,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authSessionNotifierProvider);
+    final isAuthenticated = authState.isAuthenticated;
     final profile = authState.profile;
+
+    if (!isAuthenticated) {
+      return const _GuestWelcomeView();
+    }
 
     return Scaffold(
       backgroundColor: FudiColors.muted,
@@ -687,6 +693,167 @@ class _SignOutButton extends ConsumerWidget {
               backgroundColor: FudiColors.destructive,
             ),
             child: const Text('Cerrar sesión'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GuestWelcomeView extends StatelessWidget {
+  const _GuestWelcomeView();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: FudiColors.background,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: FudiSpacing.xl,
+              vertical: FudiSpacing.xxl,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: FudiSpacing.xl),
+                const FudiLogo(
+                  variant: FudiLogoVariant.wordmark,
+                  size: FudiLogoSize.xxxl,
+                ),
+                const SizedBox(height: FudiSpacing.sm),
+                Text(
+                  'Buena comida, mejores decisiones',
+                  style: FudiTypography.bodyMedium.copyWith(
+                    color: FudiColors.mutedForeground,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: FudiSpacing.xxl * 1.5),
+                _buildBenefitCard(
+                  context,
+                  icon: FudiIcons.leaf,
+                  title: 'Evita el desperdicio de comida',
+                  description:
+                      'Rescata paquetes de comida en perfecto estado de tus comercios locales favoritos.',
+                ),
+                const SizedBox(height: FudiSpacing.md),
+                _buildBenefitCard(
+                  context,
+                  icon: FudiIcons.award,
+                  title: 'Ahorra en cada compra',
+                  description:
+                      'Disfruta de excelentes platos y productos de calidad con descuentos de hasta el 70%.',
+                ),
+                const SizedBox(height: FudiSpacing.md),
+                _buildBenefitCard(
+                  context,
+                  icon: FudiIcons.mapPin,
+                  title: 'Apoya a negocios locales',
+                  description:
+                      'Conéctate con restaurantes, panaderías y supermercados de tu zona.',
+                ),
+                const SizedBox(height: FudiSpacing.xxl * 1.5),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => context.push(RouteNames.loginPath),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: FudiColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(FudiRadius.xl),
+                      ),
+                    ),
+                    child: const Text(
+                      'Iniciar sesión',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: FudiSpacing.md),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => context.push(RouteNames.signupPath),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: FudiColors.primary,
+                      side: const BorderSide(color: FudiColors.primary, width: 2),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(FudiRadius.xl),
+                      ),
+                    ),
+                    child: const Text(
+                      'Crear una cuenta',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: FudiSpacing.xl),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBenefitCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String description,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(FudiSpacing.lg),
+      decoration: BoxDecoration(
+        color: FudiColors.background,
+        borderRadius: BorderRadius.circular(FudiRadius.xl),
+        border: Border.all(color: FudiColors.borderSolid),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(FudiSpacing.sm),
+            decoration: BoxDecoration(
+              color: FudiColors.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: FudiColors.primary, size: 24),
+          ),
+          const SizedBox(width: FudiSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: FudiTypography.labelSmall.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: FudiColors.foreground,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: FudiTypography.bodySmall.copyWith(
+                    color: FudiColors.mutedForeground,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

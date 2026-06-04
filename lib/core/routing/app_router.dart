@@ -301,16 +301,16 @@ GoRouter createAppRouter(
             builder: (context, state) => const BusinessProductsScreen(),
             routes: [
               GoRoute(
+                path: 'create',
+                name: RouteNames.businessProductCreate,
+                builder: (context, state) => const BusinessProductFormScreen(),
+              ),
+              GoRoute(
                 path: ':id',
                 name: RouteNames.businessProductDetail,
                 builder: (context, state) => BusinessProductDetailScreen(
                   productId: state.pathParameters['id']!,
                 ),
-              ),
-              GoRoute(
-                path: 'create',
-                name: RouteNames.businessProductCreate,
-                builder: (context, state) => const BusinessProductFormScreen(),
               ),
               GoRoute(
                 path: 'edit/:id',

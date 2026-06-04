@@ -26,6 +26,9 @@ import 'route_names.dart';
 class RouteGuards {
   RouteGuards._();
 
+  /// Flag to track if splash screen has been shown during this session.
+  static bool splashShown = false;
+
   /// Public routes accessible without authentication.
   static const _publicRoutes = {
     RouteNames.splashPath,
@@ -119,7 +122,7 @@ class RouteGuards {
 
     // Business trying to access consumer-only routes
     if (role == 'business' && isConsumerOnlyRoute(currentPath)) {
-      return RouteNames.businessStatisticsPath;
+      return RouteNames.businessProductsPath;
     }
 
     return null; // No redirect needed
@@ -138,6 +141,23 @@ class RouteGuards {
     AuthSessionNotifier? sessionNotifier,
   }) {
     final hasAuthError = sessionNotifier?.hasAuthError ?? false;
+    final currentPath = state.matchedLocation;
+
+    // Reset splash flag if the user is currently on the splash screen
+    if (currentPath == RouteNames.splashPath) {
+      splashShown = true;
+    }
+
+    // Force redirection to splash screen on first load if accessing home path
+    if (!splashShown && currentPath == RouteNames.homePath) {
+      splashShown = true;
+      SentryBreadcrumb.navigation(
+        state.matchedLocation,
+        RouteNames.splashPath,
+        role: 'guest',
+      );
+      return RouteNames.splashPath;
+    }
 
     // Auth check takes priority
     final authRedirect = authGuard(
@@ -188,7 +208,7 @@ class RouteGuards {
   static String defaultPathFor(UserRole role) {
     switch (role) {
       case UserRole.business:
-        return RouteNames.businessStatisticsPath;
+        return RouteNames.businessProductsPath;
       case UserRole.admin:
       case UserRole.user:
         return RouteNames.homePath;
