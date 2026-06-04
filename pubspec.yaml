@@ -21,7 +21,7 @@ dependencies:
   supabase_flutter: ^2.12.4
 
   # Observabilidad
-  sentry_flutter: ^9.19.0
+  sentry_flutter: ^9.21.0
 
   # Analytics
   firebase_core: ^4.7.0

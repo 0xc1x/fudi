@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../core/error/user_friendly_message.dart';
 import '../../../core/routing/route_names.dart';
@@ -72,6 +74,37 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         },
         child: CustomScrollView(
           slivers: [
+            // ─── Sentry verification button (debug only) ────────────
+            if (kDebugMode)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      // Send a Sentry logger API test log
+                      Sentry.logger.fmt.info("Test log from %s", [
+                        "Sentry (Fudi App)",
+                      ]);
+                      // Emit a Sentry test metric
+                      Sentry.metrics.count('test_metric_clicks', 1);
+                      // Throw the test exception
+                      throw StateError(
+                        'This is test exception from HomeScreen',
+                      );
+                    },
+                    icon: const Icon(Icons.bug_report),
+                    label: const Text(
+                      'Probar Sentry (Test Exception + Logs + Metrics)',
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.purple,
+                    ),
+                  ),
+                ),
+              ),
             statsAsync.when(
               data: (stats) => SliverToBoxAdapter(
                 child: _CategoryChips(
