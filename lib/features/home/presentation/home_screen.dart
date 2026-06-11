@@ -14,12 +14,15 @@ import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../../core/utils/geo_utils.dart';
+import '../../auth/domain/user_profile.dart';
+import '../../auth/presentation/auth_state_provider.dart';
 import '../../offers/domain/offer.dart';
 import '../../offers/domain/offer_repository.dart';
 import '../../offers/presentation/offer_providers.dart';
 import '../../profile/domain/saved_address_model.dart';
 import '../../profile/presentation/profile_providers.dart';
 import '../../favorites/presentation/favorites_providers.dart';
+import 'welcome_message.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -105,6 +108,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
               ),
+            const SliverToBoxAdapter(child: _WelcomeBanner()),
             statsAsync.when(
               data: (stats) => SliverToBoxAdapter(
                 child: _CategoryChips(
@@ -605,6 +609,105 @@ class _AddressItem extends StatelessWidget {
 /// Layout constants for the dropdown overlay.
 const double _kDropdownTopOffset = 8.0;
 const double _kDropdownMaxWidth = 280.0;
+
+class _WelcomeBanner extends ConsumerWidget {
+  const _WelcomeBanner();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authSessionNotifierProvider);
+    final profile = authState.profile;
+
+    if (profile == null || authState.role != UserRole.user) {
+      return const SizedBox.shrink();
+    }
+
+    final state = ref.read(homeScreenStateProvider);
+    if (state.welcomeShown) {
+      return const SizedBox.shrink();
+    }
+
+    final now = DateTime.now();
+    final message = WelcomeMessage.generate(profile: profile, now: now);
+    final emoji = WelcomeMessage.getTimeBasedEmoji(now.hour);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(homeScreenStateProvider.notifier).markWelcomeShown();
+    });
+
+    return AnimatedOpacity(
+      opacity: 1.0,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOut,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(
+          FudiSpacing.lg,
+          FudiSpacing.md,
+          FudiSpacing.lg,
+          FudiSpacing.sm,
+        ),
+        padding: const EdgeInsets.all(FudiSpacing.lg),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              FudiColors.primary.withValues(alpha: 0.12),
+              FudiColors.primary.withValues(alpha: 0.06),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(FudiRadius.xl),
+          border: Border.all(
+            color: FudiColors.primary.withValues(alpha: 0.2),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(FudiSpacing.sm),
+              decoration: BoxDecoration(
+                color: FudiColors.primary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(FudiRadius.lg),
+              ),
+              child: Text(
+                emoji,
+                style: const TextStyle(fontSize: 24),
+              ),
+            ),
+            const SizedBox(width: FudiSpacing.md),
+            Expanded(
+              child: Text(
+                message,
+                style: FudiTypography.bodyMedium.copyWith(
+                  color: FudiColors.foreground,
+                  fontWeight: FontWeight.w500,
+                  height: 1.3,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+final homeScreenStateProvider = NotifierProvider<HomeScreenStateNotifier, HomeScreenState>(HomeScreenStateNotifier.new);
+
+class HomeScreenStateNotifier extends Notifier<HomeScreenState> {
+  @override
+  HomeScreenState build() => HomeScreenState();
+
+  void markWelcomeShown() {
+    state = HomeScreenState(welcomeShown: true);
+  }
+}
+
+class HomeScreenState {
+  const HomeScreenState({this.welcomeShown = false});
+  final bool welcomeShown;
+}
 
 class _CategoryChips extends StatelessWidget {
   const _CategoryChips({
