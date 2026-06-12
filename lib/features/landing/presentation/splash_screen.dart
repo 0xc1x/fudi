@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import '../../../core/routing/route_names.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_logo.dart';
 import '../../../core/ui/fudi_spacing.dart';
@@ -26,15 +24,7 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 1000),
     );
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-
     _controller.forward();
-
-    // Redirigir después de 2.5 segundos
-    Future.delayed(const Duration(milliseconds: 2500), () {
-      if (mounted) {
-        context.go(RouteNames.homePath);
-      }
-    });
   }
 
   @override
@@ -49,10 +39,7 @@ class _SplashScreenState extends State<SplashScreen>
       backgroundColor: FudiColors.primary,
       body: Stack(
         children: [
-          // ─── Patrones de fondo ─────────────────────────────────────
           const _BackgroundPatterns(),
-
-          // ─── Contenido central ─────────────────────────────────────
           Center(
             child: FadeTransition(
               opacity: _fadeAnimation,
@@ -88,7 +75,6 @@ class _BackgroundPatterns extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Generar posiciones deterministas "aleatorias" para que no cambien en cada rebuild
     final patterns = [
       _PatternData(top: -50, left: -40, size: 280, rotation: 0.2),
       _PatternData(top: 100, right: -80, size: 320, rotation: -0.4),
@@ -117,11 +103,11 @@ class _PositionedPattern extends StatelessWidget {
       child: Transform.rotate(
         angle: data.rotation,
         child: Opacity(
-          opacity: 0.08, // Muy sutil
+          opacity: 0.08,
           child: FudiLogo(
             variant: FudiLogoVariant.icon,
-            width: data.size, // Usar el tamaño definido en data
-            color: Colors.white, // Tono más claro que el crema del fondo
+            width: data.size,
+            color: Colors.white,
           ),
         ),
       ),

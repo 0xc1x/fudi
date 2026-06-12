@@ -24,7 +24,6 @@ import '../../features/profile/presentation/payment_methods_screen.dart';
 import '../../features/profile/presentation/notification_settings_screen.dart';
 import '../../features/profile/presentation/general_settings_screen.dart';
 import '../../features/landing/presentation/landing_screen.dart';
-import '../../features/landing/presentation/splash_screen.dart';
 import '../../features/landing/presentation/about_screen.dart';
 import '../../features/landing/presentation/help_center_screen.dart';
 import '../../features/landing/presentation/terms_screen.dart';
@@ -111,7 +110,7 @@ GoRouter createAppRouter(
   Listenable refreshListenable,
 ) {
   return GoRouter(
-    initialLocation: RouteNames.splashPath,
+    initialLocation: RouteNames.homePath,
     debugLogDiagnostics: true,
     refreshListenable: refreshListenable,
     redirect: (context, state) {
@@ -130,11 +129,6 @@ GoRouter createAppRouter(
     observers: [SentryNavigatorObserver(), _SentryRouteObserver()],
     routes: [
       // ─── Rutas sin BottomNav ─────────────────────────────────────
-      GoRoute(
-        path: RouteNames.splashPath,
-        name: RouteNames.splash,
-        builder: (context, state) => const SplashScreen(),
-      ),
       GoRoute(
         path: RouteNames.loginPath,
         name: RouteNames.login,

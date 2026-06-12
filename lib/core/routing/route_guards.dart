@@ -26,12 +26,8 @@ import 'route_names.dart';
 class RouteGuards {
   RouteGuards._();
 
-  /// Flag to track if splash screen has been shown during this session.
-  static bool splashShown = false;
-
   /// Public routes accessible without authentication.
   static const _publicRoutes = {
-    RouteNames.splashPath,
     RouteNames.loginPath,
     RouteNames.signupPath,
     RouteNames.updatePasswordPath,
@@ -141,23 +137,6 @@ class RouteGuards {
     AuthSessionNotifier? sessionNotifier,
   }) {
     final hasAuthError = sessionNotifier?.hasAuthError ?? false;
-    final currentPath = state.matchedLocation;
-
-    // Reset splash flag if the user is currently on the splash screen
-    if (currentPath == RouteNames.splashPath) {
-      splashShown = true;
-    }
-
-    // Force redirection to splash screen on first load if accessing home path
-    if (!splashShown && currentPath == RouteNames.homePath) {
-      splashShown = true;
-      SentryBreadcrumb.navigation(
-        state.matchedLocation,
-        RouteNames.splashPath,
-        role: 'guest',
-      );
-      return RouteNames.splashPath;
-    }
 
     // Auth check takes priority
     final authRedirect = authGuard(
