@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../core/error/user_friendly_message.dart';
+import '../../../core/ui/atoms/pickup_code_qr.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
@@ -821,7 +822,10 @@ class _ConfirmationView extends StatelessWidget {
                             color: FudiColors.muted,
                             borderRadius: BorderRadius.circular(FudiRadius.lg),
                           ),
-                          child: _QrCodePlaceholder(code: result.pickupCode),
+                          child: PickupCodeQr(
+                            orderId: result.orderId,
+                            pickupCode: result.pickupCode,
+                          ),
                         ),
                         const SizedBox(height: FudiSpacing.md),
                         Text(
@@ -950,38 +954,4 @@ children: [
   }
 }
 
-class _QrCodePlaceholder extends StatelessWidget {
-  const _QrCodePlaceholder({required this.code});
 
-  final String code;
-
-  @override
-  Widget build(BuildContext context) {
-    final seed = code.isNotEmpty ? code.codeUnitAt(0) : 42;
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 7,
-        mainAxisSpacing: 3,
-        crossAxisSpacing: 3,
-      ),
-      itemCount: 49,
-      itemBuilder: (context, i) {
-        final isCorner = (i < 2 || (i >= 5 && i < 7)) ||
-            (i >= 42 && i < 44) || (i >= 45 && i < 47) ||
-            (i % 7 < 2 && i < 14) ||
-            (i % 7 >= 5 && i < 14) ||
-            (i % 7 < 2 && i >= 35) ||
-            (i % 7 >= 5 && i >= 35);
-        final isFilled = isCorner || ((i + seed) % 3 == 0);
-        return Container(
-          decoration: BoxDecoration(
-            color: isFilled ? FudiColors.foreground : FudiColors.background,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        );
-      },
-    );
-  }
-}

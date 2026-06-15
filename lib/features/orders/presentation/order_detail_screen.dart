@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/ui/atoms/pickup_code_qr.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_bottom_action_bar.dart';
 import '../../../core/ui/fudi_info_banner.dart';
@@ -85,7 +86,10 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (isUpcoming) ...[
-              _PickupCodeCard(code: order.pickupCode),
+              _PickupCodeCard(
+                orderId: order.id,
+                code: order.pickupCode,
+              ),
               const SizedBox(height: FudiSpacing.lg),
             ],
             _BusinessInfoCard(order: order),
@@ -305,8 +309,9 @@ class _StatusBadge extends StatelessWidget {
 }
 
 class _PickupCodeCard extends StatelessWidget {
-  const _PickupCodeCard({required this.code});
+  const _PickupCodeCard({required this.orderId, required this.code});
 
+  final String orderId;
   final String code;
 
   @override
@@ -344,7 +349,10 @@ class _PickupCodeCard extends StatelessWidget {
               color: FudiColors.muted,
               borderRadius: BorderRadius.circular(FudiRadius.lg),
             ),
-            child: _QrCodePlaceholder(code: code),
+            child: PickupCodeQr(
+              orderId: orderId,
+              pickupCode: code,
+            ),
           ),
           const SizedBox(height: FudiSpacing.md),
           Text(
@@ -364,42 +372,6 @@ class _PickupCodeCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _QrCodePlaceholder extends StatelessWidget {
-  const _QrCodePlaceholder({required this.code});
-
-  final String code;
-
-  @override
-  Widget build(BuildContext context) {
-    final seed = code.isNotEmpty ? code.codeUnitAt(0) : 42;
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 7,
-        mainAxisSpacing: 3,
-        crossAxisSpacing: 3,
-      ),
-      itemCount: 49,
-      itemBuilder: (context, i) {
-        final isCorner = (i < 2 || (i >= 5 && i < 7)) ||
-            (i >= 42 && i < 44) || (i >= 45 && i < 47) ||
-            (i % 7 < 2 && i < 14) ||
-            (i % 7 >= 5 && i < 14) ||
-            (i % 7 < 2 && i >= 35) ||
-            (i % 7 >= 5 && i >= 35);
-        final isFilled = isCorner || ((i + seed) % 3 == 0);
-        return Container(
-          decoration: BoxDecoration(
-            color: isFilled ? FudiColors.foreground : FudiColors.background,
-            borderRadius: BorderRadius.circular(2),
-          ),
-        );
-      },
     );
   }
 }

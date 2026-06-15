@@ -1,9 +1,12 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/error/data_exceptions.dart';
+import '../../../core/error/fudi_exception.dart';
+import '../../../core/error/postgrest_exception_mapper.dart';
 import '../../orders/domain/order_model.dart';
 import '../../orders/domain/order_status.dart';
 import '../domain/business_order_repository.dart';
+import '../domain/pickup_validation_result.dart';
 
 class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
   SupabaseBusinessOrderRepository({required SupabaseClient supabaseClient})
@@ -54,6 +57,45 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
     } catch (e) {
       throw UnknownDataException(
         message: 'Error al actualizar el estado del pedido',
+      );
+    }
+  }
+
+  @override
+  Future<PickupValidationResult> validatePickupCode({
+    required String orderId,
+    required String pickupCode,
+  }) async {
+    try {
+      final response = await _supabaseClient.rpc(
+        'validate_pickup_code',
+        params: {
+          'p_order_id': orderId,
+          'p_pickup_code': pickupCode,
+        },
+      );
+
+      final result = response as Map<String, dynamic>;
+
+      if (result['success'] == true) {
+        return PickupValidationResult(
+          success: true,
+          orderId: result['order_id'] as String?,
+        );
+      }
+
+      return PickupValidationResult(
+        success: false,
+        errorCode: result['error'] as String?,
+        message: result['message'] as String?,
+      );
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'business');
+    } on FudiException {
+      rethrow;
+    } catch (e) {
+      throw UnknownDataException(
+        message: 'Error al validar el código de recogida',
       );
     }
   }
