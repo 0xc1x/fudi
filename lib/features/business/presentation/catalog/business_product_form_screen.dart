@@ -38,7 +38,9 @@ class _BusinessProductFormScreenState
 
   String _selectedCategory = 'Sorpresa';
   XFile? _imageFile;
+  DateTime _startDate = DateTime.now();
   TimeOfDay _startTime = const TimeOfDay(hour: 18, minute: 0);
+  DateTime _endDate = DateTime.now();
   TimeOfDay _endTime = const TimeOfDay(hour: 20, minute: 0);
 
   bool _isSubmitting = false;
@@ -80,9 +82,19 @@ class _BusinessProductFormScreenState
         _includesController.text = offer.includes ?? '';
         _allergensController.text = offer.allergens ?? '';
         _selectedCategory = offer.category ?? 'Sorpresa';
+        _startDate = DateTime(
+          offer.pickupStart.year,
+          offer.pickupStart.month,
+          offer.pickupStart.day,
+        );
         _startTime = TimeOfDay(
           hour: offer.pickupStart.hour,
           minute: offer.pickupStart.minute,
+        );
+        _endDate = DateTime(
+          offer.pickupEnd.year,
+          offer.pickupEnd.month,
+          offer.pickupEnd.day,
         );
         _endTime = TimeOfDay(
           hour: offer.pickupEnd.hour,
@@ -189,6 +201,39 @@ class _BusinessProductFormScreenState
     }
   }
 
+  Future<void> _selectDate(bool isStart) async {
+    final now = DateTime.now();
+    final initial = isStart ? _startDate : _endDate;
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: initial.isBefore(now) ? initial : now,
+      lastDate: now.add(const Duration(days: 365)),
+    );
+
+    if (picked != null) {
+      setState(() {
+        if (isStart) {
+          _startDate = picked;
+          if (_endDate.isBefore(_startDate)) {
+            _endDate = _startDate;
+          }
+        } else {
+          _endDate = picked;
+        }
+      });
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    const months = [
+      '', 'ene', 'feb', 'mar', 'abr', 'may', 'jun',
+      'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
+    ];
+    return '${date.day} ${months[date.month]} ${date.year}';
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -238,8 +283,20 @@ class _BusinessProductFormScreenState
       stock: int.parse(_stockController.text),
       initialStock: int.parse(_stockController.text),
         category: _selectedCategory,
-        pickupStart: DateTime(2024, 1, 1, _startTime.hour, _startTime.minute),
-        pickupEnd: DateTime(2024, 1, 1, _endTime.hour, _endTime.minute),
+        pickupStart: DateTime(
+          _startDate.year,
+          _startDate.month,
+          _startDate.day,
+          _startTime.hour,
+          _startTime.minute,
+        ),
+        pickupEnd: DateTime(
+          _endDate.year,
+          _endDate.month,
+          _endDate.day,
+          _endTime.hour,
+          _endTime.minute,
+        ),
       isActive: true,
       includes: _includesController.text.isNotEmpty
             ? _includesController.text
@@ -401,8 +458,28 @@ class _BusinessProductFormScreenState
                   Row(
                     children: [
                       Expanded(
+                        child: _buildDatePicker(
+                          label: 'Fecha desde',
+                          date: _startDate,
+                          onTap: () => _selectDate(true),
+                        ),
+                      ),
+                      const SizedBox(width: FudiSpacing.md),
+                      Expanded(
+                        child: _buildDatePicker(
+                          label: 'Fecha hasta',
+                          date: _endDate,
+                          onTap: () => _selectDate(false),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: FudiSpacing.md),
+                  Row(
+                    children: [
+                      Expanded(
                         child: _buildTimePicker(
-                          label: 'Desde',
+                          label: 'Hora desde',
                           time: _startTime,
                           onTap: () => _selectTime(true),
                         ),
@@ -410,7 +487,7 @@ class _BusinessProductFormScreenState
                       const SizedBox(width: FudiSpacing.md),
                       Expanded(
                         child: _buildTimePicker(
-                          label: 'Hasta',
+                          label: 'Hora hasta',
                           time: _endTime,
                           onTap: () => _selectTime(false),
                         ),
@@ -555,6 +632,37 @@ class _BusinessProductFormScreenState
           decoration: InputDecoration(
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(FudiRadius.lg),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDatePicker({
+    required String label,
+    required DateTime date,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: FudiTypography.labelSmall),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              border: Border.all(color: FudiColors.borderSolid),
+              borderRadius: BorderRadius.circular(FudiRadius.lg),
+            ),
+            child: Row(
+              children: [
+                const Icon(FudiIcons.calendar, size: 20),
+                const SizedBox(width: 8),
+                Text(_formatDate(date)),
+              ],
             ),
           ),
         ),
