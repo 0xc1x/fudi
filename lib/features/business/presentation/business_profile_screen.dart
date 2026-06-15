@@ -165,7 +165,7 @@ class _BusinessProfileContentState
                     Positioned(
                       left: 0,
                       right: 0,
-                      bottom: -32,
+                      bottom: -50,
                       child: Container(
                         decoration: const BoxDecoration(
                           color: FudiColors.background,
@@ -282,7 +282,7 @@ class _BusinessProfileContentState
               // ─── Content Sections ─────────────────────────────
               SliverToBoxAdapter(
                 child: Transform.translate(
-                  offset: const Offset(0, -32),
+                  offset: const Offset(0, 10),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: FudiSpacing.lg,
@@ -344,6 +344,7 @@ class _StatsCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(FudiSpacing.lg),
+      margin: const EdgeInsets.only(top: FudiSpacing.xxl + FudiSpacing.lg),
       decoration: BoxDecoration(
         color: const Color(0xFFF0FDF4),
         borderRadius: BorderRadius.circular(FudiRadius.xxl),
@@ -359,7 +360,7 @@ class _StatsCard extends StatelessWidget {
               color: Color(0xFF15803D),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: FudiSpacing.sm),
           Text(
             'Comidas rescatadas del desperdicio',
             style: FudiTypography.bodySmall.copyWith(
@@ -369,7 +370,7 @@ class _StatsCard extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           if (profile.memberSince != null) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
               'Miembro desde ${profile.memberSince}',
               style: FudiTypography.bodySmall.copyWith(
@@ -392,20 +393,23 @@ class _AboutCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FudiSurfaceCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Acerca de', style: FudiTypography.labelMedium),
-          const SizedBox(height: FudiSpacing.sm),
-          Text(
-            description,
-            style: FudiTypography.bodyMedium.copyWith(
-              color: FudiColors.mutedForeground,
-              height: 1.6,
+    return SizedBox(
+      width: double.infinity,
+      child: FudiSurfaceCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Acerca de', style: FudiTypography.labelMedium),
+            const SizedBox(height: FudiSpacing.sm),
+            Text(
+              description,
+              style: FudiTypography.bodyMedium.copyWith(
+                color: FudiColors.mutedForeground,
+                height: 1.6,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -641,22 +645,36 @@ class _ReviewItem extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-            Text(review.userName, style: FudiTypography.labelSmall),
-            Text(dateStr, style: FudiTypography.bodySmall),
-          ],
-        ),
-        const SizedBox(height: 2),
-        Row(
-          children: [
-            const Icon(Icons.star_rounded, size: 14, color: Color(0xFFFACC15)),
-            const SizedBox(width: 2),
-            Text('Producto ${review.productRating}', style: FudiTypography.bodySmall),
-            const SizedBox(width: FudiSpacing.sm),
-            const Icon(Icons.store_rounded, size: 14, color: Color(0xFFFACC15)),
-            const SizedBox(width: 2),
-            Text('Negocio ${review.businessRating}', style: FudiTypography.bodySmall),
-          ],
-        ),
+                    Text(review.userName, style: FudiTypography.labelSmall),
+                    Text(dateStr, style: FudiTypography.bodySmall),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.star_rounded,
+                      size: 14,
+                      color: Color(0xFFFACC15),
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      'Producto ${review.productRating}',
+                      style: FudiTypography.bodySmall,
+                    ),
+                    const SizedBox(width: FudiSpacing.sm),
+                    const Icon(
+                      Icons.store_rounded,
+                      size: 14,
+                      color: Color(0xFFFACC15),
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      'Negocio ${review.businessRating}',
+                      style: FudiTypography.bodySmall,
+                    ),
+                  ],
+                ),
                 if (review.productName != null) ...[
                   const SizedBox(height: 2),
                   Text(review.productName!, style: FudiTypography.bodySmall),
