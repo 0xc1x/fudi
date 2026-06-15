@@ -484,17 +484,19 @@ class _ProductInfoCard extends StatelessWidget {
 
   final Offer offer;
 
-  String _formatPickupEnd() {
-    final hour = offer.pickupEnd.hour.toString().padLeft(2, '0');
-    final minute = offer.pickupEnd.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
+  String _formatDate(DateTime dt) {
+    const months = [
+      '', 'ene', 'feb', 'mar', 'abr', 'may', 'jun',
+      'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
+    ];
+    final hour = dt.hour.toString().padLeft(2, '0');
+    final minute = dt.minute.toString().padLeft(2, '0');
+    return '${dt.day} ${months[dt.month]} $hour:$minute';
   }
 
-  String _formatPickupStart() {
-    final hour = offer.pickupStart.hour.toString().padLeft(2, '0');
-    final minute = offer.pickupStart.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
-  }
+  String _formatPickupEnd() => _formatDate(offer.pickupEnd);
+
+  String _formatPickupStart() => _formatDate(offer.pickupStart);
 
   @override
   Widget build(BuildContext context) {

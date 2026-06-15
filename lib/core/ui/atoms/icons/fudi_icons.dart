@@ -37,6 +37,7 @@ class FudiIcons {
   static const IconData starHalf = IconData(0xf501, fontFamily: 'Lucide', fontPackage: 'lucide_icons');
   static const IconData starOutline = IconData(0xf502, fontFamily: 'Lucide', fontPackage: 'lucide_icons');
   static const IconData clock = IconData(0xf221, fontFamily: 'Lucide', fontPackage: 'lucide_icons');
+  static const IconData calendar = IconData(0xf180, fontFamily: 'Lucide', fontPackage: 'lucide_icons');
   static const IconData store = IconData(0xf509, fontFamily: 'Lucide', fontPackage: 'lucide_icons');
   static const IconData package_ = IconData(0xf414, fontFamily: 'Lucide', fontPackage: 'lucide_icons');
   static const IconData shoppingBag = IconData(0xf4c7, fontFamily: 'Lucide', fontPackage: 'lucide_icons');
