@@ -9,6 +9,7 @@ import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../business_providers.dart';
 import '../../../orders/domain/order_model.dart';
 import '../../../orders/domain/order_status.dart';
+import 'pickup_scanner_sheet.dart';
 
 class BusinessOrderDetailScreen extends ConsumerWidget {
   const BusinessOrderDetailScreen({required this.orderId, super.key});
@@ -781,8 +782,57 @@ class _ActionBottomBar extends ConsumerWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Scan QR button
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  Navigator.of(ctx).pop();
+                  final scanned = await showPickupScannerSheet(
+                    context,
+                    ref,
+                    expectedOrderId: order.id,
+                  );
+                  if (!context.mounted) return;
+                  if (scanned) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Entrega completada con éxito'),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(FudiIcons.qrCode, size: 20),
+                label: const Text('Escanear código QR'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                children: [
+                  Expanded(child: Divider()),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      'o ingresa manualmente',
+                      style: TextStyle(
+                        color: FudiColors.mutedForeground,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  Expanded(child: Divider()),
+                ],
+              ),
+            ),
             Text(
-              'Solicita el código de 6 dígitos al cliente',
+              'Código de 6 dígitos del cliente',
               style: FudiTypography.bodySmall.copyWith(
                 color: FudiColors.mutedForeground,
               ),
@@ -816,12 +866,13 @@ class _ActionBottomBar extends ConsumerWidget {
           ),
           ElevatedButton(
             onPressed: () async {
-              if (controller.text.toUpperCase() ==
-                  order.pickupCode.toUpperCase()) {
-                await ref
-                    .read(businessOrderRepositoryProvider)
-                    .updateOrderStatus(order.id, OrderStatus.completed);
-                if (!ctx.mounted) return;
+              final repo = ref.read(businessOrderRepositoryProvider);
+              final result = await repo.validatePickupCode(
+                orderId: order.id,
+                pickupCode: controller.text,
+              );
+              if (!ctx.mounted) return;
+              if (result.success) {
                 ctx.pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(

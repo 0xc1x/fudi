@@ -52,6 +52,7 @@ enum OrderStatus {
             next == OrderStatus.expired;
       case OrderStatus.readyForPickup:
         return next == OrderStatus.pickedUp ||
+            next == OrderStatus.completed ||
             next == OrderStatus.cancelled ||
             next == OrderStatus.expired;
       case OrderStatus.pickedUp:
