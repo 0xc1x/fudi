@@ -70,9 +70,6 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
   @override
   Widget build(BuildContext context) {
     final order = widget.order;
-    final cancelAsync = ref.watch(orderCancelProvider);
-    final cancelState = cancelAsync.value ?? const CancelOrderState();
-    final isCanceling = cancelAsync.isLoading || cancelState.isCanceling;
     final isUpcoming = order.status.isActive;
 
     return Scaffold(
@@ -100,44 +97,7 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
             const SizedBox(height: FudiSpacing.lg),
             _StatusHistoryCard(order: order),
             const SizedBox(height: FudiSpacing.lg),
-            if (isUpcoming) ...[
-              FilledButton(
-                onPressed: () {},
-                style: FilledButton.styleFrom(
-                  backgroundColor: FudiColors.primary,
-                  minimumSize: const Size.fromHeight(56),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(FudiRadius.lg),
-                  ),
-                ),
-                child: Text(
-                  'Confirmar recogida',
-                  style: FudiTypography.labelMedium.copyWith(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(height: FudiSpacing.sm),
-              OutlinedButton(
-                onPressed: isCanceling
-                    ? null
-                    : () => _showCancelDialog(context),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: FudiColors.destructive,
-                  side: const BorderSide(color: FudiColors.destructive),
-                  minimumSize: const Size.fromHeight(56),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(FudiRadius.lg),
-                  ),
-                ),
-                child: Text(
-                  'Cancelar pedido',
-                  style: FudiTypography.labelMedium.copyWith(
-                    color: FudiColors.destructive,
-                  ),
-                ),
-              ),
-            ],
+
             if (order.status == OrderStatus.completed) ...[
               const FudiInfoBanner(
                 title: 'Tu opinión importa',
@@ -189,86 +149,6 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
               ),
             )
           : null,
-    );
-  }
-
-  void _showCancelDialog(BuildContext context) {
-    ref.read(orderCancelProvider.notifier).reset();
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => Consumer(
-        builder: (ctx, ref, _) {
-          final cancelAsync = ref.watch(orderCancelProvider);
-          final cancelState = cancelAsync.value ?? const CancelOrderState();
-          final isCanceling = cancelAsync.isLoading || cancelState.isCanceling;
-
-          if (cancelState.result?.success == true) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(ctx).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Pedido cancelado exitosamente')),
-              );
-            });
-          }
-
-          return AlertDialog(
-            title: const Text('Cancelar pedido'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '¿Estás seguro de que deseas cancelar el pedido #${widget.order.orderNumber}? Esta acción no se puede deshacer.',
-                ),
-                if (cancelState.errorMessage != null) ...[
-                  const SizedBox(height: FudiSpacing.sm),
-                  Text(
-                    cancelState.errorMessage!,
-                    style: FudiTypography.bodySmall.copyWith(
-                      color: FudiColors.destructive,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: isCanceling
-                    ? null
-                    : () {
-                        Navigator.of(ctx).pop();
-                        ref.read(orderCancelProvider.notifier).reset();
-                      },
-                child: const Text('No, mantener'),
-              ),
-              FilledButton(
-                onPressed: isCanceling
-                    ? null
-                    : () {
-                        ref
-                            .read(orderCancelProvider.notifier)
-                            .cancelOrder(widget.order.id);
-                      },
-                style: FilledButton.styleFrom(
-                  backgroundColor: FudiColors.destructive,
-                ),
-                child: isCanceling
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text('Sí, cancelar'),
-              ),
-            ],
-          );
-        },
-      ),
     );
   }
 }

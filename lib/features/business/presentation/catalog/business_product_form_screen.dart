@@ -324,6 +324,7 @@ class _BusinessProductFormScreenState
       }
 
       if (mounted) {
+        ref.invalidate(businessOffersProvider(business.id));
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Producto guardado correctamente')),
         );

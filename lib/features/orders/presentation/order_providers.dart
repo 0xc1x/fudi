@@ -65,12 +65,12 @@ class UserOrdersNotifier extends AsyncNotifier<List<OrderModel>> {
   }
 }
 
-final orderDetailProvider = FutureProvider.family<OrderModel, String>((
+final orderDetailProvider = StreamProvider.family<OrderModel, String>((
   ref,
   id,
-) async {
+) {
   final repo = ref.watch(orderRepositoryProvider);
-  return repo.getOrderById(id);
+  return repo.watchOrder(id);
 });
 
 enum ReservationStep { idle, reserving, paying, success, review, error }
