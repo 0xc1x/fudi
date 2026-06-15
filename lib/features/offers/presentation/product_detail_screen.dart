@@ -88,8 +88,8 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
     final isReserving =
         reservationState.step == ReservationStep.reserving ||
         reservationState.step == ReservationStep.paying;
-    final savings =
-        ((1 - offer.discountedPrice / offer.originalPrice) * 100).round();
+    final savings = ((1 - offer.discountedPrice / offer.originalPrice) * 100)
+        .round();
 
     return Scaffold(
       body: Stack(
@@ -135,9 +135,10 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
                       top: MediaQuery.of(context).padding.top + 12,
                       right: 16,
                       child: _CircleButton(
-                        onTap: () =>
-                            setState(() => _isFavorite = !_isFavorite),
-                        icon: _isFavorite ? FudiIcons.heart : FudiIcons.heartOutline,
+                        onTap: () => setState(() => _isFavorite = !_isFavorite),
+                        icon: _isFavorite
+                            ? FudiIcons.heart
+                            : FudiIcons.heartOutline,
                         iconColor: _isFavorite
                             ? const Color(0xFFEF4444)
                             : FudiColors.foreground,
@@ -181,10 +182,14 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
                           ),
                           decoration: BoxDecoration(
                             color: FudiColors.destructive,
-                            borderRadius: BorderRadius.circular(FudiRadius.full),
+                            borderRadius: BorderRadius.circular(
+                              FudiRadius.full,
+                            ),
                             boxShadow: [
                               BoxShadow(
-                                color: FudiColors.destructive.withValues(alpha: 0.3),
+                                color: FudiColors.destructive.withValues(
+                                  alpha: 0.3,
+                                ),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -204,14 +209,15 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
               ),
               SliverToBoxAdapter(
                 child: Transform.translate(
-                  offset: const Offset(0, -16),
+                  offset: const Offset(0, 0),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: FudiSpacing.lg,
+                      horizontal: FudiSpacing.xxl,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const SizedBox(height: FudiSpacing.md),
                         FudiSurfaceCard(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,47 +234,50 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
                                           offer.business.name,
                                           style: FudiTypography.headlineSmall
                                               .copyWith(
-                                            fontWeight: FontWeight.w800,
-                                          ),
+                                                fontWeight: FontWeight.w800,
+                                              ),
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
                                           offer.business.type,
                                           style: FudiTypography.bodyMedium
                                               .copyWith(
-                                            color: FudiColors.mutedForeground,
-                                          ),
+                                                color:
+                                                    FudiColors.mutedForeground,
+                                              ),
                                         ),
                                       ],
                                     ),
                                   ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-                if (offer.rating > 0) ...[
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star_rounded,
-                        size: 16,
-                        color: Color(0xFFFACC15),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        offer.rating.toStringAsFixed(1),
-                        style: FudiTypography.labelSmall,
-                      ),
-                    ],
-                  ),
-                  Text(
-                    '(${offer.reviewCount} reseñas)',
-                    style: FudiTypography.bodySmall.copyWith(
-                      color: FudiColors.mutedForeground,
-                    ),
-                  ),
-                ],
-          ],
-        ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      if (offer.rating > 0) ...[
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.star_rounded,
+                                              size: 16,
+                                              color: Color(0xFFFACC15),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              offer.rating.toStringAsFixed(1),
+                                              style: FudiTypography.labelSmall,
+                                            ),
+                                          ],
+                                        ),
+                                        Text(
+                                          '(${offer.reviewCount} reseñas)',
+                                          style: FudiTypography.bodySmall
+                                              .copyWith(
+                                                color:
+                                                    FudiColors.mutedForeground,
+                                              ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: FudiSpacing.md),
@@ -302,18 +311,19 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
                                 ],
                               ),
                               const SizedBox(height: FudiSpacing.md),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: () => context.push(
-                              '/business-profile/${offer.businessId}',
-                            ),
+                              SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton(
+                                  onPressed: () => context.push(
+                                    '/business-profile/${offer.businessId}',
+                                  ),
                                   style: OutlinedButton.styleFrom(
                                     backgroundColor: FudiColors.muted,
                                     side: BorderSide.none,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(FudiRadius.xl),
+                                      borderRadius: BorderRadius.circular(
+                                        FudiRadius.xl,
+                                      ),
                                     ),
                                     padding: const EdgeInsets.symmetric(
                                       vertical: FudiSpacing.md,
@@ -341,23 +351,26 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
                         ),
                         const SizedBox(height: FudiSpacing.md),
                         if (offer.description != null)
-                          FudiSurfaceCard(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Descripción',
-                                  style: FudiTypography.labelMedium,
-                                ),
-                                const SizedBox(height: FudiSpacing.sm),
-                                Text(
-                                  offer.description!,
-                                  style: FudiTypography.bodyMedium.copyWith(
-                                    color: FudiColors.mutedForeground,
-                                    height: 1.5,
+                          SizedBox(
+                            width: double.infinity,
+                            child: FudiSurfaceCard(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Descripción',
+                                    style: FudiTypography.labelMedium,
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: FudiSpacing.sm),
+                                  Text(
+                                    offer.description!,
+                                    style: FudiTypography.bodyMedium.copyWith(
+                                      color: FudiColors.mutedForeground,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         const SizedBox(height: FudiSpacing.md),
@@ -385,8 +398,8 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
                                 valueColor: offer.stock > 3
                                     ? FudiColors.success
                                     : offer.stock > 0
-                                        ? FudiColors.warning
-                                        : FudiColors.destructive,
+                                    ? FudiColors.warning
+                                    : FudiColors.destructive,
                               ),
                               const SizedBox(height: FudiSpacing.sm),
                               _InfoRow(
@@ -424,11 +437,8 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
                           padding: const EdgeInsets.all(FudiSpacing.lg),
                           decoration: BoxDecoration(
                             color: const Color(0xFFF0FDF4),
-                            borderRadius:
-                                BorderRadius.circular(FudiRadius.xl),
-                            border: Border.all(
-                              color: const Color(0xFFBBF7D0),
-                            ),
+                            borderRadius: BorderRadius.circular(FudiRadius.xl),
+                            border: Border.all(color: const Color(0xFFBBF7D0)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,10 +490,8 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
                 bottom: FudiSpacing.md + MediaQuery.of(context).padding.bottom,
               ),
               decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  top: BorderSide(color: FudiColors.borderSolid),
-                ),
+                color: FudiColors.background,
+                border: Border(top: BorderSide(color: FudiColors.borderSolid)),
                 boxShadow: [
                   BoxShadow(
                     color: Color(0x1A000000),
@@ -524,8 +532,7 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
                         backgroundColor: FudiColors.primary,
                         minimumSize: const Size.fromHeight(56),
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(FudiRadius.xl),
+                          borderRadius: BorderRadius.circular(FudiRadius.xl),
                         ),
                       ),
                       child: isReserving
@@ -541,8 +548,8 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
                               offer.isOutOfStock
                                   ? 'Agotado'
                                   : offer.isExpired
-                                      ? 'Ventana de pickup cerrada'
-                                      : 'Reservar ahora',
+                                  ? 'Ventana de pickup cerrada'
+                                  : 'Reservar ahora',
                               style: FudiTypography.labelMedium.copyWith(
                                 color: Colors.white,
                               ),
@@ -567,11 +574,12 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
   String _formatDistance(Offer offer) {
     final pos = ref.read(userLocationProvider).asData?.value;
     return GeoUtils.formatDistance(
-      offer.business.latitude, offer.business.longitude,
-      userLat: pos?.latitude, userLng: pos?.longitude,
+      offer.business.latitude,
+      offer.business.longitude,
+      userLat: pos?.latitude,
+      userLng: pos?.longitude,
     );
   }
-
 }
 
 class _CircleButton extends StatelessWidget {

@@ -22,7 +22,7 @@ class FudiColors {
 
   /// Purple Lavender — #A398DA
   static const Color purpleLight = Color(0xFFA398DA);
-  
+
   /// Indigo Purple — #725EFE
   static const Color purpleDeep = Color(0xFF725EFE);
 
@@ -82,13 +82,13 @@ class FudiColors {
 
   /// Naranja Vibrante — #FC5C2B
   static const Color altPrimary = Color(0xFFFC5C2B);
-  
+
   /// Negro Carbón — #201C1C
   static const Color altDark = Color(0xFF201C1C);
-  
+
   /// Verde Menta — #AEF2CD
   static const Color altGreen = Color(0xFFAEF2CD);
-  
+
   /// Blanco Hueso — #F7F7F5
   static const Color altLight = Color(0xFFF7F7F5);
 }
