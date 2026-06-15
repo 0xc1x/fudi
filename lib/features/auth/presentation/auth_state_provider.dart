@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 
 import '../../../core/analytics/analytics_service.dart';
 import '../../../core/analytics/analytics_provider.dart';
@@ -40,6 +41,12 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
   bool _hasPendingPasswordRecovery = false;
   bool _hasAuthError = false;
   String? _pendingNotice;
+  
+  Timer? _refreshTimer;
+  int _refreshRetryCount = 0;
+  static const int _maxRefreshRetries = 3;
+  static const Duration _refreshInterval = Duration(minutes: 30);
+  static const Duration _refreshRetryDelay = Duration(seconds: 5);
 
   @override
   AuthSessionState build() {
@@ -64,21 +71,87 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
 
       if (nextState.event == AuthFlowEvent.signedOut) {
         _signOutRequested = false;
+        _stopRefreshTimer();
       }
 
       if (nextState.event == AuthFlowEvent.signedIn) {
         _hasAuthError = false;
+        _startRefreshTimer();
+      }
+
+      if (nextState.event == AuthFlowEvent.tokenRefreshed) {
+        _refreshRetryCount = 0;
       }
 
       _refreshListenable._notify();
     });
 
+    if (initialState.isAuthenticated) {
+      _startRefreshTimer();
+    }
+
     ref.onDispose(() {
       _subscription?.cancel();
+      _stopRefreshTimer();
       _refreshListenable.dispose();
     });
 
     return initialState;
+  }
+
+  void _startRefreshTimer() {
+    _stopRefreshTimer();
+    _refreshTimer = Timer.periodic(_refreshInterval, (_) => _refreshSession());
+  }
+
+  void _stopRefreshTimer() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+  }
+
+  Future<void> _refreshSession() async {
+    final repository = ref.read(authRepositoryProvider);
+    final currentSession = state.session;
+    
+    if (currentSession == null) {
+      _stopRefreshTimer();
+      return;
+    }
+
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final expiresAt = currentSession.expiresAt;
+    
+    if (expiresAt != null && now >= expiresAt - 300) {
+      await _performRefreshWithRetry(repository);
+    }
+  }
+
+  Future<void> _performRefreshWithRetry(AuthRepository repository) async {
+    try {
+      final newSession = await repository.refreshSession();
+      if (newSession != null) {
+        _refreshRetryCount = 0;
+        _refreshListenable._notify();
+      } else {
+        _handleRefreshFailure();
+      }
+    } catch (error) {
+      _refreshRetryCount++;
+      if (_refreshRetryCount >= _maxRefreshRetries) {
+        _handleRefreshFailure();
+      } else {
+        await Future.delayed(_refreshRetryDelay * _refreshRetryCount);
+        await _performRefreshWithRetry(repository);
+      }
+    }
+  }
+
+  void _handleRefreshFailure() {
+    _refreshRetryCount = 0;
+    _stopRefreshTimer();
+    _pendingNotice = 'Tu sesión expiró. Inicia sesión de nuevo para continuar.';
+    final notifier = ref.read(authControllerProvider.notifier);
+    notifier.signOut();
   }
 
   AuthFlowEvent get lastEvent => _lastEvent;

@@ -7,6 +7,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../config/app_config.dart';
 import '../config/app_environment.dart';
+import 'validating_local_storage.dart';
 
 class AppBootstrapResult {
   final AppEnvironment environment;
@@ -33,10 +34,21 @@ class AppBootstrap {
 
     final config = AppConfig.fromEnv(environment);
 
+    final persistSessionKey =
+        'sb-${Uri.parse(config.supabaseUrl).host.split('.').first}-auth-token';
+
     await Supabase.initialize(
       url: config.supabaseUrl,
-      anonKey: config.supabaseAnonKey,
+      publishableKey: config.supabaseAnonKey,
       debug: config.isDev,
+      authOptions: FlutterAuthClientOptions(
+        autoRefreshToken: false,
+        localStorage: ValidatingLocalStorage(
+          delegate: SharedPreferencesLocalStorage(
+            persistSessionKey: persistSessionKey,
+          ),
+        ),
+      ),
     );
 
     if (config.hasFirebase) {

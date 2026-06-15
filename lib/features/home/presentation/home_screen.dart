@@ -628,8 +628,7 @@ class _WelcomeBanner extends ConsumerWidget {
     }
 
     final now = DateTime.now();
-    final message = WelcomeMessage.generate(profile: profile, now: now);
-    final emoji = WelcomeMessage.getTimeBasedEmoji(now.hour);
+    final data = WelcomeMessage.generate(profile: profile, now: now);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(homeScreenStateProvider.notifier).markWelcomeShown();
@@ -646,43 +645,64 @@ class _WelcomeBanner extends ConsumerWidget {
           FudiSpacing.lg,
           FudiSpacing.sm,
         ),
-        padding: const EdgeInsets.all(FudiSpacing.lg),
+        padding: const EdgeInsets.fromLTRB(
+          FudiSpacing.lg,
+          FudiSpacing.lg,
+          FudiSpacing.lg,
+          FudiSpacing.md,
+        ),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              FudiColors.primary.withValues(alpha: 0.12),
-              FudiColors.primary.withValues(alpha: 0.06),
+              FudiColors.accent,
+              FudiColors.accent.withValues(alpha: 0.92),
             ],
           ),
           borderRadius: BorderRadius.circular(FudiRadius.xl),
-          border: Border.all(
-            color: FudiColors.primary.withValues(alpha: 0.2),
-            width: 1,
-          ),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(FudiSpacing.sm),
-              decoration: BoxDecoration(
-                color: FudiColors.primary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(FudiRadius.lg),
-              ),
-              child: Text(
-                emoji,
-                style: const TextStyle(fontSize: 24),
-              ),
+            Row(
+              children: [
+                Text(
+                  data.emoji,
+                  style: const TextStyle(fontSize: 28),
+                ),
+                const SizedBox(width: FudiSpacing.sm),
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '${data.greeting}, ',
+                          style: FudiTypography.h2.copyWith(
+                            color: FudiColors.accentForeground,
+                          ),
+                        ),
+                        TextSpan(
+                          text: data.displayName,
+                          style: FudiTypography.h2.copyWith(
+                            color: FudiColors.secondary,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: FudiSpacing.md),
-            Expanded(
+            const SizedBox(height: FudiSpacing.xs),
+            Padding(
+              padding: const EdgeInsets.only(left: FudiSpacing.xl + FudiSpacing.sm + FudiSpacing.xs),
               child: Text(
-                message,
+                data.contextualMessage,
                 style: FudiTypography.bodyMedium.copyWith(
-                  color: FudiColors.foreground,
-                  fontWeight: FontWeight.w500,
-                  height: 1.3,
+                  color: FudiColors.accentForeground.withValues(alpha: 0.8),
+                  height: 1.4,
                 ),
               ),
             ),

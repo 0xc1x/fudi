@@ -1,9 +1,25 @@
 import 'package:fudi/features/auth/domain/user_profile.dart';
 
+class WelcomeData {
+  final String greeting;
+  final String displayName;
+  final String contextualMessage;
+  final String emoji;
+
+  const WelcomeData({
+    required this.greeting,
+    required this.displayName,
+    required this.contextualMessage,
+    required this.emoji,
+  });
+
+  String get fullMessage => '$greeting, $displayName! $contextualMessage';
+}
+
 class WelcomeMessage {
   const WelcomeMessage._();
 
-  static String generate({
+  static WelcomeData generate({
     required UserProfile profile,
     required DateTime now,
   }) {
@@ -11,10 +27,12 @@ class WelcomeMessage {
     final hour = now.hour;
     final weekday = now.weekday;
 
-    final timeGreeting = _getTimeGreeting(hour);
-    final contextualMessage = _getContextualMessage(hour, weekday, profile);
-
-    return '$timeGreeting, $name! $contextualMessage';
+    return WelcomeData(
+      greeting: _getTimeGreeting(hour),
+      displayName: name,
+      contextualMessage: _getContextualMessage(hour, weekday, profile),
+      emoji: getTimeBasedEmoji(hour),
+    );
   }
 
   static String _getDisplayName(UserProfile profile) {
@@ -43,19 +61,19 @@ class WelcomeMessage {
 
     if (hour >= 6 && hour < 12) {
       if (isWeekend) {
-        return '¿Qué se te antoja para empezar el día? ☀️';
+        return '¿Qué se te antoja para empezar el día?';
       }
-      return '¿Qué se te antoja hoy? ☀️';
+      return '¿Qué se te antoja hoy?';
     } else if (hour >= 12 && hour < 19) {
       if (weekday == 5) {
-        return '¡Ya es viernes! Celebra con ofertas cerca 🎉';
+        return '¡Ya es viernes! Celebra con ofertas cerca';
       }
       if (isWeekend) {
-        return 'Tenemos ofertas frescas para tu tarde 🌤️';
+        return 'Tenemos ofertas frescas para tu tarde';
       }
-      return 'Tenemos ofertas frescas cerca 🌤️';
+      return 'Tenemos ofertas frescas cerca';
     } else {
-      return '¿Cena sorpresa? 🌙';
+      return '¿Cena sorpresa?';
     }
   }
 

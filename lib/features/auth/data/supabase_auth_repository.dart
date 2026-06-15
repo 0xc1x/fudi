@@ -133,6 +133,20 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<supa.Session?> refreshSession() async {
+    try {
+      final response = await _supabaseClient.auth.refreshSession();
+      return response.session;
+    } on supa.AuthException catch (error) {
+      throw _mapAuthException(error);
+    } catch (_) {
+      throw const UnauthorizedException(
+        message: 'No se pudo renovar la sesión',
+      );
+    }
+  }
+
+  @override
   Future<void> sendPasswordResetEmail({
     required String email,
     String? redirectTo,

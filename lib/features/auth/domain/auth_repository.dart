@@ -74,4 +74,6 @@ abstract class AuthRepository {
   Future<void> updatePassword({required String newPassword});
 
   Future<void> signOut();
+
+  Future<supa.Session?> refreshSession();
 }
