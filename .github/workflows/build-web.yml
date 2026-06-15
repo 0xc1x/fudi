@@ -1,0 +1,33 @@
+name: Build Web
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.8'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Create dummy .env.dev
+        run: cp .env.example .env.dev
+
+      - name: Build web
+        run: flutter build web --release
+
+      - name: Upload web build
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-web
+          path: build/web
