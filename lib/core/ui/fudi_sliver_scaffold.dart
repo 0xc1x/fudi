@@ -52,7 +52,9 @@ class FudiSliverScaffold extends StatelessWidget {
                 title: LayoutBuilder(
                   builder: (context, constraints) {
                     // Check if expanded or collapsed to adjust subtitle display and scale
-                    final isCollapsed = constraints.maxHeight <= kToolbarHeight + MediaQuery.of(context).padding.top;
+                    final isCollapsed =
+                        constraints.maxHeight <=
+                        kToolbarHeight + MediaQuery.of(context).padding.top;
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,9 +62,13 @@ class FudiSliverScaffold extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: isCollapsed 
-                              ? FudiTypography.h4.copyWith(color: FudiColors.foreground)
-                              : FudiTypography.h2.copyWith(color: FudiColors.foreground),
+                          style: isCollapsed
+                              ? FudiTypography.h4.copyWith(
+                                  color: FudiColors.foreground,
+                                )
+                              : FudiTypography.h2.copyWith(
+                                  color: FudiColors.foreground,
+                                ),
                         ),
                         if (subtitle != null && !isCollapsed) ...[
                           const SizedBox(height: 2),

@@ -413,10 +413,7 @@ class _BusinessNotificationsScreenState
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  time.format(context),
-                  style: FudiTypography.bodyMedium,
-                ),
+                Text(time.format(context), style: FudiTypography.bodyMedium),
               ],
             ),
           ),

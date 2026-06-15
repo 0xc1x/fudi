@@ -25,7 +25,8 @@ class Coupon {
   final bool isActive;
   final DateTime? expiresAt;
 
-  bool get isExpired => expiresAt != null && expiresAt!.isBefore(DateTime.now());
+  bool get isExpired =>
+      expiresAt != null && expiresAt!.isBefore(DateTime.now());
   bool get isExhausted => maxUses != null && usedCount >= maxUses!;
   bool get isValid => isActive && !isExpired && !isExhausted;
 

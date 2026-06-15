@@ -56,7 +56,11 @@ class WelcomeMessage {
     }
   }
 
-  static String _getContextualMessage(int hour, int weekday, UserProfile profile) {
+  static String _getContextualMessage(
+    int hour,
+    int weekday,
+    UserProfile profile,
+  ) {
     final isWeekend = weekday == 6 || weekday == 7;
 
     if (hour >= 6 && hour < 12) {

@@ -20,7 +20,10 @@ class UiGalleryScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(FudiSpacing.lg),
         children: [
-          _Section(title: 'Logo', child: const FudiLogo(size: FudiLogoSize.lg)),
+          _Section(
+            title: 'Logo',
+            child: const FudiLogo(size: FudiLogoSize.lg),
+          ),
 
           _Section(
             title: 'Typography',

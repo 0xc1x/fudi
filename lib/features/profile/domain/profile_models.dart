@@ -29,11 +29,7 @@ class ProfileDetails {
 }
 
 class ProfileUpdateInput {
-  const ProfileUpdateInput({
-    required this.fullName,
-    this.phone,
-    this.city,
-  });
+  const ProfileUpdateInput({required this.fullName, this.phone, this.city});
 
   final String fullName;
   final String? phone;
@@ -72,8 +68,7 @@ class UserPreferences {
           pushNotificationsEnabled ?? this.pushNotificationsEnabled,
       emailNotificationsEnabled:
           emailNotificationsEnabled ?? this.emailNotificationsEnabled,
-      notificationRadiusKm:
-          notificationRadiusKm ?? this.notificationRadiusKm,
+      notificationRadiusKm: notificationRadiusKm ?? this.notificationRadiusKm,
       favoriteCategories: favoriteCategories ?? this.favoriteCategories,
     );
   }
@@ -112,8 +107,7 @@ class NotificationSettings {
           pickupReminderEnabled ?? this.pickupReminderEnabled,
       lastMinuteDealsEnabled:
           lastMinuteDealsEnabled ?? this.lastMinuteDealsEnabled,
-      weeklySummaryEnabled:
-          weeklySummaryEnabled ?? this.weeklySummaryEnabled,
+      weeklySummaryEnabled: weeklySummaryEnabled ?? this.weeklySummaryEnabled,
       promotionsEnabled: promotionsEnabled ?? this.promotionsEnabled,
     );
   }
@@ -134,8 +128,7 @@ class NotificationSettings {
       newDealsEnabled: json['newDealsEnabled'] as bool? ?? true,
       favoriteAlertsEnabled: json['favoriteAlertsEnabled'] as bool? ?? true,
       pickupReminderEnabled: json['pickupReminderEnabled'] as bool? ?? true,
-      lastMinuteDealsEnabled:
-          json['lastMinuteDealsEnabled'] as bool? ?? false,
+      lastMinuteDealsEnabled: json['lastMinuteDealsEnabled'] as bool? ?? false,
       weeklySummaryEnabled: json['weeklySummaryEnabled'] as bool? ?? true,
       promotionsEnabled: json['promotionsEnabled'] as bool? ?? false,
     );

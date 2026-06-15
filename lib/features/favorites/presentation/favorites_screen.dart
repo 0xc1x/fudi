@@ -31,7 +31,8 @@ class FavoritesScreen extends ConsumerWidget {
       appBar: const FudiStickyPageHeader(title: 'Favoritos'),
       body: favoritesAsync.when(
         loading: () => const _FavoritesLoadingState(),
-        error: (error, _) => _FavoritesErrorState(message: userFriendlyMessage(error)),
+        error: (error, _) =>
+            _FavoritesErrorState(message: userFriendlyMessage(error)),
         data: (favorites) {
           if (favorites.isEmpty) {
             return _FavoritesEmptyState(
@@ -60,7 +61,8 @@ class FavoritesScreen extends ConsumerWidget {
                     padding: const EdgeInsets.only(bottom: FudiSpacing.md),
                     child: _FavoriteCard(
                       favorite: favorite,
-                      onOpen: () => context.push('/product/${favorite.offerId}'),
+                      onOpen: () =>
+                          context.push('/product/${favorite.offerId}'),
                       onRemove: userId == null
                           ? null
                           : () async {
@@ -79,7 +81,6 @@ class FavoritesScreen extends ConsumerWidget {
     );
   }
 }
-
 
 class _FavoriteCard extends StatelessWidget {
   const _FavoriteCard({
@@ -141,39 +142,39 @@ class _FavoriteCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: FudiSpacing.sm),
-                      Row(
-                          children: [
-                            if (favorite.rating > 0) ...[
-                              const Icon(
-                                FudiIcons.star,
-                                size: 16,
-                                color: Color(0xFFFACC15),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                favorite.rating.toStringAsFixed(1),
-                                style: FudiTypography.bodySmall,
-                              ),
-                              const SizedBox(width: FudiSpacing.sm),
-                            ],
-                            const Icon(
-                              FudiIcons.mapPin,
-                              size: 16,
+                    Row(
+                      children: [
+                        if (favorite.rating > 0) ...[
+                          const Icon(
+                            FudiIcons.star,
+                            size: 16,
+                            color: Color(0xFFFACC15),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            favorite.rating.toStringAsFixed(1),
+                            style: FudiTypography.bodySmall,
+                          ),
+                          const SizedBox(width: FudiSpacing.sm),
+                        ],
+                        const Icon(
+                          FudiIcons.mapPin,
+                          size: 16,
+                          color: FudiColors.mutedForeground,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            favorite.address,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: FudiTypography.bodySmall.copyWith(
                               color: FudiColors.mutedForeground,
                             ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                favorite.address,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: FudiTypography.bodySmall.copyWith(
-                                  color: FudiColors.mutedForeground,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -242,15 +243,8 @@ class _FavoriteImage extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: imageUrl != null && imageUrl!.isNotEmpty
-          ? CachedNetworkImage(
-              imageUrl: imageUrl!,
-              fit: BoxFit.cover,
-            )
-          : const Icon(
-              FudiIcons.heart,
-              size: 32,
-              color: FudiColors.primary,
-            ),
+          ? CachedNetworkImage(imageUrl: imageUrl!, fit: BoxFit.cover)
+          : const Icon(FudiIcons.heart, size: 32, color: FudiColors.primary),
     );
   }
 }
@@ -278,10 +272,7 @@ class _MetricBlock extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 2),
-        Text(
-          value,
-          style: FudiTypography.labelSmall.copyWith(color: color),
-        ),
+        Text(value, style: FudiTypography.labelSmall.copyWith(color: color)),
       ],
     );
   }

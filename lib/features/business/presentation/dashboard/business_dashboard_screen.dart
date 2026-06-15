@@ -247,30 +247,30 @@ class _KPIWidget extends StatelessWidget {
             ],
           ),
           Text(value, style: FudiTypography.h3.copyWith(color: color)),
-      Row(
-        children: [
-          Icon(
-            isPositive ? Icons.trending_up : Icons.trending_down,
-            size: 14,
-            color: isPositive ? Colors.green : Colors.red,
+          Row(
+            children: [
+              Icon(
+                isPositive ? Icons.trending_up : Icons.trending_down,
+                size: 14,
+                color: isPositive ? Colors.green : Colors.red,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '${isPositive ? '+' : ''}${change.toStringAsFixed(1)}%',
+                style: FudiTypography.bodySmall.copyWith(
+                  color: isPositive ? Colors.green : Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                'vs anterior',
+                style: FudiTypography.bodySmall.copyWith(
+                  color: FudiColors.mutedForeground,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 4),
-          Text(
-            '${isPositive ? '+' : ''}${change.toStringAsFixed(1)}%',
-            style: FudiTypography.bodySmall.copyWith(
-              color: isPositive ? Colors.green : Colors.red,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            'vs anterior',
-            style: FudiTypography.bodySmall.copyWith(
-              color: FudiColors.mutedForeground,
-            ),
-          ),
-        ],
-      ),
         ],
       ),
     );
@@ -420,18 +420,18 @@ class _TopProducts extends StatelessWidget {
                       ),
                     ),
                     Text(
-              '\$${product.revenue.toStringAsFixed(0)}',
-              style: FudiTypography.bodyMedium.copyWith(
-                color: Colors.green,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      );
-    }),
-      ],
-    ),
+                      '\$${product.revenue.toStringAsFixed(0)}',
+                      style: FudiTypography.bodyMedium.copyWith(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
     );
   }
 }
@@ -443,7 +443,9 @@ class _PeriodSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dailyAvg = stats.revenue > 0 ? (stats.revenue / 30).toStringAsFixed(2) : '0.00';
+    final dailyAvg = stats.revenue > 0
+        ? (stats.revenue / 30).toStringAsFixed(2)
+        : '0.00';
     final ticketAvg = stats.ordersCount > 0
         ? (stats.revenue / stats.ordersCount).toStringAsFixed(2)
         : '0.00';

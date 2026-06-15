@@ -4,7 +4,7 @@ import '../domain/favorites_repository.dart';
 
 class SupabaseFavoritesRepository implements FavoritesRepository {
   SupabaseFavoritesRepository({required SupabaseClient supabaseClient})
-      : _client = supabaseClient;
+    : _client = supabaseClient;
 
   final SupabaseClient _client;
 
@@ -37,9 +37,7 @@ class SupabaseFavoritesRepository implements FavoritesRepository {
         .select('offer_id')
         .eq('user_id', userId);
 
-    return (response as List)
-        .map((row) => row['offer_id'] as String)
-        .toSet();
+    return (response as List).map((row) => row['offer_id'] as String).toSet();
   }
 
   @override

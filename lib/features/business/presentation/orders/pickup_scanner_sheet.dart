@@ -69,10 +69,7 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
               ),
             ),
             const SizedBox(height: FudiSpacing.lg),
-            Text(
-              'Escanear código QR',
-              style: FudiTypography.h3,
-            ),
+            Text('Escanear código QR', style: FudiTypography.h3),
             const SizedBox(height: FudiSpacing.xs),
             Text(
               'Apunta la cámara al código QR del cliente',

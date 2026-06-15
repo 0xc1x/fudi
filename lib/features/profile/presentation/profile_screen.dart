@@ -184,11 +184,29 @@ class _ProfileHeader extends ConsumerWidget {
               ),
               error: (_, _) => Row(
                 children: [
-                  Expanded(child: _StatCard(icon: FudiIcons.award, value: '\$0', label: 'Ahorrado')),
+                  Expanded(
+                    child: _StatCard(
+                      icon: FudiIcons.award,
+                      value: '\$0',
+                      label: 'Ahorrado',
+                    ),
+                  ),
                   const SizedBox(width: FudiSpacing.sm),
-                  Expanded(child: _StatCard(icon: FudiIcons.package_, value: '0', label: 'Pedidos')),
+                  Expanded(
+                    child: _StatCard(
+                      icon: FudiIcons.package_,
+                      value: '0',
+                      label: 'Pedidos',
+                    ),
+                  ),
                   const SizedBox(width: FudiSpacing.sm),
-                  Expanded(child: _StatCard(icon: FudiIcons.leaf, value: '0 kg', label: 'CO\u2082 evitado')),
+                  Expanded(
+                    child: _StatCard(
+                      icon: FudiIcons.leaf,
+                      value: '0 kg',
+                      label: 'CO\u2082 evitado',
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -236,7 +254,11 @@ class _StatCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(icon, size: 20, color: FudiColors.primary.withValues(alpha: 0.6)),
+          Icon(
+            icon,
+            size: 20,
+            color: FudiColors.primary.withValues(alpha: 0.6),
+          ),
           const SizedBox(height: FudiSpacing.xs),
           Text(
             value,
@@ -272,10 +294,7 @@ class _ProfileTabs extends StatelessWidget {
         controller: tabController,
         labelColor: FudiColors.primary,
         unselectedLabelColor: FudiColors.mutedForeground,
-        labelStyle: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
+        labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         unselectedLabelStyle: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w500,
@@ -312,9 +331,16 @@ class _OrdersTab extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(FudiIcons.shoppingBag, size: 48, color: FudiColors.mutedForeground),
+                  Icon(
+                    FudiIcons.shoppingBag,
+                    size: 48,
+                    color: FudiColors.mutedForeground,
+                  ),
                   SizedBox(height: FudiSpacing.md),
-                  Text('Aún no tienes pedidos', style: FudiTypography.bodyMedium),
+                  Text(
+                    'Aún no tienes pedidos',
+                    style: FudiTypography.bodyMedium,
+                  ),
                 ],
               ),
             ),
@@ -329,18 +355,22 @@ class _OrdersTab extends ConsumerWidget {
               if (upcoming.isNotEmpty) ...[
                 Text('Próximos pedidos', style: FudiTypography.h2),
                 const SizedBox(height: FudiSpacing.md),
-                ...upcoming.map((o) => Padding(
-                  padding: const EdgeInsets.only(bottom: FudiSpacing.md),
-                  child: _OrderCard(order: o),
-                )),
+                ...upcoming.map(
+                  (o) => Padding(
+                    padding: const EdgeInsets.only(bottom: FudiSpacing.md),
+                    child: _OrderCard(order: o),
+                  ),
+                ),
               ],
               if (past.isNotEmpty) ...[
                 Text('Pedidos anteriores', style: FudiTypography.h2),
                 const SizedBox(height: FudiSpacing.md),
-                ...past.map((o) => Padding(
-                  padding: const EdgeInsets.only(bottom: FudiSpacing.md),
-                  child: _OrderCard(order: o),
-                )),
+                ...past.map(
+                  (o) => Padding(
+                    padding: const EdgeInsets.only(bottom: FudiSpacing.md),
+                    child: _OrderCard(order: o),
+                  ),
+                ),
               ],
             ],
           ),
@@ -370,7 +400,11 @@ class _OrdersTab extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(FudiIcons.error, size: 48, color: FudiColors.destructive),
+              const Icon(
+                FudiIcons.error,
+                size: 48,
+                color: FudiColors.destructive,
+              ),
               const SizedBox(height: FudiSpacing.sm),
               Text('Error al cargar pedidos', style: FudiTypography.bodyMedium),
             ],
@@ -390,12 +424,36 @@ class _OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final (statusColor, statusTextColor, statusLabel) = switch (order.status) {
       OrderStatus.pending => (FudiColors.ring, FudiColors.primary, 'Pendiente'),
-      OrderStatus.confirmed => (FudiColors.ring, FudiColors.primary, 'Confirmado'),
-      OrderStatus.readyForPickup => (FudiColors.primary, FudiColors.primaryForeground, 'Listo para recoger'),
-      OrderStatus.pickedUp => (FudiColors.muted, FudiColors.mutedForeground, 'Recogido'),
-      OrderStatus.completed => (FudiColors.muted, FudiColors.mutedForeground, 'Completado'),
-      OrderStatus.cancelled => (FudiColors.destructive.withValues(alpha: 0.1), FudiColors.destructive, 'Cancelado'),
-      OrderStatus.expired => (FudiColors.muted, FudiColors.mutedForeground, 'Expirado'),
+      OrderStatus.confirmed => (
+        FudiColors.ring,
+        FudiColors.primary,
+        'Confirmado',
+      ),
+      OrderStatus.readyForPickup => (
+        FudiColors.primary,
+        FudiColors.primaryForeground,
+        'Listo para recoger',
+      ),
+      OrderStatus.pickedUp => (
+        FudiColors.muted,
+        FudiColors.mutedForeground,
+        'Recogido',
+      ),
+      OrderStatus.completed => (
+        FudiColors.muted,
+        FudiColors.mutedForeground,
+        'Completado',
+      ),
+      OrderStatus.cancelled => (
+        FudiColors.destructive.withValues(alpha: 0.1),
+        FudiColors.destructive,
+        'Cancelado',
+      ),
+      OrderStatus.expired => (
+        FudiColors.muted,
+        FudiColors.mutedForeground,
+        'Expirado',
+      ),
     };
 
     return GestureDetector(
@@ -417,7 +475,10 @@ class _OrderCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(order.businessName, style: FudiTypography.labelSmall),
+                      Text(
+                        order.businessName,
+                        style: FudiTypography.labelSmall,
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         _formatDate(order.createdAt),
@@ -476,8 +537,19 @@ class _OrderCard extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     const months = [
-      '', 'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-      'jul', 'ago', 'sep', 'oct', 'nov', 'dic'
+      '',
+      'ene',
+      'feb',
+      'mar',
+      'abr',
+      'may',
+      'jun',
+      'jul',
+      'ago',
+      'sep',
+      'oct',
+      'nov',
+      'dic',
     ];
     return '${date.day} ${months[date.month]} ${date.year}';
   }
@@ -627,9 +699,7 @@ class _SettingsItem extends StatelessWidget {
           children: [
             Icon(icon, size: 20, color: FudiColors.mutedForeground),
             const SizedBox(width: FudiSpacing.md),
-            Expanded(
-              child: Text(label, style: FudiTypography.labelSmall),
-            ),
+            Expanded(child: Text(label, style: FudiTypography.labelSmall)),
             Icon(
               FudiIcons.chevronRight,
               size: 20,
@@ -769,7 +839,10 @@ class _GuestWelcomeView extends StatelessWidget {
                     ),
                     child: const Text(
                       'Iniciar sesión',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -780,7 +853,10 @@ class _GuestWelcomeView extends StatelessWidget {
                     onPressed: () => context.push(RouteNames.signupPath),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: FudiColors.primary,
-                      side: const BorderSide(color: FudiColors.primary, width: 2),
+                      side: const BorderSide(
+                        color: FudiColors.primary,
+                        width: 2,
+                      ),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(FudiRadius.xl),
@@ -788,7 +864,10 @@ class _GuestWelcomeView extends StatelessWidget {
                     ),
                     child: const Text(
                       'Crear una cuenta',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),

@@ -69,21 +69,21 @@ class BusinessCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(type, style: FudiTypography.bodySmall),
                     const SizedBox(height: 6),
-                Row(
-                  children: [
-                    if (rating > 0) ...[
-                      FudiStarRating(rating: rating, size: 12),
-                      const SizedBox(width: 8),
-                    ],
-                    const Icon(
-                      FudiIcons.mapPin,
-                      size: 12,
-                      color: FudiColors.mutedForeground,
+                    Row(
+                      children: [
+                        if (rating > 0) ...[
+                          FudiStarRating(rating: rating, size: 12),
+                          const SizedBox(width: 8),
+                        ],
+                        const Icon(
+                          FudiIcons.mapPin,
+                          size: 12,
+                          color: FudiColors.mutedForeground,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(distance, style: FudiTypography.bodySmall),
+                      ],
                     ),
-                    const SizedBox(width: 2),
-                    Text(distance, style: FudiTypography.bodySmall),
-                  ],
-                ),
                   ],
                 ),
               ),

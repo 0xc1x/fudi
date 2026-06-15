@@ -132,25 +132,25 @@ class DealCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Text(
-                businessName,
-                style: FudiTypography.h3.copyWith(
-                  fontWeight: FontWeight.bold,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  businessName,
+                  style: FudiTypography.h3.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            if (rating > 0) ...[
-              const SizedBox(width: FudiSpacing.sm),
-              _RatingPill(rating: rating),
+              if (rating > 0) ...[
+                const SizedBox(width: FudiSpacing.sm),
+                _RatingPill(rating: rating),
+              ],
             ],
-          ],
-        ),
+          ),
           const SizedBox(height: 2),
           Text(businessType, style: FudiTypography.bodySmall),
           const SizedBox(height: FudiSpacing.sm),

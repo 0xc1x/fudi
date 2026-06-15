@@ -48,8 +48,12 @@ class _BusinessCouponEditScreenState
     if (_loaded) return;
     _loaded = true;
     _codeController.text = coupon.code;
-    _valueController.text = coupon.value.toStringAsFixed(coupon.type == 'percentage' ? 0 : 2);
-    _minPurchaseController.text = coupon.minOrderAmount > 0 ? coupon.minOrderAmount.toStringAsFixed(2) : '';
+    _valueController.text = coupon.value.toStringAsFixed(
+      coupon.type == 'percentage' ? 0 : 2,
+    );
+    _minPurchaseController.text = coupon.minOrderAmount > 0
+        ? coupon.minOrderAmount.toStringAsFixed(2)
+        : '';
     _usageLimitController.text = coupon.maxUses?.toString() ?? '';
     _type = coupon.type;
     _isActive = coupon.isActive;
@@ -111,15 +115,36 @@ class _BusinessCouponEditScreenState
 
   @override
   Widget build(BuildContext context) {
-    final couponAsync = _isEdit ? ref.watch(businessCouponProvider(widget.couponId!)) : null;
+    final couponAsync = _isEdit
+        ? ref.watch(businessCouponProvider(widget.couponId!))
+        : null;
 
     return Scaffold(
       backgroundColor: FudiColors.muted,
       appBar: _AppBar(isEdit: _isEdit),
-      body: couponAsync?.when(
-        data: (coupon) {
-          _hydrate(coupon);
-          return _FormBody(
+      body:
+          couponAsync?.when(
+            data: (coupon) {
+              _hydrate(coupon);
+              return _FormBody(
+                formKey: _formKey,
+                codeController: _codeController,
+                valueController: _valueController,
+                minPurchaseController: _minPurchaseController,
+                usageLimitController: _usageLimitController,
+                type: _type,
+                isActive: _isActive,
+                expiryDate: _expiryDate,
+                onTypeChanged: (t) => setState(() => _type = t),
+                onActiveChanged: (v) => setState(() => _isActive = v),
+                onSelectDate: _selectExpiryDate,
+                onGenerateCode: _generateCode,
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Center(child: Text('$e')),
+          ) ??
+          _FormBody(
             formKey: _formKey,
             codeController: _codeController,
             valueController: _valueController,
@@ -132,28 +157,12 @@ class _BusinessCouponEditScreenState
             onActiveChanged: (v) => setState(() => _isActive = v),
             onSelectDate: _selectExpiryDate,
             onGenerateCode: _generateCode,
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
-      ) ?? _FormBody(
-        formKey: _formKey,
-        codeController: _codeController,
-        valueController: _valueController,
-        minPurchaseController: _minPurchaseController,
-        usageLimitController: _usageLimitController,
-        type: _type,
-        isActive: _isActive,
-        expiryDate: _expiryDate,
-        onTypeChanged: (t) => setState(() => _type = t),
-        onActiveChanged: (v) => setState(() => _isActive = v),
-        onSelectDate: _selectExpiryDate,
-        onGenerateCode: _generateCode,
-      ),
+          ),
       bottomNavigationBar: _BottomBar(
         isEdit: _isEdit,
         saving: _saving,
-        canSave: _codeController.text.isNotEmpty &&
+        canSave:
+            _codeController.text.isNotEmpty &&
             _valueController.text.isNotEmpty &&
             _expiryDate != null,
         onSave: () => _save(couponAsync?.asData?.value),
@@ -236,10 +245,7 @@ class _FormBody extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.all(FudiSpacing.lg),
         children: [
-          _CodeSection(
-            controller: codeController,
-            onGenerate: onGenerateCode,
-          ),
+          _CodeSection(controller: codeController, onGenerate: onGenerateCode),
           const SizedBox(height: FudiSpacing.lg),
           _DiscountTypeSection(
             type: type,
@@ -258,10 +264,7 @@ class _FormBody extends StatelessWidget {
             usageLimitController: usageLimitController,
           ),
           const SizedBox(height: FudiSpacing.lg),
-          _StatusSection(
-            isActive: isActive,
-            onActiveChanged: onActiveChanged,
-          ),
+          _StatusSection(isActive: isActive, onActiveChanged: onActiveChanged),
           const SizedBox(height: FudiSpacing.lg),
           _TipsCard(),
           const SizedBox(height: FudiSpacing.xxl),
@@ -272,10 +275,7 @@ class _FormBody extends StatelessWidget {
 }
 
 class _CodeSection extends StatelessWidget {
-  const _CodeSection({
-    required this.controller,
-    required this.onGenerate,
-  });
+  const _CodeSection({required this.controller, required this.onGenerate});
 
   final TextEditingController controller;
   final VoidCallback onGenerate;
@@ -313,7 +313,8 @@ class _CodeSection extends StatelessWidget {
                       vertical: FudiSpacing.md,
                     ),
                   ),
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Requerido' : null,
+                  validator: (v) =>
+                      v == null || v.trim().isEmpty ? 'Requerido' : null,
                 ),
               ),
               const SizedBox(width: FudiSpacing.sm),
@@ -387,7 +388,9 @@ class _DiscountTypeSection extends StatelessWidget {
           const SizedBox(height: FudiSpacing.lg),
           Text(
             'Valor del descuento *',
-            style: FudiTypography.bodyMedium.copyWith(fontWeight: FontWeight.w500),
+            style: FudiTypography.bodyMedium.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: FudiSpacing.sm),
           TextFormField(
@@ -404,7 +407,8 @@ class _DiscountTypeSection extends StatelessWidget {
                 vertical: FudiSpacing.md,
               ),
             ),
-            validator: (v) => v == null || v.trim().isEmpty ? 'Requerido' : null,
+            validator: (v) =>
+                v == null || v.trim().isEmpty ? 'Requerido' : null,
           ),
         ],
       ),
@@ -482,7 +486,9 @@ class _ConditionsSection extends StatelessWidget {
           const SizedBox(height: FudiSpacing.md),
           Text(
             'Compra mínima (opcional)',
-            style: FudiTypography.bodyMedium.copyWith(fontWeight: FontWeight.w500),
+            style: FudiTypography.bodyMedium.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: FudiSpacing.sm),
           TextFormField(
@@ -533,7 +539,9 @@ class _ValiditySection extends StatelessWidget {
           const SizedBox(height: FudiSpacing.md),
           Text(
             'Fecha de expiración *',
-            style: FudiTypography.bodyMedium.copyWith(fontWeight: FontWeight.w500),
+            style: FudiTypography.bodyMedium.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: FudiSpacing.sm),
           GestureDetector(
@@ -550,12 +558,20 @@ class _ValiditySection extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.calendar_today, size: 18, color: FudiColors.mutedForeground),
+                  Icon(
+                    Icons.calendar_today,
+                    size: 18,
+                    color: FudiColors.mutedForeground,
+                  ),
                   const SizedBox(width: FudiSpacing.sm),
                   Text(
-                    expiryDate != null ? _formatDate(expiryDate!) : 'Seleccionar fecha',
+                    expiryDate != null
+                        ? _formatDate(expiryDate!)
+                        : 'Seleccionar fecha',
                     style: FudiTypography.bodyMedium.copyWith(
-                      color: expiryDate != null ? FudiColors.foreground : FudiColors.mutedForeground,
+                      color: expiryDate != null
+                          ? FudiColors.foreground
+                          : FudiColors.mutedForeground,
                     ),
                   ),
                 ],
@@ -565,7 +581,9 @@ class _ValiditySection extends StatelessWidget {
           const SizedBox(height: FudiSpacing.lg),
           Text(
             'Límite de usos (opcional)',
-            style: FudiTypography.bodyMedium.copyWith(fontWeight: FontWeight.w500),
+            style: FudiTypography.bodyMedium.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: FudiSpacing.sm),
           TextFormField(
@@ -594,18 +612,26 @@ class _ValiditySection extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     const months = [
-      '', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+      '',
+      'enero',
+      'febrero',
+      'marzo',
+      'abril',
+      'mayo',
+      'junio',
+      'julio',
+      'agosto',
+      'septiembre',
+      'octubre',
+      'noviembre',
+      'diciembre',
     ];
     return '${date.day} de ${months[date.month]} de ${date.year}';
   }
 }
 
 class _StatusSection extends StatelessWidget {
-  const _StatusSection({
-    required this.isActive,
-    required this.onActiveChanged,
-  });
+  const _StatusSection({required this.isActive, required this.onActiveChanged});
 
   final bool isActive;
   final ValueChanged<bool> onActiveChanged;
@@ -730,7 +756,9 @@ class _BottomBar extends StatelessWidget {
           onPressed: (saving || !canSave) ? null : onSave,
           style: FilledButton.styleFrom(
             backgroundColor: canSave ? FudiColors.primary : FudiColors.muted,
-            foregroundColor: canSave ? FudiColors.primaryForeground : FudiColors.mutedForeground,
+            foregroundColor: canSave
+                ? FudiColors.primaryForeground
+                : FudiColors.mutedForeground,
             padding: const EdgeInsets.symmetric(vertical: FudiSpacing.lg),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(FudiRadius.xl),
@@ -747,7 +775,10 @@ class _BottomBar extends StatelessWidget {
                 )
               : Text(
                   isEdit ? 'Guardar cambios' : 'Crear cupón',
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
                 ),
         ),
       ),

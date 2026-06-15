@@ -57,9 +57,7 @@ class _FudiRootState extends State<_FudiRoot> {
         child: const FudiApp(),
       );
 
-      return boot.sentryEnabled
-          ? SentryWidget(child: appWidget)
-          : appWidget;
+      return boot.sentryEnabled ? SentryWidget(child: appWidget) : appWidget;
     }
 
     if (_bootstrapError != null) {

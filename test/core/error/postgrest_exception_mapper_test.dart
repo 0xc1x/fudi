@@ -32,19 +32,22 @@ void main() {
       expect(fudi.userMessage(), contains('Ya existe'));
     });
 
-    test('23514 with discounted_less_than_original maps to ValidationException', () {
-      final e = _makePgException(
-        code: '23514',
-        message:
-            'new row for relation "offers" violates check constraint "discounted_less_than_original"',
-      );
-      final fudi = e.toFudiException();
-      expect(fudi, isA<ValidationException>());
-      expect(fudi.userMessage(), contains('precio original'));
-      final validation = fudi as ValidationException;
-      expect(validation.fieldErrors, isNotNull);
-      expect(validation.fieldErrors?['discountedPrice'], isNotNull);
-    });
+    test(
+      '23514 with discounted_less_than_original maps to ValidationException',
+      () {
+        final e = _makePgException(
+          code: '23514',
+          message:
+              'new row for relation "offers" violates check constraint "discounted_less_than_original"',
+        );
+        final fudi = e.toFudiException();
+        expect(fudi, isA<ValidationException>());
+        expect(fudi.userMessage(), contains('precio original'));
+        final validation = fudi as ValidationException;
+        expect(validation.fieldErrors, isNotNull);
+        expect(validation.fieldErrors?['discountedPrice'], isNotNull);
+      },
+    );
 
     test('23503 maps to NotFoundException', () {
       final e = _makePgException(

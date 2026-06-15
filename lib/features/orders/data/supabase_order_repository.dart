@@ -74,17 +74,17 @@ class SupabaseOrderRepository implements OrderRepository {
       final userId = _supabaseClient.auth.currentUser?.id;
       if (userId == null) return [];
 
-    final response = await _supabaseClient
-        .from('orders')
-        .select('''
+      final response = await _supabaseClient
+          .from('orders')
+          .select('''
           id, user_id, offer_id, business_id, order_number, status,
           price, original_price, pickup_code, pickup_time, coupon_id,
           created_at,
           offers!inner (title, image),
           businesses!inner (name, address, phone)
         ''')
-        .eq('user_id', userId)
-        .order('created_at', ascending: false);
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
 
       return response.map(_mapOrderFromJson).toList();
     } on PostgrestException catch (e) {
@@ -99,17 +99,17 @@ class SupabaseOrderRepository implements OrderRepository {
   @override
   Future<OrderModel> getOrderById(String id) async {
     try {
-    final response = await _supabaseClient
-        .from('orders')
-        .select('''
+      final response = await _supabaseClient
+          .from('orders')
+          .select('''
           id, user_id, offer_id, business_id, order_number, status,
           price, original_price, pickup_code, pickup_time, coupon_id,
           created_at,
           offers!inner (title, image),
           businesses!inner (name, address, phone)
         ''')
-        .eq('id', id)
-        .maybeSingle();
+          .eq('id', id)
+          .maybeSingle();
 
       if (response == null) {
         throw const NotFoundException(message: 'Pedido no encontrado');
@@ -211,11 +211,11 @@ class SupabaseOrderRepository implements OrderRepository {
           : null,
       couponId: json['coupon_id'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
-    offerTitle: offerJson?['title'] as String? ?? '',
-    offerImageUrl: offerJson?['image'] as String?,
-    businessName: businessJson?['name'] as String? ?? '',
-    businessAddress: businessJson?['address'] as String?,
-    businessPhone: businessJson?['phone'] as String?,
+      offerTitle: offerJson?['title'] as String? ?? '',
+      offerImageUrl: offerJson?['image'] as String?,
+      businessName: businessJson?['name'] as String? ?? '',
+      businessAddress: businessJson?['address'] as String?,
+      businessPhone: businessJson?['phone'] as String?,
     );
   }
 

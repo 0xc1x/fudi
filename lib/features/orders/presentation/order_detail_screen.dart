@@ -62,7 +62,8 @@ class _OrderDetailContent extends ConsumerStatefulWidget {
   final OrderModel order;
 
   @override
-  ConsumerState<_OrderDetailContent> createState() => _OrderDetailContentState();
+  ConsumerState<_OrderDetailContent> createState() =>
+      _OrderDetailContentState();
 }
 
 class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
@@ -86,10 +87,7 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (isUpcoming) ...[
-              _PickupCodeCard(
-                orderId: order.id,
-                code: order.pickupCode,
-              ),
+              _PickupCodeCard(orderId: order.id, code: order.pickupCode),
               const SizedBox(height: FudiSpacing.lg),
             ],
             _BusinessInfoCard(order: order),
@@ -114,12 +112,16 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
                 ),
                 child: Text(
                   'Confirmar recogida',
-                  style: FudiTypography.labelMedium.copyWith(color: Colors.white),
+                  style: FudiTypography.labelMedium.copyWith(
+                    color: Colors.white,
+                  ),
                 ),
               ),
               const SizedBox(height: FudiSpacing.sm),
               OutlinedButton(
-                onPressed: isCanceling ? null : () => _showCancelDialog(context),
+                onPressed: isCanceling
+                    ? null
+                    : () => _showCancelDialog(context),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: FudiColors.destructive,
                   side: const BorderSide(color: FudiColors.destructive),
@@ -164,7 +166,9 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
                     ),
                     child: Text(
                       'Volver a pedir',
-                      style: FudiTypography.labelMedium.copyWith(color: Colors.white),
+                      style: FudiTypography.labelMedium.copyWith(
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   const SizedBox(height: FudiSpacing.sm),
@@ -176,7 +180,10 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
                         borderRadius: BorderRadius.circular(FudiRadius.lg),
                       ),
                     ),
-                    child: Text('Dejar reseña', style: FudiTypography.labelMedium),
+                    child: Text(
+                      'Dejar reseña',
+                      style: FudiTypography.labelMedium,
+                    ),
                   ),
                 ],
               ),
@@ -275,18 +282,19 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final (bg, fg) = switch (status) {
       OrderStatus.completed => (
-          const Color(0xFFDCFCE7),
-          const Color(0xFF166534)
-        ),
+        const Color(0xFFDCFCE7),
+        const Color(0xFF166534),
+      ),
       OrderStatus.readyForPickup => (
-          const Color(0xFFFEF9C3),
-          const Color(0xFF854D0E)
-        ),
-      OrderStatus.cancelled || OrderStatus.expired => (
-          const Color(0xFFFEE2E2),
-          const Color(0xFF991B1B)
-        ),
-      OrderStatus.confirmed => (FudiColors.secondary, FudiColors.secondaryForeground),
+        const Color(0xFFFEF9C3),
+        const Color(0xFF854D0E),
+      ),
+      OrderStatus.cancelled ||
+      OrderStatus.expired => (const Color(0xFFFEE2E2), const Color(0xFF991B1B)),
+      OrderStatus.confirmed => (
+        FudiColors.secondary,
+        FudiColors.secondaryForeground,
+      ),
       _ => (FudiColors.primary, Colors.white),
     };
 
@@ -298,11 +306,7 @@ class _StatusBadge extends StatelessWidget {
       ),
       child: Text(
         status.label,
-        style: TextStyle(
-          color: fg,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
+        style: TextStyle(color: fg, fontSize: 12, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -349,10 +353,7 @@ class _PickupCodeCard extends StatelessWidget {
               color: FudiColors.muted,
               borderRadius: BorderRadius.circular(FudiRadius.lg),
             ),
-            child: PickupCodeQr(
-              orderId: orderId,
-              pickupCode: code,
-            ),
+            child: PickupCodeQr(orderId: orderId, pickupCode: code),
           ),
           const SizedBox(height: FudiSpacing.md),
           Text(
@@ -407,13 +408,14 @@ class _BusinessInfoCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                    child: FilledButton(
-                      onPressed: () => context.push(
-                        '/business-profile/${order.businessId}',
-                      ),
+                child: FilledButton(
+                  onPressed: () =>
+                      context.push('/business-profile/${order.businessId}'),
                   style: FilledButton.styleFrom(
                     backgroundColor: FudiColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: FudiSpacing.md,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(FudiRadius.lg),
                     ),
@@ -423,7 +425,10 @@ class _BusinessInfoCard extends StatelessWidget {
                     children: [
                       Icon(Icons.store, size: 18, color: Colors.white),
                       SizedBox(width: 6),
-                      Text('Ver negocio', style: TextStyle(color: Colors.white)),
+                      Text(
+                        'Ver negocio',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ],
                   ),
                 ),
@@ -434,7 +439,9 @@ class _BusinessInfoCard extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: () {},
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: FudiSpacing.md,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(FudiRadius.lg),
                       ),
@@ -497,7 +504,11 @@ class _OrderItemsCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.inventory_2_outlined, size: 20, color: FudiColors.primary),
+              const Icon(
+                Icons.inventory_2_outlined,
+                size: 20,
+                color: FudiColors.primary,
+              ),
               const SizedBox(width: FudiSpacing.sm),
               Text('Contenido del pedido', style: FudiTypography.labelMedium),
             ],
@@ -506,12 +517,18 @@ class _OrderItemsCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('•', style: TextStyle(color: FudiColors.primary, fontSize: 14)),
+              Text(
+                '•',
+                style: TextStyle(color: FudiColors.primary, fontSize: 14),
+              ),
               const SizedBox(width: FudiSpacing.sm),
               Expanded(
-                child: Text(order.offerTitle, style: FudiTypography.bodyMedium.copyWith(
-                  color: FudiColors.mutedForeground,
-                )),
+                child: Text(
+                  order.offerTitle,
+                  style: FudiTypography.bodyMedium.copyWith(
+                    color: FudiColors.mutedForeground,
+                  ),
+                ),
               ),
             ],
           ),
@@ -537,9 +554,12 @@ class _PriceDetailsCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Precio original', style: FudiTypography.bodyMedium.copyWith(
-                color: FudiColors.mutedForeground,
-              )),
+              Text(
+                'Precio original',
+                style: FudiTypography.bodyMedium.copyWith(
+                  color: FudiColors.mutedForeground,
+                ),
+              ),
               Text(
                 '\$${order.originalPrice.toStringAsFixed(2)}',
                 style: FudiTypography.bodyMedium.copyWith(
@@ -553,10 +573,13 @@ class _PriceDetailsCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Descuento', style: FudiTypography.bodyMedium.copyWith(
-                color: const Color(0xFF16A34A),
-                fontWeight: FontWeight.w500,
-              )),
+              Text(
+                'Descuento',
+                style: FudiTypography.bodyMedium.copyWith(
+                  color: const Color(0xFF16A34A),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               Text(
                 '-\$${order.discount.toStringAsFixed(2)}',
                 style: FudiTypography.bodyMedium.copyWith(
@@ -619,7 +642,11 @@ class _InstructionsCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.chat_bubble_outline, size: 20, color: FudiColors.primary),
+              const Icon(
+                Icons.chat_bubble_outline,
+                size: 20,
+                color: FudiColors.primary,
+              ),
               const SizedBox(width: FudiSpacing.sm),
               Text('Instrucciones', style: FudiTypography.labelMedium),
             ],
@@ -655,7 +682,11 @@ class _StatusHistoryCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.calendar_today, size: 20, color: FudiColors.primary),
+              const Icon(
+                Icons.calendar_today,
+                size: 20,
+                color: FudiColors.primary,
+              ),
               const SizedBox(width: FudiSpacing.sm),
               Text('Historial del pedido', style: FudiTypography.labelMedium),
             ],
@@ -664,10 +695,7 @@ class _StatusHistoryCard extends StatelessWidget {
           ...List.generate(entries.length, (i) {
             final entry = entries[i];
             final isLast = i == entries.length - 1;
-            return _TimelineEntry(
-              entry: entry,
-              isLast: isLast,
-            );
+            return _TimelineEntry(entry: entry, isLast: isLast);
           }),
         ],
       ),
@@ -678,59 +706,69 @@ class _StatusHistoryCard extends StatelessWidget {
     final entries = <_HistoryEntry>[];
     final created = order.createdAt;
 
-    entries.add(_HistoryEntry(
-      icon: Icons.receipt_long,
-      title: 'Pedido confirmado',
-      note: 'Pedido confirmado y pagado',
-      timestamp: created,
-      color: FudiColors.primary,
-      bgColor: FudiColors.primary.withValues(alpha: 0.1),
-    ));
+    entries.add(
+      _HistoryEntry(
+        icon: Icons.receipt_long,
+        title: 'Pedido confirmado',
+        note: 'Pedido confirmado y pagado',
+        timestamp: created,
+        color: FudiColors.primary,
+        bgColor: FudiColors.primary.withValues(alpha: 0.1),
+      ),
+    );
 
     if (order.status == OrderStatus.readyForPickup ||
         order.status == OrderStatus.pickedUp ||
         order.status == OrderStatus.completed) {
-      entries.add(_HistoryEntry(
-        icon: Icons.schedule,
-        title: 'Listo para recoger',
-        note: 'Tu pedido está listo para recoger',
-        timestamp: order.pickupTime ?? created,
-        color: FudiColors.primary,
-        bgColor: FudiColors.primary.withValues(alpha: 0.1),
-      ));
+      entries.add(
+        _HistoryEntry(
+          icon: Icons.schedule,
+          title: 'Listo para recoger',
+          note: 'Tu pedido está listo para recoger',
+          timestamp: order.pickupTime ?? created,
+          color: FudiColors.primary,
+          bgColor: FudiColors.primary.withValues(alpha: 0.1),
+        ),
+      );
     }
 
     if (order.status == OrderStatus.completed) {
-      entries.add(_HistoryEntry(
-        icon: Icons.check_circle,
-        title: 'Completado',
-        note: 'Pedido recogido exitosamente',
-        timestamp: order.pickupTime ?? created,
-        color: const Color(0xFF16A34A),
-        bgColor: const Color(0xFFDCFCE7),
-      ));
+      entries.add(
+        _HistoryEntry(
+          icon: Icons.check_circle,
+          title: 'Completado',
+          note: 'Pedido recogido exitosamente',
+          timestamp: order.pickupTime ?? created,
+          color: const Color(0xFF16A34A),
+          bgColor: const Color(0xFFDCFCE7),
+        ),
+      );
     }
 
     if (order.status == OrderStatus.cancelled) {
-      entries.add(_HistoryEntry(
-        icon: Icons.cancel,
-        title: 'Cancelado',
-        note: 'Pedido cancelado',
-        timestamp: created,
-        color: FudiColors.destructive,
-        bgColor: const Color(0xFFFEE2E2),
-      ));
+      entries.add(
+        _HistoryEntry(
+          icon: Icons.cancel,
+          title: 'Cancelado',
+          note: 'Pedido cancelado',
+          timestamp: created,
+          color: FudiColors.destructive,
+          bgColor: const Color(0xFFFEE2E2),
+        ),
+      );
     }
 
     if (order.status == OrderStatus.expired) {
-      entries.add(_HistoryEntry(
-        icon: Icons.timer_off,
-        title: 'Expirado',
-        note: 'El pedido expiró sin ser recogido',
-        timestamp: created,
-        color: FudiColors.destructive,
-        bgColor: const Color(0xFFFEE2E2),
-      ));
+      entries.add(
+        _HistoryEntry(
+          icon: Icons.timer_off,
+          title: 'Expirado',
+          note: 'El pedido expiró sin ser recogido',
+          timestamp: created,
+          color: FudiColors.destructive,
+          bgColor: const Color(0xFFFEE2E2),
+        ),
+      );
     }
 
     return entries;
@@ -756,18 +794,17 @@ class _HistoryEntry {
 }
 
 class _TimelineEntry extends StatelessWidget {
-  const _TimelineEntry({
-    required this.entry,
-    required this.isLast,
-  });
+  const _TimelineEntry({required this.entry, required this.isLast});
 
   final _HistoryEntry entry;
   final bool isLast;
 
   @override
   Widget build(BuildContext context) {
-    final time = '${entry.timestamp.hour.toString().padLeft(2, '0')}:${entry.timestamp.minute.toString().padLeft(2, '0')}';
-    final date = '${entry.timestamp.day.toString().padLeft(2, '0')}/${entry.timestamp.month.toString().padLeft(2, '0')}/${entry.timestamp.year}';
+    final time =
+        '${entry.timestamp.hour.toString().padLeft(2, '0')}:${entry.timestamp.minute.toString().padLeft(2, '0')}';
+    final date =
+        '${entry.timestamp.day.toString().padLeft(2, '0')}/${entry.timestamp.month.toString().padLeft(2, '0')}/${entry.timestamp.year}';
 
     return IntrinsicHeight(
       child: Row(
@@ -785,11 +822,7 @@ class _TimelineEntry extends StatelessWidget {
                 child: Icon(entry.icon, size: 20, color: entry.color),
               ),
               if (!isLast)
-                Container(
-                  width: 2,
-                  height: 32,
-                  color: FudiColors.borderSolid,
-                ),
+                Container(width: 2, height: 32, color: FudiColors.borderSolid),
             ],
           ),
           const SizedBox(width: FudiSpacing.md),
@@ -802,14 +835,8 @@ class _TimelineEntry extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        entry.title,
-                        style: FudiTypography.labelSmall,
-                      ),
-                      Text(
-                        time,
-                        style: FudiTypography.bodySmall,
-                      ),
+                      Text(entry.title, style: FudiTypography.labelSmall),
+                      Text(time, style: FudiTypography.bodySmall),
                     ],
                   ),
                   const SizedBox(height: 2),

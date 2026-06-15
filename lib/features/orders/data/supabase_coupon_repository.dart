@@ -4,7 +4,7 @@ import '../domain/coupon_repository.dart';
 
 class SupabaseCouponRepository implements CouponRepository {
   SupabaseCouponRepository({required SupabaseClient supabaseClient})
-      : _supabaseClient = supabaseClient;
+    : _supabaseClient = supabaseClient;
 
   final SupabaseClient _supabaseClient;
 

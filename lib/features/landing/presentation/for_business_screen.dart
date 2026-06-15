@@ -62,7 +62,10 @@ class _Hero extends StatelessWidget {
           ],
         ),
       ),
-      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: FudiSpacing.xl),
+      padding: const EdgeInsets.symmetric(
+        vertical: 80,
+        horizontal: FudiSpacing.xl,
+      ),
       child: Column(
         children: [
           Text(
@@ -74,14 +77,20 @@ class _Hero extends StatelessWidget {
           Text(
             'Únete a más de 2,000 comercios que ya están reduciendo el desperdicio y aumentando sus ingresos',
             textAlign: TextAlign.center,
-            style: FudiTypography.bodyLarge.copyWith(color: FudiColors.mutedForeground, fontSize: 20),
+            style: FudiTypography.bodyLarge.copyWith(
+              color: FudiColors.mutedForeground,
+              fontSize: 20,
+            ),
           ),
           const SizedBox(height: 48),
           FilledButton(
             onPressed: () => context.go(RouteNames.signupPath),
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-              textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textStyle: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             child: const Text('Registrar mi negocio'),
           ),
@@ -97,18 +106,26 @@ class _Benefits extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: FudiSpacing.xl),
+      padding: const EdgeInsets.symmetric(
+        vertical: 100,
+        horizontal: FudiSpacing.xl,
+      ),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
           child: Column(
             children: [
-              const Text('¿Por qué usar Fudi?', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+              const Text(
+                '¿Por qué usar Fudi?',
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 64),
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: MediaQuery.of(context).size.width > 900 ? 4 : (MediaQuery.of(context).size.width > 600 ? 2 : 1),
+                crossAxisCount: MediaQuery.of(context).size.width > 900
+                    ? 4
+                    : (MediaQuery.of(context).size.width > 600 ? 2 : 1),
                 mainAxisSpacing: 32,
                 crossAxisSpacing: 32,
                 childAspectRatio: 0.8,
@@ -116,22 +133,26 @@ class _Benefits extends StatelessWidget {
                   _BenefitCard(
                     icon: Icons.trending_up,
                     title: 'Reduce pérdidas',
-                    description: 'Convierte excedentes en ingresos en lugar de desperdiciarlos',
+                    description:
+                        'Convierte excedentes en ingresos en lugar de desperdiciarlos',
                   ),
                   _BenefitCard(
                     icon: Icons.people_outline,
                     title: 'Nuevos clientes',
-                    description: 'Atrae clientes que pueden convertirse en habituales',
+                    description:
+                        'Atrae clientes que pueden convertirse en habituales',
                   ),
                   _BenefitCard(
                     icon: Icons.bar_chart,
                     title: 'Impacto medible',
-                    description: 'Estadísticas detalladas sobre tus ventas y ahorro',
+                    description:
+                        'Estadísticas detalladas sobre tus ventas y ahorro',
                   ),
                   _BenefitCard(
                     icon: Icons.access_time,
                     title: 'Gestión fácil',
-                    description: 'Panel intuitivo para gestionar tus ofertas en minutos',
+                    description:
+                        'Panel intuitivo para gestionar tus ofertas en minutos',
                   ),
                 ],
               ),
@@ -144,7 +165,11 @@ class _Benefits extends StatelessWidget {
 }
 
 class _BenefitCard extends StatelessWidget {
-  const _BenefitCard({required this.icon, required this.title, required this.description});
+  const _BenefitCard({
+    required this.icon,
+    required this.title,
+    required this.description,
+  });
   final IconData icon;
   final String title;
   final String description;
@@ -163,13 +188,26 @@ class _BenefitCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: FudiColors.secondary.withValues(alpha: 0.3), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: FudiColors.secondary.withValues(alpha: 0.3),
+              shape: BoxShape.circle,
+            ),
             child: Icon(icon, color: FudiColors.primary, size: 32),
           ),
           const SizedBox(height: 24),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18), textAlign: TextAlign.center),
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 12),
-          Text(description, style: FudiTypography.bodyMedium.copyWith(color: FudiColors.mutedForeground), textAlign: TextAlign.center),
+          Text(
+            description,
+            style: FudiTypography.bodyMedium.copyWith(
+              color: FudiColors.mutedForeground,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -183,18 +221,43 @@ class _HowItWorksForBusiness extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFFF8F9FA),
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: FudiSpacing.xl),
+      padding: const EdgeInsets.symmetric(
+        vertical: 100,
+        horizontal: FudiSpacing.xl,
+      ),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 800),
           child: Column(
             children: [
-              const Text('Cómo funciona para tu negocio', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+              const Text(
+                'Cómo funciona para tu negocio',
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 64),
-              _BusinessStep(number: '1', title: 'Regístrate gratis', description: 'Crea tu perfil de negocio en menos de 5 minutos'),
-              _BusinessStep(number: '2', title: 'Publica tus ofertas', description: 'Define qué productos ofreces y a qué precio cada día'),
-              _BusinessStep(number: '3', title: 'Recibe pedidos', description: 'Los usuarios reservan y pagan directamente en la app'),
-              _BusinessStep(number: '4', title: 'Entrega y cobra', description: 'Prepara los pedidos y recibe el pago en tu cuenta'),
+              _BusinessStep(
+                number: '1',
+                title: 'Regístrate gratis',
+                description: 'Crea tu perfil de negocio en menos de 5 minutos',
+              ),
+              _BusinessStep(
+                number: '2',
+                title: 'Publica tus ofertas',
+                description:
+                    'Define qué productos ofreces y a qué precio cada día',
+              ),
+              _BusinessStep(
+                number: '3',
+                title: 'Recibe pedidos',
+                description:
+                    'Los usuarios reservan y pagan directamente en la app',
+              ),
+              _BusinessStep(
+                number: '4',
+                title: 'Entrega y cobra',
+                description:
+                    'Prepara los pedidos y recibe el pago en tu cuenta',
+              ),
             ],
           ),
         ),
@@ -204,7 +267,11 @@ class _HowItWorksForBusiness extends StatelessWidget {
 }
 
 class _BusinessStep extends StatelessWidget {
-  const _BusinessStep({required this.number, required this.title, required this.description});
+  const _BusinessStep({
+    required this.number,
+    required this.title,
+    required this.description,
+  });
   final String number;
   final String title;
   final String description;
@@ -219,17 +286,40 @@ class _BusinessStep extends StatelessWidget {
           Container(
             width: 48,
             height: 48,
-            decoration: const BoxDecoration(color: FudiColors.primary, shape: BoxShape.circle),
-            child: Center(child: Text(number, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold))),
+            decoration: const BoxDecoration(
+              color: FudiColors.primary,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                number,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
           const SizedBox(width: 24),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                Text(description, style: FudiTypography.bodyLarge.copyWith(color: FudiColors.mutedForeground)),
+                Text(
+                  description,
+                  style: FudiTypography.bodyLarge.copyWith(
+                    color: FudiColors.mutedForeground,
+                  ),
+                ),
               ],
             ),
           ),
@@ -247,14 +337,23 @@ class _CTA extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        gradient: LinearGradient(colors: [FudiColors.primary, Color(0xFF2E7D32)]),
+        gradient: LinearGradient(
+          colors: [FudiColors.primary, Color(0xFF2E7D32)],
+        ),
       ),
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: FudiSpacing.xl),
+      padding: const EdgeInsets.symmetric(
+        vertical: 100,
+        horizontal: FudiSpacing.xl,
+      ),
       child: Column(
         children: [
           const Text(
             '¿Listo para unirte?',
-            style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 40,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 24),
           const Text(
@@ -268,7 +367,10 @@ class _CTA extends StatelessWidget {
               backgroundColor: Colors.white,
               foregroundColor: FudiColors.primary,
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-              textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textStyle: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             child: const Text('Registrar mi negocio'),
           ),

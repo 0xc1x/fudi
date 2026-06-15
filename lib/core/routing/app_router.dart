@@ -154,13 +154,13 @@ GoRouter createAppRouter(
         builder: (context, state) => const UiGalleryScreen(),
       ),
 
-    // ─── Shell para Consumidor (con BottomNav condicional) ─────
-    ShellRoute(
-      builder: (context, state, child) => FudiScaffold(
-        showBottomNav: !_shouldHideBottomNav(state),
-        showAppBar: !_shouldHideAppBar(state),
-        body: child,
-      ),
+      // ─── Shell para Consumidor (con BottomNav condicional) ─────
+      ShellRoute(
+        builder: (context, state, child) => FudiScaffold(
+          showBottomNav: !_shouldHideBottomNav(state),
+          showAppBar: !_shouldHideAppBar(state),
+          body: child,
+        ),
         routes: [
           GoRoute(
             path: RouteNames.homePath,
@@ -281,13 +281,13 @@ GoRouter createAppRouter(
         ],
       ),
 
-    // ─── Shell para Negocio (con BottomNav) ──────────────────────
-    ShellRoute(
-      builder: (context, state, child) => FudiScaffold(
-        showBottomNav: !_shouldHideBottomNav(state),
-        showAppBar: !_shouldHideAppBar(state),
-        body: child,
-      ),
+      // ─── Shell para Negocio (con BottomNav) ──────────────────────
+      ShellRoute(
+        builder: (context, state, child) => FudiScaffold(
+          showBottomNav: !_shouldHideBottomNav(state),
+          showAppBar: !_shouldHideAppBar(state),
+          body: child,
+        ),
         routes: [
           GoRoute(
             path: RouteNames.businessProductsPath,

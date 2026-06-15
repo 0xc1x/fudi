@@ -3,12 +3,7 @@ import '../fudi_colors.dart';
 import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
 
-enum FudiButtonVariant {
-  primary,
-  secondary,
-  outlined,
-  text,
-}
+enum FudiButtonVariant { primary, secondary, outlined, text }
 
 /// A custom branded button with soft scale press animation (0.96x) instead of ripple.
 class FudiButton extends StatefulWidget {
@@ -35,8 +30,8 @@ class FudiButton extends StatefulWidget {
   State<FudiButton> createState() => _FudiButtonState();
 }
 
-
-class _FudiButtonState extends State<FudiButton> with SingleTickerProviderStateMixin {
+class _FudiButtonState extends State<FudiButton>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _scaleAnimation;
 
@@ -87,24 +82,34 @@ class _FudiButtonState extends State<FudiButton> with SingleTickerProviderStateM
 
     switch (widget.variant) {
       case FudiButtonVariant.primary:
-        backgroundColor = isEnabled ? FudiColors.primary : FudiColors.primary.withValues(alpha: 0.5);
+        backgroundColor = isEnabled
+            ? FudiColors.primary
+            : FudiColors.primary.withValues(alpha: 0.5);
         foregroundColor = FudiColors.primaryForeground;
         break;
       case FudiButtonVariant.secondary:
-        backgroundColor = isEnabled ? FudiColors.secondary : FudiColors.secondary.withValues(alpha: 0.5);
+        backgroundColor = isEnabled
+            ? FudiColors.secondary
+            : FudiColors.secondary.withValues(alpha: 0.5);
         foregroundColor = FudiColors.secondaryForeground;
         break;
       case FudiButtonVariant.outlined:
         backgroundColor = Colors.transparent;
-        foregroundColor = isEnabled ? FudiColors.foreground : FudiColors.foreground.withValues(alpha: 0.5);
+        foregroundColor = isEnabled
+            ? FudiColors.foreground
+            : FudiColors.foreground.withValues(alpha: 0.5);
         borderSide = BorderSide(
-          color: isEnabled ? FudiColors.foreground : FudiColors.foreground.withValues(alpha: 0.3),
+          color: isEnabled
+              ? FudiColors.foreground
+              : FudiColors.foreground.withValues(alpha: 0.3),
           width: 1.5,
         );
         break;
       case FudiButtonVariant.text:
         backgroundColor = Colors.transparent;
-        foregroundColor = isEnabled ? FudiColors.primary : FudiColors.primary.withValues(alpha: 0.5);
+        foregroundColor = isEnabled
+            ? FudiColors.primary
+            : FudiColors.primary.withValues(alpha: 0.5);
         break;
     }
 
@@ -148,10 +153,12 @@ class _FudiButtonState extends State<FudiButton> with SingleTickerProviderStateM
       child: ScaleTransition(
         scale: _scaleAnimation,
         child: Container(
-          padding: widget.padding ?? const EdgeInsets.symmetric(
-            horizontal: FudiSpacing.xl,
-            vertical: FudiSpacing.lg - 2,
-          ),
+          padding:
+              widget.padding ??
+              const EdgeInsets.symmetric(
+                horizontal: FudiSpacing.xl,
+                vertical: FudiSpacing.lg - 2,
+              ),
           decoration: BoxDecoration(
             color: backgroundColor,
             borderRadius: BorderRadius.circular(FudiRadius.full),

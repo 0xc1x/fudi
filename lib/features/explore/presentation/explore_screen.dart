@@ -85,7 +85,12 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 onCategoryTap: _handleCategoryTap,
               ),
             ),
-            loading: () => const SliverToBoxAdapter(child: SizedBox(height: 100, child: Center(child: CircularProgressIndicator()))),
+            loading: () => const SliverToBoxAdapter(
+              child: SizedBox(
+                height: 100,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            ),
             error: (_, _) => const SliverToBoxAdapter(child: SizedBox.shrink()),
           ),
           areasAsync.when(
@@ -138,9 +143,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 ),
               ),
             ),
-        error: (error, _) => SliverFillRemaining(
-          child: _ErrorState(message: userFriendlyMessage(error)),
-        ),
+            error: (error, _) => SliverFillRemaining(
+              child: _ErrorState(message: userFriendlyMessage(error)),
+            ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: FudiSpacing.xxl)),
         ],
@@ -166,9 +171,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           ? offer.categoryLabel
           : null,
       isFavorite: isFavorite,
-      onFavoriteToggle: () => ref
-          .read(favoritedOfferIdsProvider.notifier)
-          .toggleFavorite(offer.id),
+      onFavoriteToggle: () =>
+          ref.read(favoritedOfferIdsProvider.notifier).toggleFavorite(offer.id),
       onTap: () => context.push('/product/${offer.id}'),
     );
   }
@@ -176,11 +180,12 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   String _formatDistance(Offer offer) {
     final pos = ref.read(userLocationProvider).asData?.value;
     return GeoUtils.formatDistance(
-      offer.business.latitude, offer.business.longitude,
-      userLat: pos?.latitude, userLng: pos?.longitude,
+      offer.business.latitude,
+      offer.business.longitude,
+      userLat: pos?.latitude,
+      userLng: pos?.longitude,
     );
   }
-
 
   void _toggleViewMode() {
     setState(() => _viewModeMap = !_viewModeMap);
@@ -292,7 +297,10 @@ class _ExploreHeader extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const FudiLogo(variant: FudiLogoVariant.icon, size: FudiLogoSize.lg),
+            const FudiLogo(
+              variant: FudiLogoVariant.icon,
+              size: FudiLogoSize.lg,
+            ),
             const SizedBox(height: FudiSpacing.md),
             Text(
               'Explorar',
@@ -837,9 +845,16 @@ class _EmptyExploreState extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(FudiIcons.search, size: 48, color: FudiColors.mutedForeground),
+              const Icon(
+                FudiIcons.search,
+                size: 48,
+                color: FudiColors.mutedForeground,
+              ),
               const SizedBox(height: FudiSpacing.md),
-              Text('No se encontraron ofertas', style: FudiTypography.bodyMedium),
+              Text(
+                'No se encontraron ofertas',
+                style: FudiTypography.bodyMedium,
+              ),
               const SizedBox(height: FudiSpacing.xs),
               Text(
                 'Intenta cambiar los filtros o la búsqueda',

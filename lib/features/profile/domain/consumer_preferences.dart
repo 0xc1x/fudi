@@ -36,8 +36,7 @@ class ConsumerPreferences {
     bool? weeklySummaryEnabled,
   }) {
     return ConsumerPreferences(
-      notificationRadiusKm:
-          notificationRadiusKm ?? this.notificationRadiusKm,
+      notificationRadiusKm: notificationRadiusKm ?? this.notificationRadiusKm,
       language: language ?? this.language,
       darkMode: darkMode ?? this.darkMode,
       pushNotificationsEnabled:
@@ -51,8 +50,7 @@ class ConsumerPreferences {
           pickupRemindersEnabled ?? this.pickupRemindersEnabled,
       lastMinuteDealsEnabled:
           lastMinuteDealsEnabled ?? this.lastMinuteDealsEnabled,
-      weeklySummaryEnabled:
-          weeklySummaryEnabled ?? this.weeklySummaryEnabled,
+      weeklySummaryEnabled: weeklySummaryEnabled ?? this.weeklySummaryEnabled,
     );
   }
 

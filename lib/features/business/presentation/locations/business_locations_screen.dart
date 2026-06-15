@@ -90,16 +90,17 @@ class _Content extends ConsumerWidget {
           icon: FudiIcons.mapPin,
           title: 'Aún no hay locales',
           action: 'Crear local',
-          onTap: () =>
-              context.push(RouteNames.businessLocationCreatePath),
+          onTap: () => context.push(RouteNames.businessLocationCreatePath),
         ),
       ];
     }
     return locations
-        .map((location) => Padding(
-              padding: const EdgeInsets.only(bottom: FudiSpacing.md),
-              child: _LocationCard(location: location),
-            ))
+        .map(
+          (location) => Padding(
+            padding: const EdgeInsets.only(bottom: FudiSpacing.md),
+            child: _LocationCard(location: location),
+          ),
+        )
         .toList();
   }
 }
@@ -152,8 +153,7 @@ class _BusinessInfoCard extends StatelessWidget {
                 ),
               ),
               IconButton(
-                onPressed: () =>
-                    context.push(RouteNames.businessEditPath),
+                onPressed: () => context.push(RouteNames.businessEditPath),
                 icon: const Icon(FudiIcons.store, color: FudiColors.primary),
               ),
             ],
@@ -253,12 +253,9 @@ class _LocationsHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(
-          child: Text('Mis Locales', style: FudiTypography.h4),
-        ),
+        Expanded(child: Text('Mis Locales', style: FudiTypography.h4)),
         FilledButton.icon(
-          onPressed: () =>
-              context.push(RouteNames.businessLocationCreatePath),
+          onPressed: () => context.push(RouteNames.businessLocationCreatePath),
           icon: const Icon(FudiIcons.plus, size: 16),
           label: const Text('Agregar'),
           style: FilledButton.styleFrom(
@@ -371,17 +368,14 @@ class _LocationCard extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: FudiColors.muted.withValues(alpha: 0.3),
-              border: Border(
-                top: BorderSide(color: FudiColors.borderSolid),
-              ),
+              border: Border(top: BorderSide(color: FudiColors.borderSolid)),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(FudiRadius.xl),
                 bottomRight: Radius.circular(FudiRadius.xl),
               ),
             ),
             child: InkWell(
-              onTap: () =>
-                  context.push('/business/locations/${location.id}'),
+              onTap: () => context.push('/business/locations/${location.id}'),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(FudiRadius.xl),
                 bottomRight: Radius.circular(FudiRadius.xl),
@@ -427,9 +421,7 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: active
-            ? const Color(0xFFDCFCE7)
-            : FudiColors.muted,
+        color: active ? const Color(0xFFDCFCE7) : FudiColors.muted,
         borderRadius: BorderRadius.circular(FudiRadius.full),
       ),
       child: Row(
@@ -563,14 +555,12 @@ class _SettingsSection extends StatelessWidget {
           _SettingsItem(
             icon: FudiIcons.bell,
             title: 'Notificaciones',
-            onTap: () =>
-                context.push(RouteNames.businessNotificationsPath),
+            onTap: () => context.push(RouteNames.businessNotificationsPath),
           ),
           _SettingsItem(
             icon: FudiIcons.creditCard,
             title: 'Métodos de cobro',
-            onTap: () =>
-                context.push(RouteNames.businessPaymentsPath),
+            onTap: () => context.push(RouteNames.businessPaymentsPath),
           ),
           _SettingsItem(
             icon: FudiIcons.helpCircle,
@@ -608,9 +598,7 @@ class _SettingsItem extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           border: showBorder
-              ? Border(
-                  top: BorderSide(color: FudiColors.borderSolid),
-                )
+              ? Border(top: BorderSide(color: FudiColors.borderSolid))
               : null,
         ),
         child: Row(
@@ -646,9 +634,7 @@ class _LogoutButton extends ConsumerWidget {
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Cerrar sesión'),
-            content: const Text(
-              '¿Estás seguro de que quieres cerrar sesión?',
-            ),
+            content: const Text('¿Estás seguro de que quieres cerrar sesión?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
@@ -657,9 +643,7 @@ class _LogoutButton extends ConsumerWidget {
               FilledButton(
                 onPressed: () {
                   Navigator.of(ctx).pop();
-                  ref
-                      .read(authControllerProvider.notifier)
-                      .signOut();
+                  ref.read(authControllerProvider.notifier).signOut();
                 },
                 style: FilledButton.styleFrom(
                   backgroundColor: FudiColors.destructive,

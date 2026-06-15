@@ -83,10 +83,10 @@ class _OrdersContentState extends State<_OrdersContent> {
     final orders = _showToday ? _todayOrders : _historyOrders;
     if (orders.isEmpty) {
       return [
-      _EmptyState(
+        _EmptyState(
           message: _showToday
-          ? 'No hay pedidos pendientes'
-          : 'No hay pedidos en el historial',
+              ? 'No hay pedidos pendientes'
+              : 'No hay pedidos en el historial',
         ),
       ];
     }
@@ -119,12 +119,11 @@ class _OrdersContentState extends State<_OrdersContent> {
                 todayCompletedCount: _todayCompletedCount,
               ),
               const SizedBox(height: FudiSpacing.md),
-        _TabSelector(
-          showToday: _showToday,
-          todayCount: _todayOrders.length,
-          historyCount: _historyOrders.length,
-                onTabChanged: (isToday) =>
-                    setState(() => _showToday = isToday),
+              _TabSelector(
+                showToday: _showToday,
+                todayCount: _todayOrders.length,
+                historyCount: _historyOrders.length,
+                onTabChanged: (isToday) => setState(() => _showToday = isToday),
               ),
               const SizedBox(height: FudiSpacing.md),
               ..._buildOrderList(),
@@ -197,10 +196,7 @@ class _StatCard extends StatelessWidget {
       padding: const EdgeInsets.all(FudiSpacing.md),
       child: Column(
         children: [
-          Text(
-            '$count',
-            style: FudiTypography.h2.copyWith(color: color),
-          ),
+          Text('$count', style: FudiTypography.h2.copyWith(color: color)),
           const SizedBox(height: 2),
           Text(label, style: FudiTypography.bodySmall),
         ],
@@ -240,10 +236,10 @@ class _TabSelector extends StatelessWidget {
               onTap: () => onTabChanged(true),
             ),
           ),
-        Expanded(
-          child: _TabButton(
-            label: 'Historial ($historyCount)',
-            isActive: !showToday,
+          Expanded(
+            child: _TabButton(
+              label: 'Historial ($historyCount)',
+              isActive: !showToday,
               onTap: () => onTabChanged(false),
             ),
           ),
@@ -321,22 +317,13 @@ class _OrderCard extends ConsumerWidget {
             ),
             if (order.customerPhone != null) ...[
               const SizedBox(height: FudiSpacing.sm),
-              _InfoRow(
-                icon: FudiIcons.phone,
-                text: order.customerPhone!,
-              ),
+              _InfoRow(icon: FudiIcons.phone, text: order.customerPhone!),
             ],
             const SizedBox(height: FudiSpacing.sm),
-            _InfoRow(
-              icon: FudiIcons.package_,
-              text: order.offerTitle,
-            ),
+            _InfoRow(icon: FudiIcons.package_, text: order.offerTitle),
             const SizedBox(height: FudiSpacing.sm),
-            _InfoRow(
-              icon: FudiIcons.clock,
-              text: _formatPickupTime(order),
-            ),
-                if (order.status.isActive) ...[
+            _InfoRow(icon: FudiIcons.clock, text: _formatPickupTime(order)),
+            if (order.status.isActive) ...[
               const SizedBox(height: FudiSpacing.md),
               const Divider(height: 1),
               const SizedBox(height: FudiSpacing.md),
@@ -372,9 +359,7 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: FudiColors.primary),
         const SizedBox(width: 8),
-        Expanded(
-          child: Text(text, style: FudiTypography.bodyMedium),
-        ),
+        Expanded(child: Text(text, style: FudiTypography.bodyMedium)),
       ],
     );
   }
@@ -412,8 +397,11 @@ class _ActionButtons extends ConsumerWidget {
                   .read(businessOrderRepositoryProvider)
                   .updateOrderStatus(order.id, OrderStatus.cancelled);
             },
-            icon: Icon(FudiIcons.xCircle,
-                size: 20, color: FudiColors.destructive),
+            icon: Icon(
+              FudiIcons.xCircle,
+              size: 20,
+              color: FudiColors.destructive,
+            ),
             style: IconButton.styleFrom(
               side: BorderSide(color: FudiColors.borderSolid),
               padding: const EdgeInsets.all(10),
@@ -468,7 +456,8 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final config = _statusConfig[status] ??
+    final config =
+        _statusConfig[status] ??
         _StatusConfig(color: FudiColors.mutedForeground, label: status.label);
 
     return Container(
@@ -513,9 +502,15 @@ class _StatusConfig {
 const _statusConfig = <OrderStatus, _StatusConfig>{
   OrderStatus.pending: _StatusConfig(color: Colors.orange, label: 'Pendiente'),
   OrderStatus.confirmed: _StatusConfig(color: Colors.blue, label: 'Confirmado'),
-  OrderStatus.readyForPickup: _StatusConfig(color: Colors.indigo, label: 'Listo'),
+  OrderStatus.readyForPickup: _StatusConfig(
+    color: Colors.indigo,
+    label: 'Listo',
+  ),
   OrderStatus.pickedUp: _StatusConfig(color: Colors.green, label: 'Recogido'),
-  OrderStatus.completed: _StatusConfig(color: Colors.green, label: 'Completado'),
+  OrderStatus.completed: _StatusConfig(
+    color: Colors.green,
+    label: 'Completado',
+  ),
   OrderStatus.cancelled: _StatusConfig(color: Colors.red, label: 'Cancelado'),
   OrderStatus.expired: _StatusConfig(color: Colors.red, label: 'Expirado'),
 };

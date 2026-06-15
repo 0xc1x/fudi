@@ -266,8 +266,9 @@ class _AddressCard extends ConsumerWidget {
                             ),
                             decoration: BoxDecoration(
                               color: FudiColors.muted,
-                              borderRadius:
-                                  BorderRadius.circular(FudiRadius.md),
+                              borderRadius: BorderRadius.circular(
+                                FudiRadius.md,
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -432,14 +433,18 @@ class _AddressCard extends ConsumerWidget {
     );
 
     if (confirmed == true) {
-      await ref.read(consumerProfileRepositoryProvider).deleteAddress(address.id);
+      await ref
+          .read(consumerProfileRepositoryProvider)
+          .deleteAddress(address.id);
       ref.invalidate(savedAddressesProvider);
       ref.invalidate(userSelectedAddressProvider);
     }
   }
 
   Future<void> _setDefault(WidgetRef ref) async {
-    await ref.read(consumerProfileRepositoryProvider).setDefaultAddress(address.id);
+    await ref
+        .read(consumerProfileRepositoryProvider)
+        .setDefaultAddress(address.id);
     ref.invalidate(savedAddressesProvider);
     ref.invalidate(userSelectedAddressProvider);
   }
@@ -452,9 +457,7 @@ void _showAddAddressSheet(BuildContext context, WidgetRef ref) {
     context: context,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(
-        top: Radius.circular(FudiRadius.xxl),
-      ),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(FudiRadius.xxl)),
     ),
     builder: (_) => const _AddAddressSheet(),
   );
@@ -503,9 +506,8 @@ class _AddAddressSheetState extends ConsumerState<_AddAddressSheet> {
     final result = await Navigator.push<AddressMapPickerResult>(
       context,
       MaterialPageRoute(
-        builder: (_) => AddressMapPickerScreen(
-          initialLocation: _pickedLocation,
-        ),
+        builder: (_) =>
+            AddressMapPickerScreen(initialLocation: _pickedLocation),
       ),
     );
 
@@ -534,9 +536,7 @@ class _AddAddressSheetState extends ConsumerState<_AddAddressSheet> {
 
     if (_pickedLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selecciona la ubicación en el mapa'),
-        ),
+        const SnackBar(content: Text('Selecciona la ubicación en el mapa')),
       );
       return;
     }
@@ -544,7 +544,9 @@ class _AddAddressSheetState extends ConsumerState<_AddAddressSheet> {
     setState(() => _isSaving = true);
 
     try {
-      await ref.read(consumerProfileRepositoryProvider).saveAddress(
+      await ref
+          .read(consumerProfileRepositoryProvider)
+          .saveAddress(
             label: label,
             address: address,
             latitude: _pickedLocation!.latitude,
@@ -562,9 +564,9 @@ class _AddAddressSheetState extends ConsumerState<_AddAddressSheet> {
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al guardar: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al guardar: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -575,265 +577,265 @@ class _AddAddressSheetState extends ConsumerState<_AddAddressSheet> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-  return Padding(
-    padding: EdgeInsets.only(bottom: bottomInset),
-    child: Column(
-      children: [
-        Container(
-          decoration: const BoxDecoration(
-            color: FudiColors.background,
-            border: Border(
-              bottom: BorderSide(color: FudiColors.borderSolid),
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: Column(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              color: FudiColors.background,
+              border: Border(bottom: BorderSide(color: FudiColors.borderSolid)),
+            ),
+            padding: const EdgeInsets.all(FudiSpacing.lg),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text('Agregar dirección', style: FudiTypography.h3),
+                ),
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(FudiIcons.x, size: 20),
+                    padding: EdgeInsets.zero,
+                    style: IconButton.styleFrom(
+                      backgroundColor: FudiColors.muted,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(FudiRadius.full),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          padding: const EdgeInsets.all(FudiSpacing.lg),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Agregar dirección',
-                  style: FudiTypography.h3,
-                ),
-              ),
-              SizedBox(
-                width: 40,
-                height: 40,
-                child: IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(FudiIcons.x, size: 20),
-                  padding: EdgeInsets.zero,
-                  style: IconButton.styleFrom(
-                    backgroundColor: FudiColors.muted,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(FudiRadius.full),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
 
-        Expanded(child: SingleChildScrollView(
-            padding: const EdgeInsets.all(FudiSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Etiqueta', style: FudiTypography.labelSmall),
-                const SizedBox(height: FudiSpacing.sm),
-                TextField(
-                  controller: _labelController,
-                  decoration: InputDecoration(
-                    hintText: 'Casa, Trabajo, Gimnasio...',
-                    filled: true,
-                    fillColor: FudiColors.inputBackground,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(FudiRadius.xl),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(FudiRadius.xl),
-                      borderSide: const BorderSide(
-                        color: FudiColors.primary,
-                        width: 2,
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(FudiSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Etiqueta', style: FudiTypography.labelSmall),
+                  const SizedBox(height: FudiSpacing.sm),
+                  TextField(
+                    controller: _labelController,
+                    decoration: InputDecoration(
+                      hintText: 'Casa, Trabajo, Gimnasio...',
+                      filled: true,
+                      fillColor: FudiColors.inputBackground,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(FudiRadius.xl),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(FudiRadius.xl),
+                        borderSide: const BorderSide(
+                          color: FudiColors.primary,
+                          width: 2,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: FudiSpacing.lg,
+                        vertical: FudiSpacing.md,
                       ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: FudiSpacing.lg,
-                      vertical: FudiSpacing.md,
-                    ),
                   ),
-                ),
 
-                const SizedBox(height: FudiSpacing.lg),
+                  const SizedBox(height: FudiSpacing.lg),
 
-                Text('Tipo', style: FudiTypography.labelSmall),
-                const SizedBox(height: FudiSpacing.sm),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _TypeButton(
-                        icon: FudiIcons.home,
-                        label: 'Casa',
-                        isSelected: _selectedType == AddressType.home,
-                        onTap: () => _onTypeSelected(AddressType.home),
+                  Text('Tipo', style: FudiTypography.labelSmall),
+                  const SizedBox(height: FudiSpacing.sm),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _TypeButton(
+                          icon: FudiIcons.home,
+                          label: 'Casa',
+                          isSelected: _selectedType == AddressType.home,
+                          onTap: () => _onTypeSelected(AddressType.home),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: FudiSpacing.sm),
-                    Expanded(
-                      child: _TypeButton(
-                        icon: Icons.work_outline_rounded,
-                        label: 'Trabajo',
-                        isSelected: _selectedType == AddressType.work,
-                        onTap: () => _onTypeSelected(AddressType.work),
+                      const SizedBox(width: FudiSpacing.sm),
+                      Expanded(
+                        child: _TypeButton(
+                          icon: Icons.work_outline_rounded,
+                          label: 'Trabajo',
+                          isSelected: _selectedType == AddressType.work,
+                          onTap: () => _onTypeSelected(AddressType.work),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: FudiSpacing.sm),
-                    Expanded(
-                      child: _TypeButton(
-                        icon: FudiIcons.mapPin,
-                        label: 'Otro',
-                        isSelected: _selectedType == AddressType.other,
-                        onTap: () => _onTypeSelected(AddressType.other),
+                      const SizedBox(width: FudiSpacing.sm),
+                      Expanded(
+                        child: _TypeButton(
+                          icon: FudiIcons.mapPin,
+                          label: 'Otro',
+                          isSelected: _selectedType == AddressType.other,
+                          onTap: () => _onTypeSelected(AddressType.other),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: FudiSpacing.lg),
-
-                Text('Ubicación en el mapa', style: FudiTypography.labelSmall),
-                const SizedBox(height: FudiSpacing.sm),
-                OutlinedButton.icon(
-                  onPressed: _pickOnMap,
-                  icon: Icon(
-                    _pickedLocation != null
-                        ? Icons.check_circle
-                        : Icons.map_outlined,
-                    size: 20,
-                    color: _pickedLocation != null
-                        ? FudiColors.primary
-                        : null,
+                    ],
                   ),
-                  label: Text(
-                    _pickedLocation != null
-                        ? 'Ubicación seleccionada'
-                        : 'Seleccionar en el mapa',
+
+                  const SizedBox(height: FudiSpacing.lg),
+
+                  Text(
+                    'Ubicación en el mapa',
+                    style: FudiTypography.labelSmall,
                   ),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(52),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(FudiRadius.xl),
-                    ),
-                    side: BorderSide(
+                  const SizedBox(height: FudiSpacing.sm),
+                  OutlinedButton.icon(
+                    onPressed: _pickOnMap,
+                    icon: Icon(
+                      _pickedLocation != null
+                          ? Icons.check_circle
+                          : Icons.map_outlined,
+                      size: 20,
                       color: _pickedLocation != null
                           ? FudiColors.primary
-                          : FudiColors.borderSolid,
-                      width: _pickedLocation != null ? 2 : 1,
+                          : null,
                     ),
-                    backgroundColor: _pickedLocation != null
-                        ? FudiColors.primary.withValues(alpha: 0.05)
-                        : null,
-                    foregroundColor: _pickedLocation != null
-                        ? FudiColors.primary
-                        : FudiColors.foreground,
+                    label: Text(
+                      _pickedLocation != null
+                          ? 'Ubicación seleccionada'
+                          : 'Seleccionar en el mapa',
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(52),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(FudiRadius.xl),
+                      ),
+                      side: BorderSide(
+                        color: _pickedLocation != null
+                            ? FudiColors.primary
+                            : FudiColors.borderSolid,
+                        width: _pickedLocation != null ? 2 : 1,
+                      ),
+                      backgroundColor: _pickedLocation != null
+                          ? FudiColors.primary.withValues(alpha: 0.05)
+                          : null,
+                      foregroundColor: _pickedLocation != null
+                          ? FudiColors.primary
+                          : FudiColors.foreground,
+                    ),
                   ),
-                ),
 
-                const SizedBox(height: FudiSpacing.lg),
+                  const SizedBox(height: FudiSpacing.lg),
 
-                Text('Dirección', style: FudiTypography.labelSmall),
-                const SizedBox(height: FudiSpacing.sm),
-                TextField(
-                  controller: _addressController,
-                  decoration: InputDecoration(
-                    hintText: 'Calle, número, piso...',
-                    filled: true,
-                    fillColor: FudiColors.inputBackground,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(FudiRadius.xl),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(FudiRadius.xl),
-                      borderSide: const BorderSide(
-                        color: FudiColors.primary,
-                        width: 2,
+                  Text('Dirección', style: FudiTypography.labelSmall),
+                  const SizedBox(height: FudiSpacing.sm),
+                  TextField(
+                    controller: _addressController,
+                    decoration: InputDecoration(
+                      hintText: 'Calle, número, piso...',
+                      filled: true,
+                      fillColor: FudiColors.inputBackground,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(FudiRadius.xl),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(FudiRadius.xl),
+                        borderSide: const BorderSide(
+                          color: FudiColors.primary,
+                          width: 2,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: FudiSpacing.lg,
+                        vertical: FudiSpacing.md,
                       ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: FudiSpacing.lg,
-                      vertical: FudiSpacing.md,
+                  ),
+
+                  const SizedBox(height: FudiSpacing.lg),
+
+                  Text('Tipo de vivienda', style: FudiTypography.labelSmall),
+                  const SizedBox(height: FudiSpacing.sm),
+                  SizedBox(
+                    height: 44,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: HousingType.values.length,
+                      separatorBuilder: (_, _) =>
+                          const SizedBox(width: FudiSpacing.sm),
+                      itemBuilder: (context, index) {
+                        final ht = HousingType.values[index];
+                        final isSelected = _selectedHousingType == ht;
+                        return _HousingTypeChip(
+                          icon: _housingTypeIcon(ht),
+                          label: _housingTypeLabel(ht),
+                          isSelected: isSelected,
+                          onTap: () => setState(() {
+                            _selectedHousingType = isSelected ? null : ht;
+                          }),
+                        );
+                      },
                     ),
                   ),
-                ),
 
-                const SizedBox(height: FudiSpacing.lg),
+                  const SizedBox(height: FudiSpacing.lg),
 
-                Text('Tipo de vivienda', style: FudiTypography.labelSmall),
-                const SizedBox(height: FudiSpacing.sm),
-                SizedBox(
-                  height: 44,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: HousingType.values.length,
-                    separatorBuilder: (_, _) =>
-                        const SizedBox(width: FudiSpacing.sm),
-                    itemBuilder: (context, index) {
-                      final ht = HousingType.values[index];
-                      final isSelected = _selectedHousingType == ht;
-                      return _HousingTypeChip(
-                        icon: _housingTypeIcon(ht),
-                        label: _housingTypeLabel(ht),
-                        isSelected: isSelected,
-                        onTap: () => setState(() {
-                          _selectedHousingType = isSelected ? null : ht;
-                        }),
-                      );
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: FudiSpacing.lg),
-
-                Text('Referencias', style: FudiTypography.labelSmall),
-                const SizedBox(height: FudiSpacing.sm),
-                TextField(
-                  controller: _referencesController,
-                  maxLines: 2,
-                  decoration: InputDecoration(
-                    hintText: 'Portón verde, 3er piso, frente al parque...',
-                    filled: true,
-                    fillColor: FudiColors.inputBackground,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(FudiRadius.xl),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(FudiRadius.xl),
-                      borderSide: const BorderSide(
-                        color: FudiColors.primary,
-                        width: 2,
+                  Text('Referencias', style: FudiTypography.labelSmall),
+                  const SizedBox(height: FudiSpacing.sm),
+                  TextField(
+                    controller: _referencesController,
+                    maxLines: 2,
+                    decoration: InputDecoration(
+                      hintText: 'Portón verde, 3er piso, frente al parque...',
+                      filled: true,
+                      fillColor: FudiColors.inputBackground,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(FudiRadius.xl),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(FudiRadius.xl),
+                        borderSide: const BorderSide(
+                          color: FudiColors.primary,
+                          width: 2,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: FudiSpacing.lg,
+                        vertical: FudiSpacing.md,
                       ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: FudiSpacing.lg,
-                      vertical: FudiSpacing.md,
-                    ),
                   ),
-                ),
 
-                const SizedBox(height: FudiSpacing.xxl),
+                  const SizedBox(height: FudiSpacing.xxl),
 
-                FilledButton(
-                  onPressed: _isSaving ? null : _save,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: FudiColors.primary,
-                    foregroundColor: FudiColors.primaryForeground,
-                    minimumSize: const Size.fromHeight(56),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(FudiRadius.xl),
+                  FilledButton(
+                    onPressed: _isSaving ? null : _save,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: FudiColors.primary,
+                      foregroundColor: FudiColors.primaryForeground,
+                      minimumSize: const Size.fromHeight(56),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(FudiRadius.xl),
+                      ),
+                      textStyle: FudiTypography.labelMedium,
                     ),
-                    textStyle: FudiTypography.labelMedium,
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: FudiColors.primaryForeground,
+                            ),
+                          )
+                        : const Text('Guardar dirección'),
                   ),
-                  child: _isSaving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: FudiColors.primaryForeground,
-                          ),
-                        )
-                      : const Text('Guardar dirección'),
-                ),
 
-        const SizedBox(height: FudiSpacing.lg),
-      ],
-    ),
-    )),
-      ],
-    ),
+                  const SizedBox(height: FudiSpacing.lg),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -928,7 +930,9 @@ class _HousingTypeChip extends StatelessWidget {
             Icon(
               icon,
               size: 16,
-              color: isSelected ? FudiColors.primary : FudiColors.mutedForeground,
+              color: isSelected
+                  ? FudiColors.primary
+                  : FudiColors.mutedForeground,
             ),
             const SizedBox(width: 4),
             Text(

@@ -77,8 +77,7 @@ class SupabaseProfileRepository implements ProfileRepository {
           response?['push_notifications_enabled'] as bool? ?? true,
       emailNotificationsEnabled:
           response?['email_notifications_enabled'] as bool? ?? true,
-      notificationRadiusKm:
-          response?['notification_radius_km'] as int? ?? 5,
+      notificationRadiusKm: response?['notification_radius_km'] as int? ?? 5,
       favoriteCategories:
           (response?['favorite_categories'] as List<dynamic>? ?? const [])
               .whereType<String>()
@@ -137,7 +136,9 @@ class SupabaseProfileRepository implements ProfileRepository {
   Future<List<SavedAddress>> getSavedAddresses(String userId) async {
     final response = await _supabaseClient
         .from('saved_addresses')
-        .select('id, label, address, latitude, longitude, is_default, type, "references", housing_type')
+        .select(
+          'id, label, address, latitude, longitude, is_default, type, "references", housing_type',
+        )
         .eq('user_id', userId)
         .order('is_default', ascending: false)
         .order('created_at', ascending: false);
@@ -239,9 +240,11 @@ class SupabaseProfileRepository implements ProfileRepository {
     final nextMethod = PaymentMethod(
       id: _uuid.v4(),
       brand: _detectCardBrand(input.cardNumber),
-      last4: input.cardNumber.replaceAll(RegExp(r'\s+'), '').substring(
-        input.cardNumber.replaceAll(RegExp(r'\s+'), '').length - 4,
-      ),
+      last4: input.cardNumber
+          .replaceAll(RegExp(r'\s+'), '')
+          .substring(
+            input.cardNumber.replaceAll(RegExp(r'\s+'), '').length - 4,
+          ),
       expiryMonth: input.expiryMonth,
       expiryYear: input.expiryYear,
       cardholderName: input.cardholderName.trim(),
@@ -273,20 +276,19 @@ class SupabaseProfileRepository implements ProfileRepository {
     String paymentMethodId,
   ) async {
     final paymentMethods = await getPaymentMethods(userId);
-    final nextList =
-        paymentMethods
-            .map(
-              (method) => PaymentMethod(
-                id: method.id,
-                brand: method.brand,
-                last4: method.last4,
-                expiryMonth: method.expiryMonth,
-                expiryYear: method.expiryYear,
-                cardholderName: method.cardholderName,
-                isDefault: method.id == paymentMethodId,
-              ),
-            )
-            .toList();
+    final nextList = paymentMethods
+        .map(
+          (method) => PaymentMethod(
+            id: method.id,
+            brand: method.brand,
+            last4: method.last4,
+            expiryMonth: method.expiryMonth,
+            expiryYear: method.expiryYear,
+            cardholderName: method.cardholderName,
+            isDefault: method.id == paymentMethodId,
+          ),
+        )
+        .toList();
 
     await _persistPaymentMethods(userId, nextList);
   }
@@ -297,8 +299,9 @@ class SupabaseProfileRepository implements ProfileRepository {
     String paymentMethodId,
   ) async {
     final paymentMethods = await getPaymentMethods(userId);
-    final nextList =
-        paymentMethods.where((method) => method.id != paymentMethodId).toList();
+    final nextList = paymentMethods
+        .where((method) => method.id != paymentMethodId)
+        .toList();
 
     if (nextList.isNotEmpty && !nextList.any((method) => method.isDefault)) {
       final first = nextList.first;
@@ -371,8 +374,7 @@ class SupabaseProfileRepository implements ProfileRepository {
     return null;
   }
 
-  String _paymentMethodsKey(String userId) =>
-      'profile.payment_methods.$userId';
+  String _paymentMethodsKey(String userId) => 'profile.payment_methods.$userId';
 
   String _notificationSettingsKey(String userId) =>
       'profile.notification_settings.$userId';

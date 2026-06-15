@@ -44,12 +44,18 @@ class FudiLogo extends StatelessWidget {
         (width != null
             ? null
             : switch (size) {
-                FudiLogoSize.sm => variant == FudiLogoVariant.icon ? 24.0 : 24.0,
-                FudiLogoSize.md => variant == FudiLogoVariant.icon ? 32.0 : 32.0,
-                FudiLogoSize.lg => variant == FudiLogoVariant.icon ? 48.0 : 48.0,
-                FudiLogoSize.xl => variant == FudiLogoVariant.icon ? 64.0 : 64.0,
-                FudiLogoSize.xxl => variant == FudiLogoVariant.icon ? 80.0 : 80.0,
-                FudiLogoSize.xxxl => variant == FudiLogoVariant.icon ? 100.0 : 120.0,
+                FudiLogoSize.sm =>
+                  variant == FudiLogoVariant.icon ? 24.0 : 24.0,
+                FudiLogoSize.md =>
+                  variant == FudiLogoVariant.icon ? 32.0 : 32.0,
+                FudiLogoSize.lg =>
+                  variant == FudiLogoVariant.icon ? 48.0 : 48.0,
+                FudiLogoSize.xl =>
+                  variant == FudiLogoVariant.icon ? 64.0 : 64.0,
+                FudiLogoSize.xxl =>
+                  variant == FudiLogoVariant.icon ? 80.0 : 80.0,
+                FudiLogoSize.xxxl =>
+                  variant == FudiLogoVariant.icon ? 100.0 : 120.0,
               });
 
     final Color effectiveColor = color ?? FudiColors.primary;

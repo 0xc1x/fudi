@@ -316,9 +316,9 @@ class _PickupInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  final pickupTimeStr = order.pickupTime != null
-      ? '${order.pickupTime!.hour.toString().padLeft(2, '0')}:${order.pickupTime!.minute.toString().padLeft(2, '0')}'
-      : 'Pendiente';
+    final pickupTimeStr = order.pickupTime != null
+        ? '${order.pickupTime!.hour.toString().padLeft(2, '0')}:${order.pickupTime!.minute.toString().padLeft(2, '0')}'
+        : 'Pendiente';
     return FudiSurfaceCard(
       padding: const EdgeInsets.all(FudiSpacing.md),
       child: Column(
@@ -399,7 +399,11 @@ class _StatusHistoryCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.calendar_today, size: 20, color: FudiColors.primary),
+              const Icon(
+                Icons.calendar_today,
+                size: 20,
+                color: FudiColors.primary,
+              ),
               const SizedBox(width: 8),
               const Text('Historial de cambios', style: FudiTypography.h4),
             ],
@@ -415,16 +419,20 @@ class _StatusHistoryCard extends StatelessWidget {
     final entries = <_TimelineEntry>[];
     final pendingConfig = _statusConfig(OrderStatus.pending);
 
-    entries.add(_TimelineEntry(
-      icon: pendingConfig.icon,
-      iconColor: pendingConfig.iconColor,
-      bgColor: pendingConfig.backgroundColor,
-      label: 'Pendiente',
-      time: '${order.createdAt.hour.toString().padLeft(2, '0')}:${order.createdAt.minute.toString().padLeft(2, '0')}',
-      date: '${order.createdAt.day.toString().padLeft(2, '0')}/${order.createdAt.month.toString().padLeft(2, '0')}/${order.createdAt.year}',
-      note: 'Pedido recibido',
-      isLast: order.status == OrderStatus.pending,
-    ));
+    entries.add(
+      _TimelineEntry(
+        icon: pendingConfig.icon,
+        iconColor: pendingConfig.iconColor,
+        bgColor: pendingConfig.backgroundColor,
+        label: 'Pendiente',
+        time:
+            '${order.createdAt.hour.toString().padLeft(2, '0')}:${order.createdAt.minute.toString().padLeft(2, '0')}',
+        date:
+            '${order.createdAt.day.toString().padLeft(2, '0')}/${order.createdAt.month.toString().padLeft(2, '0')}/${order.createdAt.year}',
+        note: 'Pedido recibido',
+        isLast: order.status == OrderStatus.pending,
+      ),
+    );
 
     final confirmedStatuses = [
       OrderStatus.confirmed,
@@ -434,16 +442,18 @@ class _StatusHistoryCard extends StatelessWidget {
     ];
     if (confirmedStatuses.contains(order.status)) {
       final c = _statusConfig(OrderStatus.confirmed);
-      entries.add(_TimelineEntry(
-        icon: c.icon,
-        iconColor: c.iconColor,
-        bgColor: c.backgroundColor,
-        label: 'Confirmado',
-        time: '',
-        date: '',
-        note: 'Pedido confirmado por el negocio',
-        isLast: order.status == OrderStatus.confirmed,
-      ));
+      entries.add(
+        _TimelineEntry(
+          icon: c.icon,
+          iconColor: c.iconColor,
+          bgColor: c.backgroundColor,
+          label: 'Confirmado',
+          time: '',
+          date: '',
+          note: 'Pedido confirmado por el negocio',
+          isLast: order.status == OrderStatus.confirmed,
+        ),
+      );
     }
 
     final readyStatuses = [
@@ -453,58 +463,66 @@ class _StatusHistoryCard extends StatelessWidget {
     ];
     if (readyStatuses.contains(order.status)) {
       final c = _statusConfig(OrderStatus.readyForPickup);
-      entries.add(_TimelineEntry(
-        icon: c.icon,
-        iconColor: c.iconColor,
-        bgColor: c.backgroundColor,
-        label: 'Listo para recoger',
-        time: '',
-        date: '',
-        note: 'Pedido preparado y listo para recoger',
-        isLast: order.status == OrderStatus.readyForPickup,
-      ));
+      entries.add(
+        _TimelineEntry(
+          icon: c.icon,
+          iconColor: c.iconColor,
+          bgColor: c.backgroundColor,
+          label: 'Listo para recoger',
+          time: '',
+          date: '',
+          note: 'Pedido preparado y listo para recoger',
+          isLast: order.status == OrderStatus.readyForPickup,
+        ),
+      );
     }
 
     if (order.status == OrderStatus.completed) {
       final c = _statusConfig(OrderStatus.completed);
-      entries.add(_TimelineEntry(
-        icon: c.icon,
-        iconColor: c.iconColor,
-        bgColor: c.backgroundColor,
-        label: 'Completado',
-        time: '',
-        date: '',
-        note: 'Pedido entregado al cliente',
-        isLast: true,
-      ));
+      entries.add(
+        _TimelineEntry(
+          icon: c.icon,
+          iconColor: c.iconColor,
+          bgColor: c.backgroundColor,
+          label: 'Completado',
+          time: '',
+          date: '',
+          note: 'Pedido entregado al cliente',
+          isLast: true,
+        ),
+      );
     }
 
     if (order.status == OrderStatus.cancelled) {
       final c = _statusConfig(OrderStatus.cancelled);
-      entries.add(_TimelineEntry(
-        icon: c.icon,
-        iconColor: c.iconColor,
-        bgColor: c.backgroundColor,
-        label: 'Cancelado',
-        time: '',
-        date: '',
-        note: 'Pedido cancelado',
-        isLast: true,
-      ));
+      entries.add(
+        _TimelineEntry(
+          icon: c.icon,
+          iconColor: c.iconColor,
+          bgColor: c.backgroundColor,
+          label: 'Cancelado',
+          time: '',
+          date: '',
+          note: 'Pedido cancelado',
+          isLast: true,
+        ),
+      );
     }
 
     if (order.status == OrderStatus.expired) {
       final c = _statusConfig(OrderStatus.expired);
-      entries.add(_TimelineEntry(
-        icon: c.icon,
-        iconColor: c.iconColor,
-        bgColor: c.backgroundColor,
-        label: 'Expirado',
-        time: '',
-        date: '',
-        note: 'El tiempo de recogida expiró',
-        isLast: true,
-      ));
+      entries.add(
+        _TimelineEntry(
+          icon: c.icon,
+          iconColor: c.iconColor,
+          bgColor: c.backgroundColor,
+          label: 'Expirado',
+          time: '',
+          date: '',
+          note: 'El tiempo de recogida expiró',
+          isLast: true,
+        ),
+      );
     }
 
     return entries;
@@ -550,11 +568,7 @@ class _TimelineEntry extends StatelessWidget {
                 child: Icon(icon, size: 20, color: iconColor),
               ),
               if (!isLast)
-                Container(
-                  width: 2,
-                  height: 32,
-                  color: FudiColors.border,
-                ),
+                Container(width: 2, height: 32, color: FudiColors.border),
             ],
           ),
           const SizedBox(width: 12),
@@ -651,8 +665,8 @@ class _OrderInfoCard extends StatelessWidget {
                     color: FudiColors.mutedForeground,
                   ),
                 ),
-        Text(
-          '${order.createdAt.day.toString().padLeft(2, '0')}/${order.createdAt.month.toString().padLeft(2, '0')}/${order.createdAt.year}',
+                Text(
+                  '${order.createdAt.day.toString().padLeft(2, '0')}/${order.createdAt.month.toString().padLeft(2, '0')}/${order.createdAt.year}',
                   style: FudiTypography.bodyMedium.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
@@ -689,40 +703,37 @@ class _ActionBottomBar extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-        if (order.status == OrderStatus.pending ||
-            order.status == OrderStatus.confirmed) ...[
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () async {
-                await ref
-                    .read(businessOrderRepositoryProvider)
-                    .updateOrderStatus(
-                      order.id,
-                      OrderStatus.readyForPickup,
+          if (order.status == OrderStatus.pending ||
+              order.status == OrderStatus.confirmed) ...[
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await ref
+                      .read(businessOrderRepositoryProvider)
+                      .updateOrderStatus(order.id, OrderStatus.readyForPickup);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Pedido marcado como listo'),
+                      ),
                     );
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Pedido marcado como listo'),
-                    ),
-                  );
-                }
-              },
-              icon: const Icon(Icons.check_circle_outline, size: 20),
-              label: const Text('Marcar como listo'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: FudiColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  }
+                },
+                icon: const Icon(Icons.check_circle_outline, size: 20),
+                label: const Text('Marcar como listo'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: FudiColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: FudiSpacing.sm),
-        ],
+            const SizedBox(height: FudiSpacing.sm),
+          ],
           if (order.status == OrderStatus.readyForPickup) ...[
             SizedBox(
               width: double.infinity,
@@ -756,10 +767,7 @@ class _ActionBottomBar extends ConsumerWidget {
                 style: TextStyle(color: FudiColors.destructive),
               ),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(
-                  color: FudiColors.destructive,
-                  width: 2,
-                ),
+                side: const BorderSide(color: FudiColors.destructive, width: 2),
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -860,10 +868,7 @@ class _ActionBottomBar extends ConsumerWidget {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => ctx.pop(),
-            child: const Text('Cancelar'),
-          ),
+          TextButton(onPressed: () => ctx.pop(), child: const Text('Cancelar')),
           ElevatedButton(
             onPressed: () async {
               final repo = ref.read(businessOrderRepositoryProvider);
@@ -875,9 +880,7 @@ class _ActionBottomBar extends ConsumerWidget {
               if (result.success) {
                 ctx.pop();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Entrega completada con éxito'),
-                  ),
+                  const SnackBar(content: Text('Entrega completada con éxito')),
                 );
               } else {
                 ScaffoldMessenger.of(ctx).showSnackBar(
@@ -906,10 +909,7 @@ class _ActionBottomBar extends ConsumerWidget {
           '¿Estás seguro de que deseas cancelar este pedido?',
         ),
         actions: [
-          TextButton(
-            onPressed: () => ctx.pop(),
-            child: const Text('No'),
-          ),
+          TextButton(onPressed: () => ctx.pop(), child: const Text('No')),
           ElevatedButton(
             onPressed: () async {
               await ref

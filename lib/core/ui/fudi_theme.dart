@@ -59,18 +59,18 @@ class FudiTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: FudiColors.muted,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(FudiRadius.md),
-        borderSide: BorderSide(
-          color: FudiColors.border.withValues(alpha: 0.09),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(FudiRadius.md),
+          borderSide: BorderSide(
+            color: FudiColors.border.withValues(alpha: 0.09),
+          ),
         ),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(FudiRadius.md),
-        borderSide: BorderSide(
-          color: FudiColors.border.withValues(alpha: 0.09),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(FudiRadius.md),
+          borderSide: BorderSide(
+            color: FudiColors.border.withValues(alpha: 0.09),
+          ),
         ),
-      ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(FudiRadius.md),
           borderSide: const BorderSide(color: FudiColors.primary, width: 1.5),

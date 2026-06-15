@@ -191,11 +191,11 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
       stock: json['stock'] as int? ?? 0,
       initialStock: json['initial_stock'] as int? ?? 0,
       pickupStart: DateTime.parse(json['pickup_start'] as String),
-    pickupEnd: DateTime.parse(json['pickup_end'] as String),
-    isActive: json['is_active'] as bool? ?? false,
-    rating: _toDouble(json['rating']) ?? 0.0,
-    reviewCount: json['review_count'] as int? ?? 0,
-  );
+      pickupEnd: DateTime.parse(json['pickup_end'] as String),
+      isActive: json['is_active'] as bool? ?? false,
+      rating: _toDouble(json['rating']) ?? 0.0,
+      reviewCount: json['review_count'] as int? ?? 0,
+    );
   }
 
   Map<String, dynamic> _mapOfferToJson(Offer offer) {

@@ -13,7 +13,8 @@ class GeoUtils {
   ) {
     final dLat = _toRad(lat2 - lat1);
     final dLng = _toRad(lng2 - lng1);
-    final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+    final a =
+        math.sin(dLat / 2) * math.sin(dLat / 2) +
         math.cos(_toRad(lat1)) *
             math.cos(_toRad(lat2)) *
             math.sin(dLng / 2) *
@@ -22,7 +23,12 @@ class GeoUtils {
     return _earthRadiusKm * c;
   }
 
-  static String formatDistance(double? latitude, double? longitude, {double? userLat, double? userLng}) {
+  static String formatDistance(
+    double? latitude,
+    double? longitude, {
+    double? userLat,
+    double? userLng,
+  }) {
     if (latitude == null || longitude == null) return '';
     if (userLat == null || userLng == null) return '';
     final km = haversineKm(userLat, userLng, latitude, longitude);

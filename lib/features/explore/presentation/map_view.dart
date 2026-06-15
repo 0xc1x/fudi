@@ -659,20 +659,23 @@ class _SelectedOfferCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: FudiSpacing.xs),
-        Row(
-          children: [
-            if (offer.rating > 0) ...[
-              FudiStarRating(rating: offer.rating, showText: true),
-              const SizedBox(width: FudiSpacing.sm),
-            ],
-            Text(
-              offer.business.address,
-              style: FudiTypography.bodySmall,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
+                      Row(
+                        children: [
+                          if (offer.rating > 0) ...[
+                            FudiStarRating(
+                              rating: offer.rating,
+                              showText: true,
+                            ),
+                            const SizedBox(width: FudiSpacing.sm),
+                          ],
+                          Text(
+                            offer.business.address,
+                            style: FudiTypography.bodySmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: FudiSpacing.xs),
                       Row(
                         children: [

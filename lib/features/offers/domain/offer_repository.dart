@@ -49,10 +49,7 @@ class CategoryStat {
 }
 
 class AreaStat {
-  const AreaStat({
-    required this.name,
-    required this.deals,
-  });
+  const AreaStat({required this.name, required this.deals});
 
   final String name;
   final int deals;

@@ -41,7 +41,7 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
   bool _hasPendingPasswordRecovery = false;
   bool _hasAuthError = false;
   String? _pendingNotice;
-  
+
   Timer? _refreshTimer;
   int _refreshRetryCount = 0;
   static const int _maxRefreshRetries = 3;
@@ -112,7 +112,7 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
   Future<void> _refreshSession() async {
     final repository = ref.read(authRepositoryProvider);
     final currentSession = state.session;
-    
+
     if (currentSession == null) {
       _stopRefreshTimer();
       return;
@@ -120,7 +120,7 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
 
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     final expiresAt = currentSession.expiresAt;
-    
+
     if (expiresAt != null && now >= expiresAt - 300) {
       await _performRefreshWithRetry(repository);
     }

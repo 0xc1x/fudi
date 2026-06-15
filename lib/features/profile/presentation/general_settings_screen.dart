@@ -59,7 +59,12 @@ class GeneralSettingsScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Distancia máxima'),
-                      Text('${prefs.notificationRadiusKm} km', style: FudiTypography.labelSmall.copyWith(color: FudiColors.primary)),
+                      Text(
+                        '${prefs.notificationRadiusKm} km',
+                        style: FudiTypography.labelSmall.copyWith(
+                          color: FudiColors.primary,
+                        ),
+                      ),
                     ],
                   ),
                   Slider(
@@ -68,11 +73,16 @@ class GeneralSettingsScreen extends ConsumerWidget {
                     max: 50,
                     divisions: 49,
                     activeColor: FudiColors.primary,
-                    onChanged: (v) => _update(ref, prefs.copyWith(notificationRadiusKm: v.round())),
+                    onChanged: (v) => _update(
+                      ref,
+                      prefs.copyWith(notificationRadiusKm: v.round()),
+                    ),
                   ),
                   Text(
                     'Te mostraremos ofertas dentro de este radio.',
-                    style: FudiTypography.bodySmall.copyWith(color: FudiColors.mutedForeground),
+                    style: FudiTypography.bodySmall.copyWith(
+                      color: FudiColors.mutedForeground,
+                    ),
                   ),
                 ],
               ),

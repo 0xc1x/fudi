@@ -79,9 +79,9 @@ class _BusinessLocationEditScreenState
       child: ListView(
         padding: const EdgeInsets.all(FudiSpacing.lg),
         children: [
-        _field('Nombre del local', _name),
-        _field('Dirección', _address),
-        _field('Teléfono', _phone, required: false),
+          _field('Nombre del local', _name),
+          _field('Dirección', _address),
+          _field('Teléfono', _phone, required: false),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             title: const Text('Local activo'),

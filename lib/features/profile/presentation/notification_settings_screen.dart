@@ -40,7 +40,8 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   title: const Text('Notificaciones Push'),
                   subtitle: const Text('Alertas en tiempo real en tu celular'),
                   value: prefs.pushNotificationsEnabled,
-                  onChanged: (v) => _update(ref, prefs.copyWith(pushNotificationsEnabled: v)),
+                  onChanged: (v) =>
+                      _update(ref, prefs.copyWith(pushNotificationsEnabled: v)),
                   activeTrackColor: FudiColors.primary.withValues(alpha: 0.5),
                   activeThumbColor: FudiColors.primary,
                 ),
@@ -49,7 +50,10 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   title: const Text('Correo electrónico'),
                   subtitle: const Text('Resúmenes semanales y facturas'),
                   value: prefs.emailNotificationsEnabled,
-                  onChanged: (v) => _update(ref, prefs.copyWith(emailNotificationsEnabled: v)),
+                  onChanged: (v) => _update(
+                    ref,
+                    prefs.copyWith(emailNotificationsEnabled: v),
+                  ),
                   activeTrackColor: FudiColors.primary.withValues(alpha: 0.5),
                   activeThumbColor: FudiColors.primary,
                 ),
@@ -64,9 +68,12 @@ class NotificationSettingsScreen extends ConsumerWidget {
               children: [
                 SwitchListTile(
                   title: const Text('Favoritos'),
-                  subtitle: const Text('Cuando tus locales favoritos publican ofertas'),
+                  subtitle: const Text(
+                    'Cuando tus locales favoritos publican ofertas',
+                  ),
                   value: prefs.favoriteAlertsEnabled,
-                  onChanged: (v) => _update(ref, prefs.copyWith(favoriteAlertsEnabled: v)),
+                  onChanged: (v) =>
+                      _update(ref, prefs.copyWith(favoriteAlertsEnabled: v)),
                   activeTrackColor: FudiColors.primary.withValues(alpha: 0.5),
                   activeThumbColor: FudiColors.primary,
                 ),
@@ -75,16 +82,20 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   title: const Text('Recordatorios de recogida'),
                   subtitle: const Text('Avisos antes de que cierre la ventana'),
                   value: prefs.pickupRemindersEnabled,
-                  onChanged: (v) => _update(ref, prefs.copyWith(pickupRemindersEnabled: v)),
+                  onChanged: (v) =>
+                      _update(ref, prefs.copyWith(pickupRemindersEnabled: v)),
                   activeTrackColor: FudiColors.primary.withValues(alpha: 0.5),
                   activeThumbColor: FudiColors.primary,
                 ),
                 const Divider(height: 1, indent: FudiSpacing.md),
                 SwitchListTile(
                   title: const Text('Ofertas de último minuto'),
-                  subtitle: const Text('Paquetes a punto de expirar cerca de ti'),
+                  subtitle: const Text(
+                    'Paquetes a punto de expirar cerca de ti',
+                  ),
                   value: prefs.lastMinuteDealsEnabled,
-                  onChanged: (v) => _update(ref, prefs.copyWith(lastMinuteDealsEnabled: v)),
+                  onChanged: (v) =>
+                      _update(ref, prefs.copyWith(lastMinuteDealsEnabled: v)),
                   activeTrackColor: FudiColors.primary.withValues(alpha: 0.5),
                   activeThumbColor: FudiColors.primary,
                 ),

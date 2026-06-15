@@ -23,8 +23,8 @@ final favoriteOffersProvider = FutureProvider<List<FavoriteOffer>>((ref) async {
 
 final favoritedOfferIdsProvider =
     NotifierProvider<FavoritedOfferIdsNotifier, Set<String>>(
-  FavoritedOfferIdsNotifier.new,
-);
+      FavoritedOfferIdsNotifier.new,
+    );
 
 class FavoritedOfferIdsNotifier extends Notifier<Set<String>> {
   @override

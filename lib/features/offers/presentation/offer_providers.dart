@@ -36,8 +36,8 @@ final userLocationProvider = FutureProvider<Position?>((ref) async {
 
 final popularOffersProvider =
     AsyncNotifierProvider<PopularOffersNotifier, List<Offer>>(
-  PopularOffersNotifier.new,
-);
+      PopularOffersNotifier.new,
+    );
 
 class PopularOffersNotifier extends AsyncNotifier<List<Offer>> {
   @override
@@ -138,15 +138,15 @@ final offerDetailProvider = FutureProvider.family<Offer, String>((
   return repo.getOfferById(id);
 });
 
-  final categoryStatsProvider = FutureProvider<List<CategoryStat>>((ref) async {
+final categoryStatsProvider = FutureProvider<List<CategoryStat>>((ref) async {
   final repo = ref.watch(offerRepositoryProvider);
   return repo.getCategoryStats();
-  });
+});
 
-  final popularAreasProvider = FutureProvider<List<AreaStat>>((ref) async {
+final popularAreasProvider = FutureProvider<List<AreaStat>>((ref) async {
   final repo = ref.watch(offerRepositoryProvider);
   return repo.getPopularAreas();
-  });
+});
 
 final filteredOffersProvider =
     AsyncNotifierProvider<FilteredOffersNotifier, List<Offer>>(

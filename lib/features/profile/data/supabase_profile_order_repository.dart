@@ -5,7 +5,7 @@ import '../domain/user_order.dart';
 
 class SupabaseProfileOrderRepository implements ProfileOrderRepository {
   SupabaseProfileOrderRepository({required SupabaseClient supabaseClient})
-      : _supabaseClient = supabaseClient;
+    : _supabaseClient = supabaseClient;
 
   final SupabaseClient _supabaseClient;
 

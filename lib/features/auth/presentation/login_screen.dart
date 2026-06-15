@@ -200,20 +200,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          const FudiLogo(variant: FudiLogoVariant.icon, size: FudiLogoSize.lg),
+                          const FudiLogo(
+                            variant: FudiLogoVariant.icon,
+                            size: FudiLogoSize.lg,
+                          ),
                           const SizedBox(height: 16),
                           Text(
                             'Bienvenido de vuelta',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'Inicia sesión para rescatar comida y ahorrar',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: FudiColors.mutedForeground,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: FudiColors.mutedForeground),
                           ),
                           const SizedBox(height: 24),
                           Container(
@@ -237,32 +238,53 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   children: [
                                     Text(
                                       'Correo electrónico',
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                     ),
                                     const SizedBox(height: 8),
                                     TextFormField(
                                       controller: _emailController,
                                       keyboardType: TextInputType.emailAddress,
                                       decoration: InputDecoration(
-                                        prefixIcon: const Icon(FudiIcons.mail, size: 20, color: FudiColors.mutedForeground),
+                                        prefixIcon: const Icon(
+                                          FudiIcons.mail,
+                                          size: 20,
+                                          color: FudiColors.mutedForeground,
+                                        ),
                                         hintText: 'tu@email.com',
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: FudiColors.borderSolid),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: FudiColors.borderSolid,
+                                          ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: FudiColors.borderSolid),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: FudiColors.borderSolid,
+                                          ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: FudiColors.primary, width: 2),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: FudiColors.primary,
+                                            width: 2,
+                                          ),
                                         ),
                                       ),
                                       validator: (value) {
-                                        if (value == null || value.trim().isEmpty) {
+                                        if (value == null ||
+                                            value.trim().isEmpty) {
                                           return 'Ingresa tu correo';
                                         }
                                         if (!value.contains('@')) {
@@ -279,36 +301,61 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   children: [
                                     Text(
                                       'Contraseña',
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                     ),
                                     const SizedBox(height: 8),
                                     TextFormField(
                                       controller: _passwordController,
                                       obscureText: _obscurePassword,
                                       decoration: InputDecoration(
-                                        prefixIcon: const Icon(FudiIcons.lock, size: 20, color: FudiColors.mutedForeground),
+                                        prefixIcon: const Icon(
+                                          FudiIcons.lock,
+                                          size: 20,
+                                          color: FudiColors.mutedForeground,
+                                        ),
                                         suffixIcon: IconButton(
-                                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                                          onPressed: () => setState(
+                                            () => _obscurePassword =
+                                                !_obscurePassword,
+                                          ),
                                           icon: Icon(
-                                            _obscurePassword ? FudiIcons.eye : FudiIcons.eyeOff,
+                                            _obscurePassword
+                                                ? FudiIcons.eye
+                                                : FudiIcons.eyeOff,
                                             size: 20,
                                             color: FudiColors.mutedForeground,
                                           ),
                                         ),
                                         hintText: '••••••••',
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: FudiColors.borderSolid),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: FudiColors.borderSolid,
+                                          ),
                                         ),
                                         enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: FudiColors.borderSolid),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: FudiColors.borderSolid,
+                                          ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                          borderSide: const BorderSide(color: FudiColors.primary, width: 2),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: FudiColors.primary,
+                                            width: 2,
+                                          ),
                                         ),
                                       ),
                                       validator: (value) {
@@ -324,14 +371,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 Align(
                                   alignment: Alignment.centerRight,
                                   child: TextButton(
-                                    onPressed: isLoading ? null : _openForgotPasswordDialog,
+                                    onPressed: isLoading
+                                        ? null
+                                        : _openForgotPasswordDialog,
                                     style: TextButton.styleFrom(
                                       foregroundColor: FudiColors.primary,
                                       padding: EdgeInsets.zero,
                                       minimumSize: Size.zero,
-                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
                                     ),
-                                    child: const Text('¿Olvidaste tu contraseña?'),
+                                    child: const Text(
+                                      '¿Olvidaste tu contraseña?',
+                                    ),
                                   ),
                                 ),
                               ],
@@ -341,9 +393,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             const SizedBox(height: 12),
                             Container(
                               width: double.infinity,
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.errorContainer,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.errorContainer,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
@@ -352,16 +409,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     child: Text(
                                       _errorMessage!,
                                       style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onErrorContainer,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onErrorContainer,
                                       ),
                                     ),
                                   ),
                                   IconButton(
-                                    onPressed: () => setState(() => _errorMessage = null),
+                                    onPressed: () =>
+                                        setState(() => _errorMessage = null),
                                     icon: Icon(
                                       FudiIcons.x,
                                       size: 18,
-                                      color: Theme.of(context).colorScheme.onErrorContainer,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onErrorContainer,
                                     ),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
@@ -386,7 +448,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                               child: isLoading
                                   ? const Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         SizedBox(
                                           width: 20,
@@ -400,21 +463,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         Text('Iniciando sesión...'),
                                       ],
                                     )
-                                  : const Text('Iniciar sesión', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                                  : const Text(
+                                      'Iniciar sesión',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16,
+                                      ),
+                                    ),
                             ),
                           ),
                           const SizedBox(height: 24),
                           const Row(
                             children: [
-                              Expanded(child: Divider(color: FudiColors.borderSolid)),
+                              Expanded(
+                                child: Divider(color: FudiColors.borderSolid),
+                              ),
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 16),
                                 child: Text(
                                   'o continuar con',
-                                  style: TextStyle(color: FudiColors.mutedForeground, fontSize: 13),
+                                  style: TextStyle(
+                                    color: FudiColors.mutedForeground,
+                                    fontSize: 13,
+                                  ),
                                 ),
                               ),
-                              Expanded(child: Divider(color: FudiColors.borderSolid)),
+                              Expanded(
+                                child: Divider(color: FudiColors.borderSolid),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 16),
@@ -425,11 +501,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   onPressed: null,
                                   style: OutlinedButton.styleFrom(
                                     backgroundColor: FudiColors.background,
-                                    side: const BorderSide(color: FudiColors.borderSolid),
+                                    side: const BorderSide(
+                                      color: FudiColors.borderSolid,
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
                                   ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -453,16 +533,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   onPressed: null,
                                   style: OutlinedButton.styleFrom(
                                     backgroundColor: FudiColors.background,
-                                    side: const BorderSide(color: FudiColors.borderSolid),
+                                    side: const BorderSide(
+                                      color: FudiColors.borderSolid,
+                                    ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
                                   ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.apple, size: 20, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                                      Icon(
+                                        Icons.apple,
+                                        size: 20,
+                                        color:
+                                            Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? Colors.white
+                                            : Colors.black,
+                                      ),
                                       const SizedBox(width: 8),
                                       const Text('Apple'),
                                     ],
@@ -475,13 +567,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           Text.rich(
                             TextSpan(
                               text: '¿No tienes una cuenta? ',
-                              style: TextStyle(color: FudiColors.mutedForeground),
+                              style: TextStyle(
+                                color: FudiColors.mutedForeground,
+                              ),
                               children: [
                                 WidgetSpan(
                                   alignment: PlaceholderAlignment.baseline,
                                   baseline: TextBaseline.alphabetic,
                                   child: GestureDetector(
-                                    onTap: () => context.go(RouteNames.signupPath),
+                                    onTap: () =>
+                                        context.go(RouteNames.signupPath),
                                     child: Text(
                                       'Regístrate gratis',
                                       style: TextStyle(

@@ -23,8 +23,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Create dummy .env.dev
-        run: cp .env.example .env.dev
+      - name: Create env files
+        run: |
+          cp .env.example .env.dev
+          cp .env.example .env.staging
 
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
@@ -57,8 +59,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Create dummy .env.dev
-        run: cp .env.example .env.dev
+      - name: Create env files
+        run: |
+          cp .env.example .env.dev
+          cp .env.example .env.staging
 
       - name: Run integration tests
         run: flutter test integration_test

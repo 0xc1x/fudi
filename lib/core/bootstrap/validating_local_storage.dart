@@ -12,9 +12,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class ValidatingLocalStorage extends LocalStorage {
   final LocalStorage _delegate;
 
-  const ValidatingLocalStorage({
-    required LocalStorage delegate,
-  }) : _delegate = delegate;
+  const ValidatingLocalStorage({required LocalStorage delegate})
+    : _delegate = delegate;
 
   @override
   Future<void> initialize() async {

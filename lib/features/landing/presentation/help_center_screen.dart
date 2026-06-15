@@ -83,9 +83,11 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     if (_searchQuery.isEmpty) return _faqItems;
     final q = _searchQuery.toLowerCase();
     return _faqItems
-        .where((f) =>
-            f.question.toLowerCase().contains(q) ||
-            f.answer.toLowerCase().contains(q))
+        .where(
+          (f) =>
+              f.question.toLowerCase().contains(q) ||
+              f.answer.toLowerCase().contains(q),
+        )
         .toList();
   }
 
@@ -115,8 +117,8 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
           _FAQSection(
             items: _filteredFAQs,
             expandedId: _expandedFAQ,
-            onToggle: (id) => setState(
-                () => _expandedFAQ = _expandedFAQ == id ? null : id),
+            onToggle: (id) =>
+                setState(() => _expandedFAQ = _expandedFAQ == id ? null : id),
           ),
           const SizedBox(height: FudiSpacing.lg),
           _ContactSupportCard(),
@@ -178,7 +180,11 @@ class _SearchBar extends StatelessWidget {
       onChanged: onChanged,
       decoration: InputDecoration(
         hintText: 'Buscar en ayuda...',
-        prefixIcon: Icon(Icons.search_rounded, color: FudiColors.mutedForeground, size: 20),
+        prefixIcon: Icon(
+          Icons.search_rounded,
+          color: FudiColors.mutedForeground,
+          size: 20,
+        ),
         filled: true,
         fillColor: FudiColors.background,
         border: OutlineInputBorder(
@@ -261,7 +267,12 @@ class _ContactChip extends StatelessWidget {
           children: [
             Icon(icon, size: 24, color: FudiColors.primary),
             const SizedBox(height: FudiSpacing.xs),
-            Text(label, style: FudiTypography.bodyMedium.copyWith(fontWeight: FontWeight.w500)),
+            Text(
+              label,
+              style: FudiTypography.bodyMedium.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ),
       ),
@@ -349,12 +360,21 @@ class _CategoryRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(category.label, style: FudiTypography.bodyMedium.copyWith(fontWeight: FontWeight.w500)),
+                  Text(
+                    category.label,
+                    style: FudiTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   Text(category.subtitle, style: FudiTypography.bodySmall),
                 ],
               ),
             ),
-            Icon(FudiIcons.chevronRight, size: 20, color: FudiColors.mutedForeground),
+            Icon(
+              FudiIcons.chevronRight,
+              size: 20,
+              color: FudiColors.mutedForeground,
+            ),
           ],
         ),
       ),
@@ -382,14 +402,19 @@ class _FAQSection extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(FudiSpacing.lg),
-            child: Text('Preguntas frecuentes', style: FudiTypography.labelSmall),
+            child: Text(
+              'Preguntas frecuentes',
+              style: FudiTypography.labelSmall,
+            ),
           ),
           Divider(height: 1, color: FudiColors.borderSolid),
-          ...items.map((faq) => _FAQRow(
-                faq: faq,
-                isExpanded: expandedId == faq.id,
-                onToggle: () => onToggle(faq.id),
-              )),
+          ...items.map(
+            (faq) => _FAQRow(
+              faq: faq,
+              isExpanded: expandedId == faq.id,
+              onToggle: () => onToggle(faq.id),
+            ),
+          ),
         ],
       ),
     );
@@ -422,10 +447,21 @@ class _FAQRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(faq.question, style: FudiTypography.bodyMedium.copyWith(fontWeight: FontWeight.w500)),
+                  Text(
+                    faq.question,
+                    style: FudiTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   if (isExpanded) ...[
                     const SizedBox(height: FudiSpacing.sm),
-                    Text(faq.answer, style: FudiTypography.bodySmall.copyWith(color: FudiColors.mutedForeground, height: 1.5)),
+                    Text(
+                      faq.answer,
+                      style: FudiTypography.bodySmall.copyWith(
+                        color: FudiColors.mutedForeground,
+                        height: 1.5,
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -433,7 +469,11 @@ class _FAQRow extends StatelessWidget {
             AnimatedRotation(
               turns: isExpanded ? 0.25 : 0,
               duration: const Duration(milliseconds: 200),
-              child: Icon(FudiIcons.chevronRight, size: 20, color: FudiColors.mutedForeground),
+              child: Icon(
+                FudiIcons.chevronRight,
+                size: 20,
+                color: FudiColors.mutedForeground,
+              ),
             ),
           ],
         ),
@@ -514,11 +554,15 @@ class _ScheduleInfo extends StatelessWidget {
         const SizedBox(height: FudiSpacing.xs),
         Text(
           'Lunes a Viernes: 8:00 - 20:00',
-          style: FudiTypography.bodyMedium.copyWith(fontWeight: FontWeight.w500),
+          style: FudiTypography.bodyMedium.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
         ),
         Text(
           'Sábados: 9:00 - 18:00',
-          style: FudiTypography.bodyMedium.copyWith(fontWeight: FontWeight.w500),
+          style: FudiTypography.bodyMedium.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );

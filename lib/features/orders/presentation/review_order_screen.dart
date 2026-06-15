@@ -59,14 +59,14 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
           );
           Navigator.of(context).pop();
         },
-    error: (error, _) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(userFriendlyMessage(error)),
-          backgroundColor: FudiColors.destructive,
-        ),
-      );
-    },
+        error: (error, _) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(userFriendlyMessage(error)),
+              backgroundColor: FudiColors.destructive,
+            ),
+          );
+        },
       );
     });
 
@@ -106,7 +106,10 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Cuéntanos más (opcional)', style: FudiTypography.labelSmall),
+                  Text(
+                    'Cuéntanos más (opcional)',
+                    style: FudiTypography.labelSmall,
+                  ),
                   const SizedBox(height: FudiSpacing.md),
                   TextField(
                     controller: _commentController,
@@ -127,7 +130,10 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Agregar foto (opcional)', style: FudiTypography.labelSmall),
+                  Text(
+                    'Agregar foto (opcional)',
+                    style: FudiTypography.labelSmall,
+                  ),
                   const SizedBox(height: FudiSpacing.md),
                   Container(
                     width: double.infinity,
@@ -179,17 +185,18 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: isSubmitting || _productRating == 0 || _businessRating == 0
+                onPressed:
+                    isSubmitting || _productRating == 0 || _businessRating == 0
                     ? null
                     : () => ref
-                        .read(submitReviewProvider.notifier)
-                        .submit(
-                          orderId: order.id,
-                          businessId: order.businessId,
-                          productRating: _productRating,
-                          businessRating: _businessRating,
-                          comment: _commentController.text,
-                        ),
+                          .read(submitReviewProvider.notifier)
+                          .submit(
+                            orderId: order.id,
+                            businessId: order.businessId,
+                            productRating: _productRating,
+                            businessRating: _businessRating,
+                            comment: _commentController.text,
+                          ),
                 style: FilledButton.styleFrom(
                   backgroundColor: FudiColors.primary,
                   minimumSize: const Size.fromHeight(56),
@@ -276,7 +283,10 @@ class _OrderSummaryCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(order.businessName, style: FudiTypography.labelMedium),
+                      Text(
+                        order.businessName,
+                        style: FudiTypography.labelMedium,
+                      ),
                       const SizedBox(height: FudiSpacing.xs),
                       Text(order.offerTitle, style: FudiTypography.bodySmall),
                       const SizedBox(height: FudiSpacing.xs),

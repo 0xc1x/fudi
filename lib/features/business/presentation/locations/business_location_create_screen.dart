@@ -111,10 +111,7 @@ class _BusinessLocationCreateScreenState
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildBasicInfoSection(),
-              const SizedBox(height: 100),
-            ],
+            children: [_buildBasicInfoSection(), const SizedBox(height: 100)],
           ),
         ),
       ),
@@ -279,8 +276,8 @@ class _BusinessLocationCreateScreenState
           ),
           validator: (value) =>
               (value == null || value.isEmpty) && label.contains('*')
-                  ? 'Campo requerido'
-                  : null,
+              ? 'Campo requerido'
+              : null,
         ),
       ],
     );

@@ -51,10 +51,7 @@ class FudiStarRating extends StatelessWidget {
             return InkWell(
               onTap: () => onTap!(index + 1),
               borderRadius: BorderRadius.circular(FudiRadius.full),
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: star,
-              ),
+              child: Padding(padding: const EdgeInsets.all(4), child: star),
             );
           }),
         ),

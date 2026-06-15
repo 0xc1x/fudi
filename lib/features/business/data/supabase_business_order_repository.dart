@@ -69,10 +69,7 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
     try {
       final response = await _supabaseClient.rpc(
         'validate_pickup_code',
-        params: {
-          'p_order_id': orderId,
-          'p_pickup_code': pickupCode,
-        },
+        params: {'p_order_id': orderId, 'p_pickup_code': pickupCode},
       );
 
       final result = response as Map<String, dynamic>;

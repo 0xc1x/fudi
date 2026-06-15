@@ -18,10 +18,10 @@ final profileOrderRepositoryProvider = Provider<ProfileOrderRepository>((ref) {
 
 final consumerProfileRepositoryProvider =
     Provider<SupabaseConsumerProfileRepository>((ref) {
-  return SupabaseConsumerProfileRepository(
-    supabaseClient: ref.watch(supabaseClientProvider),
-  );
-});
+      return SupabaseConsumerProfileRepository(
+        supabaseClient: ref.watch(supabaseClientProvider),
+      );
+    });
 
 final userStatsProvider = FutureProvider<UserStats>((ref) async {
   final authState = ref.watch(authSessionNotifierProvider);
@@ -41,22 +41,28 @@ final userOrdersProvider = FutureProvider<List<UserOrder>>((ref) async {
   return repo.getUserOrders(userId);
 });
 
-final savedAddressesProvider =
-    FutureProvider<List<SavedAddressModel>>((ref) async {
+final savedAddressesProvider = FutureProvider<List<SavedAddressModel>>((
+  ref,
+) async {
   return ref.watch(consumerProfileRepositoryProvider).getSavedAddresses();
 });
 
-final paymentMethodsProvider =
-    FutureProvider<List<PaymentMethodModel>>((ref) async {
+final paymentMethodsProvider = FutureProvider<List<PaymentMethodModel>>((
+  ref,
+) async {
   return ref.watch(consumerProfileRepositoryProvider).getPaymentMethods();
 });
 
-final consumerPreferencesProvider =
-    FutureProvider<ConsumerPreferences>((ref) async {
+final consumerPreferencesProvider = FutureProvider<ConsumerPreferences>((
+  ref,
+) async {
   return ref.watch(consumerProfileRepositoryProvider).getPreferences();
 });
 
-final userSelectedAddressProvider = NotifierProvider<SelectedAddressNotifier, SavedAddressModel?>(SelectedAddressNotifier.new);
+final userSelectedAddressProvider =
+    NotifierProvider<SelectedAddressNotifier, SavedAddressModel?>(
+      SelectedAddressNotifier.new,
+    );
 
 class SelectedAddressNotifier extends Notifier<SavedAddressModel?> {
   @override

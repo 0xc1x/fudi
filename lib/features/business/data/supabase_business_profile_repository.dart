@@ -358,20 +358,20 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
   }
 
   BusinessReview _mapReview(Map<String, dynamic> json) {
-  final profile = json['profiles'] as Map<String, dynamic>?;
-  final order = json['orders'] as Map<String, dynamic>?;
-  final offer = order?['offers'] as Map<String, dynamic>?;
+    final profile = json['profiles'] as Map<String, dynamic>?;
+    final order = json['orders'] as Map<String, dynamic>?;
+    final offer = order?['offers'] as Map<String, dynamic>?;
 
-  return BusinessReview(
-    id: json['id'] as String,
-    userName: profile?['full_name'] as String? ?? 'Usuario',
-    productRating: json['product_rating'] as int,
-    businessRating: json['business_rating'] as int,
-    date: DateTime.parse(json['created_at'] as String),
-    comment: json['comment'] as String?,
-    productName: offer?['title'] as String?,
-  );
-}
+    return BusinessReview(
+      id: json['id'] as String,
+      userName: profile?['full_name'] as String? ?? 'Usuario',
+      productRating: json['product_rating'] as int,
+      businessRating: json['business_rating'] as int,
+      date: DateTime.parse(json['created_at'] as String),
+      comment: json['comment'] as String?,
+      productName: offer?['title'] as String?,
+    );
+  }
 
   String _parseToTime(String time) {
     final parts = time.split(':');

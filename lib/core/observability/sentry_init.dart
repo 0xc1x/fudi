@@ -11,7 +11,10 @@ import '../config/app_config.dart';
 /// - beforeSend strips non-fatal events in dev
 /// - No PII ever sent (sendDefaultPii = false)
 /// - Traces and profiles sample rates vary by environment
-Future<void> initSentry(AppConfig config, FutureOr<void> Function() appRunner) async {
+Future<void> initSentry(
+  AppConfig config,
+  FutureOr<void> Function() appRunner,
+) async {
   await SentryFlutter.init((options) {
     options.dsn = config.sentryDsn;
     options.environment = config.environment.name;

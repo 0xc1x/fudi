@@ -9,10 +9,7 @@ import '../../../core/ui/fudi_typography.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 
 class AddressMapPickerResult {
-  const AddressMapPickerResult({
-    required this.latLng,
-    this.address,
-  });
+  const AddressMapPickerResult({required this.latLng, this.address});
 
   final LatLng latLng;
   final String? address;
@@ -236,8 +233,7 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
                         foregroundColor: FudiColors.primaryForeground,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(FudiRadius.xl),
+                          borderRadius: BorderRadius.circular(FudiRadius.xl),
                         ),
                         textStyle: FudiTypography.labelMedium,
                       ),

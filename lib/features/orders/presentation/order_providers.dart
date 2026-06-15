@@ -27,12 +27,12 @@ final couponRepositoryProvider = Provider<CouponRepository>((ref) {
 
 final validateCouponProvider =
     FutureProvider.family<Coupon?, ({String code, String businessId})>((
-  ref,
-  arg,
-) async {
-  final repo = ref.watch(couponRepositoryProvider);
-  return repo.getCouponByCode(arg.code, arg.businessId);
-});
+      ref,
+      arg,
+    ) async {
+      final repo = ref.watch(couponRepositoryProvider);
+      return repo.getCouponByCode(arg.code, arg.businessId);
+    });
 
 final paymentGatewayProvider = Provider<PaymentGateway>((ref) {
   return MockPaymentGateway();
@@ -170,8 +170,9 @@ final orderCancelProvider =
       OrderCancelNotifier.new,
     );
 
-final submitReviewProvider =
-    AsyncNotifierProvider<SubmitReviewNotifier, void>(SubmitReviewNotifier.new);
+final submitReviewProvider = AsyncNotifierProvider<SubmitReviewNotifier, void>(
+  SubmitReviewNotifier.new,
+);
 
 class CancelOrderState {
   const CancelOrderState({

@@ -62,7 +62,10 @@ class _Hero extends StatelessWidget {
           ],
         ),
       ),
-      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: FudiSpacing.xl),
+      padding: const EdgeInsets.symmetric(
+        vertical: 80,
+        horizontal: FudiSpacing.xl,
+      ),
       child: Column(
         children: [
           Text(
@@ -74,7 +77,10 @@ class _Hero extends StatelessWidget {
           Text(
             'En Fudi, creemos que la buena comida no debería desperdiciarse. Estamos construyendo el marketplace de excedentes más grande de Latinoamérica.',
             textAlign: TextAlign.center,
-            style: FudiTypography.bodyLarge.copyWith(color: FudiColors.mutedForeground, fontSize: 20),
+            style: FudiTypography.bodyLarge.copyWith(
+              color: FudiColors.mutedForeground,
+              fontSize: 20,
+            ),
           ),
         ],
       ),
@@ -88,7 +94,10 @@ class _Mission extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: FudiSpacing.xl),
+      padding: const EdgeInsets.symmetric(
+        vertical: 100,
+        horizontal: FudiSpacing.xl,
+      ),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1000),
@@ -98,16 +107,28 @@ class _Mission extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('¿Por qué existimos?', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                    const Text(
+                      '¿Por qué existimos?',
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 24),
                     Text(
                       'Cada año, un tercio de toda la comida producida en el mundo se desperdicia. Esto no solo es un problema social y económico, sino también una de las principales causas del cambio climático.',
-                      style: FudiTypography.bodyLarge.copyWith(color: FudiColors.mutedForeground, height: 1.5),
+                      style: FudiTypography.bodyLarge.copyWith(
+                        color: FudiColors.mutedForeground,
+                        height: 1.5,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     Text(
                       'Fudi nace para conectar a los comercios que tienen excedentes diarios con usuarios que quieren disfrutar de comida de calidad a un precio reducido, reduciendo juntos el impacto ambiental.',
-                      style: FudiTypography.bodyLarge.copyWith(color: FudiColors.mutedForeground, height: 1.5),
+                      style: FudiTypography.bodyLarge.copyWith(
+                        color: FudiColors.mutedForeground,
+                        height: 1.5,
+                      ),
                     ),
                   ],
                 ),
@@ -120,7 +141,9 @@ class _Mission extends StatelessWidget {
                     color: FudiColors.secondary.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(40),
                   ),
-                  child: const Center(child: Text('🌍', style: TextStyle(fontSize: 120))),
+                  child: const Center(
+                    child: Text('🌍', style: TextStyle(fontSize: 120)),
+                  ),
                 ),
               ),
             ],
@@ -138,13 +161,19 @@ class _Values extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFFF8F9FA),
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: FudiSpacing.xl),
+      padding: const EdgeInsets.symmetric(
+        vertical: 100,
+        horizontal: FudiSpacing.xl,
+      ),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
           child: Column(
             children: [
-              const Text('Nuestros Valores', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+              const Text(
+                'Nuestros Valores',
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 64),
               GridView.count(
                 shrinkWrap: true,
@@ -157,17 +186,20 @@ class _Values extends StatelessWidget {
                   _ValueCard(
                     icon: Icons.eco_outlined,
                     title: 'Sostenibilidad',
-                    description: 'Cada acción que tomamos busca reducir el impacto ambiental y promover un consumo responsable.',
+                    description:
+                        'Cada acción que tomamos busca reducir el impacto ambiental y promover un consumo responsable.',
                   ),
                   _ValueCard(
                     icon: Icons.favorite_border,
                     title: 'Comunidad',
-                    description: 'Creamos vínculos fuertes entre comercios y vecinos, fortaleciendo la economía local.',
+                    description:
+                        'Creamos vínculos fuertes entre comercios y vecinos, fortaleciendo la economía local.',
                   ),
                   _ValueCard(
                     icon: Icons.lightbulb_outline,
                     title: 'Innovación',
-                    description: 'Usamos la tecnología para resolver problemas complejos de logística y desperdicio.',
+                    description:
+                        'Usamos la tecnología para resolver problemas complejos de logística y desperdicio.',
                   ),
                 ],
               ),
@@ -180,7 +212,11 @@ class _Values extends StatelessWidget {
 }
 
 class _ValueCard extends StatelessWidget {
-  const _ValueCard({required this.icon, required this.title, required this.description});
+  const _ValueCard({
+    required this.icon,
+    required this.title,
+    required this.description,
+  });
   final IconData icon;
   final String title;
   final String description;
@@ -199,13 +235,25 @@ class _ValueCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: FudiColors.secondary.withValues(alpha: 0.3), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: FudiColors.secondary.withValues(alpha: 0.3),
+              shape: BoxShape.circle,
+            ),
             child: Icon(icon, color: FudiColors.primary, size: 32),
           ),
           const SizedBox(height: 24),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
           const SizedBox(height: 12),
-          Text(description, style: FudiTypography.bodyMedium.copyWith(color: FudiColors.mutedForeground), textAlign: TextAlign.center),
+          Text(
+            description,
+            style: FudiTypography.bodyMedium.copyWith(
+              color: FudiColors.mutedForeground,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -218,10 +266,16 @@ class _Stats extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: FudiSpacing.xl),
+      padding: const EdgeInsets.symmetric(
+        vertical: 100,
+        horizontal: FudiSpacing.xl,
+      ),
       child: Column(
         children: [
-          const Text('Nuestro impacto hasta hoy', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+          const Text(
+            'Nuestro impacto hasta hoy',
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 64),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -247,9 +301,21 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: FudiColors.primary)),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 48,
+            fontWeight: FontWeight.bold,
+            color: FudiColors.primary,
+          ),
+        ),
         const SizedBox(height: 8),
-        Text(label, style: FudiTypography.bodyLarge.copyWith(color: FudiColors.mutedForeground)),
+        Text(
+          label,
+          style: FudiTypography.bodyLarge.copyWith(
+            color: FudiColors.mutedForeground,
+          ),
+        ),
       ],
     );
   }

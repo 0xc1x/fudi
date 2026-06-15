@@ -10,9 +10,7 @@ extension PostgrestExceptionMapper on PostgrestException {
     final pgCode = code;
 
     if (pgCode == '23505') {
-      return ConflictException(
-        message: _uniqueViolationMessage(message),
-      );
+      return ConflictException(message: _uniqueViolationMessage(message));
     }
 
     if (pgCode == '23514') {
@@ -33,9 +31,7 @@ extension PostgrestExceptionMapper on PostgrestException {
     }
 
     if (pgCode == 'P0001' || pgCode == 'P0002') {
-      return OfferUnavailableException(
-        message: _plpgsqlMessage(message),
-      );
+      return OfferUnavailableException(message: _plpgsqlMessage(message));
     }
 
     return UnknownDataException(

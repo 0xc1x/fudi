@@ -48,7 +48,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final reservationState = ref.watch(reservationControllerProvider);
 
     ref.listen<ReservationState>(reservationControllerProvider, (prev, next) {
-      if (next.step == ReservationStep.success && next.result is ReservationSuccess) {
+      if (next.step == ReservationStep.success &&
+          next.result is ReservationSuccess) {
         final success = next.result as ReservationSuccess;
         setState(() {
           _confirmed = true;
@@ -71,9 +72,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       data: (offer) => _confirmed
           ? _ConfirmationView(offer: offer, result: _confirmationResult!)
           : _buildCheckoutContent(context, offer, reservationState),
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (error, _) => Scaffold(
         appBar: const FudiStickyPageHeader(title: 'Checkout'),
         body: Center(child: Text('Error: $error')),
@@ -87,8 +87,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     ReservationState state,
   ) {
     final isProcessing =
-        state.step == ReservationStep.reserving || state.step == ReservationStep.paying;
-    final discount = _appliedCoupon?.calculateDiscount(offer.discountedPrice) ?? 0;
+        state.step == ReservationStep.reserving ||
+        state.step == ReservationStep.paying;
+    final discount =
+        _appliedCoupon?.calculateDiscount(offer.discountedPrice) ?? 0;
     const serviceFee = 0.50;
     final total = offer.discountedPrice + serviceFee - discount;
 
@@ -169,7 +171,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             FilledButton(
-              onPressed: offer.isAvailable && !isProcessing && !_validatingCoupon
+              onPressed:
+                  offer.isAvailable && !isProcessing && !_validatingCoupon
                   ? () => _confirmAndPay(offer)
                   : null,
               style: FilledButton.styleFrom(
@@ -190,7 +193,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     )
                   : Text(
                       'Confirmar y pagar \$${total > 0 ? total.toStringAsFixed(2) : '0.00'}',
-                      style: FudiTypography.labelMedium.copyWith(color: Colors.white),
+                      style: FudiTypography.labelMedium.copyWith(
+                        color: Colors.white,
+                      ),
                     ),
             ),
             const SizedBox(height: FudiSpacing.xs),
@@ -215,10 +220,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     setState(() => _validatingCoupon = true);
 
     try {
-      final coupon = await ref.read(validateCouponProvider((
-        code: code,
-        businessId: offer.businessId,
-      )).future);
+      final coupon = await ref.read(
+        validateCouponProvider((
+          code: code,
+          businessId: offer.businessId,
+        )).future,
+      );
 
       if (coupon == null) {
         if (mounted) {
@@ -254,9 +261,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFriendlyMessage(e))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(userFriendlyMessage(e))));
       }
     } finally {
       if (mounted) setState(() => _validatingCoupon = false);
@@ -312,7 +319,10 @@ class _ProductSummaryCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(offer.business.name, style: FudiTypography.labelMedium),
+                    Text(
+                      offer.business.name,
+                      style: FudiTypography.labelMedium,
+                    ),
                     const SizedBox(height: 2),
                     Text(offer.business.type, style: FudiTypography.bodySmall),
                     const SizedBox(height: 4),
@@ -370,9 +380,15 @@ class _PickupDetailsCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Dirección de recogida', style: FudiTypography.labelSmall),
+                    Text(
+                      'Dirección de recogida',
+                      style: FudiTypography.labelSmall,
+                    ),
                     const SizedBox(height: 2),
-                    Text(offer.business.address, style: FudiTypography.bodySmall),
+                    Text(
+                      offer.business.address,
+                      style: FudiTypography.bodySmall,
+                    ),
                   ],
                 ),
               ),
@@ -388,9 +404,15 @@ class _PickupDetailsCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Horario de recogida', style: FudiTypography.labelSmall),
+                    Text(
+                      'Horario de recogida',
+                      style: FudiTypography.labelSmall,
+                    ),
                     const SizedBox(height: 2),
-                    Text('Hoy antes de $untilTime', style: FudiTypography.bodySmall),
+                    Text(
+                      'Hoy antes de $untilTime',
+                      style: FudiTypography.bodySmall,
+                    ),
                   ],
                 ),
               ),
@@ -468,7 +490,11 @@ class _CouponSection extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: onRemove,
-                    icon: const Icon(Icons.close, size: 16, color: Color(0xFF15803D)),
+                    icon: const Icon(
+                      Icons.close,
+                      size: 16,
+                      color: Color(0xFF15803D),
+                    ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                   ),
@@ -498,7 +524,10 @@ class _CouponSection extends StatelessWidget {
                 ),
                 const SizedBox(width: FudiSpacing.sm),
                 FilledButton(
-                  onPressed: enabled && !validating && controller.text.trim().isNotEmpty
+                  onPressed:
+                      enabled &&
+                          !validating &&
+                          controller.text.trim().isNotEmpty
                       ? onApply
                       : null,
                   style: FilledButton.styleFrom(
@@ -565,11 +594,15 @@ class _PaymentMethodSection extends StatelessWidget {
                   padding: const EdgeInsets.all(FudiSpacing.md),
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: selected ? FudiColors.primary : FudiColors.borderSolid,
+                      color: selected
+                          ? FudiColors.primary
+                          : FudiColors.borderSolid,
                       width: selected ? 2 : 1,
                     ),
                     borderRadius: BorderRadius.circular(FudiRadius.lg),
-                    color: selected ? FudiColors.primary.withValues(alpha: 0.05) : null,
+                    color: selected
+                        ? FudiColors.primary.withValues(alpha: 0.05)
+                        : null,
                   ),
                   child: Row(
                     children: [
@@ -591,13 +624,19 @@ class _PaymentMethodSection extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: selected ? FudiColors.primary : FudiColors.mutedForeground,
+                            color: selected
+                                ? FudiColors.primary
+                                : FudiColors.mutedForeground,
                             width: 2,
                           ),
                           color: selected ? FudiColors.primary : null,
                         ),
                         child: selected
-                            ? const Icon(Icons.circle, size: 8, color: Colors.white)
+                            ? const Icon(
+                                Icons.circle,
+                                size: 8,
+                                color: Colors.white,
+                              )
                             : null,
                       ),
                     ],
@@ -709,9 +748,12 @@ class _PriceBreakdownCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: FudiTypography.bodyMedium.copyWith(
-          color: FudiColors.mutedForeground,
-        )),
+        Text(
+          label,
+          style: FudiTypography.bodyMedium.copyWith(
+            color: FudiColors.mutedForeground,
+          ),
+        ),
         Text(value, style: FudiTypography.bodyMedium),
       ],
     );
@@ -763,7 +805,9 @@ class _ConfirmationView extends StatelessWidget {
                   const SizedBox(height: FudiSpacing.lg),
                   Text(
                     '¡Reserva confirmada!',
-                    style: FudiTypography.h2.copyWith(fontWeight: FontWeight.w700),
+                    style: FudiTypography.h2.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: FudiSpacing.sm),
                   Text(
@@ -840,7 +884,9 @@ class _ConfirmationView extends StatelessWidget {
                         const SizedBox(height: FudiSpacing.sm),
                         Text(
                           'Muestra este código al recoger tu pedido',
-                          style: FudiTypography.bodySmall.copyWith(fontSize: 10),
+                          style: FudiTypography.bodySmall.copyWith(
+                            fontSize: 10,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -857,19 +903,32 @@ class _ConfirmationView extends StatelessWidget {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.location_on, size: 20, color: FudiColors.primary),
-                const SizedBox(width: FudiSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Recoger en', style: FudiTypography.labelSmall),
-                                  Text(offer.business.name, style: FudiTypography.bodyMedium),
-                                  Text(offer.business.address, style: FudiTypography.bodySmall),
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              size: 20,
+                              color: FudiColors.primary,
+                            ),
+                            const SizedBox(width: FudiSpacing.md),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Recoger en',
+                                    style: FudiTypography.labelSmall,
+                                  ),
+                                  Text(
+                                    offer.business.name,
+                                    style: FudiTypography.bodyMedium,
+                                  ),
+                                  Text(
+                                    offer.business.address,
+                                    style: FudiTypography.bodySmall,
+                                  ),
                                 ],
                               ),
                             ),
@@ -879,13 +938,20 @@ children: [
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(Icons.schedule, size: 20, color: FudiColors.primary),
+                            const Icon(
+                              Icons.schedule,
+                              size: 20,
+                              color: FudiColors.primary,
+                            ),
                             const SizedBox(width: FudiSpacing.md),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Horario de recogida', style: FudiTypography.labelSmall),
+                                  Text(
+                                    'Horario de recogida',
+                                    style: FudiTypography.labelSmall,
+                                  ),
                                   Text(
                                     'Antes de ${MaterialLocalizations.of(context).formatTimeOfDay(offer.pickupUntilTimeOfDay)}',
                                     style: FudiTypography.bodyMedium,
@@ -927,7 +993,9 @@ children: [
                     ),
                     child: Text(
                       'Ver mis pedidos',
-                      style: FudiTypography.labelMedium.copyWith(color: Colors.white),
+                      style: FudiTypography.labelMedium.copyWith(
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   const SizedBox(height: FudiSpacing.sm),
@@ -953,5 +1021,3 @@ children: [
     );
   }
 }
-
-

@@ -25,9 +25,16 @@ class PaymentMethodsScreen extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(FudiIcons.creditCard, size: 64, color: FudiColors.mutedForeground),
+                  const Icon(
+                    FudiIcons.creditCard,
+                    size: 64,
+                    color: FudiColors.mutedForeground,
+                  ),
                   const SizedBox(height: FudiSpacing.md),
-                  Text('No tienes tarjetas guardadas', style: FudiTypography.bodyLarge),
+                  Text(
+                    'No tienes tarjetas guardadas',
+                    style: FudiTypography.bodyLarge,
+                  ),
                 ],
               ),
             );
@@ -41,26 +48,48 @@ class PaymentMethodsScreen extends ConsumerWidget {
               final method = methods[index];
               return FudiSurfaceCard(
                 child: ListTile(
-                  leading: Icon(_getCardIcon(method.brand), color: FudiColors.primary),
+                  leading: Icon(
+                    _getCardIcon(method.brand),
+                    color: FudiColors.primary,
+                  ),
                   title: Row(
                     children: [
-                      Text('•••• ${method.last4}', style: FudiTypography.labelSmall),
+                      Text(
+                        '•••• ${method.last4}',
+                        style: FudiTypography.labelSmall,
+                      ),
                       if (method.isDefault) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: FudiColors.secondary,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text('PRINCIPAL', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: FudiColors.primary)),
+                          child: const Text(
+                            'PRINCIPAL',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: FudiColors.primary,
+                            ),
+                          ),
                         ),
                       ],
                     ],
                   ),
-                  subtitle: Text(method.brand.toUpperCase(), style: FudiTypography.bodySmall),
+                  subtitle: Text(
+                    method.brand.toUpperCase(),
+                    style: FudiTypography.bodySmall,
+                  ),
                   trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline, color: FudiColors.destructive),
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      color: FudiColors.destructive,
+                    ),
                     onPressed: () => _deleteMethod(ref, method.id),
                   ),
                   onTap: () => _setDefault(ref, method.id),
@@ -86,7 +115,9 @@ class PaymentMethodsScreen extends ConsumerWidget {
   }
 
   IconData _getCardIcon(String brand) {
-    return brand.toLowerCase() == 'visa' ? Icons.credit_card : Icons.credit_card;
+    return brand.toLowerCase() == 'visa'
+        ? Icons.credit_card
+        : Icons.credit_card;
   }
 
   void _deleteMethod(WidgetRef ref, String id) {
@@ -100,6 +131,8 @@ class PaymentMethodsScreen extends ConsumerWidget {
   }
 
   void _addMethod(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Funcionalidad en desarrollo')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Funcionalidad en desarrollo')),
+    );
   }
 }

@@ -22,17 +22,17 @@ class SupabaseReviewRepository {
       );
     }
 
-  final sanitizedComment = comment?.trim().isNotEmpty == true
-      ? comment!.trim()
-      : null;
+    final sanitizedComment = comment?.trim().isNotEmpty == true
+        ? comment!.trim()
+        : null;
 
-  await _supabaseClient.from('reviews').upsert({
-    'user_id': userId,
-    'order_id': orderId,
-    'business_id': businessId,
-    'product_rating': productRating,
-    'business_rating': businessRating,
-    'comment': sanitizedComment,
-  }, onConflict: 'user_id,order_id');
+    await _supabaseClient.from('reviews').upsert({
+      'user_id': userId,
+      'order_id': orderId,
+      'business_id': businessId,
+      'product_rating': productRating,
+      'business_rating': businessRating,
+      'comment': sanitizedComment,
+    }, onConflict: 'user_id,order_id');
   }
 }

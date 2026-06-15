@@ -31,7 +31,8 @@ class _BusinessPaymentDetailScreenState
         period: payoutAsync.asData?.value != null
             ? _periodLabel(payoutAsync.asData!.value)
             : '',
-        status: payoutAsync.asData?.value.status ?? BusinessPayoutStatus.pending,
+        status:
+            payoutAsync.asData?.value.status ?? BusinessPayoutStatus.pending,
       ),
       body: payoutAsync.when(
         data: (payout) => _Content(payout: payout),
@@ -43,8 +44,19 @@ class _BusinessPaymentDetailScreenState
 
   static String _periodLabel(BusinessPayout p) {
     const months = [
-      '', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+      '',
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre',
     ];
     return '${months[p.periodStart.month]} ${p.periodStart.day}-${p.periodEnd.day}, ${p.periodStart.year}';
   }
@@ -80,8 +92,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Detalle del pago', style: FudiTypography.h4),
-          if (period.isNotEmpty)
-            Text(period, style: FudiTypography.bodySmall),
+          if (period.isNotEmpty) Text(period, style: FudiTypography.bodySmall),
         ],
       ),
       actions: [
@@ -146,11 +157,9 @@ class _Content extends StatelessWidget {
       children: [
         _AmountHero(payout: payout),
         const SizedBox(height: FudiSpacing.lg),
-        if (payout.status == BusinessPayoutStatus.paid &&
-            payout.paidAt != null)
+        if (payout.status == BusinessPayoutStatus.paid && payout.paidAt != null)
           _CompletedStatusCard(paidAt: payout.paidAt!),
-        if (payout.status == BusinessPayoutStatus.paid &&
-            payout.paidAt != null)
+        if (payout.status == BusinessPayoutStatus.paid && payout.paidAt != null)
           const SizedBox(height: FudiSpacing.lg),
         _PaymentMethodSection(),
         const SizedBox(height: FudiSpacing.lg),
@@ -174,8 +183,19 @@ class _AmountHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const months = [
-      '', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+      '',
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre',
     ];
     final period =
         '${months[payout.periodStart.month]} ${payout.periodStart.day}-${payout.periodEnd.day}, ${payout.periodStart.year}';
@@ -255,8 +275,19 @@ class _AmountHero extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     const months = [
-      '', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+      '',
+      'enero',
+      'febrero',
+      'marzo',
+      'abril',
+      'mayo',
+      'junio',
+      'julio',
+      'agosto',
+      'septiembre',
+      'octubre',
+      'noviembre',
+      'diciembre',
     ];
     return '${date.day} de ${months[date.month]} de ${date.year}';
   }
@@ -312,8 +343,19 @@ class _CompletedStatusCard extends StatelessWidget {
 
   String _formatDateTime(DateTime date) {
     const months = [
-      '', 'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-      'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
+      '',
+      'ene',
+      'feb',
+      'mar',
+      'abr',
+      'may',
+      'jun',
+      'jul',
+      'ago',
+      'sep',
+      'oct',
+      'nov',
+      'dic',
     ];
     final time =
         '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
@@ -372,8 +414,10 @@ class _PaymentMethodSection extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Banco del Pacífico',
-                          style: FudiTypography.labelSmall),
+                      Text(
+                        'Banco del Pacífico',
+                        style: FudiTypography.labelSmall,
+                      ),
                       Text(
                         'Cuenta bancaria •••• 4532',
                         style: FudiTypography.bodySmall,
@@ -476,9 +520,7 @@ class _BreakdownRow extends StatelessWidget {
             Icon(icon, size: 16, color: FudiColors.mutedForeground),
             const SizedBox(width: FudiSpacing.xs),
           ],
-          Expanded(
-            child: Text(label, style: FudiTypography.bodySmall),
-          ),
+          Expanded(child: Text(label, style: FudiTypography.bodySmall)),
           Text(
             value,
             style: FudiTypography.bodyMedium.copyWith(
@@ -513,10 +555,13 @@ class _InfoCard extends StatelessWidget {
           ),
           const SizedBox(height: FudiSpacing.sm),
           _infoBullet('Los pagos se procesan automáticamente dos veces al mes'),
-          _infoBullet('La comisión de la plataforma es del 10% sobre cada venta'),
+          _infoBullet(
+            'La comisión de la plataforma es del 10% sobre cada venta',
+          ),
           _infoBullet('Los fondos se transfieren en 2-3 días hábiles'),
           _infoBullet(
-              'Puedes descargar el comprobante para tus registros contables'),
+            'Puedes descargar el comprobante para tus registros contables',
+          ),
         ],
       ),
     );
@@ -566,7 +611,11 @@ class _DownloadReceiptButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.download_rounded, size: 20, color: FudiColors.foreground),
+            Icon(
+              Icons.download_rounded,
+              size: 20,
+              color: FudiColors.foreground,
+            ),
             const SizedBox(width: FudiSpacing.sm),
             Text(
               'Descargar comprobante',
@@ -599,36 +648,36 @@ class _StatusConfig {
 }
 
 _StatusConfig _statusConfig(BusinessPayoutStatus status) => switch (status) {
-      BusinessPayoutStatus.paid => const _StatusConfig(
-          label: 'Pagado',
-          icon: Icons.check_circle_outline_rounded,
-          bgColor: Color(0xFFDCFCE7),
-          borderColor: Color(0xFFBBF7D0),
-          textColor: Color(0xFF15803D),
-          iconColor: Color(0xFF16A34A),
-        ),
-      BusinessPayoutStatus.processing => const _StatusConfig(
-          label: 'Procesando',
-          icon: Icons.schedule_rounded,
-          bgColor: Color(0xFFFFEDD5),
-          borderColor: Color(0xFFFED7AA),
-          textColor: Color(0xFFC2410C),
-          iconColor: Color(0xFFEA580C),
-        ),
-      BusinessPayoutStatus.pending => _StatusConfig(
-          label: 'Pendiente',
-          icon: Icons.schedule_rounded,
-          bgColor: FudiColors.primary.withValues(alpha: 0.1),
-          borderColor: FudiColors.primary.withValues(alpha: 0.2),
-          textColor: FudiColors.primary,
-          iconColor: FudiColors.primary,
-        ),
-      BusinessPayoutStatus.failed => const _StatusConfig(
-          label: 'Fallido',
-          icon: Icons.error_outline_rounded,
-          bgColor: Color(0xFFFEE2E2),
-          borderColor: Color(0xFFFECACA),
-          textColor: Color(0xFFDC2626),
-          iconColor: Color(0xFFEF4444),
-        ),
-    };
+  BusinessPayoutStatus.paid => const _StatusConfig(
+    label: 'Pagado',
+    icon: Icons.check_circle_outline_rounded,
+    bgColor: Color(0xFFDCFCE7),
+    borderColor: Color(0xFFBBF7D0),
+    textColor: Color(0xFF15803D),
+    iconColor: Color(0xFF16A34A),
+  ),
+  BusinessPayoutStatus.processing => const _StatusConfig(
+    label: 'Procesando',
+    icon: Icons.schedule_rounded,
+    bgColor: Color(0xFFFFEDD5),
+    borderColor: Color(0xFFFED7AA),
+    textColor: Color(0xFFC2410C),
+    iconColor: Color(0xFFEA580C),
+  ),
+  BusinessPayoutStatus.pending => _StatusConfig(
+    label: 'Pendiente',
+    icon: Icons.schedule_rounded,
+    bgColor: FudiColors.primary.withValues(alpha: 0.1),
+    borderColor: FudiColors.primary.withValues(alpha: 0.2),
+    textColor: FudiColors.primary,
+    iconColor: FudiColors.primary,
+  ),
+  BusinessPayoutStatus.failed => const _StatusConfig(
+    label: 'Fallido',
+    icon: Icons.error_outline_rounded,
+    bgColor: Color(0xFFFEE2E2),
+    borderColor: Color(0xFFFECACA),
+    textColor: Color(0xFFDC2626),
+    iconColor: Color(0xFFEF4444),
+  ),
+};

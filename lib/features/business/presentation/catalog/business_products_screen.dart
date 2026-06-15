@@ -54,12 +54,9 @@ class BusinessProductsScreen extends ConsumerWidget {
             ),
           );
         },
-        loading: () => const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
-        error: (e, _) => Scaffold(
-          body: Center(child: Text('Error: $e')),
-        ),
+        loading: () =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
+        error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
       ),
     );
   }
@@ -142,10 +139,7 @@ class _BusinessProductsContent extends ConsumerWidget {
 }
 
 class _BusinessAppBar extends ConsumerWidget implements PreferredSizeWidget {
-  const _BusinessAppBar({
-    required this.business,
-    required this.allBusinesses,
-  });
+  const _BusinessAppBar({required this.business, required this.allBusinesses});
 
   final BusinessProfile business;
   final List<BusinessProfile> allBusinesses;
@@ -175,9 +169,8 @@ class _BusinessAppBar extends ConsumerWidget implements PreferredSizeWidget {
           _BusinessSelector(
             business: business,
             allBusinesses: allBusinesses,
-            onSelected: (id) => ref
-                .read(selectedBusinessIdProvider.notifier)
-                .select(id),
+            onSelected: (id) =>
+                ref.read(selectedBusinessIdProvider.notifier).select(id),
           ),
         ],
       ),
@@ -673,9 +666,9 @@ class _ProductMenu extends ConsumerWidget {
               .toggleOfferStatus(offer.id, !offer.isActive);
           ref.invalidate(businessOffersProvider(offer.businessId));
         } else if (value == 'edit') {
-      if (context.mounted) {
-          context.push('/business/products/edit/${offer.id}');
-        }
+          if (context.mounted) {
+            context.push('/business/products/edit/${offer.id}');
+          }
         } else if (value == 'delete') {
           final confirmed = await showDialog<bool>(
             context: context,

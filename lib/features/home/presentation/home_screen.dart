@@ -667,10 +667,7 @@ class _WelcomeBanner extends ConsumerWidget {
           children: [
             Row(
               children: [
-                Text(
-                  data.emoji,
-                  style: const TextStyle(fontSize: 28),
-                ),
+                Text(data.emoji, style: const TextStyle(fontSize: 28)),
                 const SizedBox(width: FudiSpacing.sm),
                 Expanded(
                   child: RichText(
@@ -697,7 +694,9 @@ class _WelcomeBanner extends ConsumerWidget {
             ),
             const SizedBox(height: FudiSpacing.xs),
             Padding(
-              padding: const EdgeInsets.only(left: FudiSpacing.xl + FudiSpacing.sm + FudiSpacing.xs),
+              padding: const EdgeInsets.only(
+                left: FudiSpacing.xl + FudiSpacing.sm + FudiSpacing.xs,
+              ),
               child: Text(
                 data.contextualMessage,
                 style: FudiTypography.bodyMedium.copyWith(
@@ -713,7 +712,10 @@ class _WelcomeBanner extends ConsumerWidget {
   }
 }
 
-final homeScreenStateProvider = NotifierProvider<HomeScreenStateNotifier, HomeScreenState>(HomeScreenStateNotifier.new);
+final homeScreenStateProvider =
+    NotifierProvider<HomeScreenStateNotifier, HomeScreenState>(
+      HomeScreenStateNotifier.new,
+    );
 
 class HomeScreenStateNotifier extends Notifier<HomeScreenState> {
   @override

@@ -29,10 +29,11 @@ void main() {
 
   setUp(() {
     mockRepo = MockFavoritesRepository();
-    
+
     // Default mock setup
-    when(() => mockRepo.getFavoriteOfferIds('user-123'))
-        .thenAnswer((_) async => {'offer-1', 'offer-2'});
+    when(
+      () => mockRepo.getFavoriteOfferIds('user-123'),
+    ).thenAnswer((_) async => {'offer-1', 'offer-2'});
   });
 
   group('Favorites Providers Integration', () {
@@ -51,13 +52,17 @@ void main() {
       // Wait for initial load async call to resolve
       await Future.delayed(const Duration(milliseconds: 10));
 
-      expect(container.read(favoritedOfferIdsProvider), equals({'offer-1', 'offer-2'}));
+      expect(
+        container.read(favoritedOfferIdsProvider),
+        equals({'offer-1', 'offer-2'}),
+      );
       verify(() => mockRepo.getFavoriteOfferIds('user-123')).called(1);
     });
 
     test('toggleFavorite adds favorite and triggers ref.invalidate', () async {
-      when(() => mockRepo.addFavorite('user-123', 'offer-3'))
-          .thenAnswer((_) async => 'fav-3');
+      when(
+        () => mockRepo.addFavorite('user-123', 'offer-3'),
+      ).thenAnswer((_) async => 'fav-3');
 
       final container = ProviderContainer(
         overrides: [
@@ -66,7 +71,7 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
-      
+
       // Trigger initialization and wait for load
       container.read(favoritedOfferIdsProvider);
       await Future.delayed(const Duration(milliseconds: 10));
@@ -75,7 +80,10 @@ void main() {
       final toggleFuture = notifier.toggleFavorite('offer-3');
 
       // Optimistic check
-      expect(container.read(favoritedOfferIdsProvider), equals({'offer-1', 'offer-2', 'offer-3'}));
+      expect(
+        container.read(favoritedOfferIdsProvider),
+        equals({'offer-1', 'offer-2', 'offer-3'}),
+      );
 
       await toggleFuture;
 
@@ -84,8 +92,9 @@ void main() {
 
     test('toggleFavorite reverts on error', () async {
       // Return a Future that throws an exception to simulate an async DB failure
-      when(() => mockRepo.addFavorite('user-123', 'offer-3'))
-          .thenAnswer((_) async => throw Exception('DB error'));
+      when(
+        () => mockRepo.addFavorite('user-123', 'offer-3'),
+      ).thenAnswer((_) async => throw Exception('DB error'));
 
       final container = ProviderContainer(
         overrides: [
@@ -94,7 +103,7 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
-      
+
       // Trigger initialization and wait for load
       container.read(favoritedOfferIdsProvider);
       await Future.delayed(const Duration(milliseconds: 10));
@@ -103,18 +112,25 @@ void main() {
       final toggleFuture = notifier.toggleFavorite('offer-3');
 
       // Optimistic check (should be active during the async operation)
-      expect(container.read(favoritedOfferIdsProvider), equals({'offer-1', 'offer-2', 'offer-3'}));
+      expect(
+        container.read(favoritedOfferIdsProvider),
+        equals({'offer-1', 'offer-2', 'offer-3'}),
+      );
 
       await toggleFuture;
 
       // Reverted check (after the async failure resolves)
-      expect(container.read(favoritedOfferIdsProvider), equals({'offer-1', 'offer-2'}));
+      expect(
+        container.read(favoritedOfferIdsProvider),
+        equals({'offer-1', 'offer-2'}),
+      );
       verify(() => mockRepo.addFavorite('user-123', 'offer-3')).called(1);
     });
 
     test('toggleFavorite removes favorite', () async {
-      when(() => mockRepo.removeFavoriteByOfferId('user-123', 'offer-1'))
-          .thenAnswer((_) async {});
+      when(
+        () => mockRepo.removeFavoriteByOfferId('user-123', 'offer-1'),
+      ).thenAnswer((_) async {});
 
       final container = ProviderContainer(
         overrides: [
@@ -123,7 +139,7 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
-      
+
       // Trigger initialization and wait for load
       container.read(favoritedOfferIdsProvider);
       await Future.delayed(const Duration(milliseconds: 10));
@@ -136,7 +152,9 @@ void main() {
 
       await toggleFuture;
 
-      verify(() => mockRepo.removeFavoriteByOfferId('user-123', 'offer-1')).called(1);
+      verify(
+        () => mockRepo.removeFavoriteByOfferId('user-123', 'offer-1'),
+      ).called(1);
     });
   });
 }

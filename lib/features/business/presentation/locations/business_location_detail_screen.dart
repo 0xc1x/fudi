@@ -15,10 +15,7 @@ import '../business_providers.dart';
 import '../business_profile_providers.dart';
 
 class BusinessLocationDetailScreen extends ConsumerWidget {
-  const BusinessLocationDetailScreen({
-    required this.locationId,
-    super.key,
-  });
+  const BusinessLocationDetailScreen({required this.locationId, super.key});
 
   final String locationId;
 
@@ -29,10 +26,12 @@ class BusinessLocationDetailScreen extends ConsumerWidget {
       backgroundColor: FudiColors.muted,
       body: locationAsync.when(
         data: (location) {
-          final profileAsync =
-              ref.watch(businessProfileProvider(location.businessId));
-          final statsAsync =
-              ref.watch(businessStatsProvider(location.businessId));
+          final profileAsync = ref.watch(
+            businessProfileProvider(location.businessId),
+          );
+          final statsAsync = ref.watch(
+            businessStatsProvider(location.businessId),
+          );
           return profileAsync.when(
             data: (profile) => _DetailContent(
               location: location,
@@ -247,9 +246,7 @@ class _StatsGrid extends StatelessWidget {
         Expanded(
           child: _StatCard(
             icon: FudiIcons.star,
-            value: stats != null
-                ? stats.avgRating.toStringAsFixed(1)
-                : '0.0',
+            value: stats != null ? stats.avgRating.toStringAsFixed(1) : '0.0',
             label: 'Rating',
             iconColor: Colors.orange,
             valueColor: Colors.orange,
@@ -324,9 +321,8 @@ class _ActionButtons extends ConsumerWidget {
       children: [
         Expanded(
           child: FilledButton.icon(
-            onPressed: () => context.push(
-              '/business/locations/${location.id}/edit',
-            ),
+            onPressed: () =>
+                context.push('/business/locations/${location.id}/edit'),
             icon: const Icon(FudiIcons.store, size: 16),
             label: const Text('Editar'),
             style: FilledButton.styleFrom(
@@ -347,9 +343,7 @@ class _ActionButtons extends ConsumerWidget {
                     await ref
                         .read(businessLocationRepositoryProvider)
                         .toggleLocationStatus(location.id, false);
-                    ref.invalidate(
-                      businessLocationProvider(location.id),
-                    );
+                    ref.invalidate(businessLocationProvider(location.id));
                     ref.invalidate(
                       businessLocationsProvider(location.businessId),
                     );
@@ -370,9 +364,7 @@ class _ActionButtons extends ConsumerWidget {
                     await ref
                         .read(businessLocationRepositoryProvider)
                         .toggleLocationStatus(location.id, true);
-                    ref.invalidate(
-                      businessLocationProvider(location.id),
-                    );
+                    ref.invalidate(businessLocationProvider(location.id));
                     ref.invalidate(
                       businessLocationsProvider(location.businessId),
                     );
@@ -397,10 +389,7 @@ class _ActionButtons extends ConsumerWidget {
 }
 
 class _LocationInfoCard extends StatelessWidget {
-  const _LocationInfoCard({
-    required this.location,
-    this.profile,
-  });
+  const _LocationInfoCard({required this.location, this.profile});
 
   final BusinessLocation location;
   final BusinessProfile? profile;
@@ -504,10 +493,12 @@ class _OpeningHoursCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: FudiSpacing.md),
-          ...hours.map((h) => Padding(
-                padding: const EdgeInsets.only(bottom: FudiSpacing.sm),
-                child: _HoursRow(day: h.day, hours: h.hours),
-              )),
+          ...hours.map(
+            (h) => Padding(
+              padding: const EdgeInsets.only(bottom: FudiSpacing.sm),
+              child: _HoursRow(day: h.day, hours: h.hours),
+            ),
+          ),
         ],
       ),
     );
@@ -527,9 +518,7 @@ class _HoursRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: FudiSpacing.sm),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: FudiColors.borderSolid),
-          ),
+          border: Border(bottom: BorderSide(color: FudiColors.borderSolid)),
         ),
         child: Padding(
           padding: const EdgeInsets.only(bottom: FudiSpacing.sm),
@@ -559,10 +548,7 @@ class _HoursRow extends StatelessWidget {
 }
 
 class _PerformanceCard extends StatelessWidget {
-  const _PerformanceCard({
-    required this.location,
-    required this.statsAsync,
-  });
+  const _PerformanceCard({required this.location, required this.statsAsync});
 
   final BusinessLocation location;
   final AsyncValue<BusinessStats> statsAsync;
