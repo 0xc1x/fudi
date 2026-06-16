@@ -56,11 +56,11 @@ class _OrdersContentState extends State<_OrdersContent> {
   bool _showToday = true;
 
   List<OrderModel> get _todayOrders => widget.orders
-      .where((o) => _isToday(o.createdAt) && o.status.isActive)
+      .where((o) => o.status.isActive)
       .toList();
 
   List<OrderModel> get _historyOrders => widget.orders
-      .where((o) => !(_isToday(o.createdAt) && o.status.isActive))
+      .where((o) => !o.status.isActive)
       .toList();
 
   int get _pendingCount =>
@@ -86,7 +86,7 @@ class _OrdersContentState extends State<_OrdersContent> {
       return [
         _EmptyState(
           message: _showToday
-              ? 'No hay pedidos pendientes'
+              ? 'No hay pedidos activos'
               : 'No hay pedidos en el historial',
         ),
       ];
@@ -232,7 +232,7 @@ class _TabSelector extends StatelessWidget {
         children: [
           Expanded(
             child: _TabButton(
-              label: 'Hoy ($todayCount)',
+              label: 'Activos ($todayCount)',
               isActive: showToday,
               onTap: () => onTabChanged(true),
             ),

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -216,25 +215,15 @@ class SupabaseConsumerProfileRepository {
         .select()
         .eq('user_id', userId)
         .maybeSingle();
-    final local = await SharedPreferences.getInstance();
 
     return ConsumerPreferences(
       notificationRadiusKm: response?['notification_radius_km'] as int? ?? 5,
       language: response?['language'] as String? ?? 'es',
       darkMode: response?['dark_mode'] as bool? ?? false,
-      pushNotificationsEnabled:
-          response?['push_notifications_enabled'] as bool? ?? true,
-      emailNotificationsEnabled:
-          response?['email_notifications_enabled'] as bool? ?? true,
       favoriteCategories:
           (response?['favorite_categories'] as List<dynamic>? ?? [])
               .map((item) => item.toString())
               .toList(),
-      favoriteAlertsEnabled: local.getBool('favorite_alerts_enabled') ?? true,
-      pickupRemindersEnabled: local.getBool('pickup_reminders_enabled') ?? true,
-      lastMinuteDealsEnabled:
-          local.getBool('last_minute_deals_enabled') ?? false,
-      weeklySummaryEnabled: local.getBool('weekly_summary_enabled') ?? true,
     );
   }
 
@@ -247,28 +236,8 @@ class SupabaseConsumerProfileRepository {
       'notification_radius_km': preferences.notificationRadiusKm,
       'language': preferences.language,
       'dark_mode': preferences.darkMode,
-      'push_notifications_enabled': preferences.pushNotificationsEnabled,
-      'email_notifications_enabled': preferences.emailNotificationsEnabled,
       'favorite_categories': preferences.favoriteCategories,
     }, onConflict: 'user_id');
-
-    final local = await SharedPreferences.getInstance();
-    await local.setBool(
-      'favorite_alerts_enabled',
-      preferences.favoriteAlertsEnabled,
-    );
-    await local.setBool(
-      'pickup_reminders_enabled',
-      preferences.pickupRemindersEnabled,
-    );
-    await local.setBool(
-      'last_minute_deals_enabled',
-      preferences.lastMinuteDealsEnabled,
-    );
-    await local.setBool(
-      'weekly_summary_enabled',
-      preferences.weeklySummaryEnabled,
-    );
   }
 
   Future<List<PaymentMethodModel>> getPaymentMethods() async {

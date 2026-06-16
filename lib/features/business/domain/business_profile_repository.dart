@@ -15,4 +15,6 @@ abstract class BusinessProfileRepository {
     XFile? logoFile,
     XFile? coverFile,
   });
+
+  Future<void> updateBusiness(BusinessProfile profile);
 }

@@ -2,8 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/core_providers.dart';
 import '../../auth/presentation/auth_state_provider.dart';
+import '../data/supabase_consumer_notification_repository.dart';
 import '../data/supabase_consumer_profile_repository.dart';
 import '../data/supabase_profile_order_repository.dart';
+import '../domain/consumer_notification_preferences.dart';
+import '../domain/consumer_notification_repository.dart';
 import '../domain/consumer_preferences.dart';
 import '../domain/payment_method_model.dart';
 import '../domain/profile_order_repository.dart';
@@ -63,6 +66,18 @@ final userSelectedAddressProvider =
     NotifierProvider<SelectedAddressNotifier, SavedAddressModel?>(
       SelectedAddressNotifier.new,
     );
+
+final consumerNotificationRepositoryProvider =
+    Provider<ConsumerNotificationRepository>((ref) {
+  return SupabaseConsumerNotificationRepository(
+    supabaseClient: ref.watch(supabaseClientProvider),
+  );
+});
+
+final consumerNotificationPreferencesProvider =
+    FutureProvider<ConsumerNotificationPreferences>((ref) async {
+  return ref.watch(consumerNotificationRepositoryProvider).getPreferences();
+});
 
 class SelectedAddressNotifier extends Notifier<SavedAddressModel?> {
   @override

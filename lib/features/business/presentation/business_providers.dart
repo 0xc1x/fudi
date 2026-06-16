@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/di/core_providers.dart';
 import '../data/supabase_business_catalog_repository.dart';
 import '../data/supabase_business_coupon_repository.dart';
+import '../data/supabase_business_notification_repository.dart';
 import '../data/supabase_business_order_repository.dart';
 import '../data/supabase_business_stats_repository.dart';
 import '../data/supabase_business_location_repository.dart';
@@ -11,6 +12,8 @@ import '../domain/business_catalog_repository.dart';
 import '../domain/business_coupon_repository.dart';
 import '../domain/business_location.dart';
 import '../domain/business_location_repository.dart';
+import '../domain/business_notification_preferences.dart';
+import '../domain/business_notification_repository.dart';
 import '../domain/business_order_repository.dart';
 import '../domain/business_payout.dart';
 import '../domain/business_payout_repository.dart';
@@ -178,4 +181,21 @@ final currentBusinessProvider = FutureProvider<BusinessProfile?>((ref) async {
   }
 
   return businesses.first;
+});
+
+final businessNotificationRepositoryProvider =
+    Provider<BusinessNotificationRepository>((ref) {
+  return SupabaseBusinessNotificationRepository(
+    supabaseClient: ref.watch(supabaseClientProvider),
+  );
+});
+
+final businessNotificationPreferencesProvider =
+    FutureProvider.family<BusinessNotificationPreferences, String>((
+  ref,
+  businessId,
+) async {
+  return ref
+      .watch(businessNotificationRepositoryProvider)
+      .getPreferences(businessId);
 });

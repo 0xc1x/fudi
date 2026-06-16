@@ -51,6 +51,13 @@ interface UserPref {
   favorite_categories: string[];
 }
 
+interface NotifPref {
+  user_id: string;
+  push_enabled: boolean;
+  favorite_alerts_enabled: boolean;
+  last_minute_deals_enabled: boolean;
+}
+
 interface Business {
   id: string;
   name: string;
@@ -64,12 +71,27 @@ async function sendPush(
   data: Record<string, string>,
 ) {
   const { error } = await supabase.functions.invoke("send-push-notification", {
-    body: { user_ids: userIds, title, body, data, type: "nearby_offer" },
+    body: {
+      user_ids: userIds,
+      title,
+      body,
+      data,
+      type: "nearby_offer",
+      channel: "push",
+      pref_table: "consumer_notification_preferences",
+    },
   });
 
   if (error) {
     console.error("Failed to invoke send-push-notification:", error.message);
   }
+}
+
+function isLastMinuteOffer(offer: Offer): boolean {
+  const now = Date.now();
+  const pickupEnd = new Date(offer.pickup_end).getTime();
+  const diffMinutes = (pickupEnd - now) / 1000 / 60;
+  return diffMinutes <= 120; // 2 hours or less to pickup
 }
 
 Deno.serve(async () => {
@@ -107,17 +129,35 @@ Deno.serve(async () => {
     .in("business_id", businessIds)
     .eq("is_active", true);
 
-  // 3. Get users with push enabled and saved addresses
-  const { data: users } = await supabase
-    .from("user_preferences")
-    .select("user_id, notification_radius_km, favorite_categories")
-    .eq("push_notifications_enabled", true);
+  // 3. Get users with push enabled from notification preferences
+  const { data: notifPrefs } = await supabase
+    .from("consumer_notification_preferences")
+    .select("user_id, push_enabled, favorite_alerts_enabled, last_minute_deals_enabled")
+    .eq("push_enabled", true);
 
-  if (!users?.length) {
+  if (!notifPrefs?.length) {
     return json({ success: true, notified: 0 });
   }
 
-  const userIds = users.map((u: UserPref) => u.user_id);
+  // 4. Get UI preferences (radius, categories) for these users
+  const enabledUserIds = notifPrefs.map((n: NotifPref) => n.user_id);
+
+  const { data: userPrefs } = await supabase
+    .from("user_preferences")
+    .select("user_id, notification_radius_km, favorite_categories")
+    .in("user_id", enabledUserIds);
+
+  if (!userPrefs?.length) {
+    return json({ success: true, notified: 0 });
+  }
+
+  // 5. Build a combined preferences map
+  const notifPrefMap = new Map<string, NotifPref>();
+  for (const np of notifPrefs as NotifPref[]) {
+    notifPrefMap.set(np.user_id, np);
+  }
+
+  const userIds = userPrefs.map((u: UserPref) => u.user_id);
 
   const { data: addresses } = await supabase
     .from("saved_addresses")
@@ -133,10 +173,13 @@ Deno.serve(async () => {
     });
   }
 
-  // 4. For each user, find nearby offers in their favorite categories
+  // 6. For each user, find nearby offers respecting their notification preferences
   let totalNotified = 0;
 
-  for (const user of users as UserPref[]) {
+  for (const user of userPrefs as UserPref[]) {
+    const notifPref = notifPrefMap.get(user.user_id);
+    if (!notifPref) continue;
+
     const userAddr = userAddressMap.get(user.user_id);
     if (!userAddr) continue;
 
@@ -148,12 +191,23 @@ Deno.serve(async () => {
     const matchingOffers: Array<{ offer: Offer; business: Business; distance: number }> = [];
 
     for (const offer of offers as Offer[]) {
-      // Check favorite category first (fast filter)
-      if (
+      // Check last-minute deals preference
+      const isLastMinute = isLastMinuteOffer(offer);
+      if (isLastMinute && !notifPref.last_minute_deals_enabled) {
+        continue;
+      }
+
+      // Check favorite alerts preference
+      const hasFavCategory = offer.category &&
         favCategories.size > 0 &&
-        offer.category &&
-        !favCategories.has(offer.category.toLowerCase())
-      ) {
+        favCategories.has(offer.category.toLowerCase());
+
+      if (hasFavCategory && !notifPref.favorite_alerts_enabled) {
+        continue;
+      }
+
+      // If not a favorite category and not last-minute, skip
+      if (!hasFavCategory && !isLastMinute) {
         continue;
       }
 
@@ -214,6 +268,6 @@ Deno.serve(async () => {
     success: true,
     notified: totalNotified,
     total_offers: offers.length,
-    total_users: users.length,
+    total_users: userPrefs.length,
   });
 });

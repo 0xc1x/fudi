@@ -27,7 +27,7 @@ class SupabaseProfileRepository implements ProfileRepository {
     final response = await _supabaseClient
         .from('profiles')
         .select(
-          'id, email, full_name, avatar_url, phone, city, notification_radius_km',
+          'id, email, full_name, avatar_url, phone, city',
         )
         .eq('id', userId)
         .single();
@@ -39,7 +39,6 @@ class SupabaseProfileRepository implements ProfileRepository {
       avatarUrl: response['avatar_url'] as String?,
       phone: response['phone'] as String?,
       city: response['city'] as String?,
-      notificationRadiusKm: response['notification_radius_km'] as int? ?? 5,
     );
   }
 
@@ -57,29 +56,26 @@ class SupabaseProfileRepository implements ProfileRepository {
 
   @override
   Future<UserPreferences> getPreferences(String userId) async {
-    final response = await _supabaseClient
+    final upResponse = await _supabaseClient
         .from('user_preferences')
-        .select('''
-          language,
-          dark_mode,
-          push_notifications_enabled,
-          email_notifications_enabled,
-          notification_radius_km,
-          favorite_categories
-        ''')
+        .select('language, dark_mode, notification_radius_km, favorite_categories')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+    final notifResponse = await _supabaseClient
+        .from('consumer_notification_preferences')
+        .select('push_enabled, email_enabled')
         .eq('user_id', userId)
         .maybeSingle();
 
     return UserPreferences(
-      language: response?['language'] as String? ?? 'es',
-      darkMode: response?['dark_mode'] as bool? ?? false,
-      pushNotificationsEnabled:
-          response?['push_notifications_enabled'] as bool? ?? true,
-      emailNotificationsEnabled:
-          response?['email_notifications_enabled'] as bool? ?? true,
-      notificationRadiusKm: response?['notification_radius_km'] as int? ?? 5,
+      language: upResponse?['language'] as String? ?? 'es',
+      darkMode: upResponse?['dark_mode'] as bool? ?? false,
+      pushNotificationsEnabled: notifResponse?['push_enabled'] as bool? ?? true,
+      emailNotificationsEnabled: notifResponse?['email_enabled'] as bool? ?? true,
+      notificationRadiusKm: upResponse?['notification_radius_km'] as int? ?? 5,
       favoriteCategories:
-          (response?['favorite_categories'] as List<dynamic>? ?? const [])
+          (upResponse?['favorite_categories'] as List<dynamic>? ?? const [])
               .whereType<String>()
               .toList(),
     );
@@ -94,16 +90,15 @@ class SupabaseProfileRepository implements ProfileRepository {
       'user_id': userId,
       'language': preferences.language,
       'dark_mode': preferences.darkMode,
-      'push_notifications_enabled': preferences.pushNotificationsEnabled,
-      'email_notifications_enabled': preferences.emailNotificationsEnabled,
       'notification_radius_km': preferences.notificationRadiusKm,
       'favorite_categories': preferences.favoriteCategories,
     });
 
-    await _supabaseClient
-        .from('profiles')
-        .update({'notification_radius_km': preferences.notificationRadiusKm})
-        .eq('id', userId);
+    await _supabaseClient.from('consumer_notification_preferences').upsert({
+      'user_id': userId,
+      'push_enabled': preferences.pushNotificationsEnabled,
+      'email_enabled': preferences.emailNotificationsEnabled,
+    }, onConflict: 'user_id');
   }
 
   @override

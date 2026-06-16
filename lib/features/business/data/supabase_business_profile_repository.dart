@@ -228,6 +228,29 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
     }
   }
 
+  @override
+  Future<void> updateBusiness(BusinessProfile profile) async {
+    try {
+      final data = <String, dynamic>{
+        'name': profile.name,
+        'description': profile.description,
+        'address': profile.address,
+        'phone': profile.phone,
+        'email': profile.email,
+        'website': profile.website,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      };
+
+      await _supabaseClient.from('businesses').update(data).eq('id', profile.id);
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'business_profile');
+    } on FudiException {
+      rethrow;
+    } catch (e) {
+      throw UnknownDataException(message: 'Error al actualizar el negocio');
+    }
+  }
+
   Future<String> _uploadXFile(XFile xFile, String remotePath) async {
     try {
       final bytes = await xFile.readAsBytes();

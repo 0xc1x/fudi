@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../domain/business_profile.dart';
+import 'business_profile_providers.dart';
 import 'business_providers.dart';
 import 'components/no_business_prompt.dart';
 
@@ -24,6 +26,7 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
   final _email = TextEditingController();
   final _website = TextEditingController();
   var _loaded = false;
+  var _saving = false;
 
   @override
   void dispose() {
@@ -45,6 +48,47 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
     _phone.text = business.phone ?? '';
     _email.text = business.email ?? '';
     _website.text = business.website ?? '';
+  }
+
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _saving = true);
+    try {
+      final business = await ref.read(currentBusinessProvider.future);
+      if (business == null) return;
+
+      final updated = BusinessProfile(
+        id: business.id,
+        name: _name.text.trim(),
+        type: business.type,
+        address: _address.text.trim(),
+        rating: business.rating,
+        imageUrl: business.imageUrl,
+        coverImageUrl: business.coverImageUrl,
+        description: _description.text.trim().isEmpty
+            ? null
+            : _description.text.trim(),
+        phone: _phone.text.trim().isEmpty ? null : _phone.text.trim(),
+        email: _email.text.trim().isEmpty ? null : _email.text.trim(),
+        website: _website.text.trim().isEmpty ? null : _website.text.trim(),
+        latitude: business.latitude,
+        longitude: business.longitude,
+        reviewCount: business.reviewCount,
+        totalRescued: business.totalRescued,
+        memberSince: business.memberSince,
+        hours: business.hours,
+        reviews: business.reviews,
+      );
+
+      await ref
+          .read(businessProfileRepositoryProvider)
+          .updateBusiness(updated);
+
+      ref.invalidate(currentBusinessProvider);
+      if (mounted) context.pop();
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   @override
@@ -77,17 +121,8 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
                 _field('Sitio web', _website, required: false),
                 const SizedBox(height: FudiSpacing.lg),
                 FilledButton(
-                  onPressed: () {
-                    // El repositorio aún no expone updateBusiness. NO fingimos éxito.
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'La edición se habilitará cuando exista updateBusiness en el repositorio.',
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text('Guardar cambios'),
+                  onPressed: _saving ? null : _save,
+                  child: Text(_saving ? 'Guardando...' : 'Guardar cambios'),
                 ),
               ],
             ),

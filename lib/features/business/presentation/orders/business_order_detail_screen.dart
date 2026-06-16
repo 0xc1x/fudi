@@ -151,7 +151,7 @@ class _OrderDetailContent extends ConsumerWidget {
             left: 0,
             right: 0,
             bottom: 0,
-            child: _ActionBottomBar(order: order, businessId: business.id),
+            child: _ActionBottomBar(order: order, businessId: order.businessId),
           ),
       ],
     );

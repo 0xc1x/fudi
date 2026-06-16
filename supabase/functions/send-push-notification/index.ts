@@ -20,6 +20,12 @@ interface SendPushRequest {
   body: string;
   data?: Record<string, string>;
   type: string;
+  /** Optional: only send if this channel is enabled in user preferences */
+  channel?: "push" | "email" | "sms" | "whatsapp";
+  /** Optional: check preferences against this table. Default: consumer_notification_preferences */
+  pref_table?: "consumer_notification_preferences" | "business_notification_preferences";
+  /** Optional: only send if this preference column is true (e.g. new_orders_enabled) */
+  type_column?: string;
 }
 
 interface DeviceTokenRow {
@@ -127,6 +133,61 @@ async function getAccessToken(
   return data.access_token as string;
 }
 
+function isInQuietHours(
+  quietFrom: string | null,
+  quietTo: string | null,
+): boolean {
+  if (!quietFrom || !quietTo) return false;
+
+  const now = new Date();
+  const currentMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+
+  const [fromH, fromM] = quietFrom.split(":").map(Number);
+  const [toH, toM] = quietTo.split(":").map(Number);
+  const fromMinutes = fromH * 60 + fromM;
+  const toMinutes = toH * 60 + toM;
+
+  if (fromMinutes <= toMinutes) {
+    return currentMinutes >= fromMinutes && currentMinutes < toMinutes;
+  }
+  return currentMinutes >= fromMinutes || currentMinutes < toMinutes;
+}
+
+async function filterUsersByPreferences(
+  userIds: string[],
+  channel: string | undefined,
+  prefTable: string,
+  typeColumn?: string,
+): Promise<string[]> {
+  if (!channel && !typeColumn) return userIds;
+  if (userIds.length === 0) return [];
+
+  const channelColumn = channel ? `${channel}_enabled` : null;
+  const conditions: string[] = [];
+
+  if (channelColumn) {
+    conditions.push(`${channelColumn} = true`);
+  }
+  if (typeColumn) {
+    conditions.push(`${typeColumn} = true`);
+  }
+
+  if (conditions.length === 0) return userIds;
+
+  const whereClause = conditions.map((c) => `(user_id in ('${userIds.join("','")}') and ${c})`).join(" or ");
+
+  const { data: prefs } = await supabase
+    .from(prefTable)
+    .select("user_id, quiet_hours_from, quiet_hours_to")
+    .or(whereClause);
+
+  if (!prefs) return [];
+
+  return prefs
+    .filter((p) => !isInQuietHours(p.quiet_hours_from, p.quiet_hours_to))
+    .map((p) => p.user_id);
+}
+
 function buildFcmMessage(
   deviceToken: string,
   title: string,
@@ -219,6 +280,19 @@ Deno.serve(async (req) => {
     );
   }
 
+  const prefTable = body.pref_table ?? "consumer_notification_preferences";
+
+  const eligibleUserIds = await filterUsersByPreferences(
+    body.user_ids,
+    body.channel ?? "push",
+    prefTable,
+    body.type_column,
+  );
+
+  if (eligibleUserIds.length === 0) {
+    return json({ success: true, sent: 0, failed: 0, filtered: body.user_ids.length });
+  }
+
   const accessToken = await getAccessToken(sa.clientEmail, sa.privateKey);
   if (!accessToken) {
     return json(
@@ -230,7 +304,7 @@ Deno.serve(async (req) => {
   const { data: tokens, error: dbError } = await supabase
     .from("device_tokens")
     .select("id, user_id, token, platform")
-    .in("user_id", body.user_ids)
+    .in("user_id", eligibleUserIds)
     .eq("is_active", true);
 
   if (dbError) {
@@ -287,5 +361,6 @@ Deno.serve(async (req) => {
     sent: tokens.length - failedTokenIds.length - rejectCount,
     failed: failedTokenIds.length + rejectCount,
     deactivated: failedTokenIds.length,
+    filtered: body.user_ids.length - eligibleUserIds.length,
   });
 });

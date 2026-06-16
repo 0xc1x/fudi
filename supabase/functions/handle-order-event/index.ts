@@ -73,14 +73,37 @@ const STATUS_MESSAGES: Record<string, { consumer: string; business: string }> = 
   },
 };
 
+/** Map order event status to business notification preference column */
+function businessEventColumn(status: string): string | null {
+  switch (status) {
+    case "pending":
+    case "confirmed":
+      return "new_orders_enabled";
+    case "ready_for_pickup":
+      return "pickup_ready_enabled";
+    default:
+      return null; // Always send cancellations, expirations, etc.
+  }
+}
+
 async function sendPush(
   userIds: string[],
   title: string,
   body: string,
   data: Record<string, string>,
+  options?: { channel?: string; pref_table?: string; typeColumn?: string | null },
 ) {
   const { error } = await supabase.functions.invoke("send-push-notification", {
-    body: { user_ids: userIds, title, body, data, type: "order" },
+    body: {
+      user_ids: userIds,
+      title,
+      body,
+      data,
+      type: "order",
+      channel: options?.channel ?? "push",
+      pref_table: options?.pref_table ?? "consumer_notification_preferences",
+      ...(options?.typeColumn ? { type_column: options.typeColumn } : {}),
+    },
   });
 
   if (error) {
@@ -141,7 +164,7 @@ Deno.serve(async (req) => {
     link: "/orders/${order.id}",
   };
 
-  // Notify the consumer
+  // Notify the consumer (respects push_enabled + quiet hours via send-push-notification)
   if (messages) {
     await sendPush(
       [order.user_id],
@@ -179,11 +202,18 @@ Deno.serve(async (req) => {
       const businessMessage = messages?.business ??
         "Un pedido ha cambiado de estado.";
 
+      const eventColumn = businessEventColumn(event.status);
+
       await sendPush(
         [businessOwner.owner_id],
         "Pedido #${order.order_number} — ${statusLabel}",
         businessMessage,
         businessNotificationData,
+        {
+          pref_table: "business_notification_preferences",
+          channel: "push",
+          typeColumn: eventColumn,
+        },
       );
     }
   }

@@ -10,7 +10,6 @@ class ProfileDetails {
     this.avatarUrl,
     this.phone,
     this.city,
-    this.notificationRadiusKm = 5,
   });
 
   final String id;
@@ -19,7 +18,6 @@ class ProfileDetails {
   final String? avatarUrl;
   final String? phone;
   final String? city;
-  final int notificationRadiusKm;
 
   String get displayName {
     final trimmed = fullName?.trim();

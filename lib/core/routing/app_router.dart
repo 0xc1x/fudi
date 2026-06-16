@@ -348,7 +348,7 @@ GoRouter createAppRouter(
                 ),
               ),
               GoRoute(
-                path: 'edit/:id',
+                path: ':id/edit',
                 name: RouteNames.businessLocationEdit,
                 builder: (context, state) => BusinessLocationEditScreen(
                   locationId: state.pathParameters['id'],

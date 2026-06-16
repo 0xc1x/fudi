@@ -23,7 +23,6 @@ create table public.profiles (
   phone text,
   role public.app_role not null default 'user',
   city text,
-  notification_radius_km integer default 5,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -219,8 +218,39 @@ create table public.user_preferences (
   favorite_categories text[] default '{}'::text[],
   language text default 'es',
   dark_mode boolean default false,
-  push_notifications_enabled boolean default true,
-  email_notifications_enabled boolean default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.consumer_notification_preferences (
+  user_id uuid primary key references public.profiles(id),
+  push_enabled boolean not null default true,
+  email_enabled boolean not null default true,
+  sms_enabled boolean not null default false,
+  whatsapp_enabled boolean not null default false,
+  favorite_alerts_enabled boolean not null default true,
+  pickup_reminders_enabled boolean not null default true,
+  last_minute_deals_enabled boolean not null default false,
+  weekly_summary_enabled boolean not null default true,
+  quiet_hours_from time null,
+  quiet_hours_to time null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.business_notification_preferences (
+  business_id uuid primary key references public.businesses(id),
+  push_enabled boolean not null default true,
+  email_enabled boolean not null default true,
+  sms_enabled boolean not null default false,
+  whatsapp_enabled boolean not null default false,
+  new_orders_enabled boolean not null default true,
+  pickup_ready_enabled boolean not null default true,
+  reviews_enabled boolean not null default true,
+  low_stock_enabled boolean not null default false,
+  daily_summary_enabled boolean not null default true,
+  quiet_hours_from time null,
+  quiet_hours_to time null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -341,12 +371,17 @@ language plpgsql
 security definer
 set search_path to ''
 as $function$
-BEGIN
-  INSERT INTO public.user_preferences (user_id)
-  VALUES (NEW.id)
-  ON CONFLICT (user_id) DO NOTHING;
-  RETURN NEW;
-END;
+begin
+  insert into public.user_preferences (user_id)
+  values (new.id)
+  on conflict (user_id) do nothing;
+
+  insert into public.consumer_notification_preferences (user_id)
+  values (new.id)
+  on conflict (user_id) do nothing;
+
+  return new;
+end;
 $function$;
 
 create or replace function public.generate_order_number()

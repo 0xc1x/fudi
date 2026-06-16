@@ -1,82 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../domain/business_notification_preferences.dart';
+import '../business_providers.dart';
 
-class BusinessNotificationsScreen extends StatefulWidget {
+class BusinessNotificationsScreen extends ConsumerWidget {
   const BusinessNotificationsScreen({super.key});
 
   @override
-  State<BusinessNotificationsScreen> createState() =>
-      _BusinessNotificationsScreenState();
-}
-
-class _BusinessNotificationsScreenState
-    extends State<BusinessNotificationsScreen> {
-  final _settings = <_NotificationSetting>[
-    _NotificationSetting(
-      id: 'new-orders',
-      title: 'Nuevos pedidos',
-      description: 'Notificación cuando recibes un nuevo pedido',
-      icon: FudiIcons.shoppingBag,
-      enabled: true,
-    ),
-    _NotificationSetting(
-      id: 'pickup-ready',
-      title: 'Hora de recogida',
-      description: 'Recordatorio 30 minutos antes de la hora de recogida',
-      icon: FudiIcons.bell,
-      enabled: true,
-    ),
-    _NotificationSetting(
-      id: 'reviews',
-      title: 'Nuevas reseñas',
-      description: 'Cuando un cliente deja una reseña',
-      icon: FudiIcons.messageSquare,
-      enabled: true,
-    ),
-    _NotificationSetting(
-      id: 'low-stock',
-      title: 'Stock bajo',
-      description: 'Alerta cuando un producto tiene pocas unidades',
-      icon: FudiIcons.alertCircle,
-      enabled: false,
-    ),
-    _NotificationSetting(
-      id: 'daily-summary',
-      title: 'Resumen diario',
-      description: 'Estadísticas del día al final de la jornada',
-      icon: FudiIcons.trendingUp,
-      enabled: true,
-    ),
-  ];
-
-  final _channels = <_NotificationChannel>[
-    _NotificationChannel(
-      title: 'Notificaciones push',
-      subtitle: 'En la aplicación',
-      enabled: true,
-    ),
-    _NotificationChannel(
-      title: 'Email',
-      subtitle: 'centro@panaderiaartesanal.ec',
-      enabled: true,
-    ),
-    _NotificationChannel(
-      title: 'SMS',
-      subtitle: '+593 2 234 5678',
-      enabled: false,
-    ),
-  ];
-
-  TimeOfDay _quietFrom = const TimeOfDay(hour: 22, minute: 0);
-  TimeOfDay _quietTo = const TimeOfDay(hour: 8, minute: 0);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final businessAsync = ref.watch(currentBusinessProvider);
     return Scaffold(
       backgroundColor: FudiColors.background,
       appBar: AppBar(
@@ -109,23 +48,72 @@ class _BusinessNotificationsScreenState
         elevation: 0,
         backgroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(FudiSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildInfoBanner(),
-            const SizedBox(height: FudiSpacing.md),
-            _buildNotificationTypes(),
-            const SizedBox(height: FudiSpacing.md),
-            _buildChannels(),
-            const SizedBox(height: FudiSpacing.md),
-            _buildQuietHours(),
-            const SizedBox(height: FudiSpacing.lg),
-            _buildSaveButton(),
-            const SizedBox(height: 80),
-          ],
-        ),
+      body: businessAsync.when(
+        data: (business) {
+          if (business == null) {
+            return const Center(child: Text('No hay negocio seleccionado'));
+          }
+          return _BusinessNotificationsBody(businessId: business.id);
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('Error: $e')),
+      ),
+    );
+  }
+}
+
+class _BusinessNotificationsBody extends ConsumerWidget {
+  const _BusinessNotificationsBody({required this.businessId});
+
+  final String businessId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final prefsAsync = ref.watch(
+      businessNotificationPreferencesProvider(businessId),
+    );
+
+    return prefsAsync.when(
+      data: (prefs) => _Content(businessId: businessId, prefs: prefs),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text('Error: $e')),
+    );
+  }
+}
+
+class _Content extends ConsumerWidget {
+  const _Content({required this.businessId, required this.prefs});
+
+  final String businessId;
+  final BusinessNotificationPreferences prefs;
+
+  void _toggle(
+    WidgetRef ref,
+    BusinessNotificationPreferences Function(BusinessNotificationPreferences) update,
+  ) {
+    final updated = update(prefs);
+    ref
+        .read(businessNotificationRepositoryProvider)
+        .updatePreferences(businessId, updated);
+    ref.invalidate(businessNotificationPreferencesProvider(businessId));
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(FudiSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildInfoBanner(),
+          const SizedBox(height: FudiSpacing.md),
+          _buildEventTypes(ref),
+          const SizedBox(height: FudiSpacing.md),
+          _buildChannels(ref),
+          const SizedBox(height: FudiSpacing.md),
+          _buildQuietHours(ref),
+          const SizedBox(height: 80),
+        ],
       ),
     );
   }
@@ -188,92 +176,64 @@ class _BusinessNotificationsScreenState
     );
   }
 
-  Widget _buildNotificationTypes() {
+  Widget _buildEventTypes(WidgetRef ref) {
     return FudiSurfaceCard(
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(FudiSpacing.md),
-            child: const Text(
-              'Tipos de notificaciones',
-              style: FudiTypography.h4,
-            ),
+          const Padding(
+            padding: EdgeInsets.all(FudiSpacing.md),
+            child: Text('Tipos de notificaciones', style: FudiTypography.h4),
           ),
           const Divider(height: 1),
-          ..._settings.map((setting) => _buildSettingTile(setting)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingTile(_NotificationSetting setting) {
-    return Padding(
-      padding: const EdgeInsets.all(FudiSpacing.md),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: setting.enabled
-                  ? FudiColors.primary.withValues(alpha: 0.1)
-                  : FudiColors.muted,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              setting.icon,
-              size: 20,
-              color: setting.enabled
-                  ? FudiColors.primary
-                  : FudiColors.mutedForeground,
+          _EventTypeTile(
+            icon: FudiIcons.shoppingBag,
+            title: 'Nuevos pedidos',
+            description: 'Notificación cuando recibes un nuevo pedido',
+            value: prefs.newOrdersEnabled,
+            onChanged: (v) => _toggle(ref, (p) => p.copyWith(newOrdersEnabled: v)),
+          ),
+          _EventTypeTile(
+            icon: FudiIcons.bell,
+            title: 'Hora de recogida',
+            description: 'Recordatorio 30 minutos antes de la hora de recogida',
+            value: prefs.pickupReadyEnabled,
+            onChanged: (v) => _toggle(
+              ref,
+              (p) => p.copyWith(pickupReadyEnabled: v),
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  setting.title,
-                  style: FudiTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  setting.description,
-                  style: FudiTypography.bodySmall.copyWith(
-                    color: FudiColors.mutedForeground,
-                  ),
-                ),
-              ],
-            ),
+          _EventTypeTile(
+            icon: FudiIcons.messageSquare,
+            title: 'Nuevas reseñas',
+            description: 'Cuando un cliente deja una reseña',
+            value: prefs.reviewsEnabled,
+            onChanged: (v) => _toggle(ref, (p) => p.copyWith(reviewsEnabled: v)),
           ),
-          Switch(
-            value: setting.enabled,
-            onChanged: (val) {
-              setState(() {
-                final idx = _settings.indexWhere((s) => s.id == setting.id);
-                if (idx != -1) {
-                  _settings[idx] = _NotificationSetting(
-                    id: setting.id,
-                    title: setting.title,
-                    description: setting.description,
-                    icon: setting.icon,
-                    enabled: val,
-                  );
-                }
-              });
-            },
-            activeThumbColor: FudiColors.primary,
+          _EventTypeTile(
+            icon: FudiIcons.alertCircle,
+            title: 'Stock bajo',
+            description: 'Alerta cuando un producto tiene pocas unidades',
+            value: prefs.lowStockEnabled,
+            onChanged: (v) => _toggle(ref, (p) => p.copyWith(lowStockEnabled: v)),
+          ),
+          _EventTypeTile(
+            icon: FudiIcons.trendingUp,
+            title: 'Resumen diario',
+            description: 'Estadísticas del día al final de la jornada',
+            value: prefs.dailySummaryEnabled,
+            onChanged: (v) => _toggle(
+              ref,
+              (p) => p.copyWith(dailySummaryEnabled: v),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildChannels() {
+  Widget _buildChannels(WidgetRef ref) {
     return FudiSurfaceCard(
       padding: const EdgeInsets.all(FudiSpacing.md),
       child: Column(
@@ -281,59 +241,39 @@ class _BusinessNotificationsScreenState
         children: [
           const Text('Canales de notificación', style: FudiTypography.h4),
           const SizedBox(height: FudiSpacing.sm),
-          ..._channels.map((channel) => _buildChannelTile(channel)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChannelTile(_NotificationChannel channel) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FudiSpacing.sm),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  channel.title,
-                  style: FudiTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  channel.subtitle,
-                  style: FudiTypography.bodySmall.copyWith(
-                    color: FudiColors.mutedForeground,
-                  ),
-                ),
-              ],
-            ),
+          _ChannelTile(
+            title: 'Notificaciones push',
+            subtitle: 'En la aplicación',
+            value: prefs.pushEnabled,
+            onChanged: (v) => _toggle(ref, (p) => p.copyWith(pushEnabled: v)),
           ),
-          Switch(
-            value: channel.enabled,
-            onChanged: (val) {
-              setState(() {
-                final idx = _channels.indexOf(channel);
-                if (idx != -1) {
-                  _channels[idx] = _NotificationChannel(
-                    title: channel.title,
-                    subtitle: channel.subtitle,
-                    enabled: val,
-                  );
-                }
-              });
-            },
-            activeThumbColor: FudiColors.primary,
+          _ChannelTile(
+            title: 'Email',
+            subtitle: 'Correo electrónico',
+            value: prefs.emailEnabled,
+            onChanged: (v) => _toggle(ref, (p) => p.copyWith(emailEnabled: v)),
+          ),
+          _ChannelTile(
+            title: 'SMS',
+            subtitle: 'Próximamente',
+            value: prefs.smsEnabled,
+            onChanged: null,
+          ),
+          _ChannelTile(
+            title: 'WhatsApp',
+            subtitle: 'Próximamente',
+            value: prefs.whatsappEnabled,
+            onChanged: null,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildQuietHours() {
+  Widget _buildQuietHours(WidgetRef ref) {
+    final from = prefs.quietHoursFrom;
+    final to = prefs.quietHoursTo;
+
     return FudiSurfaceCard(
       padding: const EdgeInsets.all(FudiSpacing.md),
       child: Column(
@@ -351,18 +291,62 @@ class _BusinessNotificationsScreenState
           Row(
             children: [
               Expanded(
-                child: _buildTimeField(
+                child: _TimeField(
                   label: 'Desde',
-                  time: _quietFrom,
-                  onPick: (t) => setState(() => _quietFrom = t),
+                  value: from,
+                  onPicked: (t) {
+                    final updated = prefs.copyWith(quietHoursFrom: t);
+                    ref
+                        .read(businessNotificationRepositoryProvider)
+                        .updatePreferences(businessId, updated);
+                    ref.invalidate(
+                      businessNotificationPreferencesProvider(businessId),
+                    );
+                  },
+                  onClear: from == null
+                      ? null
+                      : () {
+                          final updated = prefs.copyWith(
+                            quietHoursFrom: null,
+                          );
+                          ref
+                              .read(businessNotificationRepositoryProvider)
+                              .updatePreferences(businessId, updated);
+                          ref.invalidate(
+                            businessNotificationPreferencesProvider(
+                              businessId,
+                            ),
+                          );
+                        },
                 ),
               ),
               const SizedBox(width: FudiSpacing.md),
               Expanded(
-                child: _buildTimeField(
+                child: _TimeField(
                   label: 'Hasta',
-                  time: _quietTo,
-                  onPick: (t) => setState(() => _quietTo = t),
+                  value: to,
+                  onPicked: (t) {
+                    final updated = prefs.copyWith(quietHoursTo: t);
+                    ref
+                        .read(businessNotificationRepositoryProvider)
+                        .updatePreferences(businessId, updated);
+                    ref.invalidate(
+                      businessNotificationPreferencesProvider(businessId),
+                    );
+                  },
+                  onClear: to == null
+                      ? null
+                      : () {
+                          final updated = prefs.copyWith(quietHoursTo: null);
+                          ref
+                              .read(businessNotificationRepositoryProvider)
+                              .updatePreferences(businessId, updated);
+                          ref.invalidate(
+                            businessNotificationPreferencesProvider(
+                              businessId,
+                            ),
+                          );
+                        },
                 ),
               ),
             ],
@@ -371,12 +355,140 @@ class _BusinessNotificationsScreenState
       ),
     );
   }
+}
 
-  Widget _buildTimeField({
-    required String label,
-    required TimeOfDay time,
-    required ValueChanged<TimeOfDay> onPick,
-  }) {
+class _EventTypeTile extends StatelessWidget {
+  const _EventTypeTile({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final IconData icon;
+  final String title;
+  final String description;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(FudiSpacing.md),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: value
+                  ? FudiColors.primary.withValues(alpha: 0.1)
+                  : FudiColors.muted,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: value ? FudiColors.primary : FudiColors.mutedForeground,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: FudiTypography.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  description,
+                  style: FudiTypography.bodySmall.copyWith(
+                    color: FudiColors.mutedForeground,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeThumbColor: FudiColors.primary,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChannelTile extends StatelessWidget {
+  const _ChannelTile({
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String title;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: FudiSpacing.sm),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: FudiTypography.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: FudiTypography.bodySmall.copyWith(
+                    color: FudiColors.mutedForeground,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeThumbColor: FudiColors.primary,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TimeField extends StatelessWidget {
+  const _TimeField({
+    required this.label,
+    required this.value,
+    required this.onPicked,
+    this.onClear,
+  });
+
+  final String label;
+  final String? value;
+  final ValueChanged<String> onPicked;
+  final VoidCallback? onClear;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -390,9 +502,16 @@ class _BusinessNotificationsScreenState
         const SizedBox(height: 4),
         InkWell(
           onTap: () async {
+            final initial = value != null
+                ? TimeOfDay(
+                    hour: int.parse(value!.split(':')[0]),
+                    minute: int.parse(value!.split(':')[1]),
+                  )
+                : const TimeOfDay(hour: 22, minute: 0);
+
             final picked = await showTimePicker(
               context: context,
-              initialTime: time,
+              initialTime: initial,
               builder: (ctx, child) => Theme(
                 data: Theme.of(ctx).copyWith(
                   colorScheme: const ColorScheme.light(
@@ -402,7 +521,11 @@ class _BusinessNotificationsScreenState
                 child: child!,
               ),
             );
-            if (picked != null) onPick(picked);
+            if (picked != null) {
+              onPicked(
+                '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}',
+              );
+            }
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -413,7 +536,25 @@ class _BusinessNotificationsScreenState
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(time.format(context), style: FudiTypography.bodyMedium),
+                Text(
+                  value != null ? value! : '--:--',
+                  style: FudiTypography.bodyMedium.copyWith(
+                    color: value != null
+                        ? FudiColors.foreground
+                        : FudiColors.mutedForeground,
+                  ),
+                ),
+                if (onClear != null) ...[
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: onClear,
+                    child: Icon(
+                      Icons.close,
+                      size: 16,
+                      color: FudiColors.mutedForeground,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -421,61 +562,4 @@ class _BusinessNotificationsScreenState
       ],
     );
   }
-
-  Widget _buildSaveButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Preferencias guardadas'),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: FudiColors.primary,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 4,
-        ),
-        child: const Text(
-          'Guardar cambios',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-      ),
-    );
-  }
-}
-
-class _NotificationSetting {
-  const _NotificationSetting({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.icon,
-    required this.enabled,
-  });
-
-  final String id;
-  final String title;
-  final String description;
-  final IconData icon;
-  final bool enabled;
-}
-
-class _NotificationChannel {
-  const _NotificationChannel({
-    required this.title,
-    required this.subtitle,
-    required this.enabled,
-  });
-
-  final String title;
-  final String subtitle;
-  final bool enabled;
 }
