@@ -12,6 +12,7 @@ import '../../../core/ui/fudi_typography.dart';
 import '../../../core/ui/fudi_star_rating.dart';
 import '../../offers/domain/offer.dart';
 import '../../offers/presentation/offer_providers.dart';
+import '../../profile/presentation/profile_providers.dart';
 import 'fudi_filters.dart';
 
 class ExploreMapView extends ConsumerStatefulWidget {
@@ -37,21 +38,31 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
   bool _mapReady = false;
   final Map<String, BitmapDescriptor> _markerCache = {};
 
-  static const _defaultCameraPosition = CameraPosition(
-    target: LatLng(4.665, -74.055),
-    zoom: 14,
+  static const _ecuadorCenter = CameraPosition(
+    target: LatLng(-1.8312, -78.1834),
+    zoom: 6,
   );
+
+  CameraPosition get _initialCameraPosition {
+    final selectedAddress = ref.read(userSelectedAddressProvider);
+    if (selectedAddress != null) {
+      return CameraPosition(
+        target: LatLng(selectedAddress.latitude, selectedAddress.longitude),
+        zoom: 14,
+      );
+    }
+    return _ecuadorCenter;
+  }
 
   @override
   Widget build(BuildContext context) {
     final offersAsync = ref.watch(filteredOffersProvider);
-    final locationAsync = ref.watch(userLocationProvider);
 
     return Scaffold(
       body: Stack(
         children: [
           GoogleMap(
-            initialCameraPosition: _defaultCameraPosition,
+            initialCameraPosition: _initialCameraPosition,
             onMapCreated: _onMapCreated,
             markers: _markers,
             myLocationEnabled: true,
@@ -118,7 +129,6 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
             data: (offers) {
               if (_mapReady) {
                 _updateMarkers(offers);
-                _maybeMoveToLocation(locationAsync);
               }
               return const SizedBox.shrink();
             },
@@ -322,19 +332,6 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
     image.dispose();
 
     return BitmapDescriptor.bytes(byteData!.buffer.asUint8List());
-  }
-
-  bool _movedToLocation = false;
-  void _maybeMoveToLocation(AsyncValue<dynamic> locationAsync) {
-    if (_movedToLocation) return;
-    locationAsync.whenData((position) {
-      if (position != null && _mapController != null) {
-        _mapController!.animateCamera(
-          CameraUpdate.newLatLng(LatLng(position.latitude, position.longitude)),
-        );
-        _movedToLocation = true;
-      }
-    });
   }
 
   void _zoomIn() {

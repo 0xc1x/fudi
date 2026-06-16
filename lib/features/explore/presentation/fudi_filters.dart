@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
+import '../../offers/presentation/offer_providers.dart';
 
 class FudiFilterState {
   const FudiFilterState({
@@ -46,7 +48,7 @@ class FudiFilterState {
   }
 }
 
-class FudiFiltersSheet extends StatefulWidget {
+class FudiFiltersSheet extends ConsumerStatefulWidget {
   const FudiFiltersSheet({
     required this.currentFilters,
     required this.onApply,
@@ -75,21 +77,23 @@ class FudiFiltersSheet extends StatefulWidget {
   }
 
   @override
-  State<FudiFiltersSheet> createState() => _FudiFiltersSheetState();
+  ConsumerState<FudiFiltersSheet> createState() => _FudiFiltersSheetState();
 }
 
-class _FudiFiltersSheetState extends State<FudiFiltersSheet> {
+class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
   late FudiFilterState _filters;
-
-  static const _categories = ['Japanese', 'Bakery', 'Italian', 'Cafe'];
+  List<String> _categories = [];
 
   static const _distanceOptions = [2.0, 5.0, 10.0];
-  static const _priceOptions = [10000.0, 20000.0, 50000.0];
+  static const _priceOptions = [2.0, 5.0, 10.0];
 
   @override
   void initState() {
     super.initState();
     _filters = widget.currentFilters;
+    ref.read(categoriesProvider.future).then((cats) {
+      if (mounted) setState(() => _categories = cats);
+    });
   }
 
   @override
@@ -136,28 +140,35 @@ class _FudiFiltersSheetState extends State<FudiFiltersSheet> {
           const SizedBox(height: FudiSpacing.lg),
           Text('Categoría', style: FudiTypography.labelMedium),
           const SizedBox(height: FudiSpacing.sm),
-          Wrap(
-            spacing: FudiSpacing.sm,
-            children: _categories.map((cat) {
-              final key = cat.toLowerCase();
-              final isSelected = _filters.category == key;
-              return FilterChip(
-                label: Text(cat),
-                selected: isSelected,
-                onSelected: (selected) {
-                  setState(() {
-                    _filters = _filters.copyWith(
-                      category: selected ? key : null,
-                      clearCategory: !selected,
-                    );
-                  });
-                },
-                selectedColor: FudiColors.secondary,
-                checkmarkColor: FudiColors.primary,
-                side: BorderSide(color: FudiColors.borderSolid),
-              );
-            }).toList(),
-          ),
+          if (_categories.isEmpty)
+            Text(
+              'No hay categorías disponibles',
+              style: FudiTypography.bodySmall.copyWith(
+                color: FudiColors.mutedForeground,
+              ),
+            )
+          else
+            Wrap(
+              spacing: FudiSpacing.sm,
+              children: _categories.map((cat) {
+                final isSelected = _filters.category == cat;
+                return FilterChip(
+                  label: Text(_categoryLabel(cat)),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    setState(() {
+                      _filters = _filters.copyWith(
+                        category: selected ? cat : null,
+                        clearCategory: !selected,
+                      );
+                    });
+                  },
+                  selectedColor: FudiColors.secondary,
+                  checkmarkColor: FudiColors.primary,
+                  side: BorderSide(color: FudiColors.borderSolid),
+                );
+              }).toList(),
+            ),
           const SizedBox(height: FudiSpacing.lg),
           Text('Distancia máxima', style: FudiTypography.labelMedium),
           const SizedBox(height: FudiSpacing.sm),
@@ -230,6 +241,11 @@ class _FudiFiltersSheetState extends State<FudiFiltersSheet> {
         ],
       ),
     );
+  }
+
+  String _categoryLabel(String cat) {
+    if (cat.isEmpty) return cat;
+    return '${cat[0].toUpperCase()}${cat.substring(1)}';
   }
 
   void _clearAll() {

@@ -9,6 +9,7 @@ import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_surface_card.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../../core/utils/geo_utils.dart';
+import '../../favorites/presentation/favorites_providers.dart';
 import '../../orders/presentation/order_providers.dart';
 import '../domain/offer.dart';
 import '../presentation/offer_providers.dart';
@@ -79,11 +80,10 @@ class _OfferDetailContent extends ConsumerStatefulWidget {
 }
 
 class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
-  bool _isFavorite = false;
-
   @override
   Widget build(BuildContext context) {
     final offer = widget.offer;
+    final isFavorite = ref.watch(favoritedOfferIdsProvider).contains(offer.id);
     final reservationState = ref.watch(reservationControllerProvider);
     final isReserving =
         reservationState.step == ReservationStep.reserving ||
@@ -135,11 +135,11 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent> {
                       top: MediaQuery.of(context).padding.top + 12,
                       right: 16,
                       child: _CircleButton(
-                        onTap: () => setState(() => _isFavorite = !_isFavorite),
-                        icon: _isFavorite
+                        onTap: () => ref.read(favoritedOfferIdsProvider.notifier).toggleFavorite(offer.id),
+                        icon: isFavorite
                             ? FudiIcons.heart
                             : FudiIcons.heartOutline,
-                        iconColor: _isFavorite
+                        iconColor: isFavorite
                             ? const Color(0xFFEF4444)
                             : FudiColors.foreground,
                       ),

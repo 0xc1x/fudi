@@ -153,11 +153,22 @@ class SupabaseOfferRepository implements OfferRepository {
         query = query.lte('discounted_price', maxPrice);
       }
       if (searchQuery != null && searchQuery.isNotEmpty) {
-        query = query.ilike('title', '%$searchQuery%');
+        query = query.or(
+          'title.ilike.%$searchQuery%,description.ilike.%$searchQuery%',
+        );
       }
 
       final response = await query.order('created_at', ascending: false);
       var offers = response.map(_mapOfferFromJson).toList();
+
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        final q = searchQuery.toLowerCase();
+        offers = offers.where((o) {
+          if (o.business.name.toLowerCase().contains(q)) return true;
+          if (o.description?.toLowerCase().contains(q) ?? false) return true;
+          return false;
+        }).toList();
+      }
 
       if (maxDistanceKm != null) {
         offers = offers.where((offer) {
@@ -308,6 +319,29 @@ class SupabaseOfferRepository implements OfferRepository {
 
       stats.sort((a, b) => b.deals.compareTo(a.deals));
       return stats.take(5).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  @override
+  Future<List<String>> getCategories() async {
+    try {
+      final activeCategories = await _supabaseClient
+          .from('offers')
+          .select('category')
+          .eq('is_active', true)
+          .gt('stock', 0)
+          .gt('pickup_end', DateTime.now().toUtc().toIso8601String());
+
+      final unique = activeCategories
+          .map((r) => r['category'] as String?)
+          .where((c) => c != null && c.isNotEmpty)
+          .cast<String>()
+          .toSet()
+          .toList();
+      unique.sort();
+      return unique;
     } catch (e) {
       return [];
     }

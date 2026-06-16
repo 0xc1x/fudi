@@ -47,6 +47,9 @@ final userOrdersProvider = FutureProvider<List<UserOrder>>((ref) async {
 final savedAddressesProvider = FutureProvider<List<SavedAddressModel>>((
   ref,
 ) async {
+  final authState = ref.watch(authSessionNotifierProvider);
+  final userId = authState.profile?.id;
+  if (userId == null) return [];
   return ref.watch(consumerProfileRepositoryProvider).getSavedAddresses();
 });
 

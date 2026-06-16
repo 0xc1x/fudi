@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/di/core_providers.dart';
 import '../../../core/error/user_friendly_message.dart';
@@ -18,15 +19,19 @@ class ProfileEditScreen extends ConsumerStatefulWidget {
 class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
+  late TextEditingController _emailController;
   late TextEditingController _phoneController;
   late TextEditingController _cityController;
   bool _saving = false;
+  String _originalEmail = '';
 
   @override
   void initState() {
     super.initState();
     final profile = ref.read(authSessionNotifierProvider).profile;
     _nameController = TextEditingController(text: profile?.fullName ?? '');
+    _emailController = TextEditingController(text: profile?.email ?? '');
+    _originalEmail = profile?.email ?? '';
     _phoneController = TextEditingController(text: profile?.phone ?? '');
     _cityController = TextEditingController(text: profile?.city ?? '');
   }
@@ -34,6 +39,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _emailController.dispose();
     _phoneController.dispose();
     _cityController.dispose();
     super.dispose();
@@ -90,6 +96,31 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                     (v == null || v.trim().isEmpty) ? 'Requerido' : null,
                 decoration: InputDecoration(
                   hintText: 'Tu nombre',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(FudiRadius.md),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: FudiSpacing.md,
+                    vertical: FudiSpacing.sm,
+                  ),
+                ),
+              ),
+              const SizedBox(height: FudiSpacing.lg),
+              Text('Correo electrónico', style: FudiTypography.labelMedium),
+              const SizedBox(height: FudiSpacing.xs),
+              TextFormField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'Requerido';
+                  final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                  if (!emailRegex.hasMatch(v.trim())) {
+                    return 'Correo inválido';
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  hintText: 'usuario@correo.com',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(FudiRadius.md),
                   ),
@@ -189,23 +220,32 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       final userId = supabase.auth.currentUser?.id;
       if (userId == null) return;
 
-      await supabase
-          .from('profiles')
-          .update({
-            'full_name': _nameController.text.trim(),
-            'phone': _phoneController.text.trim().isEmpty
-                ? null
-                : _phoneController.text.trim(),
-            'city': _cityController.text.trim().isEmpty
-                ? null
-                : _cityController.text.trim(),
-          })
-          .eq('id', userId);
+      final newEmail = _emailController.text.trim();
+
+      await supabase.from('profiles').update({
+        'full_name': _nameController.text.trim(),
+        'email': newEmail,
+        'phone': _phoneController.text.trim().isEmpty
+            ? null
+            : _phoneController.text.trim(),
+        'city': _cityController.text.trim().isEmpty
+            ? null
+            : _cityController.text.trim(),
+      }).eq('id', userId);
+
+      if (newEmail != _originalEmail) {
+        await supabase.auth.updateUser(UserAttributes(email: newEmail));
+      }
+
+      ref.invalidate(authSessionNotifierProvider);
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Perfil actualizado')));
+        final message = newEmail != _originalEmail
+            ? 'Perfil actualizado. Revisa tu nuevo correo para confirmar el cambio.'
+            : 'Perfil actualizado';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(message),
+        ));
         Navigator.of(context).pop();
       }
     } catch (e) {

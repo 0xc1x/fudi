@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -31,10 +33,11 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   FudiFilterState _filters = const FudiFilterState();
   bool _viewModeMap = false;
   String? _selectedCategory;
-  String? _selectedArea;
+  Timer? _searchDebounce;
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -51,7 +54,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
     final offersAsync = ref.watch(filteredOffersProvider);
     final statsAsync = ref.watch(categoryStatsProvider);
-    final areasAsync = ref.watch(popularAreasProvider);
 
     return Scaffold(
       body: CustomScrollView(
@@ -60,6 +62,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             child: _ExploreHeader(
               searchController: _searchController,
               onSubmitSearch: _submitSearch,
+              onSearchChanged: _onSearchChanged,
               onToggleMap: _toggleViewMode,
               onFilterTap: () => FudiFiltersSheet.show(
                 context,
@@ -91,17 +94,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 child: Center(child: CircularProgressIndicator()),
               ),
             ),
-            error: (_, _) => const SliverToBoxAdapter(child: SizedBox.shrink()),
-          ),
-          areasAsync.when(
-            data: (areas) => SliverToBoxAdapter(
-              child: _PopularAreasSection(
-                areas: areas,
-                selectedArea: _selectedArea,
-                onAreaTap: _handleAreaTap,
-              ),
-            ),
-            loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
             error: (_, _) => const SliverToBoxAdapter(child: SizedBox.shrink()),
           ),
           const SliverToBoxAdapter(child: _TipSection()),
@@ -191,7 +183,15 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     setState(() => _viewModeMap = !_viewModeMap);
   }
 
+  void _onSearchChanged(String query) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 400), () {
+      _submitSearch(query);
+    });
+  }
+
   void _submitSearch(String query) {
+    _searchDebounce?.cancel();
     _filters = _filters.copyWith(searchQuery: query);
     _loadOffers();
   }
@@ -212,15 +212,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       }
     });
     _loadOffers();
-  }
-
-  void _handleAreaTap(String areaName) {
-    setState(() {
-      _selectedArea = _selectedArea == areaName ? null : areaName;
-      if (_selectedArea != null) {
-        _viewModeMap = true;
-      }
-    });
   }
 
   void _clearFilter(String key) {
@@ -250,7 +241,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       _filters = _filters.clear();
       _searchController.clear();
       _selectedCategory = null;
-      _selectedArea = null;
     });
     _loadOffers();
   }
@@ -271,6 +261,7 @@ class _ExploreHeader extends StatelessWidget {
   const _ExploreHeader({
     required this.searchController,
     required this.onSubmitSearch,
+    this.onSearchChanged,
     required this.onToggleMap,
     required this.onFilterTap,
     required this.hasActiveFilters,
@@ -278,6 +269,7 @@ class _ExploreHeader extends StatelessWidget {
 
   final TextEditingController searchController;
   final ValueChanged<String> onSubmitSearch;
+  final ValueChanged<String>? onSearchChanged;
   final VoidCallback onToggleMap;
   final VoidCallback onFilterTap;
   final bool hasActiveFilters;
@@ -309,30 +301,46 @@ class _ExploreHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(height: FudiSpacing.md),
-            TextField(
-              controller: searchController,
-              onSubmitted: onSubmitSearch,
-              decoration: InputDecoration(
-                hintText: 'Buscar restaurantes, productos...',
-                hintStyle: FudiTypography.bodyMedium.copyWith(
-                  color: FudiColors.mutedForeground,
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: searchController,
+              builder: (context, value, _) => TextField(
+                controller: searchController,
+                onChanged: (query) => onSearchChanged?.call(query),
+                onSubmitted: onSubmitSearch,
+                decoration: InputDecoration(
+                  hintText: 'Buscar restaurantes, productos...',
+                  hintStyle: FudiTypography.bodyMedium.copyWith(
+                    color: FudiColors.mutedForeground,
+                  ),
+                  prefixIcon: const Icon(
+                    FudiIcons.search,
+                    color: FudiColors.mutedForeground,
+                  ),
+                  suffixIcon: value.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(
+                            FudiIcons.x,
+                            color: FudiColors.mutedForeground,
+                          ),
+                          onPressed: () {
+                            searchController.clear();
+                            onSubmitSearch('');
+                          },
+                        )
+                      : null,
+                  filled: true,
+                  fillColor: FudiColors.background,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(FudiRadius.lg),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: FudiSpacing.lg,
+                    vertical: FudiSpacing.md,
+                  ),
                 ),
-                prefixIcon: const Icon(
-                  FudiIcons.search,
-                  color: FudiColors.mutedForeground,
-                ),
-                filled: true,
-                fillColor: FudiColors.background,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(FudiRadius.lg),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: FudiSpacing.lg,
-                  vertical: FudiSpacing.md,
-                ),
+                style: FudiTypography.bodyMedium,
               ),
-              style: FudiTypography.bodyMedium,
             ),
             const SizedBox(height: FudiSpacing.md),
             Row(
@@ -517,136 +525,6 @@ class _CategoryCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
             Text('$count lugares', style: FudiTypography.bodySmall),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PopularAreasSection extends StatelessWidget {
-  const _PopularAreasSection({
-    required this.areas,
-    required this.selectedArea,
-    required this.onAreaTap,
-  });
-
-  final List<AreaStat> areas;
-  final String? selectedArea;
-  final ValueChanged<String> onAreaTap;
-
-  @override
-  Widget build(BuildContext context) {
-    if (areas.isEmpty) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.all(FudiSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Zonas populares', style: FudiTypography.headlineSmall),
-          const SizedBox(height: FudiSpacing.md),
-          ...areas.map((area) {
-            final isSelected = selectedArea == area.name;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: FudiSpacing.sm),
-              child: _AreaCard(
-                name: area.name,
-                deals: area.deals,
-                isSelected: isSelected,
-                onTap: () => onAreaTap(area.name),
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-}
-
-class _AreaCard extends StatelessWidget {
-  const _AreaCard({
-    required this.name,
-    required this.deals,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String name;
-  final int deals;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(FudiSpacing.md),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? FudiColors.primary.withValues(alpha: 0.05)
-              : FudiColors.background,
-          borderRadius: BorderRadius.circular(FudiRadius.lg),
-          border: Border.all(
-            color: isSelected ? FudiColors.primary : FudiColors.borderSolid,
-          ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: FudiColors.primary.withValues(alpha: 0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: isSelected ? FudiColors.primary : FudiColors.secondary,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                FudiIcons.mapPin,
-                size: 20,
-                color: isSelected
-                    ? FudiColors.primaryForeground
-                    : FudiColors.primary,
-              ),
-            ),
-            const SizedBox(width: FudiSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: FudiTypography.labelSmall),
-                  Text(
-                    '$deals ofertas disponibles',
-                    style: FudiTypography.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: isSelected ? FudiColors.primary : FudiColors.secondary,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.arrow_forward_rounded,
-                size: 16,
-                color: isSelected
-                    ? FudiColors.primaryForeground
-                    : FudiColors.primary,
-              ),
-            ),
           ],
         ),
       ),

@@ -148,6 +148,11 @@ final popularAreasProvider = FutureProvider<List<AreaStat>>((ref) async {
   return repo.getPopularAreas();
 });
 
+final categoriesProvider = FutureProvider<List<String>>((ref) async {
+  final repo = ref.watch(offerRepositoryProvider);
+  return repo.getCategories();
+});
+
 final filteredOffersProvider =
     AsyncNotifierProvider<FilteredOffersNotifier, List<Offer>>(
       FilteredOffersNotifier.new,
@@ -168,14 +173,25 @@ class FilteredOffersNotifier extends AsyncNotifier<List<Offer>> {
     final repo = ref.read(offerRepositoryProvider);
     final position = await ref.read(userLocationProvider.future);
 
+    final hasFilters = category != null ||
+        maxPrice != null ||
+        maxDistanceKm != null ||
+        (searchQuery != null && searchQuery.isNotEmpty);
+
     if (position == null) {
-      return repo.getPopularOffers();
+      if (!hasFilters) {
+        return repo.getPopularOffers();
+      }
+      return repo.getFilteredOffers(
+        lat: 0,
+        lng: 0,
+        category: category,
+        maxPrice: maxPrice,
+        searchQuery: searchQuery,
+      );
     }
 
-    if (category == null &&
-        maxPrice == null &&
-        maxDistanceKm == null &&
-        (searchQuery == null || searchQuery.isEmpty)) {
+    if (!hasFilters) {
       return repo.getNearbyOffers(
         lat: position.latitude,
         lng: position.longitude,
@@ -187,7 +203,7 @@ class FilteredOffersNotifier extends AsyncNotifier<List<Offer>> {
       lng: position.longitude,
       category: category,
       maxPrice: maxPrice,
-      maxDistanceKm: maxDistanceKm,
+      maxDistanceKm: maxDistanceKm ?? 10.0,
       searchQuery: searchQuery,
     );
   }

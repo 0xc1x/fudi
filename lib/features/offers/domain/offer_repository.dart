@@ -32,6 +32,8 @@ abstract class OfferRepository {
   Future<List<CategoryStat>> getCategoryStats();
 
   Future<List<AreaStat>> getPopularAreas();
+
+  Future<List<String>> getCategories();
 }
 
 class CategoryStat {
