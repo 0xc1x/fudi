@@ -37,6 +37,9 @@ migrate_working_dir/
 .ai/mcp/node_modules/
 .ai/mcp/package-lock.json
 
+# Generated build files
+web/firebase-config.js
+
 # Local environment files
 .env
 .env.local

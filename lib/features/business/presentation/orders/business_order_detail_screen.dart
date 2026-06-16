@@ -151,7 +151,7 @@ class _OrderDetailContent extends ConsumerWidget {
             left: 0,
             right: 0,
             bottom: 0,
-            child: _ActionBottomBar(order: order),
+            child: _ActionBottomBar(order: order, businessId: business.id),
           ),
       ],
     );
@@ -681,9 +681,14 @@ class _OrderInfoCard extends StatelessWidget {
 }
 
 class _ActionBottomBar extends ConsumerWidget {
-  const _ActionBottomBar({required this.order});
+  const _ActionBottomBar({required this.order, required this.businessId});
 
   final OrderModel order;
+  final String businessId;
+
+  void _invalidateOrders(WidgetRef ref) {
+    ref.invalidate(businessOrdersStreamProvider(businessId));
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -712,6 +717,7 @@ class _ActionBottomBar extends ConsumerWidget {
                   await ref
                       .read(businessOrderRepositoryProvider)
                       .updateOrderStatus(order.id, OrderStatus.readyForPickup);
+                  _invalidateOrders(ref);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -878,6 +884,7 @@ class _ActionBottomBar extends ConsumerWidget {
               );
               if (!ctx.mounted) return;
               if (result.success) {
+                _invalidateOrders(ref);
                 ctx.pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Entrega completada con éxito')),
@@ -915,6 +922,7 @@ class _ActionBottomBar extends ConsumerWidget {
               await ref
                   .read(businessOrderRepositoryProvider)
                   .updateOrderStatus(order.id, OrderStatus.cancelled);
+              _invalidateOrders(ref);
               if (!ctx.mounted) return;
               ctx.pop();
               if (context.mounted) context.pop();

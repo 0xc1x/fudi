@@ -10,6 +10,7 @@ import 'core/ui/fudi_spacing.dart';
 import 'core/ui/fudi_theme.dart';
 import 'core/ui/fudi_typography.dart';
 import 'features/auth/presentation/auth_state_provider.dart';
+import 'features/notifications/presentation/notification_handler.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +37,8 @@ class _FudiRootState extends State<_FudiRoot> {
   Future<void> _runBootstrap() async {
     try {
       final result = await AppBootstrap.run();
+      if (!mounted) return;
+      await initLocalNotifications();
       if (!mounted) return;
       setState(() => _bootstrapResult = result);
     } catch (e, st) {
@@ -149,7 +152,11 @@ class FudiApp extends ConsumerWidget {
       theme: FudiTheme.light(),
       routerConfig: router,
       builder: (context, child) {
-        return AuthFeedbackListener(child: child ?? const SizedBox.shrink());
+        return AuthFeedbackListener(
+          child: PushNotificationHandler(
+            child: child ?? const SizedBox.shrink(),
+          ),
+        );
       },
     );
   }

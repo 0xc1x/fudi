@@ -20,6 +20,10 @@ dependencies:
   # Backend
   supabase_flutter: ^2.12.4
 
+  # Push notifications
+  firebase_messaging: ^16.1.0
+  flutter_local_notifications: ^18.0.1
+
   # Observabilidad
   sentry_flutter: ^9.21.0
 

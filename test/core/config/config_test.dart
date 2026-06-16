@@ -70,6 +70,7 @@ void main() {
         firebaseProjectId: '',
         firebaseMessagingSenderId: '',
         firebaseAppId: '',
+        firebaseVapidKey: '',
       );
       expect(config.isDev, true);
       expect(config.isStaging, false);
@@ -88,6 +89,7 @@ void main() {
         firebaseProjectId: '',
         firebaseMessagingSenderId: '',
         firebaseAppId: '',
+        firebaseVapidKey: '',
       );
       expect(config.hasSentry, false);
     });
@@ -104,6 +106,7 @@ void main() {
         firebaseProjectId: '',
         firebaseMessagingSenderId: '',
         firebaseAppId: '',
+        firebaseVapidKey: '',
       );
       expect(config.hasSentry, true);
     });
@@ -120,6 +123,7 @@ void main() {
         firebaseProjectId: '',
         firebaseMessagingSenderId: '',
         firebaseAppId: '',
+        firebaseVapidKey: '',
       );
       expect(config.hasGoogleMaps, false);
     });
@@ -136,6 +140,7 @@ void main() {
         firebaseProjectId: 'fb-project',
         firebaseMessagingSenderId: 'fb-sender',
         firebaseAppId: 'fb-app',
+        firebaseVapidKey: 'vapid-key',
       );
       final str = config.toString();
       expect(str, contains('AppConfig'));

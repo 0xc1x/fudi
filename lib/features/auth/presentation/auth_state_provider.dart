@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as supa;
-
 import '../../../core/analytics/analytics_service.dart';
 import '../../../core/analytics/analytics_provider.dart';
 import '../../../core/analytics/events/auth_events.dart';
@@ -11,6 +9,7 @@ import '../../../core/analytics/models/user_properties.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/di/core_providers.dart';
 import '../../../core/observability/sentry_breadcrumb.dart';
+import '../../notifications/data/firebase_push_service.dart';
 import '../data/supabase_auth_repository.dart';
 import '../domain/auth_repository.dart';
 import '../domain/user_profile.dart';
@@ -55,8 +54,8 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
 
     _subscription = repository.watchAuthState().listen((nextState) {
       final previousState = state;
-      state = nextState.state;
       _lastEvent = nextState.event;
+      state = nextState.state;
 
       if (nextState.event == AuthFlowEvent.passwordRecovery) {
         _hasPendingPasswordRecovery = true;
@@ -226,6 +225,10 @@ class AuthController extends Notifier<AsyncValue<void>> {
       await _analytics.track(
         AuthLoginCompletedEvent(method: AuthMethod.email, isNewUser: false),
       );
+
+      final pushService = ref.read(pushServiceProvider);
+      await pushService.initialize();
+      await pushService.registerToken(profile.id);
     });
 
     state.whenOrNull(
@@ -280,6 +283,12 @@ class AuthController extends Notifier<AsyncValue<void>> {
         AuthSignupCompletedEvent(method: AuthMethod.email, role: role.name),
       );
 
+      if (result.profile != null) {
+        final pushService = ref.read(pushServiceProvider);
+        await pushService.initialize();
+        await pushService.registerToken(result.profile!.id);
+      }
+
       state = const AsyncValue.data(null);
       return result;
     } catch (error, stackTrace) {
@@ -294,6 +303,8 @@ class AuthController extends Notifier<AsyncValue<void>> {
     await _repository.signOut();
     await _analytics.track(AuthLogoutEvent());
     await _analytics.reset();
+    final pushService = ref.read(pushServiceProvider);
+    await pushService.unregisterToken();
     state = const AsyncValue.data(null);
   }
 

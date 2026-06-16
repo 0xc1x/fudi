@@ -30,7 +30,7 @@ class BusinessOrdersScreen extends ConsumerWidget {
           );
 
           return ordersStream.when(
-            data: (orders) => _OrdersContent(orders: orders),
+            data: (orders) => _OrdersContent(orders: orders, businessId: business.id),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, _) => Center(child: Text('Error: $e')),
           );
@@ -43,9 +43,10 @@ class BusinessOrdersScreen extends ConsumerWidget {
 }
 
 class _OrdersContent extends StatefulWidget {
-  const _OrdersContent({required this.orders});
+  const _OrdersContent({required this.orders, required this.businessId});
 
   final List<OrderModel> orders;
+  final String businessId;
 
   @override
   State<_OrdersContent> createState() => _OrdersContentState();
@@ -94,7 +95,7 @@ class _OrdersContentState extends State<_OrdersContent> {
         .map(
           (order) => Padding(
             padding: const EdgeInsets.only(bottom: FudiSpacing.md),
-            child: _OrderCard(order: order),
+            child: _OrderCard(order: order, businessId: widget.businessId),
           ),
         )
         .toList();
@@ -285,9 +286,10 @@ class _TabButton extends StatelessWidget {
 }
 
 class _OrderCard extends ConsumerWidget {
-  const _OrderCard({required this.order});
+  const _OrderCard({required this.order, required this.businessId});
 
   final OrderModel order;
+  final String businessId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -327,7 +329,7 @@ class _OrderCard extends ConsumerWidget {
               const SizedBox(height: FudiSpacing.md),
               const Divider(height: 1),
               const SizedBox(height: FudiSpacing.md),
-              _ActionButtons(order: order),
+              _ActionButtons(order: order, businessId: businessId),
             ],
           ],
         ),
@@ -366,9 +368,14 @@ class _InfoRow extends StatelessWidget {
 }
 
 class _ActionButtons extends ConsumerWidget {
-  const _ActionButtons({required this.order});
+  const _ActionButtons({required this.order, required this.businessId});
 
   final OrderModel order;
+  final String businessId;
+
+  void _invalidateOrders(WidgetRef ref) {
+    ref.invalidate(businessOrdersStreamProvider(businessId));
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -381,6 +388,7 @@ class _ActionButtons extends ConsumerWidget {
                 await ref
                     .read(businessOrderRepositoryProvider)
                     .updateOrderStatus(order.id, OrderStatus.readyForPickup);
+                _invalidateOrders(ref);
               },
               icon: const Icon(FudiIcons.checkCircle, size: 18),
               label: const Text('Marcar listo'),
@@ -396,6 +404,7 @@ class _ActionButtons extends ConsumerWidget {
               await ref
                   .read(businessOrderRepositoryProvider)
                   .updateOrderStatus(order.id, OrderStatus.cancelled);
+              _invalidateOrders(ref);
             },
             icon: Icon(
               FudiIcons.xCircle,
@@ -434,6 +443,7 @@ class _ActionButtons extends ConsumerWidget {
             await ref
                 .read(businessOrderRepositoryProvider)
                 .updateOrderStatus(order.id, OrderStatus.readyForPickup);
+            _invalidateOrders(ref);
           },
           icon: const Icon(FudiIcons.checkCircle, size: 18),
           label: const Text('Marcar listo'),

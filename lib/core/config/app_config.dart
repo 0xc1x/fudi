@@ -25,6 +25,7 @@ class AppConfig {
   final String firebaseProjectId;
   final String firebaseMessagingSenderId;
   final String firebaseAppId;
+  final String firebaseVapidKey;
 
   const AppConfig({
     required this.environment,
@@ -37,6 +38,7 @@ class AppConfig {
     required this.firebaseProjectId,
     required this.firebaseMessagingSenderId,
     required this.firebaseAppId,
+    required this.firebaseVapidKey,
   });
 
   /// Factory constructor that reads values from the currently loaded
@@ -55,6 +57,7 @@ class AppConfig {
       firebaseProjectId: _resolve('FIREBASE_PROJECT_ID'),
       firebaseMessagingSenderId: _resolve('FIREBASE_MESSAGING_SENDER_ID'),
       firebaseAppId: _resolve('FIREBASE_APP_ID'),
+      firebaseVapidKey: _resolve('FIREBASE_VAPID_KEY'),
     );
   }
 
@@ -127,6 +130,10 @@ const _dartDefine = {
   ),
   'FIREBASE_APP_ID': String.fromEnvironment(
     'FIREBASE_APP_ID',
+    defaultValue: '',
+  ),
+  'FIREBASE_VAPID_KEY': String.fromEnvironment(
+    'FIREBASE_VAPID_KEY',
     defaultValue: '',
   ),
 };

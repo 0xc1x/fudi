@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "283359512480",
+    "project_id": "fudi-abf43",
+    "storage_bucket": "fudi-abf43.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:283359512480:android:4e44cfd1b56e7b624686c5",
+        "android_client_info": {
+          "package_name": "com.fudi.role"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "283359512480-67tbatab0m8b7u1iv1e15v9pu29fo8mg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6YC-nVj6ahyrxMHfefjoBoYUPfclWsj8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "283359512480-67tbatab0m8b7u1iv1e15v9pu29fo8mg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

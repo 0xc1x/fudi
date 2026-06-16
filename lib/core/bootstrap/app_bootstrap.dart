@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/app_config.dart';
 import '../config/app_environment.dart';
@@ -61,6 +62,9 @@ class AppBootstrap {
         ),
       );
     }
+
+    // Initialize local notifications prefs for push handlers
+    await SharedPreferences.getInstance();
 
     bool sentryEnabled = false;
     if (config.hasSentry) {

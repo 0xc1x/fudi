@@ -14,6 +14,7 @@ import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../../core/utils/geo_utils.dart';
+import '../../auth/domain/auth_repository.dart';
 import '../../auth/domain/user_profile.dart';
 import '../../auth/presentation/auth_state_provider.dart';
 import '../../offers/domain/offer.dart';
@@ -622,6 +623,11 @@ class _WelcomeBanner extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
+    final lastEvent = ref.read(authSessionNotifierProvider.notifier).lastEvent;
+    if (lastEvent != AuthFlowEvent.signedIn) {
+      return const SizedBox.shrink();
+    }
+
     final state = ref.read(homeScreenStateProvider);
     if (state.welcomeShown) {
       return const SizedBox.shrink();
@@ -719,7 +725,15 @@ final homeScreenStateProvider =
 
 class HomeScreenStateNotifier extends Notifier<HomeScreenState> {
   @override
-  HomeScreenState build() => HomeScreenState();
+  HomeScreenState build() {
+    ref.listen(authSessionNotifierProvider, (previous, next) {
+      final wasUnauthenticated = previous == null || !previous.isAuthenticated;
+      if (wasUnauthenticated && next.isAuthenticated) {
+        state = HomeScreenState(welcomeShown: false);
+      }
+    });
+    return HomeScreenState();
+  }
 
   void markWelcomeShown() {
     state = HomeScreenState(welcomeShown: true);
