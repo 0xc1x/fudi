@@ -1,36 +1,53 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../../../core/utils/reverse_geocode.dart';
+import '../../../../core/utils/map_style.dart';
 
-class MapPickerScreen extends StatefulWidget {
+class MapPickerResult {
+  const MapPickerResult({
+    required this.coordinates,
+    required this.address,
+    this.zone,
+  });
+
+  final LatLng coordinates;
+  final String address;
+  final String? zone;
+}
+
+class MapPickerScreen extends ConsumerStatefulWidget {
   const MapPickerScreen({super.key, this.initialLocation});
 
   final LatLng? initialLocation;
 
   @override
-  State<MapPickerScreen> createState() => _MapPickerScreenState();
+  ConsumerState<MapPickerScreen> createState() => _MapPickerScreenState();
 }
 
-class _MapPickerScreenState extends State<MapPickerScreen> {
+class _MapPickerScreenState extends ConsumerState<MapPickerScreen> {
   late LatLng _currentLocation;
   GoogleMapController? _mapController;
   bool _loading = true;
+  String _currentAddress = '';
 
   @override
   void initState() {
     super.initState();
     _currentLocation =
         widget.initialLocation ??
-        const LatLng(-0.22985, -78.52495); // Default to Quito
+        const LatLng(-0.22985, -78.52495);
     _determinePosition();
   }
 
   Future<void> _determinePosition() async {
     if (widget.initialLocation != null) {
+      await _reverseGeocode(_currentLocation);
       setState(() => _loading = false);
       return;
     }
@@ -62,10 +79,9 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
           timeLimit: Duration(seconds: 10),
         ),
       );
-      setState(() {
-        _currentLocation = LatLng(position.latitude, position.longitude);
-        _loading = false;
-      });
+      _currentLocation = LatLng(position.latitude, position.longitude);
+      await _reverseGeocode(_currentLocation);
+      if (mounted) setState(() => _loading = false);
 
       _mapController?.animateCamera(
         CameraUpdate.newLatLngZoom(_currentLocation, 16),
@@ -85,6 +101,20 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
     }
   }
 
+  String? _zone;
+
+  Future<void> _reverseGeocode(LatLng location) async {
+    final result = await reverseGeocode(
+      latitude: location.latitude,
+      longitude: location.longitude,
+    );
+    if (result.displayName.isNotEmpty) {
+      _currentAddress = result.displayName;
+      _zone = result.bestZoneName.isNotEmpty ? result.bestZoneName : null;
+    }
+    if (mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,6 +131,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             const Center(child: CircularProgressIndicator())
           else
             GoogleMap(
+              style: kMapStyleNoPoi,
               initialCameraPosition: CameraPosition(
                 target: _currentLocation,
                 zoom: 16,
@@ -109,6 +140,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
               onCameraMove: (position) {
                 _currentLocation = position.target;
               },
+              onCameraIdle: () => _reverseGeocode(_currentLocation),
               myLocationEnabled: true,
               myLocationButtonEnabled: false,
               zoomControlsEnabled: false,
@@ -118,9 +150,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
           if (!_loading)
             Center(
               child: Padding(
-                padding: const EdgeInsets.only(
-                  bottom: 35,
-                ), // Adjust for pin center
+                padding: const EdgeInsets.only(bottom: 35),
                 child: Icon(
                   Icons.location_on,
                   size: 50,
@@ -148,18 +178,46 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Mueve el mapa para ubicar el pin en la entrada de tu local',
-                    textAlign: TextAlign.center,
-                    style: FudiTypography.bodySmall,
-                  ),
-                  const SizedBox(height: FudiSpacing.md),
+                  if (_currentAddress.isNotEmpty) ...[
+                    Row(
+                      children: [
+                        const Icon(
+                          FudiIcons.mapPin,
+                          size: 16,
+                          color: FudiColors.primary,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            _currentAddress,
+                            style: FudiTypography.bodySmall,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: FudiSpacing.sm),
+                  ],
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context, _currentLocation);
+                      onPressed: () async {
+                        if (_currentAddress.isEmpty) {
+                          await _reverseGeocode(_currentLocation);
+                        }
+                        if (context.mounted) {
+                          Navigator.pop(
+                            context,
+                            MapPickerResult(
+                              coordinates: _currentLocation,
+                              address: _currentAddress,
+                              zone: _zone,
+                            ),
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: FudiColors.primary,

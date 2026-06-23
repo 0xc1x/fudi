@@ -80,8 +80,11 @@ class SupabaseOrderRepository implements OrderRepository {
           id, user_id, offer_id, business_id, order_number, status,
           price, original_price, pickup_code, pickup_time, coupon_id,
           created_at,
-          offers!inner (title, image),
-          businesses!inner (name, address, phone)
+          offers!inner (
+            title, image,
+            business_locations:business_location_id (address)
+          ),
+          businesses!inner (name, phone)
         ''')
           .eq('user_id', userId)
           .order('created_at', ascending: false);
@@ -105,8 +108,11 @@ class SupabaseOrderRepository implements OrderRepository {
           id, user_id, offer_id, business_id, order_number, status,
           price, original_price, pickup_code, pickup_time, coupon_id,
           created_at,
-          offers!inner (title, image),
-          businesses!inner (name, address, phone)
+          offers!inner (
+            title, image,
+            business_locations:business_location_id (address)
+          ),
+          businesses!inner (name, phone)
         ''')
           .eq('id', id)
           .maybeSingle();
@@ -195,6 +201,8 @@ class SupabaseOrderRepository implements OrderRepository {
   OrderModel _mapOrderFromJson(Map<String, dynamic> json) {
     final offerJson = json['offers'] as Map<String, dynamic>?;
     final businessJson = json['businesses'] as Map<String, dynamic>?;
+    final locationJson =
+        offerJson?['business_locations'] as Map<String, dynamic>?;
 
     return OrderModel(
       id: json['id'] as String,
@@ -214,7 +222,7 @@ class SupabaseOrderRepository implements OrderRepository {
       offerTitle: offerJson?['title'] as String? ?? '',
       offerImageUrl: offerJson?['image'] as String?,
       businessName: businessJson?['name'] as String? ?? '',
-      businessAddress: businessJson?['address'] as String?,
+      businessAddress: locationJson?['address'] as String?,
       businessPhone: businessJson?['phone'] as String?,
     );
   }

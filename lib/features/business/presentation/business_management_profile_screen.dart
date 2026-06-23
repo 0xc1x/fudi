@@ -56,7 +56,7 @@ class BusinessManagementProfileScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(FudiSpacing.md),
                 child: Column(
                   children: [
-                    _Info(icon: FudiIcons.mapPin, value: business.address),
+                    _Info(icon: FudiIcons.mapPin, value: business.address ?? ''),
                     if (business.phone != null)
                       _Info(icon: FudiIcons.phone, value: business.phone!),
                     if (business.email != null)

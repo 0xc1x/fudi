@@ -13,7 +13,9 @@ import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../../core/utils/geo_utils.dart';
+import '../../../core/routing/route_names.dart';
 import '../../offers/domain/offer.dart';
+import '../../offers/domain/offer_category.dart';
 import '../../offers/domain/offer_repository.dart';
 import '../../offers/presentation/offer_providers.dart';
 import 'explore_screen_content.dart';
@@ -32,7 +34,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   final _searchController = TextEditingController();
   FudiFilterState _filters = const FudiFilterState();
   bool _viewModeMap = false;
-  String? _selectedCategory;
+  OfferCategory? _selectedCategory;
   Timer? _searchDebounce;
 
   @override
@@ -98,7 +100,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           ),
           const SliverToBoxAdapter(child: _TipSection()),
           SliverToBoxAdapter(
-            child: _SectionHeader(title: 'Ofertas disponibles', onSeeAll: null),
+            child: _SectionHeader(
+              title: 'Ofertas disponibles',
+              onSeeAll: () => context.push(RouteNames.allOffersPath, extra: AllOffersView.nearby),
+            ),
           ),
           offersAsync.when(
             data: (offers) => offers.isEmpty
@@ -150,7 +155,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final isFavorite = ref.watch(favoritedOfferIdsProvider).contains(offer.id);
 
     return DealCard(
-      imageUrl: offer.imageUrl ?? '',
+      imageUrl: offer.imageUrl ?? offer.business.imageUrl ?? '',
       businessName: offer.business.name,
       businessType: offer.business.type,
       originalPrice: offer.originalPrice,
@@ -159,9 +164,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       distance: distance,
       availableQuantity: offer.stock,
       pickupUntil: offer.pickupUntilTimeOfDay,
-      categoryLabel: offer.categoryLabel.isNotEmpty
-          ? offer.categoryLabel
-          : null,
+      categoryLabel: offer.categoryLabel,
       isFavorite: isFavorite,
       onFavoriteToggle: () =>
           ref.read(favoritedOfferIdsProvider.notifier).toggleFavorite(offer.id),
@@ -202,8 +205,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   }
 
   void _handleCategoryTap(String categoryId) {
+    final category = OfferCategory.fromDb(categoryId);
     setState(() {
-      _selectedCategory = _selectedCategory == categoryId ? null : categoryId;
+      _selectedCategory = _selectedCategory == category ? null : category;
       if (_selectedCategory != null) {
         _filters = _filters.copyWith(category: _selectedCategory);
         _viewModeMap = true;
@@ -421,7 +425,7 @@ class _HeaderPillButton extends StatelessWidget {
   }
 }
 
-class _CategoryGrid extends StatelessWidget {
+class _CategoryGrid extends ConsumerStatefulWidget {
   const _CategoryGrid({
     required this.stats,
     required this.selectedCategory,
@@ -429,12 +433,25 @@ class _CategoryGrid extends StatelessWidget {
   });
 
   final List<CategoryStat> stats;
-  final String? selectedCategory;
+  final OfferCategory? selectedCategory;
   final ValueChanged<String> onCategoryTap;
 
   @override
+  ConsumerState<_CategoryGrid> createState() => _CategoryGridState();
+}
+
+class _CategoryGridState extends ConsumerState<_CategoryGrid> {
+  bool _showAll = false;
+  static const _initialCount = 5;
+
+  @override
   Widget build(BuildContext context) {
-    if (stats.isEmpty) return const SizedBox.shrink();
+    if (widget.stats.isEmpty) return const SizedBox.shrink();
+
+    final display = _showAll
+        ? widget.stats
+        : widget.stats.take(_initialCount).toList();
+    final remaining = widget.stats.length - _initialCount;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -446,6 +463,9 @@ class _CategoryGrid extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── Popular Areas ─────────────────────────────────────────
+          const _PopularAreasSection(),
+          const SizedBox(height: FudiSpacing.lg),
           Text('Categorías', style: FudiTypography.headlineSmall),
           const SizedBox(height: FudiSpacing.md),
           GridView.count(
@@ -454,19 +474,163 @@ class _CategoryGrid extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: FudiSpacing.sm,
             crossAxisSpacing: FudiSpacing.sm,
-            childAspectRatio: 1.35,
-            children: stats.map((cat) {
-              final isSelected = selectedCategory == cat.id;
-              return _CategoryCard(
-                emoji: cat.emoji,
-                name: cat.name,
-                count: cat.count,
-                isSelected: isSelected,
-                onTap: () => onCategoryTap(cat.id),
-              );
-            }).toList(),
+            childAspectRatio: 4.0,
+            children: [
+              ...display.map((cat) {
+                final isSelected =
+                    widget.selectedCategory?.dbValue == cat.id;
+                return _CategoryCard(
+                  emoji: cat.emoji,
+                  name: cat.name,
+                  count: cat.count,
+                  isSelected: isSelected,
+                  onTap: () => widget.onCategoryTap(cat.id),
+                );
+              }),
+              if (!_showAll && remaining > 0)
+                _ExpandCard(
+                  remaining: remaining,
+                  icon: FudiIcons.chevronDown,
+                  label: '+$remaining',
+                  onTap: () => setState(() => _showAll = true),
+                ),
+              if (_showAll && widget.stats.length > _initialCount)
+                _ExpandCard(
+                  remaining: 0,
+                  icon: FudiIcons.chevronUp,
+                  label: 'Ver menos',
+                  onTap: () => setState(() => _showAll = false),
+                ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PopularAreasSection extends ConsumerWidget {
+  const _PopularAreasSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final areasAsync = ref.watch(popularAreasProvider);
+
+    return areasAsync.when(
+      data: (areas) {
+        if (areas.isEmpty) return const SizedBox.shrink();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Áreas Populares', style: FudiTypography.headlineSmall),
+            const SizedBox(height: FudiSpacing.md),
+            SizedBox(
+              height: 40,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: areas.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final area = areas[index];
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: FudiSpacing.md,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: FudiColors.secondary.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(FudiRadius.full),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          FudiIcons.mapPin,
+                          size: 14,
+                          color: FudiColors.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          area.name,
+                          style: FudiTypography.bodySmall.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: FudiColors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(
+                              FudiRadius.sm,
+                            ),
+                          ),
+                          child: Text(
+                            '${area.deals}',
+                            style: FudiTypography.bodySmall.copyWith(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: FudiColors.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+      error: (_, _) => const SizedBox.shrink(),
+      loading: () => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _ExpandCard extends StatelessWidget {
+  const _ExpandCard({
+    required this.remaining,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final int remaining;
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: FudiColors.muted.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(FudiRadius.lg),
+          border: Border.all(
+            color: FudiColors.borderSolid,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 24, color: FudiColors.mutedForeground),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: FudiTypography.bodySmall.copyWith(
+                fontWeight: FontWeight.w700,
+                color: FudiColors.mutedForeground,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -493,7 +657,10 @@ class _CategoryCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(FudiSpacing.md),
+        padding: const EdgeInsets.symmetric(
+          horizontal: FudiSpacing.sm,
+          vertical: FudiSpacing.xs,
+        ),
         decoration: BoxDecoration(
           color: isSelected
               ? FudiColors.primary.withValues(alpha: 0.05)
@@ -512,19 +679,25 @@ class _CategoryCard extends StatelessWidget {
                 ]
               : null,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 28)),
-            const SizedBox(height: FudiSpacing.sm),
-            Text(
-              name,
-              style: FudiTypography.labelSmall,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            Text(emoji, style: const TextStyle(fontSize: 20)),
+            const SizedBox(width: FudiSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    name,
+                    style: FudiTypography.labelSmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text('$count lugares', style: FudiTypography.bodySmall),
+                ],
+              ),
             ),
-            Text('$count lugares', style: FudiTypography.bodySmall),
           ],
         ),
       ),
@@ -625,7 +798,7 @@ class _ActiveFiltersBar extends StatelessWidget {
     if (filters.category != null) {
       chips.add(
         _FilterChip(
-          label: filters.category!,
+          label: filters.category!.dbValue,
           onClear: () => onClear('category'),
         ),
       );

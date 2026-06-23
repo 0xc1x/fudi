@@ -32,7 +32,12 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: FudiColors.background,
+        borderRadius: BorderRadius.circular(FudiRadius.lg),
+        border: Border.all(color: FudiColors.borderSolid),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(FudiRadius.lg),

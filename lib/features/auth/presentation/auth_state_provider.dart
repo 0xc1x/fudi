@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supa;
 import '../../../core/analytics/analytics_service.dart';
 import '../../../core/analytics/analytics_provider.dart';
 import '../../../core/analytics/events/auth_events.dart';
@@ -43,6 +44,7 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
 
   Timer? _refreshTimer;
   int _refreshRetryCount = 0;
+  bool _initialRefreshAttempted = false;
   static const int _maxRefreshRetries = 3;
   static const Duration _refreshInterval = Duration(minutes: 30);
   static const Duration _refreshRetryDelay = Duration(seconds: 5);
@@ -87,6 +89,7 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
 
     if (initialState.isAuthenticated) {
       _startRefreshTimer();
+      _refreshSession(session: initialState.session);
     }
 
     ref.onDispose(() {
@@ -108,9 +111,9 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
     _refreshTimer = null;
   }
 
-  Future<void> _refreshSession() async {
+  Future<void> _refreshSession({supa.Session? session}) async {
     final repository = ref.read(authRepositoryProvider);
-    final currentSession = state.session;
+    final currentSession = session ?? state.session;
 
     if (currentSession == null) {
       _stopRefreshTimer();
@@ -130,6 +133,9 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
       final newSession = await repository.refreshSession();
       if (newSession != null) {
         _refreshRetryCount = 0;
+        if (!_initialRefreshAttempted) {
+          _initialRefreshAttempted = true;
+        }
         _refreshListenable._notify();
       } else {
         _handleRefreshFailure();
@@ -137,6 +143,11 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
     } catch (error) {
       _refreshRetryCount++;
       if (_refreshRetryCount >= _maxRefreshRetries) {
+        if (!_initialRefreshAttempted) {
+          _initialRefreshAttempted = true;
+          _refreshRetryCount = 0;
+          return;
+        }
         _handleRefreshFailure();
       } else {
         await Future.delayed(_refreshRetryDelay * _refreshRetryCount);
@@ -204,14 +215,17 @@ class AuthController extends Notifier<AsyncValue<void>> {
 
   Future<void> signIn({required String email, required String password}) async {
     state = const AsyncValue.loading();
-    SentryBreadcrumb.userAction('submit', 'login_form');
-    await _analytics.track(AuthLoginStartedEvent(method: AuthMethod.email));
 
-    state = await AsyncValue.guard(() async {
+    try {
+      SentryBreadcrumb.userAction('submit', 'login_form');
+      await _analytics.track(AuthLoginStartedEvent(method: AuthMethod.email));
+
       final profile = await _repository.signInWithEmail(
         email: email,
         password: password,
       );
+
+      state = const AsyncValue.data(null);
 
       _analytics.setConsent(profile.analyticsConsentGranted);
       await _analytics.setUserId(profile.id);
@@ -229,19 +243,16 @@ class AuthController extends Notifier<AsyncValue<void>> {
       final pushService = ref.read(pushServiceProvider);
       await pushService.initialize();
       await pushService.registerToken(profile.id);
-    });
-
-    state.whenOrNull(
-      error: (error, _) {
-        _sessionNotifier.markAuthError();
-        _analytics.track(
-          AuthLoginFailedEvent(
-            method: AuthMethod.email,
-            errorType: error.runtimeType.toString(),
-          ),
-        );
-      },
-    );
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
+      _sessionNotifier.markAuthError();
+      _analytics.track(
+        AuthLoginFailedEvent(
+          method: AuthMethod.email,
+          errorType: error.runtimeType.toString(),
+        ),
+      );
+    }
   }
 
   Future<SignUpResult> signUp({
@@ -301,11 +312,12 @@ class AuthController extends Notifier<AsyncValue<void>> {
     state = const AsyncValue.loading();
     _sessionNotifier.markSignOutRequested();
     await _repository.signOut();
+    state = const AsyncValue.data(null);
+
     await _analytics.track(AuthLogoutEvent());
     await _analytics.reset();
     final pushService = ref.read(pushServiceProvider);
     await pushService.unregisterToken();
-    state = const AsyncValue.data(null);
   }
 
   Future<void> sendPasswordResetEmail({required String email}) async {

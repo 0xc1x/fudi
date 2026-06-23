@@ -283,16 +283,19 @@ class _StatusBadge extends StatelessWidget {
   }
 
   (String, Color, Color) _badgeConfig(Coupon c) {
-    if (c.isValid)
+    if (c.isValid) {
       return ('Activo', const Color(0xFFDCFCE7), const Color(0xFF15803D));
-    if (c.isExpired)
+    }
+    if (c.isExpired) {
       return ('Expirado', const Color(0xFFFEE2E2), FudiColors.destructive);
-    if (c.isExhausted)
+    }
+    if (c.isExhausted) {
       return (
         'Límite alcanzado',
         const Color(0xFFFFEDD5),
         const Color(0xFFC2410C),
       );
+    }
     return ('Inactivo', FudiColors.muted, FudiColors.mutedForeground);
   }
 }

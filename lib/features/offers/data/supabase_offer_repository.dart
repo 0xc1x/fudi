@@ -7,6 +7,7 @@ import '../../../core/error/data_exceptions.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/postgrest_exception_mapper.dart';
 import '../domain/offer.dart';
+import '../domain/offer_category.dart';
 import '../domain/offer_repository.dart';
 
 class SupabaseOfferRepository implements OfferRepository {
@@ -17,12 +18,18 @@ class SupabaseOfferRepository implements OfferRepository {
 
   static const _earthRadiusKm = 6371.0;
 
+  static const kExpiringSoonWindowHours = 3;
+
   static const _selectFields = '''
-  id, business_id, title, description, image, category,
+  id, business_id, business_location_id, title, description, image, category,
   original_price, discounted_price, stock, initial_stock,
   pickup_start, pickup_end, is_active, rating, review_count,
+  created_at,
   businesses:business_id (
-    id, name, type, image, latitude, longitude, rating, address, review_count
+    id, name, type, image, rating, review_count
+  ),
+  business_locations:business_location_id (
+    id, name, address, latitude, longitude, zone
   )
   ''';
 
@@ -256,7 +263,6 @@ class SupabaseOfferRepository implements OfferRepository {
   @override
   Future<List<CategoryStat>> getCategoryStats() async {
     try {
-      // Get counts from Supabase
       final response = await _supabaseClient
           .from('offers')
           .select('category')
@@ -268,22 +274,22 @@ class SupabaseOfferRepository implements OfferRepository {
       for (final row in response) {
         final cat = row['category'] as String?;
         if (cat != null) {
-          counts[cat] = (counts[cat] ?? 0) + 1;
+          final category = OfferCategory.fromDb(cat);
+          if (category != null) {
+            counts[category.dbValue] = (counts[category.dbValue] ?? 0) + 1;
+          }
         }
       }
 
-      // Map to CategoryStat with emoji/name mapping
-      final stats = counts.entries.map((e) {
-        final (name, emoji) = _getCategoryInfo(e.key);
+      final stats = OfferCategory.values.map((cat) {
         return CategoryStat(
-          id: e.key,
-          name: name,
-          count: e.value,
-          emoji: emoji,
+          id: cat.dbValue,
+          name: cat.dbValue,
+          count: counts[cat.dbValue] ?? 0,
+          emoji: cat.emoji,
         );
       }).toList();
 
-      // Sort by count descending
       stats.sort((a, b) => b.count.compareTo(a.count));
       return stats;
     } catch (e) {
@@ -294,22 +300,23 @@ class SupabaseOfferRepository implements OfferRepository {
   @override
   Future<List<AreaStat>> getPopularAreas() async {
     try {
-      // In a real app, we might use a specific table or RPC
-      // For now, we'll derive it from business addresses (first part of address)
       final response = await _supabaseClient
           .from('offers')
-          .select('businesses(address)')
+          .select(
+            'business_locations!offers_business_location_id_fkey(zone)',
+          )
           .eq('is_active', true)
           .gt('stock', 0)
-          .gt('pickup_end', DateTime.now().toUtc().toIso8601String());
+          .gt('pickup_end', DateTime.now().toUtc().toIso8601String())
+          .limit(5000);
 
       final areaCounts = <String, int>{};
       for (final row in response) {
-        final business = row['businesses'] as Map<String, dynamic>?;
-        final address = business?['address'] as String?;
-        if (address != null) {
-          final area = address.split(',').first.trim();
-          areaCounts[area] = (areaCounts[area] ?? 0) + 1;
+        final location = row['business_locations']
+            as Map<String, dynamic>?;
+        final zone = location?['zone'] as String?;
+        if (zone != null && zone.isNotEmpty) {
+          areaCounts[zone] = (areaCounts[zone] ?? 0) + 1;
         }
       }
 
@@ -325,63 +332,284 @@ class SupabaseOfferRepository implements OfferRepository {
   }
 
   @override
-  Future<List<String>> getCategories() async {
-    try {
-      final activeCategories = await _supabaseClient
-          .from('offers')
-          .select('category')
-          .eq('is_active', true)
-          .gt('stock', 0)
-          .gt('pickup_end', DateTime.now().toUtc().toIso8601String());
+  Future<List<OfferCategory>> getCategories() async {
+    return OfferCategory.values.toList();
+  }
 
-      final unique = activeCategories
-          .map((r) => r['category'] as String?)
-          .where((c) => c != null && c.isNotEmpty)
-          .cast<String>()
-          .toSet()
-          .toList();
-      unique.sort();
-      return unique;
+  @override
+  Future<List<Offer>> getExpiringSoonOffers({
+    double? lat,
+    double? lng,
+    double radiusKm = 5,
+    int limit = 5,
+  }) async {
+    try {
+      final cutoff = DateTime.now().toUtc().add(
+        const Duration(hours: kExpiringSoonWindowHours),
+      );
+      final allOffers = await _fetchActiveOffers();
+      final now = DateTime.now().toUtc();
+
+      var filtered = allOffers.where((offer) {
+        return offer.pickupEnd.isAfter(now) && offer.pickupEnd.isBefore(cutoff);
+      }).toList();
+
+      if (lat != null && lng != null) {
+        filtered = filtered.where((offer) {
+          if (offer.business.latitude == null ||
+              offer.business.longitude == null) {
+            return false;
+          }
+          return _haversineKm(
+                lat,
+                lng,
+                offer.business.latitude!,
+                offer.business.longitude!,
+              ) <=
+              radiusKm;
+        }).toList();
+      }
+
+      filtered.sort((a, b) => a.pickupEnd.compareTo(b.pickupEnd));
+      return filtered.take(limit).toList();
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'offers');
+    } on FudiException {
+      rethrow;
     } catch (e) {
-      return [];
+      if (e is DataException || e is BusinessRuleException) rethrow;
+      throw UnknownDataException(
+        message: 'Error al cargar ofertas por expirar',
+      );
     }
   }
 
-  (String, String) _getCategoryInfo(String id) {
-    return switch (id.toLowerCase()) {
-      'bakery' => ('Panadería', '🥖'),
-      'restaurant' => ('Restaurante', '🍽️'),
-      'cafe' => ('Café', '☕'),
-      'grocery' => ('Mercado', '🛒'),
-      'pastry' => ('Pastelería', '🍰'),
-      'asian' => ('Asiática', '🍜'),
-      'italian' => ('Italiana', '🍕'),
-      'healthy' => ('Saludable', '🥗'),
-      _ => (id[0].toUpperCase() + id.substring(1), '📦'),
-    };
+  @override
+  Future<List<Offer>> getRecentOffers({
+    double? lat,
+    double? lng,
+    double radiusKm = 5,
+    int limit = 5,
+  }) async {
+    try {
+      final allOffers = await _fetchActiveOffers();
+
+      if (lat != null && lng != null) {
+        final nearby = allOffers.where((offer) {
+          if (offer.business.latitude == null ||
+              offer.business.longitude == null) {
+            return false;
+          }
+          return _haversineKm(
+                lat,
+                lng,
+                offer.business.latitude!,
+                offer.business.longitude!,
+              ) <=
+              radiusKm;
+        }).toList();
+
+        nearby.sort((a, b) {
+          final da = a.createdAt ?? DateTime(2000);
+          final db = b.createdAt ?? DateTime(2000);
+          return db.compareTo(da);
+        });
+        return nearby.take(limit).toList();
+      }
+
+      return allOffers.take(limit).toList();
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'offers');
+    } on FudiException {
+      rethrow;
+    } catch (e) {
+      if (e is DataException || e is BusinessRuleException) rethrow;
+      throw UnknownDataException(
+        message: 'Error al cargar ofertas recientes',
+      );
+    }
+  }
+
+  @override
+  Future<List<BusinessSummary>> getNearbyBusinesses({
+    double? lat,
+    double? lng,
+    double radiusKm = 5,
+    int limit = 5,
+  }) async {
+    try {
+      final allOffers = await _fetchActiveOffers();
+      final hasLocation = lat != null && lng != null;
+
+      final businessMap = <String, _BusinessSummaryBuilder>{};
+      for (final offer in allOffers) {
+        if (hasLocation) {
+          if (offer.business.latitude == null ||
+              offer.business.longitude == null) {
+            continue;
+          }
+          final distance = _haversineKm(
+            lat,
+            lng,
+            offer.business.latitude!,
+            offer.business.longitude!,
+          );
+          if (distance > radiusKm) continue;
+        }
+
+        businessMap.putIfAbsent(
+          offer.business.id,
+          () => _BusinessSummaryBuilder(id: offer.business.id),
+        );
+        final builder = businessMap[offer.business.id]!;
+        builder.name = offer.business.name;
+        builder.type = offer.business.type;
+        builder.address = offer.business.address;
+        builder.businessLocationId = offer.businessLocationId;
+        builder.zone = offer.business.zone;
+        builder.imageUrl = offer.business.imageUrl;
+        builder.latitude = offer.business.latitude;
+        builder.longitude = offer.business.longitude;
+        builder.rating = offer.business.rating;
+        builder.reviewCount = offer.business.reviewCount;
+        builder.activeDealsCount++;
+      }
+
+      final businesses = businessMap.values
+          .map((b) => b.build())
+          .toList()
+        ..sort((a, b) {
+          final da = a.distanceKm ?? double.infinity;
+          final db = b.distanceKm ?? double.infinity;
+          return da.compareTo(db);
+        });
+      return businesses.take(limit).toList();
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'offers');
+    } on FudiException {
+      rethrow;
+    } catch (e) {
+      if (e is DataException || e is BusinessRuleException) rethrow;
+      throw UnknownDataException(
+        message: 'Error al cargar negocios cercanos',
+      );
+    }
+  }
+
+  @override
+  Future<List<Offer>> getAllActiveOffers() async {
+    try {
+      return await _fetchActiveOffers();
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'offers');
+    } on FudiException {
+      rethrow;
+    } catch (e) {
+      if (e is DataException || e is BusinessRuleException) rethrow;
+      throw UnknownDataException(message: 'Error al cargar ofertas');
+    }
+  }
+
+  @override
+  Future<List<BusinessSummary>> getAllBusinesses({
+    double? lat,
+    double? lng,
+    double radiusKm = 10,
+    String? searchQuery,
+    String? type,
+    int limit = 50,
+  }) async {
+    try {
+      final allOffers = await _fetchActiveOffers();
+      final hasLocation = lat != null && lng != null;
+
+      final businessMap = <String, _BusinessSummaryBuilder>{};
+      for (final offer in allOffers) {
+        if (hasLocation) {
+          if (offer.business.latitude == null ||
+              offer.business.longitude == null) {
+            continue;
+          }
+          final distance = _haversineKm(
+            lat,
+            lng,
+            offer.business.latitude!,
+            offer.business.longitude!,
+          );
+          if (distance > radiusKm) continue;
+        }
+
+        if (type != null &&
+            offer.business.type.toLowerCase() != type.toLowerCase()) {
+          continue;
+        }
+        if (searchQuery != null &&
+            searchQuery.isNotEmpty &&
+            !offer.business.name.toLowerCase().contains(
+              searchQuery.toLowerCase(),
+            )) {
+          continue;
+        }
+
+        businessMap.putIfAbsent(
+          offer.business.id,
+          () => _BusinessSummaryBuilder(id: offer.business.id),
+        );
+        final builder = businessMap[offer.business.id]!;
+        builder.name = offer.business.name;
+        builder.type = offer.business.type;
+        builder.address = offer.business.address;
+        builder.businessLocationId = offer.businessLocationId;
+        builder.zone = offer.business.zone;
+        builder.imageUrl = offer.business.imageUrl;
+        builder.latitude = offer.business.latitude;
+        builder.longitude = offer.business.longitude;
+        builder.rating = offer.business.rating;
+        builder.reviewCount = offer.business.reviewCount;
+        builder.activeDealsCount++;
+      }
+
+      final businesses = businessMap.values
+          .map((b) => b.build())
+          .toList()
+        ..sort((a, b) => b.activeDealsCount.compareTo(a.activeDealsCount));
+      return businesses.take(limit).toList();
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'offers');
+    } on FudiException {
+      rethrow;
+    } catch (e) {
+      if (e is DataException || e is BusinessRuleException) rethrow;
+      throw UnknownDataException(message: 'Error al cargar negocios');
+    }
   }
 
   Offer _mapOfferFromJson(Map<String, dynamic> json) {
     final businessJson = json['businesses'] as Map<String, dynamic>;
+    final locationJson = json['business_locations']
+        as Map<String, dynamic>?;
 
     return Offer(
       id: json['id'] as String,
       businessId: json['business_id'] as String,
+      businessLocationId: json['business_location_id'] as String,
       business: BusinessInfo(
         id: businessJson['id'] as String,
         name: businessJson['name'] as String,
         type: businessJson['type'] as String,
         imageUrl: businessJson['image'] as String?,
-        latitude: _toDouble(businessJson['latitude']),
-        longitude: _toDouble(businessJson['longitude']),
+        address: locationJson?['address'] as String? ?? '',
+        businessLocationId: locationJson?['id'] as String?,
+        latitude: _toDouble(locationJson?['latitude']),
+        longitude: _toDouble(locationJson?['longitude']),
+        zone: locationJson?['zone'] as String?,
         rating: _toDouble(businessJson['rating']) ?? 0.0,
-        address: businessJson['address'] as String? ?? '',
         reviewCount: businessJson['review_count'] as int? ?? 0,
       ),
       title: json['title'] as String,
       description: json['description'] as String?,
       imageUrl: json['image'] as String?,
-      category: json['category'] as String?,
+      category: OfferCategory.fromDb(json['category'] as String?),
       originalPrice: _toDouble(json['original_price']) ?? 0.0,
       discountedPrice: _toDouble(json['discounted_price']) ?? 0.0,
       stock: json['stock'] as int? ?? 0,
@@ -391,6 +619,9 @@ class SupabaseOfferRepository implements OfferRepository {
       isActive: json['is_active'] as bool? ?? false,
       rating: _toDouble(json['rating']) ?? 0.0,
       reviewCount: json['review_count'] as int? ?? 0,
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'] as String)
+          : null,
     );
   }
 
@@ -416,4 +647,39 @@ class SupabaseOfferRepository implements OfferRepository {
   }
 
   double _toRad(double deg) => deg * math.pi / 180;
+}
+
+class _BusinessSummaryBuilder {
+  _BusinessSummaryBuilder({required this.id});
+  final String id;
+  String name = '';
+  String type = '';
+  String address = '';
+  String? businessLocationId;
+  String? zone;
+  String? imageUrl;
+  double? latitude;
+  double? longitude;
+  double rating = 0;
+  int reviewCount = 0;
+  int activeDealsCount = 0;
+  double? distanceKm;
+
+  BusinessSummary build() {
+    return BusinessSummary(
+      id: id,
+      name: name,
+      type: type,
+      address: address,
+      businessLocationId: businessLocationId,
+      zone: zone,
+      imageUrl: imageUrl,
+      latitude: latitude,
+      longitude: longitude,
+      rating: rating,
+      reviewCount: reviewCount,
+      activeDealsCount: activeDealsCount,
+      distanceKm: distanceKm,
+    );
+  }
 }

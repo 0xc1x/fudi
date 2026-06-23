@@ -16,8 +16,7 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
 
   static const _businessSelectFields = '''
     id, name, type, image, cover_image, rating, review_count,
-    description, address, phone, email, website,
-    latitude, longitude, created_at
+    description, phone, email, website, created_at
   ''';
 
   @override
@@ -35,9 +34,16 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
 
       final hoursFuture = getBusinessHours(businessId);
       final reviewsFuture = getBusinessReviews(businessId);
+      final locationFuture = _supabaseClient
+          .from('business_locations')
+          .select('id, address, latitude, longitude, zone')
+          .eq('business_id', businessId)
+          .eq('is_headquarter', true)
+          .maybeSingle();
 
       final hours = await hoursFuture;
       final reviews = await reviewsFuture;
+      final locationJson = await locationFuture;
 
       final ordersResponse = await _supabaseClient
           .from('orders')
@@ -47,7 +53,13 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
 
       final totalRescued = ordersResponse.length;
 
-      return _mapBusinessProfile(response, hours, reviews, totalRescued);
+      return _mapBusinessProfile(
+        response,
+        hours,
+        reviews,
+        totalRescued,
+        locationJson: locationJson,
+      );
     } on NotFoundException {
       rethrow;
     } on PostgrestException catch (e) {
@@ -160,15 +172,12 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
         'name': profile.name,
         'slug': slug,
         'type': profile.type.toLowerCase(),
-        'address': profile.address,
         'phone': profile.phone,
         'email': profile.email,
         'description': profile.description,
         'image': logoUrl,
         'cover_image': coverUrl,
         'website': profile.website,
-        'latitude': profile.latitude,
-        'longitude': profile.longitude,
         'rating': 0.0,
         'review_count': 0,
       };
@@ -207,7 +216,8 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
         await _supabaseClient.from('business_hours').insert(hoursData);
       }
 
-      if (profile.address.isNotEmpty &&
+      if (profile.address != null &&
+          profile.address!.isNotEmpty &&
           profile.latitude != null &&
           profile.longitude != null) {
         await _supabaseClient.from('business_locations').insert({
@@ -217,6 +227,8 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
           'phone': profile.phone,
           'latitude': profile.latitude,
           'longitude': profile.longitude,
+          'zone': profile.zone,
+          'is_headquarter': true,
         });
       }
     } on PostgrestException catch (e) {
@@ -234,7 +246,6 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
       final data = <String, dynamic>{
         'name': profile.name,
         'description': profile.description,
-        'address': profile.address,
         'phone': profile.phone,
         'email': profile.email,
         'website': profile.website,
@@ -280,8 +291,9 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
     Map<String, dynamic> json,
     List<BusinessHours> hours,
     List<BusinessReview> reviews,
-    int totalRescued,
-  ) {
+    int totalRescued, {
+    Map<String, dynamic>? locationJson,
+  }) {
     final createdAt = json['created_at'] as String?;
     String? memberSince;
     if (createdAt != null) {
@@ -293,7 +305,7 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
       id: json['id'] as String,
       name: json['name'] as String,
       type: _mapBusinessType(json['type'] as String?),
-      address: json['address'] as String? ?? '',
+      address: locationJson?['address'] as String?,
       rating: _toDouble(json['rating']) ?? 0.0,
       imageUrl: json['image'] as String?,
       coverImageUrl: json['cover_image'] as String?,
@@ -301,8 +313,10 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
       phone: json['phone'] as String?,
       email: json['email'] as String?,
       website: json['website'] as String?,
-      latitude: _toDouble(json['latitude']),
-      longitude: _toDouble(json['longitude']),
+      businessLocationId: locationJson?['id'] as String?,
+      latitude: _toDouble(locationJson?['latitude']),
+      longitude: _toDouble(locationJson?['longitude']),
+      zone: locationJson?['zone'] as String?,
       reviewCount: json['review_count'] as int? ?? 0,
       totalRescued: totalRescued,
       memberSince: memberSince,

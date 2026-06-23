@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,9 +8,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../../core/utils/map_style.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
-import '../../../core/ui/fudi_star_rating.dart';
 import '../../offers/domain/offer.dart';
 import '../../offers/presentation/offer_providers.dart';
 import '../../profile/presentation/profile_providers.dart';
@@ -36,6 +37,9 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
   Offer? _selectedOffer;
   Set<Marker> _markers = {};
   bool _mapReady = false;
+  bool _cameraInitialized = false;
+  bool _markersDirty = true;
+  List<Offer> _lastOffers = [];
   final Map<String, BitmapDescriptor> _markerCache = {};
 
   static const _ecuadorCenter = CameraPosition(
@@ -55,13 +59,65 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    ref.listenManual(filteredOffersProvider, (_, next) {
+      next.whenOrNull(data: (offers) {
+        if (_mapReady) {
+          _lastOffers = offers;
+          _markersDirty = true;
+          _syncMarkers();
+        }
+      });
+    });
+  }
+
+  void _syncMarkers() {
+    if (!_markersDirty || !_mapReady) return;
+    _markersDirty = false;
+
+    final offers = _lastOffers;
+    final newMarkers = <Marker>{};
+    for (final offer in offers) {
+      if (offer.business.latitude == null || offer.business.longitude == null) {
+        continue;
+      }
+      final position = LatLng(
+        offer.business.latitude!,
+        offer.business.longitude!,
+      );
+      final isSelected = _selectedOffer?.id == offer.id;
+      newMarkers.add(
+        Marker(
+          markerId: MarkerId(offer.id),
+          position: position,
+          onTap: () => _onMarkerTap(offer),
+          icon:
+              _markerCache['${offer.id}_$isSelected'] ??
+              BitmapDescriptor.defaultMarker,
+          anchor: const Offset(0.5, 1.0),
+          infoWindow: InfoWindow(
+            title: offer.title,
+            snippet: offer.business.name,
+          ),
+        ),
+      );
+    }
+    setState(() => _markers = newMarkers);
+    _generateMarkerIcons(offers);
+    _fitCameraToMarkers(newMarkers);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final offersAsync = ref.watch(filteredOffersProvider);
+    final hasOffers = offersAsync.whenOrNull(data: (o) => o.isNotEmpty) ?? false;
 
     return Scaffold(
       body: Stack(
         children: [
           GoogleMap(
+            style: kMapStyleNoPoi,
             initialCameraPosition: _initialCameraPosition,
             onMapCreated: _onMapCreated,
             markers: _markers,
@@ -74,6 +130,9 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
             onTap: (_) {
               if (_selectedOffer != null) {
                 setState(() => _selectedOffer = null);
+                _markerCache.clear();
+                _markersDirty = true;
+                _syncMarkers();
               }
             },
           ),
@@ -118,23 +177,44 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
           ),
 
           Positioned(
-            bottom: _selectedOffer != null ? 220 : 100,
+            bottom: _selectedOffer != null ? 360 : 100,
             right: FudiSpacing.lg,
             child: _MyLocationButton(onPress: _goToMyLocation),
           ),
 
           if (!_mapReady) const Center(child: CircularProgressIndicator()),
 
-          offersAsync.when(
-            data: (offers) {
-              if (_mapReady) {
-                _updateMarkers(offers);
-              }
-              return const SizedBox.shrink();
-            },
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
-          ),
+          if (_mapReady && !hasOffers)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 120,
+              left: FudiSpacing.lg,
+              right: FudiSpacing.lg,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: FudiSpacing.lg,
+                    vertical: FudiSpacing.md,
+                  ),
+                  decoration: BoxDecoration(
+                    color: FudiColors.background.withValues(alpha: 0.95),
+                    borderRadius: BorderRadius.circular(FudiRadius.lg),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'No hay ofertas disponibles en esta zona',
+                    style: FudiTypography.bodyMedium.copyWith(
+                      color: FudiColors.mutedForeground,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ),
 
           if (_selectedOffer != null)
             Positioned(
@@ -143,8 +223,11 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
               right: FudiSpacing.lg,
               child: _SelectedOfferCard(
                 offer: _selectedOffer!,
-                onClose: () => setState(() => _selectedOffer = null),
+                onClose: () {
+                  setState(() => _selectedOffer = null);
+                },
                 onReserve: () => context.push('/product/${_selectedOffer!.id}'),
+                onTap: () => context.push('/product/${_selectedOffer!.id}'),
               ),
             ),
 
@@ -162,50 +245,55 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
     setState(() => _mapReady = true);
+    if (_lastOffers.isNotEmpty) {
+      _markersDirty = true;
+      _syncMarkers();
+    }
   }
 
-  void _updateMarkers(List<Offer> offers) {
-    final newMarkers = <Marker>{};
+  void _onMarkerTap(Offer offer) {
+    setState(() => _selectedOffer = offer);
+
+    _markerCache.clear();
+    _markersDirty = true;
+    _syncMarkers();
+  }
+
+  void _fitCameraToMarkers(Set<Marker> markers) {
+    if (markers.isEmpty || _mapController == null || _cameraInitialized) return;
+
+    double? minLat, maxLat, minLng, maxLng;
+    for (final m in markers) {
+      final lat = m.position.latitude;
+      final lng = m.position.longitude;
+      minLat = (minLat == null || lat < minLat) ? lat : minLat;
+      maxLat = (maxLat == null || lat > maxLat) ? lat : maxLat;
+      minLng = (minLng == null || lng < minLng) ? lng : minLng;
+      maxLng = (maxLng == null || lng > maxLng) ? lng : maxLng;
+    }
+
+    final bounds = LatLngBounds(
+      southwest: LatLng(minLat!, minLng!),
+      northeast: LatLng(maxLat!, maxLng!),
+    );
+
+    _mapController!.animateCamera(
+      CameraUpdate.newLatLngBounds(bounds, 60),
+    );
+    _cameraInitialized = true;
+  }
+
+  Future<void> _generateMarkerIcons(List<Offer> offers) async {
+    final offersToGenerate = <Offer>{};
     for (final offer in offers) {
       if (offer.business.latitude == null || offer.business.longitude == null) {
         continue;
       }
-      final position = LatLng(
-        offer.business.latitude!,
-        offer.business.longitude!,
-      );
       final isSelected = _selectedOffer?.id == offer.id;
-      newMarkers.add(
-        Marker(
-          markerId: MarkerId(offer.id),
-          position: position,
-          onTap: () => setState(() => _selectedOffer = offer),
-          icon:
-              _markerCache['${offer.id}_$isSelected'] ??
-              BitmapDescriptor.defaultMarker,
-          anchor: const Offset(0.5, 1.0),
-          infoWindow: InfoWindow(
-            title: '\$${offer.discountedPrice.toStringAsFixed(2)}',
-            snippet: offer.business.name,
-          ),
-        ),
-      );
-    }
-    if (newMarkers.length != _markers.length ||
-        newMarkers.any((m) => !_markers.contains(m))) {
-      setState(() => _markers = newMarkers);
-    }
-    _generateMarkerIcons(offers);
-  }
-
-  Future<void> _generateMarkerIcons(List<Offer> offers) async {
-    final offersToGenerate = offers.where((o) {
-      if (o.business.latitude == null || o.business.longitude == null) {
-        return false;
+      if (!_markerCache.containsKey('${offer.id}_$isSelected')) {
+        offersToGenerate.add(offer);
       }
-      final isSelected = _selectedOffer?.id == o.id;
-      return !_markerCache.containsKey('${o.id}_$isSelected');
-    }).toList();
+    }
 
     if (offersToGenerate.isEmpty) return;
 
@@ -232,11 +320,11 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
         Marker(
           markerId: MarkerId(offer.id),
           position: LatLng(offer.business.latitude!, offer.business.longitude!),
-          onTap: () => setState(() => _selectedOffer = offer),
+          onTap: () => _onMarkerTap(offer),
           icon: _markerCache[key] ?? BitmapDescriptor.defaultMarker,
           anchor: const Offset(0.5, 1.0),
           infoWindow: InfoWindow(
-            title: '\$${offer.discountedPrice.toStringAsFixed(2)}',
+            title: offer.title,
             snippet: offer.business.name,
           ),
         ),
@@ -374,7 +462,7 @@ class _MapHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final subtitle = <String>[];
     if (filters.category != null) {
-      subtitle.add(filters.category!);
+      subtitle.add(filters.category!.dbValue);
     }
     if (filters.maxDistanceKm != null) {
       subtitle.add('${filters.maxDistanceKm!.toInt()} km');
@@ -571,227 +659,299 @@ class _SelectedOfferCard extends StatelessWidget {
     required this.offer,
     required this.onClose,
     required this.onReserve,
+    this.onTap,
   });
 
   final Offer offer;
   final VoidCallback onClose;
   final VoidCallback onReserve;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final discountPercent = offer.discountPercentage.round();
 
-    return Container(
-      decoration: BoxDecoration(
-        color: FudiColors.background,
-        borderRadius: BorderRadius.circular(FudiRadius.xl),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(FudiSpacing.md),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 96,
-                  height: 96,
-                  decoration: BoxDecoration(
-                    color: FudiColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(FudiRadius.lg),
-                  ),
-                  child: Stack(
-                    children: [
-                      const Center(
-                        child: Icon(
-                          FudiIcons.mapPin,
-                          size: 32,
-                          color: FudiColors.primary,
-                        ),
-                      ),
-                      if (discountPercent > 0)
-                        Positioned(
-                          top: 4,
-                          right: 4,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: FudiColors.primary,
-                              borderRadius: BorderRadius.circular(
-                                FudiRadius.full,
-                              ),
-                            ),
-                            child: Text(
-                              '-$discountPercent%',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                              ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: FudiColors.background,
+          borderRadius: BorderRadius.circular(FudiRadius.xl),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Image ──────────────────────────────────────────
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(FudiRadius.xl),
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                height: 140,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (offer.imageUrl != null && offer.imageUrl!.isNotEmpty)
+                      CachedNetworkImage(
+                        imageUrl: offer.imageUrl!,
+                        height: 140,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        placeholder: (_, _) => Container(
+                          color: FudiColors.muted,
+                          child: const Center(
+                            child: Icon(
+                              FudiIcons.imageOff,
+                              color: FudiColors.mutedForeground,
+                              size: 32,
                             ),
                           ),
                         ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: FudiSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        offer.business.name,
-                        style: FudiTypography.labelMedium,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: FudiSpacing.xs),
-                      Row(
-                        children: [
-                          if (offer.rating > 0) ...[
-                            FudiStarRating(
-                              rating: offer.rating,
-                              showText: true,
-                            ),
-                            const SizedBox(width: FudiSpacing.sm),
-                          ],
-                          Text(
-                            offer.business.address,
-                            style: FudiTypography.bodySmall,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: FudiSpacing.xs),
-                      Row(
-                        children: [
-                          const Icon(
-                            FudiIcons.clock,
-                            size: 14,
-                            color: FudiColors.accent,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            _formatPickupWindow(offer),
-                            style: FudiTypography.bodySmall.copyWith(
-                              color: FudiColors.accent,
-                              fontWeight: FontWeight.w600,
+                        errorWidget: (_, _, _) => Container(
+                          color: FudiColors.muted,
+                          child: const Center(
+                            child: Icon(
+                              FudiIcons.imageOff,
+                              color: FudiColors.mutedForeground,
+                              size: 32,
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: FudiSpacing.sm),
-                      Row(
-                        children: [
-                          Text(
-                            '\$${offer.discountedPrice.toStringAsFixed(2)}',
-                            style: FudiTypography.price,
+                        ),
+                      )
+                    else
+                      Container(
+                        color: FudiColors.primary.withValues(alpha: 0.08),
+                        child: const Center(
+                          child: Icon(
+                            FudiIcons.imageOff,
+                            size: 40,
+                            color: FudiColors.primary,
                           ),
-                          const SizedBox(width: FudiSpacing.sm),
-                          Text(
-                            '\$${offer.originalPrice.toStringAsFixed(2)}',
-                            style: FudiTypography.priceOriginal,
-                          ),
-                        ],
+                        ),
                       ),
-                      if (offer.stock <= 3) ...[
-                        const SizedBox(height: FudiSpacing.xs),
-                        Container(
+
+                    // Discount badge
+                    if (discountPercent > 0)
+                      Positioned(
+                        top: FudiSpacing.sm,
+                        left: FudiSpacing.sm,
+                        child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: FudiSpacing.sm,
-                            vertical: FudiSpacing.xs,
+                            horizontal: 8,
+                            vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: FudiColors.destructive.withValues(
-                              alpha: 0.1,
-                            ),
-                            borderRadius: BorderRadius.circular(FudiRadius.sm),
-                            border: Border.all(
-                              color: FudiColors.destructive.withValues(
-                                alpha: 0.2,
-                              ),
+                            color: FudiColors.primary,
+                            borderRadius: BorderRadius.circular(
+                              FudiRadius.full,
                             ),
                           ),
                           child: Text(
-                            'Solo quedan ${offer.stock} disponibles!',
-                            style: FudiTypography.bodySmall.copyWith(
-                              color: FudiColors.destructive,
-                              fontWeight: FontWeight.w600,
+                            '-$discountPercent%',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
                             ),
+                          ),
+                        ),
+                      ),
+
+                    // Close button
+                    Positioned(
+                      top: FudiSpacing.sm,
+                      right: FudiSpacing.sm,
+                      child: GestureDetector(
+                        onTap: onClose,
+                        child: Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: FudiColors.background,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.15),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            FudiIcons.x,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Gradient overlay for readability
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withValues(alpha: 0.4),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // ── Content ────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                FudiSpacing.md,
+                FudiSpacing.sm,
+                FudiSpacing.md,
+                FudiSpacing.md,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Offer title
+                  Text(
+                    offer.title,
+                    style: FudiTypography.labelMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: FudiSpacing.xs),
+
+                  // Business name + rating
+                  Row(
+                    children: [
+                      Icon(
+                        FudiIcons.store,
+                        size: 14,
+                        color: FudiColors.mutedForeground,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          offer.business.name,
+                          style: FudiTypography.bodySmall.copyWith(
+                            color: FudiColors.mutedForeground,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (offer.rating > 0) ...[
+                        const SizedBox(width: FudiSpacing.sm),
+                        Icon(
+                          FudiIcons.star,
+                          size: 14,
+                          color: FudiColors.warning,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          offer.rating.toStringAsFixed(1),
+                          style: FudiTypography.bodySmall.copyWith(
+                            color: FudiColors.warning,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
                     ],
                   ),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            top: FudiSpacing.sm,
-            right: FudiSpacing.sm,
-            child: GestureDetector(
-              onTap: onClose,
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: FudiColors.background,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: FudiColors.borderSolid),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 4,
+                  const SizedBox(height: FudiSpacing.xs),
+
+                  // Pickup window
+                  Row(
+                    children: [
+                      Icon(
+                        FudiIcons.clock,
+                        size: 14,
+                        color: FudiColors.accent,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _formatPickupWindow(offer),
+                        style: FudiTypography.bodySmall.copyWith(
+                          color: FudiColors.accent,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: FudiSpacing.sm),
+
+                  // Prices
+                  Row(
+                    children: [
+                      Text(
+                        '\$${offer.discountedPrice.toStringAsFixed(2)}',
+                        style: FudiTypography.price,
+                      ),
+                      const SizedBox(width: FudiSpacing.sm),
+                      Text(
+                        '\$${offer.originalPrice.toStringAsFixed(2)}',
+                        style: FudiTypography.priceOriginal,
+                      ),
+                      const Spacer(),
+                      Text(
+                        '${offer.stock} disponibles',
+                        style: FudiTypography.bodySmall.copyWith(
+                          color: offer.stock <= 3
+                              ? FudiColors.destructive
+                              : FudiColors.mutedForeground,
+                          fontWeight: offer.stock <= 3
+                              ? FontWeight.w700
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: FudiSpacing.md),
+
+                  // Reserve button
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: onReserve,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: FudiColors.primary,
+                        minimumSize: const Size.fromHeight(46),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(FudiRadius.lg),
+                        ),
+                      ),
+                      child: Text(
+                        'Ver detalle',
+                        style: FudiTypography.labelSmall.copyWith(
+                          color: FudiColors.primaryForeground,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
-                  ],
-                ),
-                child: const Icon(FudiIcons.x, size: 16),
+                  ),
+                ],
               ),
             ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                FudiSpacing.md,
-                0,
-                FudiSpacing.md,
-                FudiSpacing.md,
-              ),
-              child: FilledButton(
-                onPressed: onReserve,
-                style: FilledButton.styleFrom(
-                  backgroundColor: FudiColors.primary,
-                  minimumSize: const Size.fromHeight(44),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(FudiRadius.lg),
-                  ),
-                ),
-                child: Text(
-                  'Reservar ahora',
-                  style: FudiTypography.labelSmall.copyWith(
-                    color: FudiColors.primaryForeground,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -17,8 +17,11 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
   static const _selectFields = '''
     id, user_id, offer_id, business_id, order_number, status, 
     price, original_price, pickup_code, pickup_time, coupon_id, created_at,
-    offers!orders_offer_id_fkey(title, image),
-    businesses!orders_business_id_fkey(name, address, phone),
+    offers!orders_offer_id_fkey(
+      title, image,
+      business_locations:business_location_id (address)
+    ),
+    businesses!orders_business_id_fkey(name, phone),
     profiles!orders_user_id_fkey(full_name, phone, email)
   ''';
 
@@ -101,6 +104,8 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
     final offer = json['offers'] as Map<String, dynamic>?;
     final business = json['businesses'] as Map<String, dynamic>?;
     final customer = json['profiles'] as Map<String, dynamic>?;
+    final location =
+        offer?['business_locations'] as Map<String, dynamic>?;
 
     return OrderModel(
       id: json['id'] as String,
@@ -120,7 +125,7 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
       offerTitle: offer?['title'] as String? ?? 'Oferta',
       offerImageUrl: offer?['image'] as String?,
       businessName: business?['name'] as String? ?? 'Negocio',
-      businessAddress: business?['address'] as String?,
+      businessAddress: location?['address'] as String?,
       businessPhone: business?['phone'] as String?,
       customerName: customer?['full_name'] as String?,
       customerPhone: customer?['phone'] as String?,

@@ -37,7 +37,7 @@ self.FIREBASE_CONFIG = ${jsonEncode(config)};
 '''.trim();
 
   File('web/firebase-config.js').writeAsStringSync(js);
-  print('Generated web/firebase-config.js from $envFile');
+  stderr.writeln('Generated web/firebase-config.js from $envFile');
 }
 
 String? _findValue(List<String> lines, String key) {

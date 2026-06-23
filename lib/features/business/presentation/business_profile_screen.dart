@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../../core/utils/map_style.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_surface_card.dart';
 import '../../../core/ui/fudi_typography.dart';
@@ -433,7 +434,7 @@ class _ContactInfoCard extends StatelessWidget {
           _ContactRow(
             icon: FudiIcons.mapPin,
             label: 'Dirección',
-            value: profile.address,
+            value: profile.address ?? '',
             trailing: profile.latitude != null && profile.longitude != null
                 ? _TextLink(
                     text: 'Cómo llegar →',
@@ -734,7 +735,7 @@ class _LocationCard extends ConsumerWidget {
           Text('Ubicación', style: FudiTypography.labelMedium),
           const SizedBox(height: FudiSpacing.md),
           Text(
-            profile.address,
+            profile.address ?? '',
             style: FudiTypography.bodyMedium.copyWith(
               color: FudiColors.mutedForeground,
             ),
@@ -746,7 +747,8 @@ class _LocationCard extends ConsumerWidget {
               child: SizedBox(
                 width: double.infinity,
                 height: 192,
-                child: GoogleMap(
+                child:                   GoogleMap(
+                  style: kMapStyleNoPoi,
                   initialCameraPosition: CameraPosition(
                     target: LatLng(profile.latitude!, profile.longitude!),
                     zoom: 15,

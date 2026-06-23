@@ -136,7 +136,7 @@ class _FavoriteCard extends StatelessWidget {
                     ),
                     const SizedBox(height: FudiSpacing.xs),
                     Text(
-                      favorite.category ?? 'Oferta destacada',
+                      favorite.category?.dbValue ?? 'Oferta destacada',
                       style: FudiTypography.bodySmall.copyWith(
                         color: FudiColors.mutedForeground,
                       ),

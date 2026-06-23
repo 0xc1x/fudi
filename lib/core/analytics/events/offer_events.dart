@@ -1,3 +1,4 @@
+import '../../../features/offers/domain/offer_category.dart';
 import '../models/analytics_event.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -61,7 +62,7 @@ class OfferDetailViewedEvent extends AnalyticsEvent {
 /// The user performed a search.
 class OfferSearchPerformedEvent extends AnalyticsEvent {
   final String query;
-  final String? category;
+  final OfferCategory? category;
   final int resultsCount;
 
   OfferSearchPerformedEvent({
@@ -76,7 +77,7 @@ class OfferSearchPerformedEvent extends AnalyticsEvent {
   @override
   Map<String, dynamic> get properties => {
     'query': query,
-    'category': ?category,
+    'category': category?.dbValue,
     'results_count': resultsCount,
   };
 }

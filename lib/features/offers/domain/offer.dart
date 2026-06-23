@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'offer_category.dart';
 
 class BusinessInfo {
   const BusinessInfo({
@@ -7,9 +8,11 @@ class BusinessInfo {
     required this.type,
     required this.rating,
     required this.address,
+    this.businessLocationId,
     this.imageUrl,
     this.latitude,
     this.longitude,
+    this.zone,
     this.reviewCount = 0,
   });
 
@@ -21,13 +24,48 @@ class BusinessInfo {
   final double? longitude;
   final double rating;
   final String address;
+  final String? businessLocationId;
+  final String? zone;
   final int reviewCount;
+}
+
+class BusinessSummary {
+  const BusinessSummary({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.address,
+    this.imageUrl,
+    this.latitude,
+    this.longitude,
+    this.businessLocationId,
+    this.zone,
+    this.rating = 0,
+    this.reviewCount = 0,
+    this.activeDealsCount = 0,
+    this.distanceKm,
+  });
+
+  final String id;
+  final String name;
+  final String type;
+  final String? imageUrl;
+  final double? latitude;
+  final double? longitude;
+  final double rating;
+  final String address;
+  final String? businessLocationId;
+  final String? zone;
+  final int reviewCount;
+  final int activeDealsCount;
+  final double? distanceKm;
 }
 
 class Offer {
   const Offer({
     required this.id,
     required this.businessId,
+    required this.businessLocationId,
     required this.business,
     required this.title,
     required this.originalPrice,
@@ -39,6 +77,7 @@ class Offer {
     required this.isActive,
     this.rating = 0,
     this.reviewCount = 0,
+    this.createdAt,
     this.description,
     this.imageUrl,
     this.category,
@@ -48,11 +87,12 @@ class Offer {
 
   final String id;
   final String businessId;
+  final String businessLocationId;
   final BusinessInfo business;
   final String title;
   final String? description;
   final String? imageUrl;
-  final String? category;
+  final OfferCategory? category;
   final String? includes;
   final String? allergens;
   final double originalPrice;
@@ -64,21 +104,20 @@ class Offer {
   final bool isActive;
   final double rating;
   final int reviewCount;
+  final DateTime? createdAt;
 
   double get discountPercentage =>
-      ((originalPrice - discountedPrice) / originalPrice * 100);
+      originalPrice > 0 ? ((originalPrice - discountedPrice) / originalPrice * 100) : 0;
+
+  String get categoryLabel => category?.dbValue ?? '';
 
   TimeOfDay get pickupUntilTimeOfDay =>
       TimeOfDay(hour: pickupEnd.hour, minute: pickupEnd.minute);
 
-  bool get isExpired => DateTime.now().isAfter(pickupEnd);
+  bool get isAvailable =>
+      isActive && stock > 0 && DateTime.now().isBefore(pickupEnd);
 
   bool get isOutOfStock => stock <= 0;
 
-  bool get isAvailable => isActive && !isExpired && !isOutOfStock;
-
-  String get categoryLabel {
-    if (category == null) return '';
-    return category![0].toUpperCase() + category!.substring(1);
-  }
+  bool get isExpired => DateTime.now().isAfter(pickupEnd);
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/ui/fudi_colors.dart';
@@ -69,12 +70,15 @@ class SavedAddressesScreen extends ConsumerWidget {
       appBar: FudiStickyPageHeader(
         title: 'Direcciones guardadas',
         leading: Padding(
-          padding: const EdgeInsets.only(left: FudiSpacing.md),
+          padding: const EdgeInsets.only(left: FudiSpacing.xs),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              IconButton(
+                icon: const Icon(FudiIcons.chevronLeft),
+                onPressed: () => context.pop(),
+              ),
               const Icon(FudiIcons.mapPin, size: 20, color: FudiColors.primary),
-              const SizedBox(width: FudiSpacing.sm),
             ],
           ),
         ),

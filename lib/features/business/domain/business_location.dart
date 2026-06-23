@@ -7,6 +7,8 @@ class BusinessLocation {
     this.phone,
     this.latitude,
     this.longitude,
+    this.zone,
+    this.isHeadquarter = false,
     this.isActive = true,
     this.createdAt,
   });
@@ -18,6 +20,8 @@ class BusinessLocation {
   final String? phone;
   final double? latitude;
   final double? longitude;
+  final String? zone;
+  final bool isHeadquarter;
   final bool isActive;
   final DateTime? createdAt;
 

@@ -18,6 +18,7 @@ class OrderModel {
     this.couponId,
     this.offerImageUrl,
     this.businessAddress,
+    this.businessLocationId,
     this.businessPhone,
     this.customerName,
     this.customerPhone,
@@ -41,6 +42,7 @@ class OrderModel {
   final String? offerImageUrl;
   final String businessName;
   final String? businessAddress;
+  final String? businessLocationId;
   final String? businessPhone;
   final String? customerName;
   final String? customerPhone;

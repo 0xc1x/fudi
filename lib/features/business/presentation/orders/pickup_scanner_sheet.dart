@@ -263,7 +263,7 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
       if (result.success) {
         setState(() => _isSuccess = true);
         await Future.delayed(const Duration(seconds: 1));
-        if (!context.mounted) return;
+        if (!mounted) return;
         Navigator.of(context).pop(true);
       } else {
         setState(() => _isSuccess = false);

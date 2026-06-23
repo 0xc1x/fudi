@@ -9,6 +9,7 @@ import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../offers/domain/offer.dart';
+import '../../../offers/domain/offer_category.dart';
 import '../../../offers/presentation/offer_providers.dart';
 import '../business_providers.dart';
 import '../business_profile_providers.dart';
@@ -36,7 +37,7 @@ class _BusinessProductFormScreenState
   final _includesController = TextEditingController();
   final _allergensController = TextEditingController();
 
-  String _selectedCategory = 'Sorpresa';
+  OfferCategory _selectedCategory = OfferCategory.surprise;
   XFile? _imageFile;
   DateTime _startDate = DateTime.now();
   TimeOfDay _startTime = const TimeOfDay(hour: 18, minute: 0);
@@ -48,16 +49,7 @@ class _BusinessProductFormScreenState
   String? _existingImageUrl;
   bool _isLoadingProduct = false;
 
-  final List<String> _categories = [
-    'Sorpresa',
-    'Panadería',
-    'Comida Preparada',
-    'Frutas y Verduras',
-    'Lácteos',
-    'Carnes',
-    'Snacks',
-    'Otro',
-  ];
+  List<OfferCategory> get _categories => OfferCategory.values;
 
   @override
   void initState() {
@@ -81,7 +73,7 @@ class _BusinessProductFormScreenState
         _stockController.text = offer.stock.toString();
         _includesController.text = offer.includes ?? '';
         _allergensController.text = offer.allergens ?? '';
-        _selectedCategory = offer.category ?? 'Sorpresa';
+        _selectedCategory = offer.category ?? OfferCategory.surprise;
         _startDate = DateTime(
           offer.pickupStart.year,
           offer.pickupStart.month,
@@ -276,15 +268,17 @@ class _BusinessProductFormScreenState
       final offer = Offer(
         id: widget.productId ?? '',
         businessId: business.id,
+        businessLocationId: business.businessLocationId ?? '',
         business: BusinessInfo(
           id: business.id,
           name: business.name,
           type: business.type,
           rating: business.rating,
-          address: business.address,
+          address: business.address ?? '',
           imageUrl: business.imageUrl,
           latitude: business.latitude,
           longitude: business.longitude,
+          zone: business.zone,
         ),
         title: _nameController.text,
         description: _descriptionController.text,
@@ -391,7 +385,7 @@ class _BusinessProductFormScreenState
                     label: 'Categoría',
                     value: _selectedCategory,
                     items: _categories,
-                    onChanged: (v) => setState(() => _selectedCategory = v!),
+                    onChanged: (v) => setState(() => _selectedCategory = v ?? OfferCategory.surprise),
                   ),
                   const SizedBox(height: FudiSpacing.md),
                   _buildTextField(
@@ -626,19 +620,19 @@ class _BusinessProductFormScreenState
 
   Widget _buildDropdownField({
     required String label,
-    required String value,
-    required List<String> items,
-    required void Function(String?) onChanged,
+    required OfferCategory value,
+    required List<OfferCategory> items,
+    required void Function(OfferCategory?) onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: FudiTypography.labelSmall),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
+        DropdownButtonFormField<OfferCategory>(
           initialValue: value,
           items: items
-              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+              .map((e) => DropdownMenuItem(value: e, child: Text(e.dbValue)))
               .toList(),
           onChanged: onChanged,
           decoration: InputDecoration(

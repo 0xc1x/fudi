@@ -1,4 +1,5 @@
 import 'offer.dart';
+import 'offer_category.dart';
 
 abstract class OfferRepository {
   Future<List<Offer>> getPopularOffers({int limit = 10});
@@ -33,7 +34,39 @@ abstract class OfferRepository {
 
   Future<List<AreaStat>> getPopularAreas();
 
-  Future<List<String>> getCategories();
+  Future<List<OfferCategory>> getCategories();
+
+  Future<List<Offer>> getExpiringSoonOffers({
+    double? lat,
+    double? lng,
+    double radiusKm = 5,
+    int limit = 5,
+  });
+
+  Future<List<Offer>> getRecentOffers({
+    double? lat,
+    double? lng,
+    double radiusKm = 5,
+    int limit = 5,
+  });
+
+  Future<List<BusinessSummary>> getNearbyBusinesses({
+    double? lat,
+    double? lng,
+    double radiusKm = 5,
+    int limit = 5,
+  });
+
+  Future<List<Offer>> getAllActiveOffers();
+
+  Future<List<BusinessSummary>> getAllBusinesses({
+    double? lat,
+    double? lng,
+    double radiusKm = 10,
+    String? searchQuery,
+    String? type,
+    int limit = 50,
+  });
 }
 
 class CategoryStat {

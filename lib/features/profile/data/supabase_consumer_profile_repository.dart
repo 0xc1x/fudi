@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../offers/domain/offer.dart';
+import '../../offers/domain/offer_category.dart';
 import '../domain/consumer_preferences.dart';
 import '../domain/payment_method_model.dart';
 import '../domain/saved_address_model.dart';
@@ -26,11 +27,14 @@ class SupabaseConsumerProfileRepository {
         .select('''
       offer_id,
       offers!inner (
-        id, business_id, title, description, image, category,
+        id, business_id, business_location_id, title, description, image, category,
         original_price, discounted_price, stock, initial_stock,
         pickup_start, pickup_end, is_active, rating, review_count,
         businesses:business_id (
-          id, name, type, image, latitude, longitude, rating, address
+          id, name, type, image, rating
+        ),
+        business_locations:business_location_id (
+          id, address, latitude, longitude, zone
         )
       )
       ''')
@@ -40,23 +44,28 @@ class SupabaseConsumerProfileRepository {
     return response.map((row) {
       final offerJson = row['offers'] as Map<String, dynamic>;
       final businessJson = offerJson['businesses'] as Map<String, dynamic>;
+      final locationJson =
+          offerJson['business_locations'] as Map<String, dynamic>?;
       return Offer(
         id: offerJson['id'] as String,
         businessId: offerJson['business_id'] as String,
+        businessLocationId: offerJson['business_location_id'] as String,
         business: BusinessInfo(
           id: businessJson['id'] as String,
           name: businessJson['name'] as String,
           type: businessJson['type'] as String,
           rating: (businessJson['rating'] as num?)?.toDouble() ?? 0,
-          address: businessJson['address'] as String? ?? '',
+          address: locationJson?['address'] as String? ?? '',
           imageUrl: businessJson['image'] as String?,
-          latitude: (businessJson['latitude'] as num?)?.toDouble(),
-          longitude: (businessJson['longitude'] as num?)?.toDouble(),
+          businessLocationId: locationJson?['id'] as String?,
+          latitude: (locationJson?['latitude'] as num?)?.toDouble(),
+          longitude: (locationJson?['longitude'] as num?)?.toDouble(),
+          zone: locationJson?['zone'] as String?,
         ),
         title: offerJson['title'] as String,
         description: offerJson['description'] as String?,
         imageUrl: offerJson['image'] as String?,
-        category: offerJson['category'] as String?,
+        category: OfferCategory.fromDb(offerJson['category'] as String?),
         originalPrice: (offerJson['original_price'] as num).toDouble(),
         discountedPrice: (offerJson['discounted_price'] as num).toDouble(),
         stock: offerJson['stock'] as int? ?? 0,

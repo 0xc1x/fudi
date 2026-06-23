@@ -54,6 +54,12 @@ class RouteNames {
   static const favorites = 'favorites';
   static const favoritesPath = '/favorites';
 
+  static const allOffers = 'all-offers';
+  static const allOffersPath = '/all-offers';
+
+  static const allBusinesses = 'all-businesses';
+  static const allBusinessesPath = '/all-businesses';
+
   static const paymentMethods = 'payment-methods';
   static const paymentMethodsPath = '/payment-methods';
 

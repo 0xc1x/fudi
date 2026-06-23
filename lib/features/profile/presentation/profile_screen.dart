@@ -363,9 +363,27 @@ class _OrdersTab extends ConsumerWidget {
                 ),
               ],
               if (past.isNotEmpty) ...[
-                Text('Pedidos anteriores', style: FudiTypography.h2),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text('Pedidos anteriores', style: FudiTypography.h2),
+                    ),
+                    TextButton(
+                      onPressed: () => context.push('/orders'),
+                      child: Text(
+                        past.length > 5
+                            ? 'Ver todo (${past.length})'
+                            : 'Ver todo',
+                        style: FudiTypography.bodySmall.copyWith(
+                          color: FudiColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: FudiSpacing.md),
-                ...past.map(
+                ...past.take(5).map(
                   (o) => Padding(
                     padding: const EdgeInsets.only(bottom: FudiSpacing.md),
                     child: _OrderCard(order: o),

@@ -13,7 +13,7 @@ class SupabaseBusinessLocationRepository implements BusinessLocationRepository {
   final SupabaseClient _supabaseClient;
 
   static const _fields =
-      'id,business_id,name,address,phone,latitude,longitude,is_active,created_at';
+      'id,business_id,name,address,phone,latitude,longitude,zone,is_headquarter,is_active,created_at';
 
   @override
   Future<List<BusinessLocation>> getLocations(String businessId) async {
@@ -62,6 +62,8 @@ class SupabaseBusinessLocationRepository implements BusinessLocationRepository {
         'phone': location.phone,
         'latitude': location.latitude,
         'longitude': location.longitude,
+        'zone': location.zone,
+        'is_headquarter': location.isHeadquarter,
         'is_active': location.isActive,
       };
 
@@ -105,6 +107,8 @@ class SupabaseBusinessLocationRepository implements BusinessLocationRepository {
       phone: json['phone'] as String?,
       latitude: _toDouble(json['latitude']),
       longitude: _toDouble(json['longitude']),
+      zone: json['zone'] as String?,
+      isHeadquarter: json['is_headquarter'] as bool? ?? false,
       isActive: json['is_active'] as bool? ?? true,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)

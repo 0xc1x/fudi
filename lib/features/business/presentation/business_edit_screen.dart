@@ -44,7 +44,7 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
     _loaded = true;
     _name.text = business.name;
     _description.text = business.description ?? '';
-    _address.text = business.address;
+    _address.text = business.address ?? '';
     _phone.text = business.phone ?? '';
     _email.text = business.email ?? '';
     _website.text = business.website ?? '';

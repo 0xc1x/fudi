@@ -5,7 +5,6 @@ import '../fudi_colors.dart';
 import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
 import '../atoms/icons/fudi_icons.dart';
-import '../atoms/fudi_button.dart';
 
 class DealCard extends StatelessWidget {
   const DealCard({
@@ -170,21 +169,6 @@ class DealCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: FudiSpacing.md),
-              const Icon(
-                FudiIcons.clock,
-                size: 14,
-                color: FudiColors.mutedForeground,
-              ),
-              const SizedBox(width: 4),
-              Flexible(
-                child: Text(
-                  'Recoge antes de ${pickupUntil.format(context)}',
-                  style: FudiTypography.bodySmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
             ],
           ),
           const SizedBox(height: FudiSpacing.sm),
@@ -197,32 +181,43 @@ class DealCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
-                child: Column(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      '\$${originalPrice.toStringAsFixed(2)}',
-                      style: FudiTypography.priceOriginal,
+                    const Icon(
+                      FudiIcons.clock,
+                      size: 14,
+                      color: FudiColors.primary,
                     ),
-                    Text(
-                      '\$${discountedPrice.toStringAsFixed(2)}',
-                      style: FudiTypography.priceLarge,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        'Recoge antes de ${pickupUntil.format(context)}',
+                        style: FudiTypography.bodySmall.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: FudiColors.primary,
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: FudiSpacing.sm),
-              FudiButton(
-                text: 'Reservar',
-                onPressed: onTap,
-                variant: FudiButtonVariant.primary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: FudiSpacing.md,
-                  vertical: FudiSpacing.sm,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '\$${originalPrice.toStringAsFixed(2)}',
+                    style: FudiTypography.priceOriginal,
+                  ),
+                  Text(
+                    '\$${discountedPrice.toStringAsFixed(2)}',
+                    style: FudiTypography.priceLarge,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ],
           ),

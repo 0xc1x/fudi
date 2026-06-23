@@ -7,6 +7,7 @@ import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../../core/utils/map_style.dart';
 
 class AddressMapPickerResult {
   const AddressMapPickerResult({required this.latLng, this.address});
@@ -154,6 +155,7 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
             const Center(child: CircularProgressIndicator())
           else
             GoogleMap(
+              style: kMapStyleNoPoi,
               initialCameraPosition: CameraPosition(
                 target: _currentLocation,
                 zoom: 16,

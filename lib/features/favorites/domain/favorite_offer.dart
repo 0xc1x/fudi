@@ -1,9 +1,12 @@
+import '../../offers/domain/offer_category.dart';
+
 class FavoriteOffer {
   const FavoriteOffer({
     required this.favoriteId,
     required this.offerId,
     required this.businessName,
     required this.address,
+    this.zone,
     required this.category,
     required this.title,
     required this.rating,
@@ -16,7 +19,8 @@ class FavoriteOffer {
   final String offerId;
   final String businessName;
   final String address;
-  final String? category;
+  final String? zone;
+  final OfferCategory? category;
   final String title;
   final double rating;
   final double discountedPrice;

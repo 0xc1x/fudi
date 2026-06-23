@@ -41,7 +41,7 @@ Future<void> initLocalNotifications() async {
   );
 
   await flutterLocalNotificationsPlugin.initialize(
-    settings,
+    settings: settings,
     onDidReceiveNotificationResponse: (response) {},
   );
 
@@ -83,6 +83,11 @@ class _PushNotificationHandlerState
       final pushService = ref.read(pushServiceProvider);
 
       if (kIsWeb) {
+        if (!supportsWebNotifications) {
+          _showWebNotificationsUnsupported();
+          return;
+        }
+
         final permission = getWebNotificationPermission();
         if (permission == 'granted') {
           await pushService.initialize();
@@ -164,12 +169,28 @@ class _PushNotificationHandlerState
   }
 
   void _showPermissionBlockedHelp() {
+    final browser = getBrowserName();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '$browser bloqueó las notificaciones. Activálas manualmente en Configuración del sitio.',
+        ),
+        duration: const Duration(seconds: 8),
+        action: SnackBarAction(
+          label: 'OK',
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+
+  void _showWebNotificationsUnsupported() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text(
-          'Chrome bloqueó las notificaciones. Instalá la app o activalas manualmente en Configuración del sitio.',
+          'Las notificaciones web no están disponibles en iOS Safari. Usá la app desde Chrome o instalala en tu dispositivo.',
         ),
-        duration: const Duration(seconds: 8),
+        duration: const Duration(seconds: 10),
         action: SnackBarAction(
           label: 'OK',
           onPressed: () {},
@@ -187,10 +208,10 @@ class _PushNotificationHandlerState
     final body = notification.body ?? '';
 
     flutterLocalNotificationsPlugin.show(
-      notification.hashCode,
-      title,
-      body,
-      NotificationDetails(
+      id: notification.hashCode,
+      title: title,
+      body: body,
+      notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           channel,
           channel == _androidChannel.id ? 'Pedidos' : 'Ofertas',

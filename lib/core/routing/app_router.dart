@@ -19,6 +19,8 @@ import '../../features/orders/presentation/order_detail_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/profile/presentation/profile_edit_screen.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
+import '../../features/all_offers/presentation/all_offers_screen.dart';
+import '../../features/all_businesses/presentation/all_businesses_screen.dart';
 import '../../features/profile/presentation/saved_addresses_screen.dart';
 import '../../features/profile/presentation/payment_methods_screen.dart';
 import '../../features/profile/presentation/notification_settings_screen.dart';
@@ -186,6 +188,16 @@ GoRouter createAppRouter(
             path: RouteNames.profilePath,
             name: RouteNames.profile,
             builder: (context, state) => const ProfileScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.allOffersPath,
+            name: RouteNames.allOffers,
+            builder: (context, state) => const AllOffersScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.allBusinessesPath,
+            name: RouteNames.allBusinesses,
+            builder: (context, state) => const AllBusinessesScreen(),
           ),
 
           // ─── Rutas de Detalle (dentro del Shell, sin BottomNav) ──

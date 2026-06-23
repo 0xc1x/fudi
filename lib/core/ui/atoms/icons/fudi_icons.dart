@@ -50,6 +50,11 @@ class FudiIcons {
   );
 
   // Chevrons & Arrows
+  static const IconData chevronUp = IconData(
+    0xf1f8,
+    fontFamily: 'Lucide',
+    fontPackage: 'lucide_icons',
+  );
   static const IconData chevronDown = IconData(
     0xf1f5,
     fontFamily: 'Lucide',

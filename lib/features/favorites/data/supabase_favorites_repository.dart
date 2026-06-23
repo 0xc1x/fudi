@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../offers/domain/offer_category.dart';
 import '../domain/favorite_offer.dart';
 import '../domain/favorites_repository.dart';
 
@@ -20,7 +21,10 @@ class SupabaseFavoritesRepository implements FavoritesRepository {
       offers:offer_id (
         id, title, category, image, original_price, discounted_price, rating,
         businesses:business_id (
-          name, address
+          name
+        ),
+        business_locations:business_location_id (
+          address, zone
         )
       )
       ''')
@@ -74,13 +78,16 @@ class SupabaseFavoritesRepository implements FavoritesRepository {
     final offerJson = json['offers'] as Map<String, dynamic>? ?? const {};
     final businessJson =
         offerJson['businesses'] as Map<String, dynamic>? ?? const {};
+    final locationJson =
+        offerJson['business_locations'] as Map<String, dynamic>?;
 
     return FavoriteOffer(
       favoriteId: json['id'] as String,
       offerId: offerJson['id'] as String? ?? json['offer_id'] as String? ?? '',
       businessName: businessJson['name'] as String? ?? 'Negocio',
-      address: businessJson['address'] as String? ?? '',
-      category: offerJson['category'] as String?,
+      address: locationJson?['address'] as String? ?? '',
+      zone: locationJson?['zone'] as String?,
+      category: OfferCategory.fromDb(offerJson['category'] as String?),
       title: offerJson['title'] as String? ?? 'Oferta',
       rating: _toDouble(offerJson['rating']) ?? 0,
       discountedPrice: _toDouble(offerJson['discounted_price']) ?? 0,

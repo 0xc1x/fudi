@@ -596,8 +596,8 @@ class _ProductInfoCard extends StatelessWidget {
                     : FudiColors.mutedForeground,
               ),
               _InfoField(label: 'Recogida desde', value: _formatPickupStart()),
-              if (offer.category != null && offer.category!.isNotEmpty)
-                _InfoField(label: 'Categoría', value: offer.categoryLabel)
+if (offer.category != null)
+  _InfoField(label: 'Categoría', value: offer.categoryLabel)
               else
                 _InfoField(
                   label: 'Horario',

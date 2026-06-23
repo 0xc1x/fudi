@@ -1,23 +1,24 @@
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../core/error/user_friendly_message.dart';
 import '../../../core/routing/route_names.dart';
 import '../../../core/ui/fudi_logo.dart';
 import '../../../core/ui/cards/deal_card.dart';
+import '../../../core/ui/cards/business_card.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../../core/utils/geo_utils.dart';
-import '../../auth/domain/auth_repository.dart';
 import '../../auth/domain/user_profile.dart';
 import '../../auth/presentation/auth_state_provider.dart';
 import '../../offers/domain/offer.dart';
+import '../../offers/domain/offer_category.dart';
 import '../../offers/domain/offer_repository.dart';
 import '../../offers/presentation/offer_providers.dart';
 import '../../profile/domain/saved_address_model.dart';
@@ -36,9 +37,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String? _selectedCategoryId;
 
   void _onCategorySelected(String? categoryId) {
+    final category = categoryId != null ? OfferCategory.fromDb(categoryId) : null;
     setState(() => _selectedCategoryId = categoryId);
-    ref.read(popularOffersProvider.notifier).filterByCategory(categoryId);
-    ref.read(nearbyOffersProvider.notifier).filterByCategory(categoryId);
+    ref.read(popularOffersProvider.notifier).filterByCategory(category);
+    ref.read(nearbyOffersProvider.notifier).filterByCategory(category);
   }
 
   @override
@@ -47,6 +49,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final nearbyAsync = ref.watch(nearbyOffersProvider);
     final locationAsync = ref.watch(userLocationProvider);
     final statsAsync = ref.watch(categoryStatsProvider);
+    final expiringAsync = ref.watch(expiringSoonOffersProvider);
+    final recentAsync = ref.watch(recentOffersProvider);
+    final businessesAsync = ref.watch(nearbyBusinessesProvider);
 
     final hasLocation =
         locationAsync.whenOrNull(
@@ -64,52 +69,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: RefreshIndicator(
         onRefresh: () async {
           if (_selectedCategoryId != null) {
+            final category = OfferCategory.fromDb(_selectedCategoryId);
             ref
                 .read(popularOffersProvider.notifier)
-                .filterByCategory(_selectedCategoryId);
+                .filterByCategory(category);
             ref
                 .read(nearbyOffersProvider.notifier)
-                .filterByCategory(_selectedCategoryId);
+                .filterByCategory(category);
           } else {
             await ref.read(popularOffersProvider.notifier).refresh();
             await ref.read(nearbyOffersProvider.notifier).refresh();
           }
+          await ref.read(expiringSoonOffersProvider.notifier).refresh();
+          await ref.read(recentOffersProvider.notifier).refresh();
+          await ref.read(nearbyBusinessesProvider.notifier).refresh();
           ref.invalidate(categoryStatsProvider);
         },
         child: CustomScrollView(
           slivers: [
-            // ─── Sentry verification button (debug only) ────────────
-            if (kDebugMode)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 8.0,
-                  ),
-                  child: FilledButton.icon(
-                    onPressed: () {
-                      // Send a Sentry logger API test log
-                      Sentry.logger.fmt.info("Test log from %s", [
-                        "Sentry (Fudi App)",
-                      ]);
-                      // Emit a Sentry test metric
-                      Sentry.metrics.count('test_metric_clicks', 1);
-                      // Throw the test exception
-                      throw StateError(
-                        'This is test exception from HomeScreen',
-                      );
-                    },
-                    icon: const Icon(Icons.bug_report),
-                    label: const Text(
-                      'Probar Sentry (Test Exception + Logs + Metrics)',
-                    ),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Colors.purple,
-                    ),
-                  ),
-                ),
-              ),
+            // ── Bienvenida ───────────────────────────────────────────
             const SliverToBoxAdapter(child: _WelcomeBanner()),
+
+            // ── Categorías ───────────────────────────────────────────
             statsAsync.when(
               data: (stats) => SliverToBoxAdapter(
                 child: _CategoryChips(
@@ -123,34 +104,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               error: (_, _) =>
                   const SliverToBoxAdapter(child: SizedBox.shrink()),
             ),
-            SliverToBoxAdapter(
-              child: _SectionHeader(
-                title: 'Ofertas Populares',
-                onSeeAll: () => context.go(RouteNames.explorePath),
-              ),
+
+            // ── Tips de Rescate ──────────────────────────────────────
+            const SliverToBoxAdapter(child: _PromoSlider()),
+
+            // ── Últimas Horas ────────────────────────────────────────
+            expiringAsync.when(
+              data: (offers) => offers.isEmpty
+                  ? const SliverToBoxAdapter(child: SizedBox.shrink())
+                  : SliverToBoxAdapter(
+                      child: _OfferRowSection(
+                        title: 'Últimas Horas',
+                        icon: FudiIcons.clock,
+                        offers: offers,
+                        onSeeAll: () =>
+                            context.push(RouteNames.allOffersPath, extra: AllOffersView.expiring),
+                      ),
+                    ),
+              loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
+              error: (_, _) =>
+                  const SliverToBoxAdapter(child: SizedBox.shrink()),
             ),
+
+            // ── Recién Agregados ─────────────────────────────────────
+            recentAsync.when(
+              data: (offers) => offers.isEmpty
+                  ? const SliverToBoxAdapter(child: SizedBox.shrink())
+                  : SliverToBoxAdapter(
+                      child: _OfferRowSection(
+                        title: 'Recién Agregados',
+                        icon: FudiIcons.trendingUp,
+                        offers: offers,
+                        onSeeAll: () =>
+                            context.push(RouteNames.allOffersPath, extra: AllOffersView.recent),
+                      ),
+                    ),
+              loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
+              error: (_, _) =>
+                  const SliverToBoxAdapter(child: SizedBox.shrink()),
+            ),
+
+            // ── Ofertas Populares ────────────────────────────────────
             popularAsync.when(
               data: (offers) => offers.isEmpty
-                  ? const SliverToBoxAdapter(child: _EmptyPopularState())
+                  ? const SliverToBoxAdapter(child: SizedBox.shrink())
                   : SliverToBoxAdapter(
-                      child: SizedBox(
-                        height: 360,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: FudiSpacing.lg,
-                          ),
-                          itemCount: offers.length,
-                          separatorBuilder: (_, _) =>
-                              const SizedBox(width: FudiSpacing.md),
-                          itemBuilder: (context, index) {
-                            final offer = offers[index];
-                            return SizedBox(
-                              width: 260,
-                              child: _buildDealCard(context, offer),
-                            );
-                          },
-                        ),
+                      child: _OfferRowSection(
+                        title: 'Ofertas Populares',
+                        icon: FudiIcons.trendingUp,
+                        offers: offers,
+                        onSeeAll: () =>
+                            context.push(RouteNames.allOffersPath, extra: AllOffersView.popular),
                       ),
                     ),
               loading: () =>
@@ -159,32 +163,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: _ErrorState(message: userFriendlyMessage(error)),
               ),
             ),
+
+            // ── Negocios Cerca ───────────────────────────────────────
+            businessesAsync.when(
+              data: (businesses) => businesses.isEmpty
+                  ? const SliverToBoxAdapter(child: SizedBox.shrink())
+                  : SliverToBoxAdapter(
+                      child: _BusinessesRowSection(
+                        businesses: businesses,
+                        onSeeAll: () =>
+                            context.push(RouteNames.allBusinessesPath),
+                      ),
+                    ),
+              loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
+              error: (_, _) =>
+                  const SliverToBoxAdapter(child: SizedBox.shrink()),
+            ),
+
+            // ── Cerca de Ti ─────────────────────────────────────────
             if (!hasLocation)
               const SliverToBoxAdapter(child: _LocationPrompt()),
-            if (hasLocation) ...[
-              SliverToBoxAdapter(
-                child: _SectionHeader(
-                  title: 'Cerca de Ti',
-                  onSeeAll: () => context.go(RouteNames.explorePath),
-                ),
-              ),
+            if (hasLocation)
               nearbyAsync.when(
                 data: (offers) => offers.isEmpty
-                    ? const SliverToBoxAdapter(child: _EmptyNearbyState())
-                    : SliverPadding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: FudiSpacing.lg,
-                        ),
-                        sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) => Padding(
-                              padding: const EdgeInsets.only(
-                                bottom: FudiSpacing.md,
-                              ),
-                              child: _buildDealCard(context, offers[index]),
-                            ),
-                            childCount: offers.length,
-                          ),
+                    ? const SliverToBoxAdapter(child: SizedBox.shrink())
+                    : SliverToBoxAdapter(
+                        child: _OfferColumnSection(
+                          title: 'Cerca de Ti',
+                          offers: offers,
+                          onSeeAll: () =>
+                              context.push(RouteNames.allOffersPath, extra: AllOffersView.nearby),
                         ),
                       ),
                 loading: () => SliverPadding(
@@ -202,7 +210,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: _ErrorState(message: userFriendlyMessage(error)),
                 ),
               ),
-            ],
+
             const SliverToBoxAdapter(child: SizedBox(height: FudiSpacing.xxl)),
           ],
         ),
@@ -210,39 +218,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget _buildDealCard(BuildContext context, Offer offer) {
-    final distance = _formatDistance(offer);
-    final isFavorite = ref.watch(favoritedOfferIdsProvider).contains(offer.id);
-
-    return DealCard(
-      imageUrl: offer.imageUrl ?? '',
-      businessName: offer.business.name,
-      businessType: offer.business.type,
-      originalPrice: offer.originalPrice,
-      discountedPrice: offer.discountedPrice,
-      rating: offer.rating,
-      distance: distance,
-      availableQuantity: offer.stock,
-      pickupUntil: offer.pickupUntilTimeOfDay,
-      categoryLabel: offer.categoryLabel.isNotEmpty
-          ? offer.categoryLabel
-          : null,
-      isFavorite: isFavorite,
-      onFavoriteToggle: () =>
-          ref.read(favoritedOfferIdsProvider.notifier).toggleFavorite(offer.id),
-      onTap: () => context.push('/product/${offer.id}'),
-    );
-  }
-
-  String _formatDistance(Offer offer) {
-    final pos = ref.read(userLocationProvider).asData?.value;
-    return GeoUtils.formatDistance(
-      offer.business.latitude,
-      offer.business.longitude,
-      userLat: pos?.latitude,
-      userLng: pos?.longitude,
-    );
-  }
 }
 
 class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -611,11 +586,16 @@ class _AddressItem extends StatelessWidget {
 const double _kDropdownTopOffset = 8.0;
 const double _kDropdownMaxWidth = 280.0;
 
-class _WelcomeBanner extends ConsumerWidget {
+class _WelcomeBanner extends ConsumerStatefulWidget {
   const _WelcomeBanner();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_WelcomeBanner> createState() => _WelcomeBannerState();
+}
+
+class _WelcomeBannerState extends ConsumerState<_WelcomeBanner> {
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authSessionNotifierProvider);
     final profile = authState.profile;
 
@@ -623,129 +603,62 @@ class _WelcomeBanner extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final lastEvent = ref.read(authSessionNotifierProvider.notifier).lastEvent;
-    if (lastEvent != AuthFlowEvent.signedIn) {
-      return const SizedBox.shrink();
-    }
+    final data = WelcomeMessage.generate(profile: profile, now: DateTime.now());
 
-    final state = ref.read(homeScreenStateProvider);
-    if (state.welcomeShown) {
-      return const SizedBox.shrink();
-    }
-
-    final now = DateTime.now();
-    final data = WelcomeMessage.generate(profile: profile, now: now);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(homeScreenStateProvider.notifier).markWelcomeShown();
-    });
-
-    return AnimatedOpacity(
-      opacity: 1.0,
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeOut,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(
-          FudiSpacing.lg,
-          FudiSpacing.md,
-          FudiSpacing.lg,
-          FudiSpacing.sm,
+    return Container(
+      margin: const EdgeInsets.fromLTRB(FudiSpacing.lg, FudiSpacing.md, FudiSpacing.lg, FudiSpacing.sm),
+      padding: const EdgeInsets.fromLTRB(FudiSpacing.lg, FudiSpacing.lg, FudiSpacing.lg, FudiSpacing.md),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [FudiColors.accent, FudiColors.accent.withValues(alpha: 0.92)],
         ),
-        padding: const EdgeInsets.fromLTRB(
-          FudiSpacing.lg,
-          FudiSpacing.lg,
-          FudiSpacing.lg,
-          FudiSpacing.md,
-        ),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              FudiColors.accent,
-              FudiColors.accent.withValues(alpha: 0.92),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(FudiRadius.xl),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(data.emoji, style: const TextStyle(fontSize: 28)),
-                const SizedBox(width: FudiSpacing.sm),
-                Expanded(
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '${data.greeting}, ',
-                          style: FudiTypography.h2.copyWith(
-                            color: FudiColors.accentForeground,
-                          ),
-                        ),
-                        TextSpan(
-                          text: data.displayName,
-                          style: FudiTypography.h2.copyWith(
-                            color: FudiColors.secondary,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
-                    ),
+        borderRadius: BorderRadius.circular(FudiRadius.xl),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(data.emoji, style: const TextStyle(fontSize: 28)),
+              const SizedBox(width: FudiSpacing.sm),
+              Expanded(
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '${data.greeting}, ',
+                        style: FudiTypography.h2.copyWith(color: FudiColors.accentForeground),
+                      ),
+                      TextSpan(
+                        text: data.displayName,
+                        style: FudiTypography.h2.copyWith(color: FudiColors.secondary, fontWeight: FontWeight.w800),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: FudiSpacing.xs),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: FudiSpacing.xl + FudiSpacing.sm + FudiSpacing.xs,
               ),
-              child: Text(
-                data.contextualMessage,
-                style: FudiTypography.bodyMedium.copyWith(
-                  color: FudiColors.accentForeground.withValues(alpha: 0.8),
-                  height: 1.4,
-                ),
+            ],
+          ),
+          const SizedBox(height: FudiSpacing.xs),
+          Padding(
+            padding: const EdgeInsets.only(left: FudiSpacing.xl + FudiSpacing.sm + FudiSpacing.xs),
+            child: Text(
+              data.contextualMessage,
+              style: FudiTypography.bodyMedium.copyWith(
+                color: FudiColors.accentForeground.withValues(alpha: 0.8),
+                height: 1.4,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-final homeScreenStateProvider =
-    NotifierProvider<HomeScreenStateNotifier, HomeScreenState>(
-      HomeScreenStateNotifier.new,
-    );
-
-class HomeScreenStateNotifier extends Notifier<HomeScreenState> {
-  @override
-  HomeScreenState build() {
-    ref.listen(authSessionNotifierProvider, (previous, next) {
-      final wasUnauthenticated = previous == null || !previous.isAuthenticated;
-      if (wasUnauthenticated && next.isAuthenticated) {
-        state = HomeScreenState(welcomeShown: false);
-      }
-    });
-    return HomeScreenState();
-  }
-
-  void markWelcomeShown() {
-    state = HomeScreenState(welcomeShown: true);
-  }
-}
-
-class HomeScreenState {
-  const HomeScreenState({this.welcomeShown = false});
-  final bool welcomeShown;
-}
-
-class _CategoryChips extends StatelessWidget {
+class _CategoryChips extends ConsumerStatefulWidget {
   const _CategoryChips({
     required this.stats,
     required this.selectedCategoryId,
@@ -757,12 +670,25 @@ class _CategoryChips extends StatelessWidget {
   final ValueChanged<String?> onSelected;
 
   @override
+  ConsumerState<_CategoryChips> createState() => _CategoryChipsState();
+}
+
+class _CategoryChipsState extends ConsumerState<_CategoryChips> {
+  bool _showAll = false;
+  static const _initialCount = 5;
+
+  @override
   Widget build(BuildContext context) {
-    // Add "All" option
     final allStats = [
       const CategoryStat(id: 'all', name: 'Todos', count: 0, emoji: '✨'),
-      ...stats,
+      ...widget.stats,
     ];
+    final display = _showAll ? allStats : allStats.take(_initialCount).toList();
+    final remaining = allStats.length - _initialCount;
+
+    final showMore = !_showAll && remaining > 0;
+    final showLess = _showAll && allStats.length > _initialCount;
+    final extraChips = (showMore || showLess) ? 1 : 0;
 
     return Container(
       color: FudiColors.background,
@@ -772,18 +698,62 @@ class _CategoryChips extends StatelessWidget {
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg),
-          itemCount: allStats.length,
+          itemCount: display.length + extraChips,
           separatorBuilder: (_, _) => const SizedBox(width: FudiSpacing.sm),
           itemBuilder: (context, index) {
-            final cat = allStats[index];
+            if (showMore && index == display.length) {
+              return _MoreChip(
+                label: '+$remaining',
+                onTap: () => setState(() => _showAll = true),
+              );
+            }
+            if (showLess && index == display.length) {
+              return _MoreChip(
+                label: 'Ver menos',
+                onTap: () => setState(() => _showAll = false),
+              );
+            }
+            final cat = display[index];
             final catId = cat.id == 'all' ? null : cat.id;
-            final isActive = catId == selectedCategoryId;
+            final isActive = catId == widget.selectedCategoryId;
             return _CategoryChip(
               label: cat.name,
               isActive: isActive,
-              onTap: () => onSelected(catId),
+              onTap: () => widget.onSelected(catId),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _MoreChip extends StatelessWidget {
+  const _MoreChip({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: FudiSpacing.lg,
+          vertical: FudiSpacing.sm,
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(FudiRadius.full),
+          border: Border.all(color: FudiColors.borderSolid),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: FudiTypography.bodyMedium.copyWith(
+              color: FudiColors.mutedForeground,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ),
     );
@@ -812,119 +782,25 @@ class _CategoryChip extends StatelessWidget {
           vertical: FudiSpacing.sm,
         ),
         decoration: BoxDecoration(
-          color: isActive ? FudiColors.primary : FudiColors.card,
+          color: isActive ? FudiColors.accent : FudiColors.muted.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(FudiRadius.full),
           border: Border.all(
-            color: FudiColors.primary.withValues(alpha: 0.5),
-            width: isActive ? 1.5 : 1.0,
+            color: isActive
+                ? FudiColors.accent
+                : FudiColors.accent.withValues(alpha: 0.15),
+            width: 1,
           ),
-          boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: FudiColors.primary.withValues(alpha: 0.15),
-                    blurRadius: 8,
-                    spreadRadius: -1,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
         ),
         child: Center(
           child: Text(
             label,
             style: FudiTypography.bodyMedium.copyWith(
               color: isActive
-                  ? FudiColors.primaryForeground
-                  : FudiColors.foreground,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                  ? FudiColors.accentForeground
+                  : FudiColors.accent.withValues(alpha: 0.7),
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, this.onSeeAll});
-
-  final String title;
-  final VoidCallback? onSeeAll;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        FudiSpacing.lg,
-        FudiSpacing.lg,
-        FudiSpacing.lg,
-        FudiSpacing.sm,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: FudiTypography.headlineSmall),
-          if (onSeeAll != null)
-            TextButton(
-              onPressed: onSeeAll,
-              child: Text(
-                'Ver todo',
-                style: FudiTypography.bodySmall.copyWith(
-                  color: FudiColors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmptyPopularState extends StatelessWidget {
-  const _EmptyPopularState();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(FudiSpacing.xl),
-      child: Center(
-        child: Column(
-          children: [
-            Icon(FudiIcons.store, size: 48, color: FudiColors.mutedForeground),
-            SizedBox(height: FudiSpacing.md),
-            Text(
-              'No hay ofertas disponibles ahora',
-              style: FudiTypography.bodyMedium,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyNearbyState extends StatelessWidget {
-  const _EmptyNearbyState();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(FudiSpacing.xl),
-      child: Center(
-        child: Column(
-          children: [
-            Icon(
-              FudiIcons.mapPinOutline,
-              size: 48,
-              color: FudiColors.mutedForeground,
-            ),
-            SizedBox(height: FudiSpacing.md),
-            Text(
-              'No hay ofertas cerca de ti',
-              style: FudiTypography.bodyMedium,
-            ),
-          ],
         ),
       ),
     );
@@ -1008,6 +884,465 @@ class _PopularLoadingSkeleton extends StatelessWidget {
         separatorBuilder: (_, _) => const SizedBox(width: FudiSpacing.md),
         itemBuilder: (_, _) =>
             const SizedBox(width: 260, child: _DealCardSkeleton()),
+      ),
+    );
+  }
+}
+
+/// Sección horizontal de ofertas en fila (Últimas Horas, Recién Agregados, Populares).
+class _OfferRowSection extends StatelessWidget {
+  const _OfferRowSection({
+    required this.title,
+    required this.icon,
+    required this.offers,
+    this.onSeeAll,
+  });
+
+  final String title;
+  final IconData icon;
+  final List<Offer> offers;
+  final VoidCallback? onSeeAll;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionHeader(title: title, icon: icon, onSeeAll: onSeeAll),
+        SizedBox(
+          height: 360,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg),
+            itemCount: offers.length,
+            separatorBuilder: (_, _) => const SizedBox(width: FudiSpacing.md),
+            itemBuilder: (context, index) {
+              final offer = offers[index];
+              return SizedBox(
+                width: 260,
+                child: _HomeDealCard(offer: offer),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Sección vertical de ofertas (Cerca de Ti).
+class _OfferColumnSection extends StatelessWidget {
+  const _OfferColumnSection({
+    required this.title,
+    required this.offers,
+    this.onSeeAll,
+  });
+
+  final String title;
+  final List<Offer> offers;
+  final VoidCallback? onSeeAll;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionHeader(title: title, onSeeAll: onSeeAll),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg),
+          child: Column(
+            children: offers.map((offer) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: FudiSpacing.md),
+                child: _HomeDealCard(offer: offer, fullWidth: true),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Sección horizontal de negocios.
+class _BusinessesRowSection extends StatelessWidget {
+  const _BusinessesRowSection({
+    required this.businesses,
+    this.onSeeAll,
+  });
+
+  final List<BusinessSummary> businesses;
+  final VoidCallback? onSeeAll;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionHeader(title: 'Negocios Cerca', icon: FudiIcons.store, onSeeAll: onSeeAll),
+        SizedBox(
+          height: 100,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg),
+            itemCount: businesses.length,
+            separatorBuilder: (_, _) => const SizedBox(width: FudiSpacing.md),
+            itemBuilder: (context, index) {
+              final business = businesses[index];
+              return SizedBox(
+                width: 280,
+                child: _HomeBusinessCard(business: business),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Tips de rescate estáticos.
+/// Item de contenido para el slider promocional.
+///
+/// Extensible: en futuro puede representar anuncios, ofertas, comunicados, etc.
+/// Item de contenido para el slider promocional.
+///
+/// Extensible: en futuro puede recibir [iconColor], [backgroundColor],
+/// [borderColor], [onTap] para anuncios, ofertas o comunicados.
+class _PromoItem {
+  const _PromoItem({
+    required this.title,
+    required this.message,
+    this.icon,
+  });
+
+  final String title;
+  final String message;
+  final IconData? icon;
+}
+
+/// Slider auto-rotante de contenido promocional (tips, anuncios, ofertas…).
+class _PromoSlider extends StatefulWidget {
+  const _PromoSlider();
+
+  @override
+  State<_PromoSlider> createState() => _PromoSliderState();
+}
+
+class _PromoSliderState extends State<_PromoSlider> {
+  final _pageController = PageController();
+  Timer? _timer;
+  int _currentPage = 0;
+  bool _isPaused = false;
+
+  static const _items = [
+    _PromoItem(
+      title: '¿Sabías que…',
+      message:
+          'Cada año se desperdician 1.3 mil millones de toneladas de comida en el mundo. ¡Tú puedes ayudar!',
+      icon: FudiIcons.info,
+    ),
+    _PromoItem(
+      title: 'Impacto ambiental',
+      message:
+          'Al rescatar un paquete sorpresa evitas la emisión de ~2.5kg de CO2. Cada rescate cuenta.',
+      icon: FudiIcons.trendingUp,
+    ),
+    _PromoItem(
+      title: 'Comida rescatada',
+      message:
+          'Los alimentos aptos para consumo pero no para venta son rescatados por negocios como los de Fudi.',
+      icon: FudiIcons.package_,
+    ),
+    _PromoItem(
+      title: 'Gana-gana',
+      message:
+          'Rescatar comida no solo ahorra dinero, también reduce el desperdicio y apoya a negocios locales.',
+      icon: FudiIcons.star,
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _startAutoRotate();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _startAutoRotate() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!_isPaused && _items.length > 1) {
+        final next = (_currentPage + 1) % _items.length;
+        _pageController.animateToPage(
+          next,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_items.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        FudiSpacing.lg,
+        FudiSpacing.md,
+        FudiSpacing.lg,
+        0,
+      ),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 110,
+            child: Listener(
+              onPointerDown: (_) => setState(() => _isPaused = true),
+              onPointerUp: (_) => setState(() => _isPaused = false),
+              onPointerCancel: (_) => setState(() => _isPaused = false),
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (page) => setState(() => _currentPage = page),
+                itemCount: _items.length,
+                itemBuilder: (context, index) {
+                  final item = _items[index];
+                  return _PromoCard(item: item);
+                },
+              ),
+            ),
+          ),
+          if (_items.length > 1) ...[
+            const SizedBox(height: FudiSpacing.sm),
+            _PageDots(
+              count: _items.length,
+              current: _currentPage,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Card individual dentro del slider promocional.
+class _PromoCard extends StatelessWidget {
+  const _PromoCard({required this.item});
+
+  final _PromoItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(FudiSpacing.md),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              FudiColors.primary.withValues(alpha: 0.08),
+              FudiColors.accent.withValues(alpha: 0.08),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(FudiRadius.lg),
+          border: Border.all(
+            color: FudiColors.primary.withValues(alpha: 0.15),
+          ),
+        ),
+        child: Row(
+          children: [
+            if (item.icon != null) ...[
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: FudiColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(FudiRadius.sm),
+                ),
+                child: Icon(
+                  item.icon,
+                  size: 18,
+                  color: FudiColors.primary,
+                ),
+              ),
+              const SizedBox(width: FudiSpacing.md),
+            ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    item.title,
+                    style: FudiTypography.labelSmall.copyWith(
+                      fontSize: 13,
+                      color: FudiColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    item.message,
+                    style: FudiTypography.bodySmall.copyWith(
+                      fontSize: 12,
+                      height: 1.4,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+  }
+}
+
+/// Indicadores de página (puntos).
+class _PageDots extends StatelessWidget {
+  const _PageDots({required this.count, required this.current});
+
+  final int count;
+  final int current;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(count, (index) {
+        final isActive = index == current;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          width: isActive ? 20 : 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: isActive
+                ? FudiColors.primary
+                : FudiColors.mutedForeground.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(4),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+/// Wrapper around DealCard that provides distance and favorites from context.
+class _HomeDealCard extends ConsumerWidget {
+  const _HomeDealCard({required this.offer, this.fullWidth = false});
+
+  final Offer offer;
+  final bool fullWidth;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pos = ref.read(userLocationProvider).asData?.value;
+    final distance = GeoUtils.formatDistance(
+      offer.business.latitude,
+      offer.business.longitude,
+      userLat: pos?.latitude,
+      userLng: pos?.longitude,
+    );
+    final isFavorite = ref.watch(favoritedOfferIdsProvider).contains(offer.id);
+
+    return DealCard(
+      imageUrl: offer.imageUrl ?? offer.business.imageUrl ?? '',
+      businessName: offer.business.name,
+      businessType: offer.business.type,
+      originalPrice: offer.originalPrice,
+      discountedPrice: offer.discountedPrice,
+      rating: offer.rating,
+      distance: distance,
+      availableQuantity: offer.stock,
+      pickupUntil: offer.pickupUntilTimeOfDay,
+      categoryLabel: offer.categoryLabel,
+      isFavorite: isFavorite,
+      onFavoriteToggle: () =>
+          ref.read(favoritedOfferIdsProvider.notifier).toggleFavorite(offer.id),
+      onTap: () => context.push('/product/${offer.id}'),
+    );
+  }
+}
+
+/// Wrapper around BusinessCard that provides distance from context.
+class _HomeBusinessCard extends ConsumerWidget {
+  const _HomeBusinessCard({required this.business});
+
+  final BusinessSummary business;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pos = ref.read(userLocationProvider).asData?.value;
+    final distance = GeoUtils.formatDistance(
+      business.latitude,
+      business.longitude,
+      userLat: pos?.latitude,
+      userLng: pos?.longitude,
+    );
+
+    return BusinessCard(
+      imageUrl: business.imageUrl ?? '',
+      name: business.name,
+      type: business.type,
+      rating: business.rating,
+      distance: distance,
+      activeDealsCount: business.activeDealsCount,
+      onTap: () => context.push(
+        RouteNames.businessProfileViewPath.replaceAll(':id', business.id),
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title, this.icon, this.onSeeAll});
+
+  final String title;
+  final IconData? icon;
+  final VoidCallback? onSeeAll;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        FudiSpacing.lg,
+        FudiSpacing.lg,
+        FudiSpacing.lg,
+        FudiSpacing.sm,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 18, color: FudiColors.primary),
+                const SizedBox(width: 6),
+              ],
+              Text(title, style: FudiTypography.headlineSmall),
+            ],
+          ),
+          if (onSeeAll != null)
+            TextButton(
+              onPressed: onSeeAll,
+              child: Text(
+                'Ver todo',
+                style: FudiTypography.bodySmall.copyWith(
+                  color: FudiColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

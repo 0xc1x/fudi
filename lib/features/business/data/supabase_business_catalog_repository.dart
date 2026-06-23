@@ -5,6 +5,7 @@ import '../../../core/error/data_exceptions.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/postgrest_exception_mapper.dart';
 import '../../offers/domain/offer.dart';
+import '../../offers/domain/offer_category.dart';
 import '../domain/business_catalog_repository.dart';
 
 class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
@@ -14,11 +15,14 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
   final SupabaseClient _supabaseClient;
 
   static const _selectFields = '''
-  id, business_id, title, description, image, category,
+  id, business_id, business_location_id, title, description, image, category,
   original_price, discounted_price, stock, initial_stock,
   pickup_start, pickup_end, is_active, includes, allergens, rating, review_count,
   businesses:business_id (
-    id, name, type, image, latitude, longitude, rating, address
+    id, name, type, image, rating, review_count
+  ),
+  business_locations:business_location_id (
+    id, name, address, latitude, longitude, zone
   )
   ''';
 
@@ -162,28 +166,32 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
     }
   }
 
-  // ─── Mapping helpers ──────────────────────────────────────────
-
   Offer _mapOfferFromJson(Map<String, dynamic> json) {
     final businessJson = json['businesses'] as Map<String, dynamic>;
+    final locationJson = json['business_locations']
+        as Map<String, dynamic>?;
 
     return Offer(
       id: json['id'] as String,
       businessId: json['business_id'] as String,
+      businessLocationId: json['business_location_id'] as String,
       business: BusinessInfo(
         id: businessJson['id'] as String,
         name: businessJson['name'] as String,
         type: businessJson['type'] as String,
         imageUrl: businessJson['image'] as String?,
-        latitude: _toDouble(businessJson['latitude']),
-        longitude: _toDouble(businessJson['longitude']),
+        address: locationJson?['address'] as String? ?? '',
+        businessLocationId: locationJson?['id'] as String?,
+        latitude: _toDouble(locationJson?['latitude']),
+        longitude: _toDouble(locationJson?['longitude']),
+        zone: locationJson?['zone'] as String?,
         rating: _toDouble(businessJson['rating']) ?? 0.0,
-        address: businessJson['address'] as String? ?? '',
+        reviewCount: businessJson['review_count'] as int? ?? 0,
       ),
       title: json['title'] as String,
       description: json['description'] as String?,
       imageUrl: json['image'] as String?,
-      category: json['category'] as String?,
+      category: OfferCategory.fromDb(json['category'] as String?),
       includes: json['includes'] as String?,
       allergens: json['allergens'] as String?,
       originalPrice: _toDouble(json['original_price']) ?? 0.0,
@@ -201,9 +209,10 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
   Map<String, dynamic> _mapOfferToJson(Offer offer) {
     return {
       'business_id': offer.businessId,
+      'business_location_id': offer.businessLocationId,
       'title': offer.title,
       'description': offer.description,
-      'category': offer.category,
+      'category': offer.category?.dbValue,
       'includes': offer.includes,
       'allergens': offer.allergens,
       'original_price': offer.originalPrice,

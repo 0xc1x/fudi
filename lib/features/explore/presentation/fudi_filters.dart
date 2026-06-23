@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
+import '../../offers/domain/offer_category.dart';
 import '../../offers/presentation/offer_providers.dart';
 
 class FudiFilterState {
@@ -14,7 +15,7 @@ class FudiFilterState {
     this.searchQuery,
   });
 
-  final String? category;
+  final OfferCategory? category;
   final double? maxPrice;
   final double? maxDistanceKm;
   final String? searchQuery;
@@ -28,7 +29,7 @@ class FudiFilterState {
   FudiFilterState clear() => const FudiFilterState();
 
   FudiFilterState copyWith({
-    String? category,
+    OfferCategory? category,
     double? maxPrice,
     double? maxDistanceKm,
     String? searchQuery,
@@ -82,7 +83,7 @@ class FudiFiltersSheet extends ConsumerStatefulWidget {
 
 class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
   late FudiFilterState _filters;
-  List<String> _categories = [];
+  List<OfferCategory> _categories = [];
 
   static const _distanceOptions = [2.0, 5.0, 10.0];
   static const _priceOptions = [2.0, 5.0, 10.0];
@@ -153,7 +154,7 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
               children: _categories.map((cat) {
                 final isSelected = _filters.category == cat;
                 return FilterChip(
-                  label: Text(_categoryLabel(cat)),
+                  label: Text(cat.dbValue),
                   selected: isSelected,
                   onSelected: (selected) {
                     setState(() {
@@ -241,11 +242,6 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
         ],
       ),
     );
-  }
-
-  String _categoryLabel(String cat) {
-    if (cat.isEmpty) return cat;
-    return '${cat[0].toUpperCase()}${cat.substring(1)}';
   }
 
   void _clearAll() {
