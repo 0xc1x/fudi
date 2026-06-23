@@ -37,7 +37,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String? _selectedCategoryId;
 
   void _onCategorySelected(String? categoryId) {
-    final category = categoryId != null ? OfferCategory.fromDb(categoryId) : null;
+    final category = categoryId != null
+        ? OfferCategory.fromDb(categoryId)
+        : null;
     setState(() => _selectedCategoryId = categoryId);
     ref.read(popularOffersProvider.notifier).filterByCategory(category);
     ref.read(nearbyOffersProvider.notifier).filterByCategory(category);
@@ -70,12 +72,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onRefresh: () async {
           if (_selectedCategoryId != null) {
             final category = OfferCategory.fromDb(_selectedCategoryId);
-            ref
-                .read(popularOffersProvider.notifier)
-                .filterByCategory(category);
-            ref
-                .read(nearbyOffersProvider.notifier)
-                .filterByCategory(category);
+            ref.read(popularOffersProvider.notifier).filterByCategory(category);
+            ref.read(nearbyOffersProvider.notifier).filterByCategory(category);
           } else {
             await ref.read(popularOffersProvider.notifier).refresh();
             await ref.read(nearbyOffersProvider.notifier).refresh();
@@ -117,8 +115,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         title: 'Últimas Horas',
                         icon: FudiIcons.clock,
                         offers: offers,
-                        onSeeAll: () =>
-                            context.push(RouteNames.allOffersPath, extra: AllOffersView.expiring),
+                        onSeeAll: () => context.push(
+                          RouteNames.allOffersPath,
+                          extra: AllOffersView.expiring,
+                        ),
                       ),
                     ),
               loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
@@ -135,8 +135,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         title: 'Recién Agregados',
                         icon: FudiIcons.trendingUp,
                         offers: offers,
-                        onSeeAll: () =>
-                            context.push(RouteNames.allOffersPath, extra: AllOffersView.recent),
+                        onSeeAll: () => context.push(
+                          RouteNames.allOffersPath,
+                          extra: AllOffersView.recent,
+                        ),
                       ),
                     ),
               loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
@@ -153,8 +155,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         title: 'Ofertas Populares',
                         icon: FudiIcons.trendingUp,
                         offers: offers,
-                        onSeeAll: () =>
-                            context.push(RouteNames.allOffersPath, extra: AllOffersView.popular),
+                        onSeeAll: () => context.push(
+                          RouteNames.allOffersPath,
+                          extra: AllOffersView.popular,
+                        ),
                       ),
                     ),
               loading: () =>
@@ -191,8 +195,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         child: _OfferColumnSection(
                           title: 'Cerca de Ti',
                           offers: offers,
-                          onSeeAll: () =>
-                              context.push(RouteNames.allOffersPath, extra: AllOffersView.nearby),
+                          onSeeAll: () => context.push(
+                            RouteNames.allOffersPath,
+                            extra: AllOffersView.nearby,
+                          ),
                         ),
                       ),
                 loading: () => SliverPadding(
@@ -217,7 +223,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
   }
-
 }
 
 class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -606,13 +611,26 @@ class _WelcomeBannerState extends ConsumerState<_WelcomeBanner> {
     final data = WelcomeMessage.generate(profile: profile, now: DateTime.now());
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(FudiSpacing.lg, FudiSpacing.md, FudiSpacing.lg, FudiSpacing.sm),
-      padding: const EdgeInsets.fromLTRB(FudiSpacing.lg, FudiSpacing.lg, FudiSpacing.lg, FudiSpacing.md),
+      margin: const EdgeInsets.fromLTRB(
+        FudiSpacing.lg,
+        FudiSpacing.md,
+        FudiSpacing.lg,
+        FudiSpacing.sm,
+      ),
+      padding: const EdgeInsets.fromLTRB(
+        FudiSpacing.lg,
+        FudiSpacing.lg,
+        FudiSpacing.lg,
+        FudiSpacing.md,
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [FudiColors.accent, FudiColors.accent.withValues(alpha: 0.92)],
+          colors: [
+            FudiColors.accent,
+            FudiColors.accent.withValues(alpha: 0.92),
+          ],
         ),
         borderRadius: BorderRadius.circular(FudiRadius.xl),
       ),
@@ -629,11 +647,16 @@ class _WelcomeBannerState extends ConsumerState<_WelcomeBanner> {
                     children: [
                       TextSpan(
                         text: '${data.greeting}, ',
-                        style: FudiTypography.h2.copyWith(color: FudiColors.accentForeground),
+                        style: FudiTypography.h2.copyWith(
+                          color: FudiColors.accentForeground,
+                        ),
                       ),
                       TextSpan(
                         text: data.displayName,
-                        style: FudiTypography.h2.copyWith(color: FudiColors.secondary, fontWeight: FontWeight.w800),
+                        style: FudiTypography.h2.copyWith(
+                          color: FudiColors.secondary,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ],
                   ),
@@ -643,7 +666,9 @@ class _WelcomeBannerState extends ConsumerState<_WelcomeBanner> {
           ),
           const SizedBox(height: FudiSpacing.xs),
           Padding(
-            padding: const EdgeInsets.only(left: FudiSpacing.xl + FudiSpacing.sm + FudiSpacing.xs),
+            padding: const EdgeInsets.only(
+              left: FudiSpacing.xl + FudiSpacing.sm + FudiSpacing.xs,
+            ),
             child: Text(
               data.contextualMessage,
               style: FudiTypography.bodyMedium.copyWith(
@@ -782,7 +807,9 @@ class _CategoryChip extends StatelessWidget {
           vertical: FudiSpacing.sm,
         ),
         decoration: BoxDecoration(
-          color: isActive ? FudiColors.accent : FudiColors.muted.withValues(alpha: 0.3),
+          color: isActive
+              ? FudiColors.accent
+              : FudiColors.muted.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(FudiRadius.full),
           border: Border.all(
             color: isActive
@@ -910,7 +937,7 @@ class _OfferRowSection extends StatelessWidget {
       children: [
         _SectionHeader(title: title, icon: icon, onSeeAll: onSeeAll),
         SizedBox(
-          height: 360,
+          height: 320,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg),
@@ -918,10 +945,7 @@ class _OfferRowSection extends StatelessWidget {
             separatorBuilder: (_, _) => const SizedBox(width: FudiSpacing.md),
             itemBuilder: (context, index) {
               final offer = offers[index];
-              return SizedBox(
-                width: 260,
-                child: _HomeDealCard(offer: offer),
-              );
+              return SizedBox(width: 260, child: _HomeDealCard(offer: offer));
             },
           ),
         ),
@@ -966,10 +990,7 @@ class _OfferColumnSection extends StatelessWidget {
 
 /// Sección horizontal de negocios.
 class _BusinessesRowSection extends StatelessWidget {
-  const _BusinessesRowSection({
-    required this.businesses,
-    this.onSeeAll,
-  });
+  const _BusinessesRowSection({required this.businesses, this.onSeeAll});
 
   final List<BusinessSummary> businesses;
   final VoidCallback? onSeeAll;
@@ -979,7 +1000,11 @@ class _BusinessesRowSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SectionHeader(title: 'Negocios Cerca', icon: FudiIcons.store, onSeeAll: onSeeAll),
+        _SectionHeader(
+          title: 'Negocios Cerca',
+          icon: FudiIcons.store,
+          onSeeAll: onSeeAll,
+        ),
         SizedBox(
           height: 100,
           child: ListView.separated(
@@ -1010,11 +1035,7 @@ class _BusinessesRowSection extends StatelessWidget {
 /// Extensible: en futuro puede recibir [iconColor], [backgroundColor],
 /// [borderColor], [onTap] para anuncios, ofertas o comunicados.
 class _PromoItem {
-  const _PromoItem({
-    required this.title,
-    required this.message,
-    this.icon,
-  });
+  const _PromoItem({required this.title, required this.message, this.icon});
 
   final String title;
   final String message;
@@ -1121,10 +1142,7 @@ class _PromoSliderState extends State<_PromoSlider> {
           ),
           if (_items.length > 1) ...[
             const SizedBox(height: FudiSpacing.sm),
-            _PageDots(
-              count: _items.length,
-              current: _currentPage,
-            ),
+            _PageDots(count: _items.length, current: _currentPage),
           ],
         ],
       ),
@@ -1143,66 +1161,60 @@ class _PromoCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(FudiSpacing.md),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              FudiColors.primary.withValues(alpha: 0.08),
-              FudiColors.accent.withValues(alpha: 0.08),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(FudiRadius.lg),
-          border: Border.all(
-            color: FudiColors.primary.withValues(alpha: 0.15),
-          ),
-        ),
-        child: Row(
-          children: [
-            if (item.icon != null) ...[
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: FudiColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(FudiRadius.sm),
-                ),
-                child: Icon(
-                  item.icon,
-                  size: 18,
-                  color: FudiColors.primary,
-                ),
-              ),
-              const SizedBox(width: FudiSpacing.md),
-            ],
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    item.title,
-                    style: FudiTypography.labelSmall.copyWith(
-                      fontSize: 13,
-                      color: FudiColors.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    item.message,
-                    style: FudiTypography.bodySmall.copyWith(
-                      fontSize: 12,
-                      height: 1.4,
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            FudiColors.primary.withValues(alpha: 0.08),
+            FudiColors.accent.withValues(alpha: 0.08),
           ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-      );
+        borderRadius: BorderRadius.circular(FudiRadius.lg),
+        border: Border.all(color: FudiColors.primary.withValues(alpha: 0.15)),
+      ),
+      child: Row(
+        children: [
+          if (item.icon != null) ...[
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: FudiColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(FudiRadius.sm),
+              ),
+              child: Icon(item.icon, size: 18, color: FudiColors.primary),
+            ),
+            const SizedBox(width: FudiSpacing.md),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  item.title,
+                  style: FudiTypography.labelSmall.copyWith(
+                    fontSize: 13,
+                    color: FudiColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  item.message,
+                  style: FudiTypography.bodySmall.copyWith(
+                    fontSize: 12,
+                    height: 1.4,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -1257,7 +1269,6 @@ class _HomeDealCard extends ConsumerWidget {
     return DealCard(
       imageUrl: offer.imageUrl ?? offer.business.imageUrl ?? '',
       businessName: offer.business.name,
-      businessType: offer.business.type,
       originalPrice: offer.originalPrice,
       discountedPrice: offer.discountedPrice,
       rating: offer.rating,
@@ -1362,7 +1373,7 @@ class _DealCardSkeleton extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(height: 180, color: FudiColors.muted),
+            Container(height: 200, color: FudiColors.muted),
             const Padding(
               padding: EdgeInsets.all(FudiSpacing.md),
               child: Column(

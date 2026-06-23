@@ -157,7 +157,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     return DealCard(
       imageUrl: offer.imageUrl ?? offer.business.imageUrl ?? '',
       businessName: offer.business.name,
-      businessType: offer.business.type,
       originalPrice: offer.originalPrice,
       discountedPrice: offer.discountedPrice,
       rating: offer.rating,
@@ -959,7 +958,7 @@ class _DealCardSkeleton extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(height: 180, color: FudiColors.muted),
+            Container(height: 200, color: FudiColors.muted),
             const Padding(
               padding: EdgeInsets.all(FudiSpacing.md),
               child: Column(

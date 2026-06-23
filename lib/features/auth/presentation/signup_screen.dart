@@ -192,6 +192,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                           color: FudiColors.mutedForeground,
                                         ),
                                         hintText: 'Tu nombre',
+                                        hintStyle: const TextStyle(
+                                          color: FudiColors.mutedForeground,
+                                        ),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(
                                             12,
@@ -252,6 +255,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                           color: FudiColors.mutedForeground,
                                         ),
                                         hintText: 'tu@email.com',
+                                        hintStyle: const TextStyle(
+                                          color: FudiColors.mutedForeground,
+                                        ),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(
                                             12,
@@ -328,6 +334,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                           ),
                                         ),
                                         hintText: 'Mínimo 8 caracteres',
+                                        hintStyle: const TextStyle(
+                                          color: FudiColors.mutedForeground,
+                                        ),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(
                                             12,

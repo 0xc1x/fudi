@@ -64,7 +64,6 @@ class UiGalleryScreen extends StatelessWidget {
               imageUrl:
                   'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=400',
               businessName: 'Panadería La Esperanza',
-              businessType: 'Bakery • Repostería',
               originalPrice: 15.00,
               discountedPrice: 7.50,
               rating: 4.8,

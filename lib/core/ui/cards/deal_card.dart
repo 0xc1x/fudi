@@ -11,7 +11,6 @@ class DealCard extends StatelessWidget {
     super.key,
     required this.imageUrl,
     required this.businessName,
-    required this.businessType,
     required this.originalPrice,
     required this.discountedPrice,
     required this.rating,
@@ -26,7 +25,6 @@ class DealCard extends StatelessWidget {
 
   final String imageUrl;
   final String businessName;
-  final String businessType;
   final double originalPrice;
   final double discountedPrice;
   final double rating;
@@ -83,16 +81,16 @@ class DealCard extends StatelessWidget {
       children: [
         CachedNetworkImage(
           imageUrl: imageUrl,
-          height: 180,
+          height: 200,
           width: double.infinity,
           fit: BoxFit.cover,
           placeholder: (context, url) => Shimmer.fromColors(
             baseColor: FudiColors.muted,
             highlightColor: Colors.white,
-            child: Container(height: 180, color: FudiColors.muted),
+            child: Container(height: 250, color: FudiColors.muted),
           ),
           errorWidget: (context, url, error) => Container(
-            height: 180,
+            height: 250,
             color: FudiColors.muted,
             child: const Icon(
               FudiIcons.imageOff,
@@ -126,7 +124,12 @@ class DealCard extends StatelessWidget {
 
   Widget _buildContent(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(FudiSpacing.md),
+      padding: const EdgeInsets.only(
+        left: FudiSpacing.md,
+        right: FudiSpacing.md,
+        top: FudiSpacing.md,
+        bottom: 0,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -150,9 +153,7 @@ class DealCard extends StatelessWidget {
               ],
             ],
           ),
-          const SizedBox(height: 2),
-          Text(businessType, style: FudiTypography.bodySmall),
-          const SizedBox(height: FudiSpacing.sm),
+          const SizedBox(height: FudiSpacing.xs),
           Row(
             children: [
               const Icon(
@@ -171,55 +172,61 @@ class DealCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: FudiSpacing.sm),
+          const SizedBox(height: 1),
           Divider(
             height: 1,
             color: FudiColors.borderSolid.withValues(alpha: 0.5),
           ),
-          const SizedBox(height: FudiSpacing.sm),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(
-                      FudiIcons.clock,
-                      size: 14,
-                      color: FudiColors.primary,
-                    ),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        'Recoge antes de ${pickupUntil.format(context)}',
-                        style: FudiTypography.bodySmall.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: FudiColors.primary,
+          const SizedBox(height: 1),
+          Container(
+            margin: const EdgeInsets.only(
+              bottom: FudiSpacing.sm,
+            ), // Este margen define el espacio final real con el borde redondeado
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        FudiIcons.clock,
+                        size: 14,
+                        color: FudiColors.primary,
+                      ),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          'Recoge antes de ${pickupUntil.format(context)}',
+                          style: FudiTypography.bodySmall.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: FudiColors.primary,
+                          ),
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: FudiSpacing.sm),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '\$${originalPrice.toStringAsFixed(2)}',
+                      style: FudiTypography.priceOriginal.copyWith(height: 1.0),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '\$${discountedPrice.toStringAsFixed(2)}',
+                      style: FudiTypography.priceLarge.copyWith(height: 1.0),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: FudiSpacing.sm),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '\$${originalPrice.toStringAsFixed(2)}',
-                    style: FudiTypography.priceOriginal,
-                  ),
-                  Text(
-                    '\$${discountedPrice.toStringAsFixed(2)}',
-                    style: FudiTypography.priceLarge,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

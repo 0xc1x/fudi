@@ -256,6 +256,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                           color: FudiColors.mutedForeground,
                                         ),
                                         hintText: 'tu@email.com',
+                                        hintStyle: const TextStyle(
+                                          color: FudiColors.mutedForeground,
+                                        ),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(
                                             12,
@@ -332,6 +335,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                           ),
                                         ),
                                         hintText: '••••••••',
+                                        hintStyle: const TextStyle(
+                                          color: FudiColors.mutedForeground,
+                                        ),
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(
                                             12,
