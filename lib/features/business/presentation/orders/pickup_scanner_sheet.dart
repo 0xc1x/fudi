@@ -4,6 +4,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../business_providers.dart';
 
@@ -193,9 +194,16 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
           style: const TextStyle(color: Colors.white70, fontSize: 12),
         ),
         const SizedBox(height: 16),
-        FilledButton(
-          onPressed: _resetScanner,
-          child: const Text('Escanear de nuevo'),
+        FudiPressableScale(
+          onTap: _resetScanner,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            decoration: BoxDecoration(
+              color: FudiColors.primary,
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: const Text('Escanear de nuevo', style: TextStyle(color: Colors.white)),
+          ),
         ),
       ],
     );

@@ -8,179 +8,286 @@ import 'fudi_colors.dart';
 import 'atoms/icons/fudi_icons.dart';
 import 'fudi_spacing.dart';
 
-/// Navegación inferior de Fudi.
-///
-/// Replica fielmente el BottomNav del mockup React:
-/// - 3 tabs por modo (Consumer / Business)
-/// - Custom nav bar (no Material NavigationBar)
-/// - border-top separador, max-width 480px centrado
-/// - Mismo icono en ambos estados, solo cambia el color
-/// - Color activo: FudiColors.primary, inactivo: FudiColors.mutedForeground
-class FudiBottomNav extends ConsumerWidget {
+// ── Constantes a nivel de archivo ────────────────────────────────────────────
+// Al estar aquí (y no dentro de una clase) son accesibles tanto desde
+// FudiBottomNav como desde _FudiBottomNavState sin el prefijo de clase
+// que causaba el error de compilación.
+
+const _consumerItems = [
+  _NavItem(label: 'Inicio', icon: FudiIcons.home),
+  _NavItem(label: 'Explorar', icon: FudiIcons.search),
+  _NavItem(label: 'Perfil', icon: FudiIcons.user),
+];
+
+const _consumerRoutes = [
+  RouteNames.homePath,
+  RouteNames.explorePath,
+  RouteNames.profilePath,
+];
+
+const _businessItems = [
+  _NavItem(label: 'Productos', icon: FudiIcons.package_),
+  _NavItem(label: 'Pedidos', icon: FudiIcons.shoppingBag),
+  _NavItem(label: 'Gestión', icon: FudiIcons.building2),
+];
+
+const _businessRoutes = [
+  RouteNames.businessProductsPath,
+  RouteNames.businessOrdersPath,
+  RouteNames.businessLocationsPath,
+];
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+int _calculateSelectedIndex(String location, AppMode mode) {
+  final routes = mode == AppMode.consumer ? _consumerRoutes : _businessRoutes;
+
+  for (int i = 0; i < routes.length; i++) {
+    final route = routes[i];
+    if (route == '/' || route == '/business') {
+      if (location == route) return i;
+    } else {
+      if (location.startsWith(route)) return i;
+    }
+  }
+
+  if (mode == AppMode.consumer) {
+    if (location.startsWith('/orders') ||
+        location.startsWith('/favorites') ||
+        location.startsWith('/payment-methods') ||
+        location.startsWith('/saved-addresses')) {
+      return 2;
+    }
+  } else if (mode == AppMode.business) {
+    if (location.startsWith('/business')) return 2;
+  }
+
+  return 0;
+}
+
+// ── Widget ────────────────────────────────────────────────────────────────────
+
+class FudiBottomNav extends ConsumerStatefulWidget {
   const FudiBottomNav({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FudiBottomNav> createState() => _FudiBottomNavState();
+}
+
+class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
+    with SingleTickerProviderStateMixin {
+  static const _duration = Duration(milliseconds: 100);
+
+  late AnimationController _controller;
+  late Animation<double> _pillAnim;
+
+  /// Posición desde la que arranca la animación actual.
+  double _fromLeft = -1; // -1 = todavía no inicializado
+
+  /// Posición destino de la animación actual.
+  double _toLeft = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: _duration);
+    // Valor placeholder; se reemplaza en el primer build.
+    _pillAnim = AlwaysStoppedAnimation(0.0);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  /// Lanza la animación hacia [targetLeft].
+  /// Parte del valor interpolado actual para soportar interrupciones en vuelo.
+  void _animateTo(double targetLeft) {
+    if (_toLeft == targetLeft) return; // ya estamos ahí
+
+    final startLeft = _fromLeft < 0
+        ? targetLeft // primer frame: sin animación
+        : _pillAnim.value; // si está animando, parte del punto actual
+
+    _fromLeft = startLeft;
+    _toLeft = targetLeft;
+
+    _pillAnim = Tween<double>(begin: startLeft, end: targetLeft).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubic),
+    );
+
+    _controller
+      ..reset()
+      ..forward();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final appMode = ref.watch(appModeProvider);
     final location = GoRouterState.of(context).matchedLocation;
 
     final items = appMode == AppMode.consumer ? _consumerItems : _businessItems;
-
     final currentIndex = _calculateSelectedIndex(location, appMode);
 
     return Container(
       decoration: const BoxDecoration(
-        color: FudiColors.background,
+        color: Colors.white,
         border: Border(
           top: BorderSide(color: FudiColors.borderSolid, width: 1),
         ),
       ),
       constraints: const BoxConstraints(maxWidth: 480),
-      child: SizedBox(
-        height: 64,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(items.length, (index) {
-            final item = items[index];
-            final isActive = index == currentIndex;
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final itemWidth = constraints.maxWidth / items.length;
+          final pillWidth = itemWidth * 0.8;
+          final targetLeft =
+              currentIndex * itemWidth + (itemWidth - pillWidth) / 2;
 
-            return _NavTab(
-              icon: item.icon,
-              label: item.label,
-              isActive: isActive,
-              onTap: () => _onTap(context, index, appMode),
-            );
-          }),
-        ),
+          // Si el destino cambió, programamos la animación para después
+          // del frame actual (no se puede mutar estado durante el build).
+          if (_toLeft != targetLeft) {
+            if (_fromLeft < 0) {
+              // Primer build: posicionamos sin animar.
+              _fromLeft = targetLeft;
+              _toLeft = targetLeft;
+              _pillAnim = AlwaysStoppedAnimation(targetLeft);
+            } else {
+              WidgetsBinding.instance.addPostFrameCallback(
+                (_) => _animateTo(targetLeft),
+              );
+            }
+          }
+
+          return AnimatedBuilder(
+            animation: _pillAnim,
+            builder: (context, _) {
+              // animLeft es el valor real interpolado en cada frame.
+              final animLeft = _pillAnim.value;
+
+              return SizedBox(
+                height: 64,
+                child: Stack(
+                  children: [
+                    // ── CAPA 1: iconos muted siempre visibles (fondo) ──────
+                    Row(
+                      children: List.generate(items.length, (index) {
+                        return Expanded(
+                          child: GestureDetector(
+                            onTap: () => _onTap(context, index, appMode),
+                            behavior: HitTestBehavior.opaque,
+                            child: SizedBox(
+                              height: 64,
+                              child: Center(
+                                child: Icon(
+                                  items[index].icon,
+                                  size: 28,
+                                  color: FudiColors.mutedForeground,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+
+                    // ── CAPA 2: píldora deslizante ─────────────────────────
+                    Positioned(
+                      left: animLeft,
+                      width: pillWidth,
+                      top: 12,
+                      bottom: 12,
+                      child: IgnorePointer(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: FudiSpacing.sm,
+                          ),
+                          decoration: BoxDecoration(
+                            color: FudiColors.foreground,
+                            borderRadius: BorderRadius.circular(FudiRadius.md),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // ── CAPA 3: ventana-máscara con contenido "clavado" ────
+                    //
+                    // La ventana (ClipRect) se mueve junto a la píldora.
+                    // El Transform.translate compensa ese movimiento con
+                    // -animLeft, de modo que el Row interior queda
+                    // absolutamente fijo respecto a la pantalla.
+                    // El efecto resultante: la píldora "revela" el texto
+                    // blanco que ya estaba ahí, sin que el contenido salte.
+                    Positioned(
+                      left: animLeft,
+                      width: pillWidth,
+                      top: 0,
+                      bottom: 0,
+                      child: IgnorePointer(
+                        child: ClipRect(
+                          child: OverflowBox(
+                            alignment: Alignment.centerLeft,
+                            minWidth: constraints.maxWidth,
+                            maxWidth: constraints.maxWidth,
+                            child: Transform.translate(
+                              offset: Offset(-animLeft, 0),
+                              child: SizedBox(
+                                width: constraints.maxWidth,
+                                height: 64,
+                                child: Row(
+                                  children: List.generate(items.length, (i) {
+                                    return Expanded(
+                                      child: Center(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              items[i].icon,
+                                              size: 24,
+                                              color: Colors.white,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              items[i].label,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
 
   void _onTap(BuildContext context, int index, AppMode mode) {
     final routes = mode == AppMode.consumer ? _consumerRoutes : _businessRoutes;
-    if (index < routes.length) {
-      context.go(routes[index]);
-    }
-  }
-
-  int _calculateSelectedIndex(String location, AppMode mode) {
-    final routes = mode == AppMode.consumer ? _consumerRoutes : _businessRoutes;
-
-    for (int i = 0; i < routes.length; i++) {
-      final route = routes[i];
-      // Exact match for root paths
-      if (route == '/' || route == '/business') {
-        if (location == route) return i;
-      } else {
-        // Prefix match for sub-paths
-        if (location.startsWith(route)) return i;
-      }
-    }
-
-    // Fallback: sub-rutas que pertenecen a un tab padre
-    if (mode == AppMode.consumer) {
-      // /orders, /favorites, /payment-methods, /saved-addresses
-      // son sub-páginas de Perfil en el mockup
-      if (location.startsWith('/orders') ||
-          location.startsWith('/favorites') ||
-          location.startsWith('/payment-methods') ||
-          location.startsWith('/saved-addresses')) {
-        return 2; // Índice del tab "Perfil"
-      }
-    } else if (mode == AppMode.business) {
-      // /business/statistics, /business/payments, /business/profile, /business/coupons
-      // son sub-páginas de Gestión en el mockup
-      if (location.startsWith('/business')) {
-        return 2; // Índice del tab "Gestión"
-      }
-    }
-
-    return 0;
-  }
-
-  // ─── Consumer Tabs (3) ────────────────────────────────────────
-
-  static const _consumerItems = [
-    _NavItem(label: 'Inicio', icon: FudiIcons.home),
-    _NavItem(label: 'Explorar', icon: FudiIcons.search),
-    _NavItem(label: 'Perfil', icon: FudiIcons.user),
-  ];
-
-  static const _consumerRoutes = [
-    RouteNames.homePath,
-    RouteNames.explorePath,
-    RouteNames.profilePath,
-  ];
-
-  // ─── Business Tabs (3) ────────────────────────────────────────
-
-  static const _businessItems = [
-    _NavItem(label: 'Productos', icon: FudiIcons.package_),
-    _NavItem(label: 'Pedidos', icon: FudiIcons.shoppingBag),
-    _NavItem(label: 'Gestión', icon: FudiIcons.building2),
-  ];
-
-  static const _businessRoutes = [
-    RouteNames.businessProductsPath,
-    RouteNames.businessOrdersPath,
-    RouteNames.businessLocationsPath,
-  ];
-}
-
-/// Tab individual del BottomNav.
-///
-/// Usa el MISMO icono para ambos estados (activo/inactivo),
-/// solo cambia el color — igual que el mockup React.
-class _NavTab extends StatelessWidget {
-  const _NavTab({
-    required this.icon,
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isActive ? FudiColors.primary : FudiColors.mutedForeground;
-
-    return Expanded(
-      child: Semantics(
-        button: true,
-        label: label,
-        selected: isActive,
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const StadiumBorder(),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 24, color: color),
-              const SizedBox(height: FudiSpacing.xs),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isActive ? FontWeight.w500 : FontWeight.w400,
-                  color: color,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    if (index < routes.length) context.go(routes[index]);
   }
 }
 
-/// Modelo interno para un item de navegación.
+// ── Modelo ────────────────────────────────────────────────────────────────────
+
 class _NavItem {
   final String label;
   final IconData icon;
-
   const _NavItem({required this.label, required this.icon});
 }

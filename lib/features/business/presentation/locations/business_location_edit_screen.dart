@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../domain/business_location.dart';
@@ -89,9 +90,22 @@ class _BusinessLocationEditScreenState
             onChanged: (value) => setState(() => _isActive = value),
           ),
           const SizedBox(height: FudiSpacing.lg),
-          FilledButton(
-            onPressed: _saving ? null : () => _save(location),
-            child: Text(_saving ? 'Guardando...' : 'Guardar local'),
+          FudiPressableScale(
+            onTap: _saving ? null : () => _save(location),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                color: FudiColors.primary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Text(
+                  _saving ? 'Guardando...' : 'Guardar local',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
           ),
         ],
       ),

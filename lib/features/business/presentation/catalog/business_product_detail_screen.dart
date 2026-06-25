@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
@@ -355,77 +356,70 @@ class _QuickActions extends ConsumerWidget {
     return Row(
       children: [
         Expanded(
-          child: FilledButton(
-            onPressed: () =>
+          child: FudiPressableScale(
+            onTap: () =>
                 context.push('/business/products/edit/${offer.id}'),
-            style: FilledButton.styleFrom(
-              backgroundColor: FudiColors.primary,
+            child: Container(
               padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
+              decoration: BoxDecoration(
+                color: FudiColors.primary,
                 borderRadius: BorderRadius.circular(FudiRadius.xl),
               ),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.edit_rounded,
-                  size: 16,
-                  color: FudiColors.primaryForeground,
-                ),
-                SizedBox(width: 6),
-                Text(
-                  'Editar',
-                  style: TextStyle(
-                    color: FudiColors.primaryForeground,
-                    fontWeight: FontWeight.w500,
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.edit_rounded, size: 16, color: Colors.white),
+                  SizedBox(width: 6),
+                  Text(
+                    'Editar',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: OutlinedButton(
-            onPressed: () async {
+          child: FudiPressableScale(
+            onTap: () async {
               await ref
                   .read(businessCatalogRepositoryProvider)
                   .toggleOfferStatus(offer.id, !offer.isActive);
               ref.invalidate(businessOffersProvider(offer.businessId));
               if (context.mounted) context.pop();
             },
-            style: OutlinedButton.styleFrom(
-              backgroundColor: offer.isActive ? FudiColors.muted : Colors.green,
-              foregroundColor: offer.isActive
-                  ? FudiColors.foreground
-                  : Colors.white,
-              side: BorderSide.none,
+            child: Container(
               padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
+              decoration: BoxDecoration(
+                color: offer.isActive ? FudiColors.muted : Colors.green,
                 borderRadius: BorderRadius.circular(FudiRadius.xl),
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  offer.isActive ? FudiIcons.eyeOff : FudiIcons.eye,
-                  size: 16,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  offer.isActive ? 'Ocultar' : 'Activar',
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-              ],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    offer.isActive ? FudiIcons.eyeOff : FudiIcons.eye,
+                    size: 16,
+                    color: offer.isActive ? FudiColors.foreground : Colors.white,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    offer.isActive ? 'Ocultar' : 'Activar',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: offer.isActive ? FudiColors.foreground : Colors.white,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: OutlinedButton(
-            onPressed: () async {
+          child: FudiPressableScale(
+            onTap: () async {
               final confirmed = await showDialog<bool>(
                 context: context,
                 builder: (ctx) => AlertDialog(
@@ -434,15 +428,21 @@ class _QuickActions extends ConsumerWidget {
                     '¿Estás seguro de que deseas eliminar este producto?',
                   ),
                   actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      child: const Text('Cancelar'),
+                    FudiPressableScale(
+                      onTap: () => Navigator.pop(ctx, false),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        child: Text('Cancelar'),
+                      ),
                     ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx, true),
-                      child: const Text(
-                        'Eliminar',
-                        style: TextStyle(color: FudiColors.destructive),
+                    FudiPressableScale(
+                      onTap: () => Navigator.pop(ctx, true),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        child: Text(
+                          'Eliminar',
+                          style: TextStyle(color: FudiColors.destructive),
+                        ),
                       ),
                     ),
                   ],
@@ -456,21 +456,20 @@ class _QuickActions extends ConsumerWidget {
                 if (context.mounted) context.pop();
               }
             },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: FudiColors.destructive,
-              side: const BorderSide(color: FudiColors.destructive),
+            child: Container(
               padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
+              decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(FudiRadius.xl),
+                border: Border.all(color: FudiColors.destructive),
               ),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.delete_outline_rounded, size: 16),
-                SizedBox(width: 6),
-                Text('Eliminar', style: TextStyle(fontWeight: FontWeight.w500)),
-              ],
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.delete_outline_rounded, size: 16, color: FudiColors.destructive),
+                  SizedBox(width: 6),
+                  Text('Eliminar', style: TextStyle(color: FudiColors.destructive, fontWeight: FontWeight.w500)),
+                ],
+              ),
             ),
           ),
         ),

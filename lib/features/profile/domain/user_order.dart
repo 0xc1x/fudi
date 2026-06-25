@@ -8,6 +8,7 @@ class UserOrder {
     required this.originalPrice,
     required this.pickupTime,
     required this.createdAt,
+    this.offerImageUrl,
   });
 
   final String id;
@@ -18,6 +19,7 @@ class UserOrder {
   final double originalPrice;
   final DateTime? pickupTime;
   final DateTime createdAt;
+  final String? offerImageUrl;
 
   double get savedAmount => originalPrice - price;
 

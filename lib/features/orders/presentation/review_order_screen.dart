@@ -11,6 +11,7 @@ import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_sticky_page_header.dart';
 import '../../../core/ui/fudi_surface_card.dart';
 import '../../../core/ui/fudi_star_rating.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../domain/order_model.dart';
 import '../presentation/order_providers.dart';
@@ -184,8 +185,8 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
           children: [
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
-                onPressed:
+              child: FudiPressableScale(
+                onTap:
                     isSubmitting || _productRating == 0 || _businessRating == 0
                     ? null
                     : () => ref
@@ -197,28 +198,31 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
                             businessRating: _businessRating,
                             comment: _commentController.text,
                           ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: FudiColors.primary,
-                  minimumSize: const Size.fromHeight(56),
-                  shape: RoundedRectangleBorder(
+                child: Container(
+                  width: double.infinity,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: FudiColors.primary,
                     borderRadius: BorderRadius.circular(FudiRadius.lg),
                   ),
+                  child: Center(
+                    child: isSubmitting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            'Publicar reseña',
+                            style: FudiTypography.labelMedium.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
                 ),
-                child: isSubmitting
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text(
-                        'Publicar reseña',
-                        style: FudiTypography.labelMedium.copyWith(
-                          color: Colors.white,
-                        ),
-                      ),
               ),
             ),
             if (_productRating == 0 || _businessRating == 0) ...[

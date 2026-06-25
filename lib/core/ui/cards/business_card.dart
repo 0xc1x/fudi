@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../fudi_colors.dart';
-import '../fudi_spacing.dart';
-import '../fudi_typography.dart';
-import '../fudi_star_rating.dart';
-import '../atoms/icons/fudi_icons.dart';
+import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_spacing.dart';
 
-/// Tarjeta de negocio utilizada en listas de búsqueda o exploración.
-class BusinessCard extends StatelessWidget {
+class BusinessCard extends StatefulWidget {
   const BusinessCard({
     super.key,
     required this.imageUrl,
@@ -15,7 +11,6 @@ class BusinessCard extends StatelessWidget {
     required this.type,
     required this.rating,
     required this.distance,
-    required this.activeDealsCount,
     this.onTap,
   });
 
@@ -24,126 +19,182 @@ class BusinessCard extends StatelessWidget {
   final String type;
   final double rating;
   final String distance;
-  final int activeDealsCount;
   final VoidCallback? onTap;
 
   @override
+  State<BusinessCard> createState() => _BusinessCardState();
+}
+
+class _BusinessCardState extends State<BusinessCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.96,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    _controller.forward();
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    _controller.reverse();
+    widget.onTap?.call();
+  }
+
+  void _handleTapCancel() {
+    _controller.reverse();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: FudiColors.card,
-        borderRadius: BorderRadius.circular(FudiRadius.lg),
-        border: Border.all(
-          color: FudiColors.border.withValues(alpha: 0.09),
-          width: 1.0,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: FudiColors.primary.withValues(alpha: 0.03),
-            blurRadius: 12,
-            spreadRadius: -2,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(FudiRadius.lg - 1),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(FudiSpacing.md),
-              child: Row(
-                children: [
-                  // ─── Logo / Imagen ──────────────────────────────────
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(FudiRadius.md),
-                    child: CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      width: 64,
-                      height: 64,
-                      fit: BoxFit.cover,
-                      errorWidget: (context, url, error) => Container(
-                        width: 64,
-                        height: 64,
-                        color: FudiColors.muted,
-                        child: const Icon(FudiIcons.store),
+    return GestureDetector(
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      onTapCancel: _handleTapCancel,
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Opacity(
+              opacity: _scaleAnimation.value < 1.0 ? 0.92 : 1.0,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: FudiColors.card,
+                  border: Border.all(
+                    color: FudiColors.foreground.withValues(alpha: 0.24),
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(FudiRadius.sm),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(FudiRadius.sm),
+                      ),
+                      child: CachedNetworkImage(
+                        imageUrl: widget.imageUrl,
+                        height: 140,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorWidget: (context, url, error) => Container(
+                          height: 140,
+                          color: FudiColors.background.withValues(alpha: 0.24),
+                          child: const Icon(
+                            Icons.bakery_dining,
+                            color: FudiColors.background,
+                            size: 40,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: FudiSpacing.md),
-
-                  // ─── Información ────────────────────────────────────
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name,
-                          style: FudiTypography.labelMedium,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(type, style: FudiTypography.bodySmall),
-                        const SizedBox(height: 6),
-                        Row(
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (rating > 0) ...[
-                              FudiStarRating(rating: rating, size: 12),
-                              const SizedBox(width: 8),
-                            ],
-                            const Icon(
-                              FudiIcons.mapPin,
-                              size: 12,
-                              color: FudiColors.mutedForeground,
+                            Text(
+                              widget.name,
+                              style: const TextStyle(
+                                color: FudiColors.foreground,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: -0.3,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(width: 2),
-                            Text(distance, style: FudiTypography.bodySmall),
+                            const SizedBox(height: 4),
+                            Text(
+                              widget.type.toUpperCase(),
+                              style: TextStyle(
+                                color: FudiColors.foreground.withValues(
+                                  alpha: 0.5,
+                                ),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const Spacer(),
+                            if (widget.rating > 0)
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.star_rounded,
+                                        color: FudiColors.green,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        widget.rating.toStringAsFixed(1),
+                                        style: const TextStyle(
+                                          color: FudiColors.foreground,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.location_on_outlined,
+                                        color: FudiColors.foreground.withValues(
+                                          alpha: 0.6,
+                                        ),
+                                        size: 14,
+                                      ),
+                                      const SizedBox(width: 2),
+                                      Text(
+                                        widget.distance,
+                                        style: TextStyle(
+                                          color: FudiColors.foreground
+                                              .withValues(alpha: 0.6),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-
-                  // ─── Deals Count ────────────────────────────────────
-                  if (activeDealsCount > 0)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: FudiColors.secondary,
-                        borderRadius: BorderRadius.circular(FudiRadius.sm),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            activeDealsCount.toString(),
-                            style: FudiTypography.labelSmall.copyWith(
-                              color: FudiColors.secondaryForeground,
-                              height: 1,
-                            ),
-                          ),
-                          const Text(
-                            'ofertas',
-                            style: TextStyle(
-                              fontSize: 8,
-                              fontWeight: FontWeight.w600,
-                              color: FudiColors.secondaryForeground,
-                            ),
-                          ),
-                        ],
                       ),
                     ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

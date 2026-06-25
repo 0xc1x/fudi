@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
@@ -183,9 +184,9 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       leading: Padding(
         padding: const EdgeInsets.only(left: FudiSpacing.sm),
-        child: IconButton(
-          onPressed: () => context.pop(),
-          icon: Container(
+        child: FudiPressableScale(
+          onTap: () => context.pop(),
+          child: Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(
@@ -318,18 +319,19 @@ class _CodeSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: FudiSpacing.sm),
-              OutlinedButton(
-                onPressed: onGenerate,
-                style: OutlinedButton.styleFrom(
+              FudiPressableScale(
+                onTap: onGenerate,
+                child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: FudiSpacing.lg,
                     vertical: FudiSpacing.md + 4,
                   ),
-                  shape: RoundedRectangleBorder(
+                  decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(FudiRadius.xl),
+                    border: Border.all(color: FudiColors.primary),
                   ),
+                  child: const Text('Generar', style: TextStyle(color: FudiColors.primary)),
                 ),
-                child: const Text('Generar'),
               ),
             ],
           ),
@@ -750,36 +752,34 @@ class _BottomBar extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.all(FudiSpacing.lg),
-      child: SizedBox(
-        width: double.infinity,
-        child: FilledButton(
-          onPressed: (saving || !canSave) ? null : onSave,
-          style: FilledButton.styleFrom(
-            backgroundColor: canSave ? FudiColors.primary : FudiColors.muted,
-            foregroundColor: canSave
-                ? FudiColors.primaryForeground
-                : FudiColors.mutedForeground,
-            padding: const EdgeInsets.symmetric(vertical: FudiSpacing.lg),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(FudiRadius.xl),
-            ),
+      child: FudiPressableScale(
+        onTap: (saving || !canSave) ? null : onSave,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: FudiSpacing.lg),
+          decoration: BoxDecoration(
+            color: canSave ? FudiColors.primary : FudiColors.muted,
+            borderRadius: BorderRadius.circular(FudiRadius.xl),
           ),
-          child: saving
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: FudiColors.mutedForeground,
+          child: Center(
+            child: saving
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(
+                    isEdit ? 'Guardar cambios' : 'Crear cupón',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
                   ),
-                )
-              : Text(
-                  isEdit ? 'Guardar cambios' : 'Crear cupón',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
+          ),
         ),
       ),
     );

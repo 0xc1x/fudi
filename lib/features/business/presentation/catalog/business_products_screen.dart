@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_logo.dart';
@@ -367,31 +368,27 @@ class _CreateProductButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg),
-      child: SizedBox(
-        width: double.infinity,
-        child: FilledButton(
-          onPressed: onTap,
-          style: FilledButton.styleFrom(
-            backgroundColor: FudiColors.primary,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(FudiRadius.xl),
-            ),
-            elevation: 4,
+      child: FudiPressableScale(
+        onTap: onTap,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: FudiColors.primary,
+            borderRadius: BorderRadius.circular(FudiRadius.xl),
+            boxShadow: const [
+              BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+            ],
           ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.add_rounded,
-                color: FudiColors.primaryForeground,
-                size: 20,
-              ),
+              Icon(Icons.add_rounded, color: Colors.white, size: 20),
               SizedBox(width: 8),
               Text(
                 'Crear nuevo producto',
                 style: TextStyle(
-                  color: FudiColors.primaryForeground,
+                  color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -678,15 +675,21 @@ class _ProductMenu extends ConsumerWidget {
                 '¿Estás seguro de que deseas eliminar este producto?',
               ),
               actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('Cancelar'),
+                FudiPressableScale(
+                  onTap: () => Navigator.pop(ctx, false),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Text('Cancelar'),
+                  ),
                 ),
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text(
-                    'Eliminar',
-                    style: TextStyle(color: FudiColors.destructive),
+                FudiPressableScale(
+                  onTap: () => Navigator.pop(ctx, true),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Text(
+                      'Eliminar',
+                      style: TextStyle(color: FudiColors.destructive),
+                    ),
                   ),
                 ),
               ],
@@ -763,9 +766,12 @@ class _EmptyProductsState extends StatelessWidget {
               style: FudiTypography.h4,
             ),
             const SizedBox(height: FudiSpacing.sm),
-            TextButton(
-              onPressed: onTap,
-              child: const Text('Crear mi primer producto'),
+            FudiPressableScale(
+              onTap: onTap,
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Text('Crear mi primer producto', style: TextStyle(color: FudiColors.primary)),
+              ),
             ),
           ],
         ),

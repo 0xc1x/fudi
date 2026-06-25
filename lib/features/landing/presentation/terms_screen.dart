@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/routing/route_names.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_spacing.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_typography.dart';
 
 class TermsScreen extends StatelessWidget {
@@ -16,9 +17,14 @@ class TermsScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Colors.black),
-          onPressed: () => context.go(RouteNames.landingPath),
+        leading: FudiPressableScale(
+          onTap: () => context.go(RouteNames.landingPath),
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
+            child: const Icon(Icons.chevron_left, color: Colors.black),
+          ),
         ),
         title: const Text(
           'Términos de Uso',

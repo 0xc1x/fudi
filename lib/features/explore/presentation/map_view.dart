@@ -3,10 +3,12 @@ import 'dart:ui' as ui;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/utils/map_style.dart';
 import '../../../core/ui/fudi_spacing.dart';
@@ -37,7 +39,7 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
   Offer? _selectedOffer;
   Set<Marker> _markers = {};
   bool _mapReady = false;
-  bool _cameraInitialized = false;
+  bool _mapIdleFitted = false;
   bool _markersDirty = true;
   List<Offer> _lastOffers = [];
   final Map<String, BitmapDescriptor> _markerCache = {};
@@ -63,10 +65,14 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
     super.initState();
     ref.listenManual(filteredOffersProvider, (_, next) {
       next.whenOrNull(data: (offers) {
+        _lastOffers = offers;
         if (_mapReady) {
-          _lastOffers = offers;
           _markersDirty = true;
           _syncMarkers();
+          if (!_mapIdleFitted && offers.isNotEmpty) {
+            _mapIdleFitted = true;
+            _fitCameraToOffers(offers);
+          }
         }
       });
     });
@@ -105,7 +111,6 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
     }
     setState(() => _markers = newMarkers);
     _generateMarkerIcons(offers);
-    _fitCameraToMarkers(newMarkers);
   }
 
   @override
@@ -120,13 +125,13 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
             style: kMapStyleNoPoi,
             initialCameraPosition: _initialCameraPosition,
             onMapCreated: _onMapCreated,
+            onCameraIdle: _onCameraIdle,
             markers: _markers,
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             mapToolbarEnabled: false,
             compassEnabled: false,
-            onCameraMove: (_) {},
             onTap: (_) {
               if (_selectedOffer != null) {
                 setState(() => _selectedOffer = null);
@@ -141,9 +146,7 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
             top: MediaQuery.of(context).padding.top + FudiSpacing.sm,
             left: FudiSpacing.lg,
             right: FudiSpacing.lg,
-            child: _MapHeader(
-              offerCount:
-                  offersAsync.whenOrNull(data: (offers) => offers.length) ?? 0,
+            child:                 _MapHeader(
               filters: widget.filters,
               onBack: () {
                 if (widget.onBack != null) {
@@ -171,7 +174,7 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
           ),
 
           Positioned(
-            top: MediaQuery.of(context).padding.top + 60,
+            top: MediaQuery.of(context).padding.top + 100,
             right: FudiSpacing.lg,
             child: _MapZoomControls(onZoomIn: _zoomIn, onZoomOut: _zoomOut),
           ),
@@ -245,10 +248,15 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
     setState(() => _mapReady = true);
-    if (_lastOffers.isNotEmpty) {
-      _markersDirty = true;
-      _syncMarkers();
-    }
+  }
+
+  void _onCameraIdle() {
+    if (_mapIdleFitted || _lastOffers.isEmpty) return;
+    _mapIdleFitted = true;
+
+    _markersDirty = true;
+    _syncMarkers();
+    _fitCameraToOffers(_lastOffers);
   }
 
   void _onMarkerTap(Offer offer) {
@@ -259,28 +267,30 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
     _syncMarkers();
   }
 
-  void _fitCameraToMarkers(Set<Marker> markers) {
-    if (markers.isEmpty || _mapController == null || _cameraInitialized) return;
+  void _fitCameraToOffers(List<Offer> offers) {
+    if (offers.isEmpty || _mapController == null) return;
 
     double? minLat, maxLat, minLng, maxLng;
-    for (final m in markers) {
-      final lat = m.position.latitude;
-      final lng = m.position.longitude;
+    for (final offer in offers) {
+      final lat = offer.business.latitude;
+      final lng = offer.business.longitude;
+      if (lat == null || lng == null) continue;
       minLat = (minLat == null || lat < minLat) ? lat : minLat;
       maxLat = (maxLat == null || lat > maxLat) ? lat : maxLat;
       minLng = (minLng == null || lng < minLng) ? lng : minLng;
       maxLng = (maxLng == null || lng > maxLng) ? lng : maxLng;
     }
 
+    if (minLat == null || maxLat == null) return;
+
     final bounds = LatLngBounds(
-      southwest: LatLng(minLat!, minLng!),
-      northeast: LatLng(maxLat!, maxLng!),
+      southwest: LatLng(minLat, minLng!),
+      northeast: LatLng(maxLat, maxLng!),
     );
 
     _mapController!.animateCamera(
       CameraUpdate.newLatLngBounds(bounds, 60),
     );
-    _cameraInitialized = true;
   }
 
   Future<void> _generateMarkerIcons(List<Offer> offers) async {
@@ -309,6 +319,8 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
       _markerCache[key] = descriptor;
     }
 
+    if (!mounted || !_mapReady) return;
+
     final updatedMarkers = <Marker>{};
     for (final offer in offers) {
       if (offer.business.latitude == null || offer.business.longitude == null) {
@@ -330,9 +342,7 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
         ),
       );
     }
-    if (mounted) {
-      setState(() => _markers = updatedMarkers);
-    }
+    setState(() => _markers = updatedMarkers);
   }
 
   Future<BitmapDescriptor> _createPriceMarkerBitmap({
@@ -430,30 +440,47 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
     _mapController?.animateCamera(CameraUpdate.zoomOut());
   }
 
-  void _goToMyLocation() {
-    final position = ref
-        .read(userLocationProvider)
-        .whenOrNull(data: (pos) => pos);
-    if (position != null && _mapController != null) {
+  Future<void> _goToMyLocation() async {
+    if (_mapController == null) return;
+
+    final cached = ref.read(userLocationProvider).whenOrNull(data: (pos) => pos);
+    if (cached != null) {
+      _mapController!.animateCamera(
+        CameraUpdate.newLatLngZoom(
+          LatLng(cached.latitude, cached.longitude),
+          15,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 5),
+        ),
+      );
+      if (!mounted) return;
       _mapController!.animateCamera(
         CameraUpdate.newLatLngZoom(
           LatLng(position.latitude, position.longitude),
           15,
         ),
       );
+    } catch (_) {
+      // Location unavailable silently
     }
   }
 }
 
 class _MapHeader extends StatelessWidget {
   const _MapHeader({
-    required this.offerCount,
     required this.onBack,
     required this.filters,
     required this.onFilterTap,
   });
 
-  final int offerCount;
   final VoidCallback onBack;
   final FudiFilterState filters;
   final VoidCallback onFilterTap;
@@ -489,7 +516,7 @@ class _MapHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          GestureDetector(
+          FudiPressableScale(
             onTap: onBack,
             child: Container(
               width: 40,
@@ -520,25 +547,8 @@ class _MapHeader extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: FudiSpacing.md,
-              vertical: FudiSpacing.xs,
-            ),
-            decoration: BoxDecoration(
-              color: FudiColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(FudiRadius.full),
-            ),
-            child: Text(
-              '$offerCount ofertas',
-              style: FudiTypography.bodySmall.copyWith(
-                color: FudiColors.primary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
           const SizedBox(width: FudiSpacing.sm),
-          GestureDetector(
+          FudiPressableScale(
             onTap: onFilterTap,
             child: Container(
               width: 40,
@@ -609,11 +619,9 @@ class _ZoomButton extends StatelessWidget {
     return SizedBox(
       width: 40,
       height: 40,
-      child: IconButton(
-        icon: Icon(icon, size: 20),
-        onPressed: onTap,
-        splashRadius: 20,
-        padding: EdgeInsets.zero,
+      child: FudiPressableScale(
+        onTap: onTap,
+        child: Center(child: Icon(icon, size: 20)),
       ),
     );
   }
@@ -626,28 +634,26 @@ class _MyLocationButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: FudiColors.background,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: IconButton(
-        icon: const Icon(
-          FudiIcons.navigation,
+    return FudiPressableScale(
+      onTap: onPress,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: FudiColors.background,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: const Icon(
+          Icons.my_location,
           size: 24,
           color: FudiColors.primary,
-        ),
-        onPressed: onPress,
-        style: IconButton.styleFrom(
-          backgroundColor: FudiColors.background,
-          shape: const CircleBorder(),
         ),
       ),
     );
@@ -671,7 +677,7 @@ class _SelectedOfferCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final discountPercent = offer.discountPercentage.round();
 
-    return GestureDetector(
+    return FudiPressableScale(
       onTap: onTap,
       child: Container(
         width: double.infinity,
@@ -771,7 +777,7 @@ class _SelectedOfferCard extends StatelessWidget {
                     Positioned(
                       top: FudiSpacing.sm,
                       right: FudiSpacing.sm,
-                      child: GestureDetector(
+                      child: FudiPressableScale(
                         onTap: onClose,
                         child: Container(
                           width: 28,
@@ -927,22 +933,22 @@ class _SelectedOfferCard extends StatelessWidget {
                   const SizedBox(height: FudiSpacing.md),
 
                   // Reserve button
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: onReserve,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: FudiColors.primary,
-                        minimumSize: const Size.fromHeight(46),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(FudiRadius.lg),
-                        ),
+                  FudiPressableScale(
+                    onTap: onReserve,
+                    child: Container(
+                      width: double.infinity,
+                      height: 46,
+                      decoration: BoxDecoration(
+                        color: FudiColors.primary,
+                        borderRadius: BorderRadius.circular(FudiRadius.lg),
                       ),
-                      child: Text(
-                        'Ver detalle',
-                        style: FudiTypography.labelSmall.copyWith(
-                          color: FudiColors.primaryForeground,
-                          fontWeight: FontWeight.w700,
+                      child: Center(
+                        child: Text(
+                          'Ver detalle',
+                          style: FudiTypography.labelSmall.copyWith(
+                            color: FudiColors.primaryForeground,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),

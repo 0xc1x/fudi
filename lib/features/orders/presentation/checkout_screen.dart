@@ -12,6 +12,7 @@ import '../../../core/ui/fudi_bottom_action_bar.dart';
 import '../../../core/ui/fudi_sticky_page_header.dart';
 import '../../../core/ui/fudi_surface_card.dart';
 import '../../../core/ui/fudi_info_banner.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../offers/domain/offer.dart';
 import '../../offers/presentation/offer_providers.dart';
 import '../domain/coupon.dart';
@@ -170,33 +171,36 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            FilledButton(
-              onPressed:
+            FudiPressableScale(
+              onTap:
                   offer.isAvailable && !isProcessing && !_validatingCoupon
                   ? () => _confirmAndPay(offer)
                   : null,
-              style: FilledButton.styleFrom(
-                backgroundColor: FudiColors.primary,
-                minimumSize: const Size.fromHeight(56),
-                shape: RoundedRectangleBorder(
+              child: Container(
+                width: double.infinity,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: FudiColors.primary,
                   borderRadius: BorderRadius.circular(FudiRadius.lg),
                 ),
+                child: Center(
+                  child: isProcessing
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(
+                          'Confirmar y pagar \$${total > 0 ? total.toStringAsFixed(2) : '0.00'}',
+                          style: FudiTypography.labelMedium.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
               ),
-              child: isProcessing
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Text(
-                      'Confirmar y pagar \$${total > 0 ? total.toStringAsFixed(2) : '0.00'}',
-                      style: FudiTypography.labelMedium.copyWith(
-                        color: Colors.white,
-                      ),
-                    ),
             ),
             const SizedBox(height: FudiSpacing.xs),
             Text(
@@ -488,15 +492,18 @@ class _CouponSection extends StatelessWidget {
                       ],
                     ),
                   ),
-                  IconButton(
-                    onPressed: onRemove,
-                    icon: const Icon(
-                      Icons.close,
-                      size: 16,
-                      color: Color(0xFF15803D),
+                  FudiPressableScale(
+                    onTap: onRemove,
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: const BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
+                      child: const Icon(
+                        Icons.close,
+                        size: 16,
+                        color: Color(0xFF15803D),
+                      ),
                     ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
                   ),
                 ],
               ),
@@ -523,29 +530,32 @@ class _CouponSection extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: FudiSpacing.sm),
-                FilledButton(
-                  onPressed:
+                FudiPressableScale(
+                  onTap:
                       enabled &&
                           !validating &&
                           controller.text.trim().isNotEmpty
                       ? onApply
                       : null,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: FudiColors.primary,
-                    shape: RoundedRectangleBorder(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: FudiColors.primary,
                       borderRadius: BorderRadius.circular(FudiRadius.md),
                     ),
+                    child: Center(
+                      child: validating
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Aplicar', style: TextStyle(color: Colors.white)),
+                    ),
                   ),
-                  child: validating
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text('Aplicar'),
                 ),
               ],
             ),
@@ -982,34 +992,41 @@ class _ConfirmationView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: FudiSpacing.xl),
-                  FilledButton(
-                    onPressed: () => context.go('/orders'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: FudiColors.primary,
-                      minimumSize: const Size.fromHeight(56),
-                      shape: RoundedRectangleBorder(
+                  FudiPressableScale(
+                    onTap: () => context.go('/orders'),
+                    child: Container(
+                      width: double.infinity,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: FudiColors.primary,
                         borderRadius: BorderRadius.circular(FudiRadius.lg),
                       ),
-                    ),
-                    child: Text(
-                      'Ver mis pedidos',
-                      style: FudiTypography.labelMedium.copyWith(
-                        color: Colors.white,
+                      child: Center(
+                        child: Text(
+                          'Ver mis pedidos',
+                          style: FudiTypography.labelMedium.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: FudiSpacing.sm),
-                  OutlinedButton(
-                    onPressed: () => context.go('/'),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(56),
-                      shape: RoundedRectangleBorder(
+                  FudiPressableScale(
+                    onTap: () => context.go('/'),
+                    child: Container(
+                      width: double.infinity,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: FudiColors.primary),
                         borderRadius: BorderRadius.circular(FudiRadius.lg),
                       ),
-                    ),
-                    child: Text(
-                      'Buscar más ofertas',
-                      style: FudiTypography.labelMedium,
+                      child: Center(
+                        child: Text(
+                          'Buscar más ofertas',
+                          style: FudiTypography.labelMedium.copyWith(color: FudiColors.primary),
+                        ),
+                      ),
                     ),
                   ),
                 ],

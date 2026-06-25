@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../../core/ui/fudi_sticky_page_header.dart';
 import '../../../core/ui/fudi_surface_card.dart';
@@ -85,12 +86,17 @@ class PaymentMethodsScreen extends ConsumerWidget {
                     method.brand.toUpperCase(),
                     style: FudiTypography.bodySmall,
                   ),
-                  trailing: IconButton(
-                    icon: const Icon(
-                      Icons.delete_outline,
-                      color: FudiColors.destructive,
+                  trailing: FudiPressableScale(
+                    onTap: () => _deleteMethod(ref, method.id),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
+                      child: const Icon(
+                        Icons.delete_outline,
+                        color: FudiColors.destructive,
+                      ),
                     ),
-                    onPressed: () => _deleteMethod(ref, method.id),
                   ),
                   onTap: () => _setDefault(ref, method.id),
                 ),
@@ -102,13 +108,17 @@ class PaymentMethodsScreen extends ConsumerWidget {
         error: (error, _) => Center(child: Text('Error: $error')),
       ),
       bottomNavigationBar: FudiBottomActionBar(
-        child: FilledButton(
-          onPressed: () => _addMethod(context),
-          style: FilledButton.styleFrom(
-            backgroundColor: FudiColors.primary,
-            minimumSize: const Size.fromHeight(56),
+        child: FudiPressableScale(
+          onTap: () => _addMethod(context),
+          child: Container(
+            width: double.infinity,
+            height: 56,
+            decoration: BoxDecoration(
+              color: FudiColors.primary,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Center(child: Text('Agregar tarjeta', style: TextStyle(color: Colors.white))),
           ),
-          child: const Text('Agregar tarjeta'),
         ),
       ),
     );

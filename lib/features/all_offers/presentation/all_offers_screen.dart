@@ -8,9 +8,13 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../core/error/user_friendly_message.dart';
 import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../../core/ui/fudi_search_bar.dart';
+import '../../../core/ui/fudi_empty_state.dart';
+import '../../../core/ui/fudi_error_state.dart';
 import '../../../core/utils/geo_utils.dart';
 import '../../offers/domain/offer.dart';
 import '../../offers/presentation/offer_providers.dart';
@@ -79,7 +83,12 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
             ),
           offersAsync.when(
             data: (offers) => offers.isEmpty
-                ? const SliverFillRemaining(child: _EmptyState())
+                ? const SliverFillRemaining(
+                    child: FudiEmptyState(
+                      title: 'No se encontraron ofertas',
+                      description: 'Intenta cambiar los filtros o la búsqueda',
+                    ),
+                  )
                 : SliverPadding(
                     padding: const EdgeInsets.all(FudiSpacing.lg),
                     sliver: SliverGrid(
@@ -112,7 +121,7 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
               ),
             ),
             error: (error, _) => SliverFillRemaining(
-              child: _ErrorState(message: userFriendlyMessage(error)),
+              child: FudiErrorState(message: userFriendlyMessage(error)),
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: FudiSpacing.xxl)),
@@ -124,7 +133,7 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
   Widget _buildGridCard(BuildContext context, Offer offer) {
     final distance = _formatDistance(offer);
 
-    return GestureDetector(
+    return FudiPressableScale(
       onTap: () => context.push('/product/${offer.id}'),
       child: Container(
         decoration: BoxDecoration(
@@ -359,10 +368,17 @@ class _AllOffersHeader extends StatelessWidget {
           children: [
             Row(
               children: [
-                IconButton(
-                  icon: const Icon(FudiIcons.chevronLeft),
-                  onPressed: () => context.pop(),
-                  color: FudiColors.foreground,
+                FudiPressableScale(
+                  onTap: () => context.pop(),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: FudiColors.muted,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(FudiIcons.chevronLeft, size: 24),
+                  ),
                 ),
                 Text(
                   'Todas las ofertas',
@@ -371,51 +387,14 @@ class _AllOffersHeader extends StatelessWidget {
               ],
             ),
             const SizedBox(height: FudiSpacing.md),
-            ValueListenableBuilder<TextEditingValue>(
-              valueListenable: searchController,
-              builder: (context, value, _) => TextField(
-                controller: searchController,
-                onChanged: (query) => onSearchChanged?.call(query),
-                onSubmitted: onSubmitSearch,
-                decoration: InputDecoration(
-                  hintText: 'Buscar ofertas, restaurantes...',
-                  hintStyle: FudiTypography.bodyMedium.copyWith(
-                    color: FudiColors.mutedForeground,
-                  ),
-                  prefixIcon: const Icon(
-                    FudiIcons.search,
-                    color: FudiColors.mutedForeground,
-                  ),
-                  suffixIcon: value.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(
-                            FudiIcons.x,
-                            color: FudiColors.mutedForeground,
-                          ),
-                          onPressed: () {
-                            searchController.clear();
-                            onSubmitSearch('');
-                          },
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: FudiColors.card,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(FudiRadius.lg),
-                    borderSide: BorderSide(
-                      color: FudiColors.borderSolid,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: FudiSpacing.lg,
-                    vertical: FudiSpacing.md,
-                  ),
-                ),
-                style: FudiTypography.bodyMedium,
-              ),
+            FudiSearchBar(
+              controller: searchController,
+              hintText: 'Buscar ofertas, restaurantes...',
+              onChanged: onSearchChanged,
+              onSubmitted: onSubmitSearch,
             ),
             const SizedBox(height: FudiSpacing.sm),
-            GestureDetector(
+            FudiPressableScale(
               onTap: onFilterTap,
               child: Container(
                 padding: const EdgeInsets.symmetric(
@@ -517,13 +496,19 @@ class _ActiveFiltersBar extends StatelessWidget {
               child: Row(children: chips),
             ),
           ),
-          TextButton(
-            onPressed: onClearAll,
-            child: Text(
-              'Limpiar',
-              style: FudiTypography.bodySmall.copyWith(
-                color: FudiColors.primary,
-                fontWeight: FontWeight.w600,
+          FudiPressableScale(
+            onTap: onClearAll,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: FudiSpacing.sm,
+                vertical: FudiSpacing.xs,
+              ),
+              child: Text(
+                'Limpiar',
+                style: FudiTypography.bodySmall.copyWith(
+                  color: FudiColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
@@ -559,64 +544,7 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
 
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(FudiSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              FudiIcons.search,
-              size: 48,
-              color: FudiColors.mutedForeground,
-            ),
-            const SizedBox(height: FudiSpacing.md),
-            Text(
-              'No se encontraron ofertas',
-              style: FudiTypography.bodyMedium,
-            ),
-            const SizedBox(height: FudiSpacing.xs),
-            Text(
-              'Intenta cambiar los filtros o la búsqueda',
-              style: FudiTypography.bodySmall,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  const _ErrorState({required this.message});
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(FudiSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              FudiIcons.error,
-              size: 48,
-              color: FudiColors.destructive,
-            ),
-            const SizedBox(height: FudiSpacing.sm),
-            Text('Error al cargar', style: FudiTypography.bodyMedium),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class _OfferImage extends StatelessWidget {
   const _OfferImage({required this.offer});

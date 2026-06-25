@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/fudi_exception_l10n.dart';
 import '../../../core/routing/route_names.dart';
+import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import 'auth_state_provider.dart';
 
 class UpdatePasswordScreen extends ConsumerStatefulWidget {
@@ -130,20 +132,37 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
                       },
                     ),
                     const SizedBox(height: 24),
-                    FilledButton(
-                      onPressed: isLoading ? null : _submit,
-                      child: Text(
-                        isLoading
-                            ? 'Actualizando...'
-                            : 'Guardar nueva contraseña',
+                    FudiPressableScale(
+                      onTap: isLoading ? null : _submit,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        decoration: BoxDecoration(
+                          color: FudiColors.primary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            isLoading
+                                ? 'Actualizando...'
+                                : 'Guardar nueva contraseña',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: isLoading
+                    FudiPressableScale(
+                      onTap: isLoading
                           ? null
                           : () => context.go(RouteNames.loginPath),
-                      child: const Text('Volver al login'),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        child: Text(
+                          'Volver al login',
+                          style: TextStyle(color: FudiColors.primary),
+                        ),
+                      ),
                     ),
                   ],
                 ),

@@ -5,13 +5,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../core/routing/route_names.dart';
 import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../../core/ui/fudi_settings_group.dart';
+import '../../../core/ui/fudi_settings_item.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
-import '../../../core/ui/fudi_logo.dart';
+import '../../../core/ui/atoms/fudi_stat_card.dart';
 import '../../auth/domain/user_profile.dart';
 import '../../auth/presentation/auth_state_provider.dart';
-import '../domain/user_order.dart';
+import 'components/guest_welcome_view.dart';
+import 'components/profile_order_card.dart';
+import 'components/profile_sign_out_button.dart';
 import 'profile_providers.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -44,7 +49,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     final profile = authState.profile;
 
     if (!isAuthenticated) {
-      return const _GuestWelcomeView();
+      return const GuestWelcomeView();
     }
 
     return Scaffold(
@@ -139,7 +144,7 @@ class _ProfileHeader extends ConsumerWidget {
               data: (stats) => Row(
                 children: [
                   Expanded(
-                    child: _StatCard(
+                    child: FudiStatCard(
                       icon: FudiIcons.award,
                       value: '\$${_formatPrice(stats.totalSaved)}',
                       label: 'Ahorrado',
@@ -147,7 +152,7 @@ class _ProfileHeader extends ConsumerWidget {
                   ),
                   const SizedBox(width: FudiSpacing.sm),
                   Expanded(
-                    child: _StatCard(
+                    child: FudiStatCard(
                       icon: FudiIcons.package_,
                       value: '${stats.totalOrders}',
                       label: 'Pedidos',
@@ -155,7 +160,7 @@ class _ProfileHeader extends ConsumerWidget {
                   ),
                   const SizedBox(width: FudiSpacing.sm),
                   Expanded(
-                    child: _StatCard(
+                    child: FudiStatCard(
                       icon: FudiIcons.leaf,
                       value: '${stats.co2SavedKg.toStringAsFixed(1)} kg',
                       label: 'CO\u2082 evitado',
@@ -185,7 +190,7 @@ class _ProfileHeader extends ConsumerWidget {
               error: (_, _) => Row(
                 children: [
                   Expanded(
-                    child: _StatCard(
+                    child: FudiStatCard(
                       icon: FudiIcons.award,
                       value: '\$0',
                       label: 'Ahorrado',
@@ -193,7 +198,7 @@ class _ProfileHeader extends ConsumerWidget {
                   ),
                   const SizedBox(width: FudiSpacing.sm),
                   Expanded(
-                    child: _StatCard(
+                    child: FudiStatCard(
                       icon: FudiIcons.package_,
                       value: '0',
                       label: 'Pedidos',
@@ -201,7 +206,7 @@ class _ProfileHeader extends ConsumerWidget {
                   ),
                   const SizedBox(width: FudiSpacing.sm),
                   Expanded(
-                    child: _StatCard(
+                    child: FudiStatCard(
                       icon: FudiIcons.leaf,
                       value: '0 kg',
                       label: 'CO\u2082 evitado',
@@ -230,54 +235,6 @@ class _ProfileHeader extends ConsumerWidget {
       return '${(value / 1000).toStringAsFixed(1)}k';
     }
     return value.toStringAsFixed(0);
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  const _StatCard({
-    required this.icon,
-    required this.value,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(FudiSpacing.md),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(FudiRadius.xl),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            size: 20,
-            color: FudiColors.primary.withValues(alpha: 0.6),
-          ),
-          const SizedBox(height: FudiSpacing.xs),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: FudiColors.primary,
-            ),
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: FudiColors.primary.withValues(alpha: 0.6),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -358,7 +315,7 @@ class _OrdersTab extends ConsumerWidget {
                 ...upcoming.map(
                   (o) => Padding(
                     padding: const EdgeInsets.only(bottom: FudiSpacing.md),
-                    child: _OrderCard(order: o),
+                    child: ProfileOrderCard.fromUserOrder(o),
                   ),
                 ),
               ],
@@ -368,15 +325,21 @@ class _OrdersTab extends ConsumerWidget {
                     Expanded(
                       child: Text('Pedidos anteriores', style: FudiTypography.h2),
                     ),
-                    TextButton(
-                      onPressed: () => context.push('/orders'),
-                      child: Text(
-                        past.length > 5
-                            ? 'Ver todo (${past.length})'
-                            : 'Ver todo',
-                        style: FudiTypography.bodySmall.copyWith(
-                          color: FudiColors.primary,
-                          fontWeight: FontWeight.w600,
+                    FudiPressableScale(
+                      onTap: () => context.push('/orders'),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: FudiSpacing.sm,
+                          vertical: FudiSpacing.xs,
+                        ),
+                        child: Text(
+                          past.length > 5
+                              ? 'Ver todo (${past.length})'
+                              : 'Ver todo',
+                          style: FudiTypography.bodySmall.copyWith(
+                            color: FudiColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -386,7 +349,7 @@ class _OrdersTab extends ConsumerWidget {
                 ...past.take(5).map(
                   (o) => Padding(
                     padding: const EdgeInsets.only(bottom: FudiSpacing.md),
-                    child: _OrderCard(order: o),
+                    child: ProfileOrderCard.fromUserOrder(o),
                   ),
                 ),
               ],
@@ -433,152 +396,6 @@ class _OrdersTab extends ConsumerWidget {
   }
 }
 
-class _OrderCard extends StatelessWidget {
-  const _OrderCard({required this.order});
-
-  final UserOrder order;
-
-  @override
-  Widget build(BuildContext context) {
-    final (statusColor, statusTextColor, statusLabel) = switch (order.status) {
-      OrderStatus.pending => (FudiColors.ring, FudiColors.primary, 'Pendiente'),
-      OrderStatus.confirmed => (
-        FudiColors.ring,
-        FudiColors.primary,
-        'Confirmado',
-      ),
-      OrderStatus.readyForPickup => (
-        FudiColors.primary,
-        FudiColors.primaryForeground,
-        'Listo para recoger',
-      ),
-      OrderStatus.pickedUp => (
-        FudiColors.muted,
-        FudiColors.mutedForeground,
-        'Recogido',
-      ),
-      OrderStatus.completed => (
-        FudiColors.muted,
-        FudiColors.mutedForeground,
-        'Completado',
-      ),
-      OrderStatus.cancelled => (
-        FudiColors.destructive.withValues(alpha: 0.1),
-        FudiColors.destructive,
-        'Cancelado',
-      ),
-      OrderStatus.expired => (
-        FudiColors.muted,
-        FudiColors.mutedForeground,
-        'Expirado',
-      ),
-    };
-
-    return GestureDetector(
-      onTap: () => context.push('/orders/${order.id}'),
-      child: Container(
-        padding: const EdgeInsets.all(FudiSpacing.md),
-        decoration: BoxDecoration(
-          color: FudiColors.background,
-          borderRadius: BorderRadius.circular(FudiRadius.xl),
-          border: Border.all(color: FudiColors.borderSolid),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        order.businessName,
-                        style: FudiTypography.labelSmall,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _formatDate(order.createdAt),
-                        style: FudiTypography.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: FudiSpacing.md,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: statusColor,
-                    borderRadius: BorderRadius.circular(FudiRadius.full),
-                  ),
-                  child: Text(
-                    statusLabel,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: statusTextColor,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: FudiSpacing.md),
-            Divider(height: 1, color: FudiColors.borderSolid),
-            const SizedBox(height: FudiSpacing.md),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  order.pickupTime != null
-                      ? 'Recogida: ${_formatPickupTime(order.pickupTime!)}'
-                      : 'Recogida: por confirmar',
-                  style: FudiTypography.bodySmall,
-                ),
-                Text(
-                  '\$${order.price.toStringAsFixed(0)}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: FudiColors.primary,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    const months = [
-      '',
-      'ene',
-      'feb',
-      'mar',
-      'abr',
-      'may',
-      'jun',
-      'jul',
-      'ago',
-      'sep',
-      'oct',
-      'nov',
-      'dic',
-    ];
-    return '${date.day} ${months[date.month]} ${date.year}';
-  }
-
-  String _formatPickupTime(DateTime time) {
-    final hour = time.hour.toString().padLeft(2, '0');
-    final minute = time.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
-  }
-}
-
 class _SettingsTab extends ConsumerWidget {
   const _SettingsTab({required this.profile});
 
@@ -591,20 +408,20 @@ class _SettingsTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SettingsGroup(
+          FudiSettingsGroup(
             title: 'Cuenta',
             items: [
-              _SettingsItem(
+              FudiSettingsItem(
                 icon: FudiIcons.user,
                 label: 'Editar perfil',
                 onTap: () => context.push(RouteNames.profileEditPath),
               ),
-              _SettingsItem(
+              FudiSettingsItem(
                 icon: FudiIcons.creditCard,
                 label: 'Métodos de pago',
                 onTap: () => context.push(RouteNames.paymentMethodsPath),
               ),
-              _SettingsItem(
+              FudiSettingsItem(
                 icon: FudiIcons.mapPin,
                 label: 'Direcciones guardadas',
                 onTap: () => context.push(RouteNames.savedAddressesPath),
@@ -612,20 +429,20 @@ class _SettingsTab extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: FudiSpacing.xl),
-          _SettingsGroup(
+          FudiSettingsGroup(
             title: 'Preferencias',
             items: [
-              _SettingsItem(
+              FudiSettingsItem(
                 icon: FudiIcons.bell,
                 label: 'Notificaciones',
                 onTap: () => context.push(RouteNames.profileNotificationsPath),
               ),
-              _SettingsItem(
+              FudiSettingsItem(
                 icon: FudiIcons.heartOutline,
                 label: 'Favoritos',
                 onTap: () => context.push(RouteNames.favoritesPath),
               ),
-              _SettingsItem(
+              FudiSettingsItem(
                 icon: FudiIcons.settings,
                 label: 'Configuración',
                 onTap: () => context.push(RouteNames.profileSettingsPath),
@@ -633,10 +450,10 @@ class _SettingsTab extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: FudiSpacing.xl),
-          _SettingsGroup(
+          FudiSettingsGroup(
             title: 'Ayuda',
             items: [
-              _SettingsItem(
+              FudiSettingsItem(
                 icon: FudiIcons.helpCircle,
                 label: 'Centro de ayuda',
                 onTap: () => context.push(RouteNames.helpPath),
@@ -644,7 +461,7 @@ class _SettingsTab extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: FudiSpacing.xl),
-          _SignOutButton(),
+          ProfileSignOutButton(),
           const SizedBox(height: FudiSpacing.xxl),
         ],
       ),
@@ -652,308 +469,4 @@ class _SettingsTab extends ConsumerWidget {
   }
 }
 
-class _SettingsGroup extends StatelessWidget {
-  const _SettingsGroup({required this.title, required this.items});
 
-  final String title;
-  final List<_SettingsItem> items;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: FudiTypography.h2),
-        const SizedBox(height: FudiSpacing.md),
-        Container(
-          decoration: BoxDecoration(
-            color: FudiColors.background,
-            borderRadius: BorderRadius.circular(FudiRadius.xl),
-            border: Border.all(color: FudiColors.borderSolid),
-          ),
-          child: Column(
-            children: items.asMap().entries.map((entry) {
-              final index = entry.key;
-              final item = entry.value;
-              return Column(
-                children: [
-                  item,
-                  if (index < items.length - 1)
-                    Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: FudiColors.borderSolid,
-                      indent: FudiSpacing.lg + 20 + FudiSpacing.md,
-                    ),
-                ],
-              );
-            }).toList(),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SettingsItem extends StatelessWidget {
-  const _SettingsItem({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(FudiRadius.xl),
-      child: Padding(
-        padding: const EdgeInsets.all(FudiSpacing.md),
-        child: Row(
-          children: [
-            Icon(icon, size: 20, color: FudiColors.mutedForeground),
-            const SizedBox(width: FudiSpacing.md),
-            Expanded(child: Text(label, style: FudiTypography.labelSmall)),
-            Icon(
-              FudiIcons.chevronRight,
-              size: 20,
-              color: FudiColors.mutedForeground,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SignOutButton extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authController = ref.read(authControllerProvider.notifier);
-
-    return GestureDetector(
-      onTap: () => _showSignOutDialog(context, authController),
-      child: Container(
-        padding: const EdgeInsets.all(FudiSpacing.md),
-        decoration: BoxDecoration(
-          color: FudiColors.background,
-          borderRadius: BorderRadius.circular(FudiRadius.xl),
-          border: Border.all(color: FudiColors.borderSolid),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(FudiIcons.logOut, size: 20, color: FudiColors.destructive),
-            const SizedBox(width: FudiSpacing.sm),
-            Text(
-              'Cerrar sesión',
-              style: FudiTypography.labelSmall.copyWith(
-                color: FudiColors.destructive,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showSignOutDialog(BuildContext context, AuthController authController) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Cerrar sesión'),
-        content: const Text('¿Estás seguro de que deseas cerrar sesión?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              authController.signOut();
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: FudiColors.destructive,
-            ),
-            child: const Text('Cerrar sesión'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _GuestWelcomeView extends StatelessWidget {
-  const _GuestWelcomeView();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: FudiColors.background,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: FudiSpacing.xl,
-              vertical: FudiSpacing.xxl,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: FudiSpacing.xl),
-                const FudiLogo(
-                  variant: FudiLogoVariant.wordmark,
-                  size: FudiLogoSize.xxxl,
-                ),
-                const SizedBox(height: FudiSpacing.sm),
-                Text(
-                  'Buena comida, mejores decisiones',
-                  style: FudiTypography.bodyMedium.copyWith(
-                    color: FudiColors.mutedForeground,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: FudiSpacing.xxl * 1.5),
-                _buildBenefitCard(
-                  context,
-                  icon: FudiIcons.leaf,
-                  title: 'Evita el desperdicio de comida',
-                  description:
-                      'Rescata paquetes de comida en perfecto estado de tus comercios locales favoritos.',
-                ),
-                const SizedBox(height: FudiSpacing.md),
-                _buildBenefitCard(
-                  context,
-                  icon: FudiIcons.award,
-                  title: 'Ahorra en cada compra',
-                  description:
-                      'Disfruta de excelentes platos y productos de calidad con descuentos de hasta el 70%.',
-                ),
-                const SizedBox(height: FudiSpacing.md),
-                _buildBenefitCard(
-                  context,
-                  icon: FudiIcons.mapPin,
-                  title: 'Apoya a negocios locales',
-                  description:
-                      'Conéctate con restaurantes, panaderías y supermercados de tu zona.',
-                ),
-                const SizedBox(height: FudiSpacing.xxl * 1.5),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () => context.push(RouteNames.loginPath),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: FudiColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(FudiRadius.xl),
-                      ),
-                    ),
-                    child: const Text(
-                      'Iniciar sesión',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: FudiSpacing.md),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () => context.push(RouteNames.signupPath),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: FudiColors.primary,
-                      side: const BorderSide(
-                        color: FudiColors.primary,
-                        width: 2,
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(FudiRadius.xl),
-                      ),
-                    ),
-                    child: const Text(
-                      'Crear una cuenta',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: FudiSpacing.xl),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBenefitCard(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String description,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(FudiSpacing.lg),
-      decoration: BoxDecoration(
-        color: FudiColors.background,
-        borderRadius: BorderRadius.circular(FudiRadius.xl),
-        border: Border.all(color: FudiColors.borderSolid),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(FudiSpacing.sm),
-            decoration: BoxDecoration(
-              color: FudiColors.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: FudiColors.primary, size: 24),
-          ),
-          const SizedBox(width: FudiSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: FudiTypography.labelSmall.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: FudiColors.foreground,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: FudiTypography.bodySmall.copyWith(
-                    color: FudiColors.mutedForeground,
-                    height: 1.3,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

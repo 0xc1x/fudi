@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../offers/domain/offer_category.dart';
@@ -126,13 +127,16 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
             children: [
               Text('Filtros', style: FudiTypography.h2),
               if (_filters.hasActiveFilters)
-                TextButton(
-                  onPressed: _clearAll,
-                  child: Text(
-                    'Limpiar todo',
-                    style: FudiTypography.bodySmall.copyWith(
-                      color: FudiColors.primary,
-                      fontWeight: FontWeight.w600,
+                FudiPressableScale(
+                  onTap: _clearAll,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Text(
+                      'Limpiar todo',
+                      style: FudiTypography.bodySmall.copyWith(
+                        color: FudiColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -219,23 +223,23 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
             }).toList(),
           ),
           const SizedBox(height: FudiSpacing.xl),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: () {
-                widget.onApply(_filters);
-                Navigator.of(context).pop();
-              },
-              style: FilledButton.styleFrom(
-                backgroundColor: FudiColors.primary,
-                minimumSize: const Size.fromHeight(52),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(FudiRadius.lg),
-                ),
+          FudiPressableScale(
+            onTap: () {
+              widget.onApply(_filters);
+              Navigator.of(context).pop();
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                color: FudiColors.primary,
+                borderRadius: BorderRadius.circular(FudiRadius.lg),
               ),
-              child: Text(
-                'Aplicar filtros',
-                style: FudiTypography.labelMedium.copyWith(color: Colors.white),
+              child: Center(
+                child: Text(
+                  'Aplicar filtros',
+                  style: FudiTypography.labelMedium.copyWith(color: Colors.white),
+                ),
               ),
             ),
           ),

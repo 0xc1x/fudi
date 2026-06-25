@@ -9,6 +9,7 @@ import '../../../core/ui/fudi_info_banner.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_sticky_page_header.dart';
 import '../../../core/ui/fudi_surface_card.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../domain/order_model.dart';
 import '../domain/order_status.dart';
@@ -44,9 +45,16 @@ class OrderDetailScreen extends ConsumerWidget {
                 style: FudiTypography.bodyMedium,
               ),
               const SizedBox(height: FudiSpacing.md),
-              FilledButton(
-                onPressed: () => ref.invalidate(orderDetailProvider(id)),
-                child: const Text('Reintentar'),
+              FudiPressableScale(
+                onTap: () => ref.invalidate(orderDetailProvider(id)),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: FudiColors.primary,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text('Reintentar', style: TextStyle(color: Colors.white)),
+                ),
               ),
             ],
           ),
@@ -115,34 +123,41 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  FilledButton(
-                    onPressed: () {},
-                    style: FilledButton.styleFrom(
-                      backgroundColor: FudiColors.primary,
-                      minimumSize: const Size.fromHeight(56),
-                      shape: RoundedRectangleBorder(
+                  FudiPressableScale(
+                    onTap: () {},
+                    child: Container(
+                      width: double.infinity,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: FudiColors.primary,
                         borderRadius: BorderRadius.circular(FudiRadius.lg),
                       ),
-                    ),
-                    child: Text(
-                      'Volver a pedir',
-                      style: FudiTypography.labelMedium.copyWith(
-                        color: Colors.white,
+                      child: Center(
+                        child: Text(
+                          'Volver a pedir',
+                          style: FudiTypography.labelMedium.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: FudiSpacing.sm),
-                  OutlinedButton(
-                    onPressed: () => context.push('/review-order/${order.id}'),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(56),
-                      shape: RoundedRectangleBorder(
+                  FudiPressableScale(
+                    onTap: () => context.push('/review-order/${order.id}'),
+                    child: Container(
+                      width: double.infinity,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: FudiColors.primary),
                         borderRadius: BorderRadius.circular(FudiRadius.lg),
                       ),
-                    ),
-                    child: Text(
-                      'Dejar reseña',
-                      style: FudiTypography.labelMedium,
+                      child: Center(
+                        child: Text(
+                          'Dejar reseña',
+                          style: FudiTypography.labelMedium.copyWith(color: FudiColors.primary),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -288,51 +303,52 @@ class _BusinessInfoCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: FilledButton(
-                  onPressed: () =>
+                child: FudiPressableScale(
+                  onTap: () =>
                       context.push('/business-profile/${order.businessId}'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: FudiColors.primary,
+                  child: Container(
                     padding: const EdgeInsets.symmetric(
                       vertical: FudiSpacing.md,
                     ),
-                    shape: RoundedRectangleBorder(
+                    decoration: BoxDecoration(
+                      color: FudiColors.primary,
                       borderRadius: BorderRadius.circular(FudiRadius.lg),
                     ),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.store, size: 18, color: Colors.white),
-                      SizedBox(width: 6),
-                      Text(
-                        'Ver negocio',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.store, size: 18, color: Colors.white),
+                        SizedBox(width: 6),
+                        Text(
+                          'Ver negocio',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
               if (order.status.isActive) ...[
                 const SizedBox(width: FudiSpacing.sm),
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
+                  child: FudiPressableScale(
+                    onTap: () {},
+                    child: Container(
                       padding: const EdgeInsets.symmetric(
                         vertical: FudiSpacing.md,
                       ),
-                      shape: RoundedRectangleBorder(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: FudiColors.primary),
                         borderRadius: BorderRadius.circular(FudiRadius.lg),
                       ),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.directions, size: 18),
-                        SizedBox(width: 6),
-                        Text('Cómo llegar'),
-                      ],
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.directions, size: 18),
+                          SizedBox(width: 6),
+                          Text('Cómo llegar'),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -496,7 +512,7 @@ class _PriceDetailsCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(FudiRadius.lg),
             ),
             child: Text(
-              '🌱 Has ahorrado \$${order.discount.toStringAsFixed(2)} y evitado el desperdicio de alimentos',
+              'Has ahorrado \$${order.discount.toStringAsFixed(2)} y evitado el desperdicio de alimentos',
               style: FudiTypography.bodySmall.copyWith(
                 color: const Color(0xFF166534),
               ),

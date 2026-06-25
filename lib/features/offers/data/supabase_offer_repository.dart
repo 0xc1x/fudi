@@ -28,7 +28,7 @@ class SupabaseOfferRepository implements OfferRepository {
   businesses:business_id (
     id, name, type, image, rating, review_count
   ),
-  business_locations:business_location_id (
+  business_locations:business_locations!offers_business_location_id_fkey (
     id, name, address, latitude, longitude, zone
   )
   ''';
@@ -287,6 +287,7 @@ class SupabaseOfferRepository implements OfferRepository {
           name: cat.dbValue,
           count: counts[cat.dbValue] ?? 0,
           emoji: cat.emoji,
+          imageUrl: cat.imageUrl,
         );
       }).toList();
 
@@ -302,9 +303,7 @@ class SupabaseOfferRepository implements OfferRepository {
     try {
       final response = await _supabaseClient
           .from('offers')
-          .select(
-            'business_locations!offers_business_location_id_fkey(zone)',
-          )
+          .select('business_locations!offers_business_location_id_fkey(zone)')
           .eq('is_active', true)
           .gt('stock', 0)
           .gt('pickup_end', DateTime.now().toUtc().toIso8601String())
@@ -312,8 +311,7 @@ class SupabaseOfferRepository implements OfferRepository {
 
       final areaCounts = <String, int>{};
       for (final row in response) {
-        final location = row['business_locations']
-            as Map<String, dynamic>?;
+        final location = row['business_locations'] as Map<String, dynamic>?;
         final zone = location?['zone'] as String?;
         if (zone != null && zone.isNotEmpty) {
           areaCounts[zone] = (areaCounts[zone] ?? 0) + 1;
@@ -424,9 +422,7 @@ class SupabaseOfferRepository implements OfferRepository {
       rethrow;
     } catch (e) {
       if (e is DataException || e is BusinessRuleException) rethrow;
-      throw UnknownDataException(
-        message: 'Error al cargar ofertas recientes',
-      );
+      throw UnknownDataException(message: 'Error al cargar ofertas recientes');
     }
   }
 
@@ -455,6 +451,14 @@ class SupabaseOfferRepository implements OfferRepository {
             offer.business.longitude!,
           );
           if (distance > radiusKm) continue;
+          businessMap.putIfAbsent(
+            offer.business.id,
+            () => _BusinessSummaryBuilder(id: offer.business.id),
+          );
+          final builder = businessMap[offer.business.id]!;
+          if (builder.distanceKm == null || distance < builder.distanceKm!) {
+            builder.distanceKm = distance;
+          }
         }
 
         businessMap.putIfAbsent(
@@ -475,9 +479,7 @@ class SupabaseOfferRepository implements OfferRepository {
         builder.activeDealsCount++;
       }
 
-      final businesses = businessMap.values
-          .map((b) => b.build())
-          .toList()
+      final businesses = businessMap.values.map((b) => b.build()).toList()
         ..sort((a, b) {
           final da = a.distanceKm ?? double.infinity;
           final db = b.distanceKm ?? double.infinity;
@@ -490,9 +492,7 @@ class SupabaseOfferRepository implements OfferRepository {
       rethrow;
     } catch (e) {
       if (e is DataException || e is BusinessRuleException) rethrow;
-      throw UnknownDataException(
-        message: 'Error al cargar negocios cercanos',
-      );
+      throw UnknownDataException(message: 'Error al cargar negocios cercanos');
     }
   }
 
@@ -537,6 +537,14 @@ class SupabaseOfferRepository implements OfferRepository {
             offer.business.longitude!,
           );
           if (distance > radiusKm) continue;
+          businessMap.putIfAbsent(
+            offer.business.id,
+            () => _BusinessSummaryBuilder(id: offer.business.id),
+          );
+          final builder = businessMap[offer.business.id]!;
+          if (builder.distanceKm == null || distance < builder.distanceKm!) {
+            builder.distanceKm = distance;
+          }
         }
 
         if (type != null &&
@@ -569,9 +577,7 @@ class SupabaseOfferRepository implements OfferRepository {
         builder.activeDealsCount++;
       }
 
-      final businesses = businessMap.values
-          .map((b) => b.build())
-          .toList()
+      final businesses = businessMap.values.map((b) => b.build()).toList()
         ..sort((a, b) => b.activeDealsCount.compareTo(a.activeDealsCount));
       return businesses.take(limit).toList();
     } on PostgrestException catch (e) {
@@ -586,8 +592,7 @@ class SupabaseOfferRepository implements OfferRepository {
 
   Offer _mapOfferFromJson(Map<String, dynamic> json) {
     final businessJson = json['businesses'] as Map<String, dynamic>;
-    final locationJson = json['business_locations']
-        as Map<String, dynamic>?;
+    final locationJson = json['business_locations'] as Map<String, dynamic>?;
 
     return Offer(
       id: json['id'] as String,

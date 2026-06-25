@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
@@ -53,9 +54,9 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       leading: Padding(
         padding: const EdgeInsets.only(left: FudiSpacing.sm),
-        child: IconButton(
-          onPressed: () => context.pop(),
-          icon: Container(
+        child: FudiPressableScale(
+          onTap: () => context.pop(),
+          child: Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(
@@ -76,26 +77,25 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: FudiSpacing.lg),
-          child: FilledButton(
-            onPressed: onCreate,
-            style: FilledButton.styleFrom(
-              backgroundColor: FudiColors.primary,
-              foregroundColor: FudiColors.primaryForeground,
+          child: FudiPressableScale(
+            onTap: onCreate,
+            child: Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: FudiSpacing.lg,
                 vertical: FudiSpacing.sm,
               ),
-              shape: RoundedRectangleBorder(
+              decoration: BoxDecoration(
+                color: FudiColors.primary,
                 borderRadius: BorderRadius.circular(FudiRadius.md),
               ),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(FudiIcons.plus, size: 16),
-                SizedBox(width: FudiSpacing.xs),
-                Text('Crear', style: TextStyle(fontWeight: FontWeight.w500)),
-              ],
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(FudiIcons.plus, size: 16, color: Colors.white),
+                  SizedBox(width: FudiSpacing.xs),
+                  Text('Crear', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                ],
+              ),
             ),
           ),
         ),
@@ -423,16 +423,22 @@ class _CouponMenu extends ConsumerWidget {
                   '¿Estás seguro de que deseas eliminar el cupón "${coupon.code}"?',
                 ),
                 actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(false),
-                    child: const Text('Cancelar'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(true),
-                    style: TextButton.styleFrom(
-                      foregroundColor: FudiColors.destructive,
+                  FudiPressableScale(
+                    onTap: () => Navigator.of(ctx).pop(false),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Text('Cancelar'),
                     ),
-                    child: const Text('Eliminar'),
+                  ),
+                  FudiPressableScale(
+                    onTap: () => Navigator.of(ctx).pop(true),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Text(
+                        'Eliminar',
+                        style: TextStyle(color: FudiColors.destructive),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -526,20 +532,19 @@ class _EmptyCoupons extends StatelessWidget {
             ),
           ),
           const SizedBox(height: FudiSpacing.lg),
-          FilledButton(
-            onPressed: onCreate,
-            style: FilledButton.styleFrom(
-              backgroundColor: FudiColors.primary,
-              foregroundColor: FudiColors.primaryForeground,
+          FudiPressableScale(
+            onTap: onCreate,
+            child: Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: FudiSpacing.xl,
                 vertical: FudiSpacing.md,
               ),
-              shape: RoundedRectangleBorder(
+              decoration: BoxDecoration(
+                color: FudiColors.primary,
                 borderRadius: BorderRadius.circular(FudiRadius.xl),
               ),
+              child: const Text('Crear primer cupón', style: TextStyle(color: Colors.white)),
             ),
-            child: const Text('Crear primer cupón'),
           ),
         ],
       ),

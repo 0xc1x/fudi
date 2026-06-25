@@ -6,6 +6,7 @@ import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_surface_card.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_typography.dart';
 
 class HelpCenterScreen extends StatefulWidget {
@@ -139,12 +140,12 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       leading: Padding(
         padding: const EdgeInsets.only(left: FudiSpacing.sm),
-        child: IconButton(
-          onPressed: () => context.go(RouteNames.profilePath),
-          icon: Container(
+        child: FudiPressableScale(
+          onTap: () => context.go(RouteNames.profilePath),
+          child: Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: FudiColors.muted,
               shape: BoxShape.circle,
             ),
@@ -523,19 +524,20 @@ class _ContactSupportCard extends StatelessWidget {
           const SizedBox(height: FudiSpacing.md),
           SizedBox(
             width: double.infinity,
-            child: FilledButton(
-              onPressed: () {},
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: FudiColors.primary,
+            child: FudiPressableScale(
+              onTap: () {},
+              child: Container(
                 padding: const EdgeInsets.symmetric(vertical: FudiSpacing.sm),
-                shape: RoundedRectangleBorder(
+                decoration: BoxDecoration(
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(FudiRadius.md),
                 ),
-              ),
-              child: const Text(
-                'Contactar soporte',
-                style: TextStyle(fontWeight: FontWeight.w500),
+                child: const Center(
+                  child: Text(
+                    'Contactar soporte',
+                    style: TextStyle(color: FudiColors.primary, fontWeight: FontWeight.w500),
+                  ),
+                ),
               ),
             ),
           ),

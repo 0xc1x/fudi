@@ -75,12 +75,14 @@ class CategoryStat {
     required this.name,
     required this.count,
     required this.emoji,
+    required this.imageUrl,
   });
 
   final String id;
   final String name;
   final int count;
   final String emoji;
+  final String imageUrl;
 }
 
 class AreaStat {

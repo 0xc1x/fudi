@@ -8,6 +8,7 @@ import '../../../core/error/fudi_exception_l10n.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_logo.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../domain/user_profile.dart';
 import 'auth_state_provider.dart';
 
@@ -110,10 +111,14 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       color: FudiColors.muted,
                       shape: BoxShape.circle,
                     ),
-                    child: IconButton(
-                      onPressed: () => context.go(RouteNames.homePath),
-                      icon: const Icon(FudiIcons.chevronLeft, size: 20),
-                      padding: EdgeInsets.zero,
+                    child: FudiPressableScale(
+                      onTap: () => context.go(RouteNames.homePath),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(color: FudiColors.muted, shape: BoxShape.circle),
+                        child: const Icon(FudiIcons.chevronLeft, size: 20),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -320,17 +325,20 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                           size: 20,
                                           color: FudiColors.mutedForeground,
                                         ),
-                                        suffixIcon: IconButton(
-                                          onPressed: () => setState(
+                                        suffixIcon: FudiPressableScale(
+                                          onTap: () => setState(
                                             () => _obscurePassword =
                                                 !_obscurePassword,
                                           ),
-                                          icon: Icon(
-                                            _obscurePassword
-                                                ? FudiIcons.eye
-                                                : FudiIcons.eyeOff,
-                                            size: 20,
-                                            color: FudiColors.mutedForeground,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(10),
+                                            child: Icon(
+                                              _obscurePassword
+                                                  ? FudiIcons.eye
+                                                  : FudiIcons.eyeOff,
+                                              size: 20,
+                                              color: FudiColors.mutedForeground,
+                                            ),
                                           ),
                                         ),
                                         hintText: 'Mínimo 8 caracteres',
@@ -459,49 +467,55 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 56,
-                            child: FilledButton(
-                              onPressed: (isLoading || !_acceptedTerms)
-                                  ? null
-                                  : _submit,
-                              style: FilledButton.styleFrom(
-                                backgroundColor: _acceptedTerms
+                          FudiPressableScale(
+                            onTap: (isLoading || !_acceptedTerms)
+                                ? null
+                                : _submit,
+                            child: Container(
+                              width: double.infinity,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: _acceptedTerms
                                     ? FudiColors.primary
                                     : FudiColors.muted,
-                                foregroundColor: _acceptedTerms
-                                    ? FudiColors.primaryForeground
-                                    : FudiColors.mutedForeground,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: _acceptedTerms ? 4 : 0,
-                              ),
-                              child: isLoading
-                                  ? const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: FudiColors.primaryForeground,
-                                          ),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: _acceptedTerms
+                                    ? [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.2),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
                                         ),
-                                        SizedBox(width: 8),
-                                        Text('Creando cuenta...'),
-                                      ],
-                                    )
-                                  : const Text(
-                                      'Crear cuenta',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
+                                      ]
+                                    : null,
+                              ),
+                              child: Center(
+                                child: isLoading
+                                    ? const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: FudiColors.primaryForeground,
+                                            ),
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text('Creando cuenta...', style: TextStyle(color: Colors.white)),
+                                        ],
+                                      )
+                                    : const Text(
+                                        'Crear cuenta',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                        ),
                                       ),
-                                    ),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -529,67 +543,59 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: OutlinedButton(
-                                  onPressed: null,
-                                  style: OutlinedButton.styleFrom(
-                                    backgroundColor: FudiColors.background,
-                                    side: const BorderSide(
-                                      color: FudiColors.borderSolid,
-                                    ),
-                                    shape: RoundedRectangleBorder(
+                                child: FudiPressableScale(
+                                  onTap: null,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    decoration: BoxDecoration(
+                                      color: FudiColors.background,
                                       borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: FudiColors.borderSolid),
                                     ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        height: 20,
-                                        width: 20,
-                                        child: CustomPaint(
-                                          painter: _GoogleIconPainter(),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CustomPaint(
+                                            painter: _GoogleIconPainter(),
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      const Text('Google'),
-                                    ],
+                                        const SizedBox(width: 8),
+                                        const Text('Google', style: TextStyle(color: FudiColors.primary)),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
-                                child: OutlinedButton(
-                                  onPressed: null,
-                                  style: OutlinedButton.styleFrom(
-                                    backgroundColor: FudiColors.background,
-                                    side: const BorderSide(
-                                      color: FudiColors.borderSolid,
-                                    ),
-                                    shape: RoundedRectangleBorder(
+                                child: FudiPressableScale(
+                                  onTap: null,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    decoration: BoxDecoration(
+                                      color: FudiColors.background,
                                       borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: FudiColors.borderSolid),
                                     ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 14,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.apple,
+                                          size: 20,
+                                          color:
+                                              Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? Colors.white
+                                              : Colors.black,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        const Text('Apple', style: TextStyle(color: FudiColors.primary)),
+                                      ],
                                     ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.apple,
-                                        size: 20,
-                                        color:
-                                            Theme.of(context).brightness ==
-                                                Brightness.dark
-                                            ? Colors.white
-                                            : Colors.black,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      const Text('Apple'),
-                                    ],
                                   ),
                                 ),
                               ),

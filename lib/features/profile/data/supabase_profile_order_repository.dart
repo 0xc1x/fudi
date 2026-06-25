@@ -41,7 +41,8 @@ class SupabaseProfileOrderRepository implements ProfileOrderRepository {
         .select('''
           id, order_number, status, price, original_price,
           pickup_time, created_at,
-          businesses:business_id (name)
+          businesses:business_id (name),
+          offers:offer_id (image)
         ''')
         .eq('user_id', userId)
         .order('created_at', ascending: false);
@@ -51,6 +52,7 @@ class SupabaseProfileOrderRepository implements ProfileOrderRepository {
 
   UserOrder _mapOrder(Map<String, dynamic> json) {
     final businessJson = json['businesses'] as Map<String, dynamic>?;
+    final offerJson = json['offers'] as Map<String, dynamic>?;
 
     return UserOrder(
       id: json['id'] as String,
@@ -63,6 +65,7 @@ class SupabaseProfileOrderRepository implements ProfileOrderRepository {
           ? DateTime.parse(json['pickup_time'] as String)
           : null,
       createdAt: DateTime.parse(json['created_at'] as String),
+      offerImageUrl: offerJson?['image'] as String?,
     );
   }
 

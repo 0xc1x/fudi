@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
@@ -64,47 +65,53 @@ class NoBusinessPrompt extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-            OutlinedButton(
-              onPressed: () {
+            FudiPressableScale(
+              onTap: () {
                 showDialog(
                   context: context,
                   builder: (ctx) => AlertDialog(
                     title: const Text('Cerrar sesión'),
                     content: const Text('¿Estás seguro de que quieres cerrar sesión?'),
                     actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(ctx).pop(),
-                        child: const Text('Cancelar'),
+                      FudiPressableScale(
+                        onTap: () => Navigator.of(ctx).pop(),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: Text('Cancelar'),
+                        ),
                       ),
-                      FilledButton(
-                        onPressed: () {
+                      FudiPressableScale(
+                        onTap: () {
                           Navigator.of(ctx).pop();
                           ref.read(authControllerProvider.notifier).signOut();
                         },
-                        style: FilledButton.styleFrom(
-                          backgroundColor: FudiColors.destructive,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: FudiColors.destructive,
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: const Text('Cerrar sesión', style: TextStyle(color: Colors.white)),
                         ),
-                        child: const Text('Cerrar sesión'),
                       ),
                     ],
                   ),
                 );
               },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: FudiColors.destructive,
-                side: const BorderSide(color: FudiColors.destructive),
+              child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
+                decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: FudiColors.destructive),
                 ),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(FudiIcons.logOut, size: 20),
-                  SizedBox(width: FudiSpacing.sm),
-                  Text('Cerrar sesión'),
-                ],
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(FudiIcons.logOut, size: 20, color: FudiColors.destructive),
+                    SizedBox(width: FudiSpacing.sm),
+                    Text('Cerrar sesión', style: TextStyle(color: FudiColors.destructive)),
+                  ],
+                ),
               ),
             ),
           ],

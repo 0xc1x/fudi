@@ -6,7 +6,7 @@ import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
 import '../atoms/icons/fudi_icons.dart';
 
-class DealCard extends StatelessWidget {
+class DealCard extends StatefulWidget {
   const DealCard({
     super.key,
     required this.imageUrl,
@@ -36,35 +36,91 @@ class DealCard extends StatelessWidget {
   final bool isFavorite;
   final VoidCallback? onFavoriteToggle;
 
-  int get _discountPercent => originalPrice > 0
-      ? ((1 - discountedPrice / originalPrice) * 100).round()
+  @override
+  State<DealCard> createState() => _DealCardState();
+}
+
+class _DealCardState extends State<DealCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pressController;
+  late final Animation<double> _pressScale;
+
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _pressController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 120),
+      reverseDuration: const Duration(milliseconds: 200),
+    );
+    _pressScale = Tween<double>(begin: 1.0, end: 0.97).animate(
+      CurvedAnimation(parent: _pressController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pressController.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails _) {
+    setState(() => _isPressed = true);
+    _pressController.forward();
+  }
+
+  void _onTapUp(TapUpDetails _) {
+    setState(() => _isPressed = false);
+    _pressController.reverse();
+  }
+
+  void _onTapCancel() {
+    setState(() => _isPressed = false);
+    _pressController.reverse();
+  }
+
+  int get _discountPercent => widget.originalPrice > 0
+      ? ((1 - widget.discountedPrice / widget.originalPrice) * 100).round()
       : 0;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: FudiColors.card,
-        borderRadius: BorderRadius.circular(FudiRadius.lg),
-        border: Border.all(
-          color: FudiColors.border.withValues(alpha: 0.09),
-          width: 1.0,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: FudiColors.primary.withValues(alpha: 0.03),
-            blurRadius: 12,
-            spreadRadius: -2,
-            offset: const Offset(0, 4),
+    return AnimatedBuilder(
+      animation: _pressScale,
+      builder: (context, child) =>
+          Transform.scale(scale: _pressScale.value, child: child),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        onTapDown: _onTapDown,
+        onTapUp: _onTapUp,
+        onTapCancel: _onTapCancel,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          decoration: BoxDecoration(
+            color: FudiColors.card,
+            borderRadius: BorderRadius.circular(FudiRadius.lg),
+            border: Border.all(
+              color: _isPressed
+                  ? FudiColors.border.withValues(alpha: 0.25)
+                  : FudiColors.border.withValues(alpha: 0.09),
+              width: 1.0,
+            ),
+            boxShadow: [
+              BoxShadow(
+                // La sombra se aplana al presionar — feedback sutil de "hundido"
+                color: FudiColors.primary.withValues(
+                  alpha: _isPressed ? 0.01 : 0.03,
+                ),
+                blurRadius: _isPressed ? 4 : 12,
+                spreadRadius: _isPressed ? 0 : -2,
+                offset: Offset(0, _isPressed ? 1 : 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(FudiRadius.lg - 1),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(FudiRadius.lg - 1),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -80,7 +136,7 @@ class DealCard extends StatelessWidget {
     return Stack(
       children: [
         CachedNetworkImage(
-          imageUrl: imageUrl,
+          imageUrl: widget.imageUrl,
           height: 200,
           width: double.infinity,
           fit: BoxFit.cover,
@@ -104,18 +160,18 @@ class DealCard extends StatelessWidget {
             right: FudiSpacing.sm,
             child: _DiscountBadge(percent: _discountPercent),
           ),
-        if (availableQuantity <= 3)
+        if (widget.availableQuantity <= 3)
           Positioned(
             bottom: FudiSpacing.sm,
             left: FudiSpacing.sm,
-            child: _LowStockBadge(count: availableQuantity),
+            child: _LowStockBadge(count: widget.availableQuantity),
           ),
         Positioned(
           top: FudiSpacing.sm,
           left: FudiSpacing.sm,
           child: _FavoriteButton(
-            isFavorite: isFavorite,
-            onToggle: onFavoriteToggle,
+            isFavorite: widget.isFavorite,
+            onToggle: widget.onFavoriteToggle,
           ),
         ),
       ],
@@ -139,7 +195,7 @@ class DealCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  businessName,
+                  widget.businessName,
                   style: FudiTypography.h3.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -147,9 +203,9 @@ class DealCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              if (rating > 0) ...[
+              if (widget.rating > 0) ...[
                 const SizedBox(width: FudiSpacing.sm),
-                _RatingPill(rating: rating),
+                _RatingPill(rating: widget.rating),
               ],
             ],
           ),
@@ -164,7 +220,7 @@ class DealCard extends StatelessWidget {
               const SizedBox(width: 4),
               Flexible(
                 child: Text(
-                  distance,
+                  widget.distance,
                   style: FudiTypography.bodySmall,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -179,9 +235,7 @@ class DealCard extends StatelessWidget {
           ),
           const SizedBox(height: 1),
           Container(
-            margin: const EdgeInsets.only(
-              bottom: FudiSpacing.sm,
-            ), // Este margen define el espacio final real con el borde redondeado
+            margin: const EdgeInsets.only(bottom: FudiSpacing.sm),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -197,7 +251,7 @@ class DealCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
-                          'Recoge antes de ${pickupUntil.format(context)}',
+                          'Recoge antes de ${widget.pickupUntil.format(context)}',
                           style: FudiTypography.bodySmall.copyWith(
                             fontWeight: FontWeight.w600,
                             color: FudiColors.primary,
@@ -213,12 +267,12 @@ class DealCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '\$${originalPrice.toStringAsFixed(2)}',
+                      '\$${widget.originalPrice.toStringAsFixed(2)}',
                       style: FudiTypography.priceOriginal.copyWith(height: 1.0),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '\$${discountedPrice.toStringAsFixed(2)}',
+                      '\$${widget.discountedPrice.toStringAsFixed(2)}',
                       style: FudiTypography.priceLarge.copyWith(height: 1.0),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -233,6 +287,8 @@ class DealCard extends StatelessWidget {
     );
   }
 }
+
+// ── Badges sin cambios ────────────────────────────────────────────────────────
 
 class _DiscountBadge extends StatelessWidget {
   const _DiscountBadge({required this.percent});
@@ -312,35 +368,106 @@ class _RatingPill extends StatelessWidget {
   }
 }
 
-class _FavoriteButton extends StatelessWidget {
+// ── Botón favorito con animación propia ───────────────────────────────────────
+
+class _FavoriteButton extends StatefulWidget {
   const _FavoriteButton({required this.isFavorite, this.onToggle});
 
   final bool isFavorite;
   final VoidCallback? onToggle;
 
   @override
+  State<_FavoriteButton> createState() => _FavoriteButtonState();
+}
+
+class _FavoriteButtonState extends State<_FavoriteButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+    _scale = TweenSequence<double>([
+      // Comprime
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.0,
+          end: 0.7,
+        ).chain(CurveTween(curve: Curves.easeIn)),
+        weight: 30,
+      ),
+      // Rebote exagerado — el corazón "late"
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 0.7,
+          end: 1.35,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 45,
+      ),
+      // Asentarse
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.35,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 25,
+      ),
+    ]).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(_FavoriteButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isFavorite != widget.isFavorite) {
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onToggle,
-      child: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Icon(
-          isFavorite ? FudiIcons.favorites : FudiIcons.heartOutline,
-          size: 18,
-          color: isFavorite
-              ? FudiColors.destructive
-              : FudiColors.mutedForeground,
+      onTap: widget.onToggle,
+      // Absorbe el tap para que no lo propague a la card
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedBuilder(
+        animation: _scale,
+        builder: (context, child) =>
+            Transform.scale(scale: _scale.value, child: child),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            // El fondo cambia de blanco a rojo suave al marcar favorito
+            color: widget.isFavorite
+                ? FudiColors.destructive.withValues(alpha: 0.12)
+                : Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Icon(
+            widget.isFavorite ? FudiIcons.favorites : FudiIcons.heartOutline,
+            size: 18,
+            color: widget.isFavorite
+                ? FudiColors.destructive
+                : FudiColors.mutedForeground,
+          ),
         ),
       ),
     );

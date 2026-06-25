@@ -26,6 +26,9 @@ class FudiSpacing {
 class FudiRadius {
   FudiRadius._();
 
+  /// xs - 6.0 (Botones, inputs, tarjetas pequeñas)
+  static const double xs = 6.0;
+
   /// sm - 12.0 (Badges, botones pequeños)
   static const double sm = 12.0;
 

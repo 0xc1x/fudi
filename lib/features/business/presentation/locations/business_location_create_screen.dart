@@ -9,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import '../../../../core/error/user_friendly_message.dart';
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
@@ -252,9 +253,14 @@ class _BusinessLocationCreateScreenState
     return Scaffold(
       backgroundColor: FudiColors.background,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(FudiIcons.chevronLeft),
-          onPressed: () => context.pop(),
+        leading: FudiPressableScale(
+          onTap: () => context.pop(),
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(shape: BoxShape.circle),
+            child: const Icon(FudiIcons.chevronLeft),
+          ),
         ),
         title: const Text('Nueva sucursal', style: FudiTypography.h4),
         backgroundColor: Colors.white,

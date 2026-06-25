@@ -113,7 +113,6 @@ class UiGalleryScreen extends StatelessWidget {
               type: 'Comida Italiana',
               rating: 4.2,
               distance: '1.2 km',
-              activeDealsCount: 2,
               onTap: () {},
             ),
           ),

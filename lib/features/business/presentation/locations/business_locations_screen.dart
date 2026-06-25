@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
@@ -152,9 +153,14 @@ class _BusinessInfoCard extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButton(
-                onPressed: () => context.push(RouteNames.businessEditPath),
-                icon: const Icon(FudiIcons.store, color: FudiColors.primary),
+              FudiPressableScale(
+                onTap: () => context.push(RouteNames.businessEditPath),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                  child: const Icon(FudiIcons.store, color: FudiColors.primary),
+                ),
               ),
             ],
           ),
@@ -254,18 +260,25 @@ class _LocationsHeader extends StatelessWidget {
     return Row(
       children: [
         Expanded(child: Text('Mis Locales', style: FudiTypography.h4)),
-        FilledButton.icon(
-          onPressed: () => context.push(RouteNames.businessLocationCreatePath),
-          icon: const Icon(FudiIcons.plus, size: 16),
-          label: const Text('Agregar'),
-          style: FilledButton.styleFrom(
-            backgroundColor: FudiColors.primary,
-            foregroundColor: FudiColors.primaryForeground,
+        FudiPressableScale(
+          onTap: () => context.push(RouteNames.businessLocationCreatePath),
+          child: Container(
             padding: const EdgeInsets.symmetric(
               horizontal: FudiSpacing.md,
               vertical: FudiSpacing.sm,
             ),
-            textStyle: FudiTypography.labelSmall,
+            decoration: BoxDecoration(
+              color: FudiColors.primary,
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(FudiIcons.plus, size: 16, color: Colors.white),
+                const SizedBox(width: 4),
+                Text('Agregar', style: FudiTypography.labelSmall.copyWith(color: Colors.white)),
+              ],
+            ),
           ),
         ),
       ],
@@ -628,47 +641,53 @@ class _SettingsItem extends StatelessWidget {
 class _LogoutButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return OutlinedButton(
-      onPressed: () {
+    return FudiPressableScale(
+      onTap: () {
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Cerrar sesión'),
             content: const Text('¿Estás seguro de que quieres cerrar sesión?'),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('Cancelar'),
+              FudiPressableScale(
+                onTap: () => Navigator.of(ctx).pop(),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Text('Cancelar'),
+                ),
               ),
-              FilledButton(
-                onPressed: () {
+              FudiPressableScale(
+                onTap: () {
                   Navigator.of(ctx).pop();
                   ref.read(authControllerProvider.notifier).signOut();
                 },
-                style: FilledButton.styleFrom(
-                  backgroundColor: FudiColors.destructive,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: FudiColors.destructive,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: const Text('Cerrar sesión', style: TextStyle(color: Colors.white)),
                 ),
-                child: const Text('Cerrar sesión'),
               ),
             ],
           ),
         );
       },
-      style: OutlinedButton.styleFrom(
-        foregroundColor: FudiColors.destructive,
-        side: BorderSide(color: FudiColors.destructive),
+      child: Container(
         padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),
-        shape: RoundedRectangleBorder(
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(FudiRadius.xl),
+          border: Border.all(color: FudiColors.destructive),
         ),
-      ),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(FudiIcons.logOut, size: 20),
-          SizedBox(width: FudiSpacing.sm),
-          Text('Cerrar sesión'),
-        ],
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(FudiIcons.logOut, size: 20, color: FudiColors.destructive),
+            SizedBox(width: FudiSpacing.sm),
+            Text('Cerrar sesión', style: TextStyle(color: FudiColors.destructive)),
+          ],
+        ),
       ),
     );
   }
@@ -696,7 +715,13 @@ class _EmptyCard extends StatelessWidget {
           Icon(icon, size: 48, color: FudiColors.mutedForeground),
           const SizedBox(height: FudiSpacing.md),
           Text(title, style: FudiTypography.h4),
-          TextButton(onPressed: onTap, child: Text(action)),
+          FudiPressableScale(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Text(action, style: const TextStyle(color: FudiColors.primary)),
+            ),
+          ),
         ],
       ),
     );

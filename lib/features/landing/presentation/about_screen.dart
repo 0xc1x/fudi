@@ -5,6 +5,7 @@ import '../../../core/routing/route_names.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_logo.dart';
 import '../../../core/ui/fudi_spacing.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_typography.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -21,9 +22,14 @@ class AboutScreen extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
             backgroundColor: FudiColors.muted.withValues(alpha: 0.5),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
-              onPressed: () => context.go(RouteNames.landingPath),
+            child: FudiPressableScale(
+              onTap: () => context.go(RouteNames.landingPath),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
+                child: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
+              ),
             ),
           ),
         ),

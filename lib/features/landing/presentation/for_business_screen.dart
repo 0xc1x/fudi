@@ -5,6 +5,7 @@ import '../../../core/routing/route_names.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_logo.dart';
 import '../../../core/ui/fudi_spacing.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_typography.dart';
 
 class ForBusinessScreen extends StatelessWidget {
@@ -21,9 +22,14 @@ class ForBusinessScreen extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: CircleAvatar(
             backgroundColor: FudiColors.muted.withValues(alpha: 0.5),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
-              onPressed: () => context.go(RouteNames.landingPath),
+            child: FudiPressableScale(
+              onTap: () => context.go(RouteNames.landingPath),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
+                child: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
+              ),
             ),
           ),
         ),
@@ -83,16 +89,16 @@ class _Hero extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 48),
-          FilledButton(
-            onPressed: () => context.go(RouteNames.signupPath),
-            style: FilledButton.styleFrom(
+          FudiPressableScale(
+            onTap: () => context.go(RouteNames.signupPath),
+            child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-              textStyle: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              decoration: BoxDecoration(
+                color: FudiColors.primary,
+                borderRadius: BorderRadius.circular(12),
               ),
+              child: const Text('Registrar mi negocio', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
             ),
-            child: const Text('Registrar mi negocio'),
           ),
         ],
       ),
@@ -361,18 +367,16 @@ class _CTA extends StatelessWidget {
             style: TextStyle(color: Colors.white70, fontSize: 20),
           ),
           const SizedBox(height: 48),
-          FilledButton(
-            onPressed: () => context.go(RouteNames.signupPath),
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: FudiColors.primary,
+          FudiPressableScale(
+            onTap: () => context.go(RouteNames.signupPath),
+            child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-              textStyle: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
               ),
+              child: const Text('Registrar mi negocio', style: TextStyle(color: FudiColors.primary, fontSize: 18, fontWeight: FontWeight.bold)),
             ),
-            child: const Text('Registrar mi negocio'),
           ),
         ],
       ),

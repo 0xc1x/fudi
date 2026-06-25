@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/utils/map_style.dart';
 import '../../../core/ui/fudi_spacing.dart';
@@ -59,12 +60,16 @@ class BusinessProfileScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: FudiSpacing.xl),
-                FilledButton(
-                  onPressed: () => context.go('/'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: FudiColors.primary,
+                FudiPressableScale(
+                  onTap: () => context.go('/'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: FudiColors.primary,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: const Text('Volver al inicio', style: TextStyle(color: Colors.white)),
                   ),
-                  child: const Text('Volver al inicio'),
                 ),
               ],
             ),
@@ -143,15 +148,10 @@ class _BusinessProfileContentState
                           ),
                           Row(
                             children: [
-                              _CircleButton(
+                              _FavoriteHeartButton(
+                                isFavorite: _isFavorite,
                                 onTap: () =>
                                     setState(() => _isFavorite = !_isFavorite),
-                                icon: _isFavorite
-                                    ? FudiIcons.heart
-                                    : FudiIcons.heartOutline,
-                                iconColor: _isFavorite
-                                    ? const Color(0xFFEF4444)
-                                    : FudiColors.foreground,
                               ),
                               const SizedBox(width: 8),
                               _CircleButton(
@@ -588,14 +588,19 @@ class _ReviewsCard extends StatelessWidget {
             ),
           if (profile.reviewCount > 3)
             Center(
-              child: GestureDetector(
+              child: FudiPressableScale(
                 onTap: () {
                   // TODO: Navigate to full reviews screen
                 },
-                child: Text(
-                  'Ver todas las reseñas (${profile.reviewCount})',
-                  style: FudiTypography.bodyMedium.copyWith(
-                    color: FudiColors.primary,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: FudiSpacing.sm,
+                  ),
+                  child: Text(
+                    'Ver todas las reseñas (${profile.reviewCount})',
+                    style: FudiTypography.bodyMedium.copyWith(
+                      color: FudiColors.primary,
+                    ),
                   ),
                 ),
               ),
@@ -770,20 +775,19 @@ class _LocationCard extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: FudiSpacing.md),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () =>
-                    _openMaps(profile.latitude!, profile.longitude!),
-                style: FilledButton.styleFrom(
-                  backgroundColor: FudiColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(FudiRadius.lg),
-                  ),
+            FudiPressableScale(
+              onTap: () =>
+                  _openMaps(profile.latitude!, profile.longitude!),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),
+                decoration: BoxDecoration(
+                  color: FudiColors.primary,
+                  borderRadius: BorderRadius.circular(FudiRadius.lg),
                 ),
                 child: Text(
                   'Abrir en Google Maps',
+                  textAlign: TextAlign.center,
                   style: FudiTypography.labelSmall.copyWith(
                     color: Colors.white,
                   ),
@@ -799,6 +803,103 @@ class _LocationCard extends ConsumerWidget {
 
 // ─── Shared Widgets ──────────────────────────────────────────────
 
+/// Floating heart button with heartbeat animation on toggle.
+class _FavoriteHeartButton extends StatefulWidget {
+  const _FavoriteHeartButton({
+    required this.isFavorite,
+    required this.onTap,
+  });
+
+  final bool isFavorite;
+  final VoidCallback onTap;
+
+  @override
+  State<_FavoriteHeartButton> createState() => _FavoriteHeartButtonState();
+}
+
+class _FavoriteHeartButtonState extends State<_FavoriteHeartButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 380),
+    );
+    _scale = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.65)
+            .chain(CurveTween(curve: Curves.easeIn)),
+        weight: 28,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 0.65, end: 1.4)
+            .chain(CurveTween(curve: Curves.easeOut)),
+        weight: 44,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.4, end: 1.0)
+            .chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 28,
+      ),
+    ]).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(_FavoriteHeartButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isFavorite != widget.isFavorite) {
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: AnimatedBuilder(
+        animation: _scale,
+        builder: (_, child) =>
+            Transform.scale(scale: _scale.value, child: child),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: widget.isFavorite
+                ? const Color(0xFFEF4444).withValues(alpha: 0.15)
+                : Colors.white.withValues(alpha: 0.9),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Icon(
+            widget.isFavorite ? FudiIcons.heart : FudiIcons.heartOutline,
+            size: 20,
+            color: widget.isFavorite
+                ? const Color(0xFFEF4444)
+                : FudiColors.foreground,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Floating circle button used in the cover image overlay.
 class _CircleButton extends StatelessWidget {
   const _CircleButton({
@@ -813,7 +914,7 @@ class _CircleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return FudiPressableScale(
       onTap: onTap,
       child: Container(
         width: 40,
@@ -903,12 +1004,15 @@ class _ContactRow extends StatelessWidget {
               Text(label, style: FudiTypography.labelSmall),
               const SizedBox(height: 2),
               if (isLink && onTap != null)
-                GestureDetector(
+                FudiPressableScale(
                   onTap: onTap,
-                  child: Text(
-                    value,
-                    style: FudiTypography.bodyMedium.copyWith(
-                      color: FudiColors.primary,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Text(
+                      value,
+                      style: FudiTypography.bodyMedium.copyWith(
+                        color: FudiColors.primary,
+                      ),
                     ),
                   ),
                 )
@@ -937,11 +1041,14 @@ class _TextLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return FudiPressableScale(
       onTap: onTap,
-      child: Text(
-        text,
-        style: FudiTypography.bodyMedium.copyWith(color: FudiColors.primary),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Text(
+          text,
+          style: FudiTypography.bodyMedium.copyWith(color: FudiColors.primary),
+        ),
       ),
     );
   }

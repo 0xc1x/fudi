@@ -6,6 +6,7 @@ import '../../../core/di/core_providers.dart';
 import '../../../core/error/user_friendly_message.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_spacing.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../auth/presentation/auth_state_provider.dart';
 
@@ -76,8 +77,14 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
               ),
               const SizedBox(height: FudiSpacing.sm),
               Center(
-                child: TextButton(
-                  onPressed: () {},
+              child: FudiPressableScale(
+                onTap: () {},
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   child: Text(
                     'Cambiar foto',
                     style: FudiTypography.bodySmall.copyWith(
@@ -86,6 +93,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                     ),
                   ),
                 ),
+              ),
               ),
               const SizedBox(height: FudiSpacing.xl),
               Text('Nombre completo', style: FudiTypography.labelMedium),
@@ -166,30 +174,33 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
               const SizedBox(height: FudiSpacing.xxl),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
-                  onPressed: _saving ? null : _saveProfile,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: FudiColors.primary,
-                    minimumSize: const Size.fromHeight(56),
-                    shape: RoundedRectangleBorder(
+                child: FudiPressableScale(
+                  onTap: _saving ? null : _saveProfile,
+                  child: Container(
+                    width: double.infinity,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: FudiColors.primary,
                       borderRadius: BorderRadius.circular(FudiRadius.lg),
                     ),
+                    child: Center(
+                      child: _saving
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              'Guardar cambios',
+                              style: FudiTypography.labelMedium.copyWith(
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
                   ),
-                  child: _saving
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(
-                          'Guardar cambios',
-                          style: FudiTypography.labelMedium.copyWith(
-                            color: Colors.white,
-                          ),
-                        ),
                 ),
               ),
               const SizedBox(height: FudiSpacing.xxl),

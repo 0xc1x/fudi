@@ -6,10 +6,15 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/error/user_friendly_message.dart';
 import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/cards/business_card.dart';
+import '../../../core/ui/fudi_selectable_chips_bar.dart';
+import '../../../core/ui/fudi_search_bar.dart';
+import '../../../core/ui/fudi_empty_state.dart';
+import '../../../core/ui/fudi_error_state.dart';
 import '../../../core/utils/geo_utils.dart';
 import '../../../core/routing/route_names.dart';
 import '../../offers/domain/offer.dart';
@@ -60,20 +65,29 @@ class _AllBusinessesScreenState extends ConsumerState<AllBusinessesScreen> {
           ),
           businessesAsync.when(
             data: (businesses) => businesses.isEmpty
-                ? const SliverFillRemaining(child: _EmptyState())
+                ? const SliverFillRemaining(
+                    child: FudiEmptyState(
+                      title: 'No se encontraron negocios',
+                      description: 'Intenta cambiar los filtros o la búsqueda',
+                      icon: FudiIcons.store,
+                    ),
+                  )
                 : SliverPadding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: FudiSpacing.lg,
                       vertical: FudiSpacing.sm,
                     ),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) => Padding(
-                          padding: const EdgeInsets.only(
-                            bottom: FudiSpacing.md,
+                    sliver: SliverGrid(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisSpacing: FudiSpacing.md,
+                            crossAxisSpacing: FudiSpacing.md,
+                            mainAxisExtent: 240,
                           ),
-                          child: _buildBusinessCard(context, businesses[index]),
-                        ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) =>
+                            _buildBusinessCard(context, businesses[index]),
                         childCount: businesses.length,
                       ),
                     ),
@@ -93,7 +107,7 @@ class _AllBusinessesScreenState extends ConsumerState<AllBusinessesScreen> {
               ),
             ),
             error: (error, _) => SliverFillRemaining(
-              child: _ErrorState(message: userFriendlyMessage(error)),
+              child: FudiErrorState(message: userFriendlyMessage(error)),
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: FudiSpacing.xxl)),
@@ -116,12 +130,9 @@ class _AllBusinessesScreenState extends ConsumerState<AllBusinessesScreen> {
       type: business.type,
       rating: business.rating,
       distance: distance,
-      activeDealsCount: business.activeDealsCount,
-      onTap: () =>
-          context.push(RouteNames.businessProfileViewPath.replaceAll(
-            ':id',
-            business.id,
-          )),
+      onTap: () => context.push(
+        RouteNames.businessProfileViewPath.replaceAll(':id', business.id),
+      ),
     );
   }
 
@@ -182,84 +193,33 @@ class _AllBusinessesHeader extends StatelessWidget {
           children: [
             Row(
               children: [
-                IconButton(
-                  icon: const Icon(FudiIcons.chevronLeft),
-                  onPressed: () => context.pop(),
-                  color: FudiColors.foreground,
+                FudiPressableScale(
+                  onTap: () => context.pop(),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: const BoxDecoration(shape: BoxShape.circle),
+                    child: const Icon(FudiIcons.chevronLeft, color: FudiColors.foreground),
+                  ),
                 ),
-                Text(
-                  'Negocios cerca',
-                  style: FudiTypography.h1,
-                ),
+                Text('Negocios cerca', style: FudiTypography.h1),
               ],
             ),
-            const SizedBox(height: FudiSpacing.md),
-            ValueListenableBuilder<TextEditingValue>(
-              valueListenable: searchController,
-              builder: (context, value, _) => TextField(
-                controller: searchController,
-                onChanged: (query) => onSearchChanged?.call(query),
-                onSubmitted: onSubmitSearch,
-                decoration: InputDecoration(
-                  hintText: 'Buscar negocios...',
-                  hintStyle: FudiTypography.bodyMedium.copyWith(
-                    color: FudiColors.mutedForeground,
-                  ),
-                  prefixIcon: const Icon(
-                    FudiIcons.search,
-                    color: FudiColors.mutedForeground,
-                  ),
-                  suffixIcon: value.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(
-                            FudiIcons.x,
-                            color: FudiColors.mutedForeground,
-                          ),
-                          onPressed: () {
-                            searchController.clear();
-                            onSubmitSearch('');
-                          },
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: FudiColors.card,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(FudiRadius.lg),
-                    borderSide: BorderSide(
-                      color: FudiColors.borderSolid,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: FudiSpacing.lg,
-                    vertical: FudiSpacing.md,
-                  ),
-                ),
-                style: FudiTypography.bodyMedium,
-              ),
+            FudiSearchBar(
+              controller: searchController,
+              hintText: 'Buscar negocios...',
+              onChanged: onSearchChanged,
+              onSubmitted: onSubmitSearch,
             ),
             const SizedBox(height: FudiSpacing.md),
-            SizedBox(
-              height: 36,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: _businessTypes.length + 1,
-                separatorBuilder: (_, _) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return _TypeChip(
-                      label: 'Todos',
-                      isSelected: selectedType == null,
-                      onTap: () => onTypeChanged(null),
-                    );
-                  }
-                  final type = _businessTypes[index - 1];
-                  return _TypeChip(
-                    label: type,
-                    isSelected: selectedType == type,
-                    onTap: () => onTypeChanged(type),
-                  );
-                },
-              ),
+            FudiSelectableChipsBar<String?>(
+              items: const [null, ..._businessTypes],
+              selectedItem: selectedType,
+              labelBuilder: (type) => type ?? 'Todos',
+              onSelected: (type) => onTypeChanged(type),
+              height: 40,
+              padding: EdgeInsets.zero,
+              horizontalChipPadding: FudiSpacing.lg,
             ),
           ],
         ),
@@ -268,108 +228,3 @@ class _AllBusinessesHeader extends StatelessWidget {
   }
 }
 
-class _TypeChip extends StatelessWidget {
-  const _TypeChip({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: FudiSpacing.md,
-          vertical: FudiSpacing.sm,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? FudiColors.accent
-              : FudiColors.muted.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(FudiRadius.full),
-          border: Border.all(
-            color: isSelected
-                ? FudiColors.accent
-                : FudiColors.accent.withValues(alpha: 0.15),
-          ),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: FudiTypography.bodySmall.copyWith(
-              color: isSelected
-                  ? FudiColors.accentForeground
-                  : FudiColors.accent.withValues(alpha: 0.7),
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(FudiSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              FudiIcons.store,
-              size: 48,
-              color: FudiColors.mutedForeground,
-            ),
-            const SizedBox(height: FudiSpacing.md),
-            Text(
-              'No se encontraron negocios',
-              style: FudiTypography.bodyMedium,
-            ),
-            const SizedBox(height: FudiSpacing.xs),
-            Text(
-              'Intenta cambiar los filtros o la búsqueda',
-              style: FudiTypography.bodySmall,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  const _ErrorState({required this.message});
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(FudiSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              FudiIcons.error,
-              size: 48,
-              color: FudiColors.destructive,
-            ),
-            const SizedBox(height: FudiSpacing.sm),
-            Text('Error al cargar', style: FudiTypography.bodyMedium),
-          ],
-        ),
-      ),
-    );
-  }
-}

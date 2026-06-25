@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/ui/cards/order_card.dart';
 import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
+import '../../../features/profile/domain/user_order.dart' as profile;
+import '../../../features/profile/presentation/components/profile_order_card.dart';
 import '../../orders/domain/order_model.dart';
 import 'order_providers.dart';
 
@@ -36,9 +38,17 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
         title: Text('Mis Pedidos', style: FudiTypography.headlineMedium),
         backgroundColor: FudiColors.background,
         surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(FudiIcons.chevronLeft),
-          onPressed: () => context.pop(),
+        leading: FudiPressableScale(
+          onTap: () => context.pop(),
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: FudiColors.muted,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(FudiIcons.chevronLeft, size: 24),
+          ),
         ),
       ),
       body: Column(
@@ -57,12 +67,20 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
                 hintText: 'Buscar pedidos...',
                 prefixIcon: const Icon(Icons.search, size: 20),
                 suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear, size: 18),
-                        onPressed: () {
+                    ? FudiPressableScale(
+                        onTap: () {
                           _searchController.clear();
                           setState(() => _searchQuery = '');
                         },
+                        child: Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: FudiColors.muted,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.clear, size: 18),
+                        ),
                       )
                     : null,
                 filled: true,
@@ -139,10 +157,26 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
                       style: FudiTypography.bodyMedium,
                     ),
                     const SizedBox(height: FudiSpacing.md),
-                    FilledButton(
-                      onPressed: () =>
+                    FudiPressableScale(
+                      onTap: () =>
                           ref.read(userOrdersProvider.notifier).refresh(),
-                      child: const Text('Reintentar'),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: FudiSpacing.lg,
+                          vertical: FudiSpacing.sm,
+                        ),
+                        decoration: BoxDecoration(
+                          color: FudiColors.primary,
+                          borderRadius: BorderRadius.circular(FudiRadius.md),
+                        ),
+                        child: Text(
+                          'Reintentar',
+                          style: FudiTypography.labelSmall.copyWith(
+                            color: FudiColors.primaryForeground,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -189,14 +223,15 @@ class _OrderList extends ConsumerWidget {
         separatorBuilder: (_, _) => const SizedBox(height: FudiSpacing.md),
         itemBuilder: (context, index) {
           final order = orders[index];
-          return OrderCard(
+          return ProfileOrderCard(
+            id: order.id,
             orderNumber: order.orderNumber,
             businessName: order.businessName,
-            status: order.status.dbValue,
-            date: order.createdAt,
-            totalPrice: order.price,
-            imageUrl: order.offerImageUrl ?? '',
-            onTap: () => context.push('/orders/${order.id}'),
+            status: profile.OrderStatus.fromString(order.status.dbValue),
+            price: order.price,
+            createdAt: order.createdAt,
+            offerImageUrl: order.offerImageUrl,
+            pickupTime: order.pickupTime,
           );
         },
       ),

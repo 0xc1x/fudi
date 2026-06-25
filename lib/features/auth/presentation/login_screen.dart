@@ -9,6 +9,7 @@ import '../../../core/error/fudi_exception_l10n.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_logo.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import 'auth_state_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -107,12 +108,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancelar'),
+            FudiPressableScale(
+              onTap: () => Navigator.of(dialogContext).pop(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: const Text('Cancelar'),
+              ),
             ),
-            FilledButton(
-              onPressed: () async {
+            FudiPressableScale(
+              onTap: () async {
                 if (!formKey.currentState!.validate()) return;
 
                 try {
@@ -142,7 +146,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ).showSnackBar(SnackBar(content: Text(message)));
                 }
               },
-              child: const Text('Enviar enlace'),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: FudiColors.primary,
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: const Text('Enviar enlace', style: TextStyle(color: Colors.white)),
+              ),
             ),
           ],
         );
@@ -174,10 +185,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       color: FudiColors.muted,
                       shape: BoxShape.circle,
                     ),
-                    child: IconButton(
-                      onPressed: () => context.go(RouteNames.homePath),
-                      icon: const Icon(FudiIcons.chevronLeft, size: 20),
-                      padding: EdgeInsets.zero,
+                    child: FudiPressableScale(
+                      onTap: () => context.go(RouteNames.homePath),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(color: FudiColors.muted, shape: BoxShape.circle),
+                        child: const Icon(FudiIcons.chevronLeft, size: 20),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -321,17 +336,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                           size: 20,
                                           color: FudiColors.mutedForeground,
                                         ),
-                                        suffixIcon: IconButton(
-                                          onPressed: () => setState(
+                                        suffixIcon: FudiPressableScale(
+                                          onTap: () => setState(
                                             () => _obscurePassword =
                                                 !_obscurePassword,
                                           ),
-                                          icon: Icon(
-                                            _obscurePassword
-                                                ? FudiIcons.eye
-                                                : FudiIcons.eyeOff,
-                                            size: 20,
-                                            color: FudiColors.mutedForeground,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(10),
+                                            child: Icon(
+                                              _obscurePassword
+                                                  ? FudiIcons.eye
+                                                  : FudiIcons.eyeOff,
+                                              size: 20,
+                                              color: FudiColors.mutedForeground,
+                                            ),
                                           ),
                                         ),
                                         hintText: '••••••••',
@@ -376,19 +394,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 const SizedBox(height: 12),
                                 Align(
                                   alignment: Alignment.centerRight,
-                                  child: TextButton(
-                                    onPressed: isLoading
+                                  child: FudiPressableScale(
+                                    onTap: isLoading
                                         ? null
                                         : _openForgotPasswordDialog,
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: FudiColors.primary,
-                                      padding: EdgeInsets.zero,
-                                      minimumSize: Size.zero,
-                                      tapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                    ),
-                                    child: const Text(
-                                      '¿Olvidaste tu contraseña?',
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      child: const Text(
+                                        '¿Olvidaste tu contraseña?',
+                                        style: TextStyle(color: FudiColors.primary),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -421,61 +436,68 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       ),
                                     ),
                                   ),
-                                  IconButton(
-                                    onPressed: () =>
+                                  FudiPressableScale(
+                                    onTap: () =>
                                         setState(() => _errorMessage = null),
-                                    icon: Icon(
-                                      FudiIcons.x,
-                                      size: 18,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onErrorContainer,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4),
+                                      child: Icon(
+                                        FudiIcons.x,
+                                        size: 18,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onErrorContainer,
+                                      ),
                                     ),
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
                                   ),
                                 ],
                               ),
                             ),
                           ],
                           const SizedBox(height: 16),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 56,
-                            child: FilledButton(
-                              onPressed: isLoading ? null : _submit,
-                              style: FilledButton.styleFrom(
-                                backgroundColor: FudiColors.primary,
-                                foregroundColor: FudiColors.primaryForeground,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 4,
+                          FudiPressableScale(
+                            onTap: isLoading ? null : _submit,
+                            child: Container(
+                              width: double.infinity,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: FudiColors.primary,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                              child: isLoading
-                                  ? const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: FudiColors.primaryForeground,
+                              child: Center(
+                                child: isLoading
+                                    ? const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: FudiColors.primaryForeground,
+                                            ),
                                           ),
+                                          SizedBox(width: 8),
+                                          Text('Iniciando sesión...', style: TextStyle(color: Colors.white)),
+                                        ],
+                                      )
+                                    : const Text(
+                                        'Iniciar sesión',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
                                         ),
-                                        SizedBox(width: 8),
-                                        Text('Iniciando sesión...'),
-                                      ],
-                                    )
-                                  : const Text(
-                                      'Iniciar sesión',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
                                       ),
-                                    ),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 24),

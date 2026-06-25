@@ -11,6 +11,7 @@ import '../../../core/ui/fudi_info_banner.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_sticky_page_header.dart';
 import '../../../core/ui/fudi_surface_card.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../auth/presentation/auth_state_provider.dart';
 import '../domain/favorite_offer.dart';
@@ -116,14 +117,18 @@ class _FavoriteCard extends StatelessWidget {
                             style: FudiTypography.labelSmall,
                           ),
                         ),
-                        IconButton(
-                          onPressed: onRemove == null
+                        FudiPressableScale(
+                          onTap: onRemove == null
                               ? null
                               : () async => onRemove!.call(),
-                          visualDensity: VisualDensity.compact,
-                          icon: const Icon(
-                            Icons.delete_outline_rounded,
-                            color: FudiColors.destructive,
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: const BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
+                            child: const Icon(
+                              Icons.delete_outline_rounded,
+                              color: FudiColors.destructive,
+                            ),
                           ),
                         ),
                       ],
@@ -202,16 +207,16 @@ class _FavoriteCard extends StatelessWidget {
           const SizedBox(height: FudiSpacing.md),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.tonal(
-              onPressed: onOpen,
-              style: FilledButton.styleFrom(
-                foregroundColor: FudiColors.primary,
-                backgroundColor: FudiColors.primary.withValues(alpha: 0.12),
-                shape: RoundedRectangleBorder(
+            child: FudiPressableScale(
+              onTap: onOpen,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                decoration: BoxDecoration(
+                  color: FudiColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(FudiRadius.lg),
                 ),
+                child: const Center(child: Text('Ver oferta', style: TextStyle(color: FudiColors.primary))),
               ),
-              child: const Text('Ver oferta'),
             ),
           ),
         ],
@@ -307,9 +312,16 @@ class _FavoritesEmptyState extends StatelessWidget {
               ),
             ),
             const SizedBox(height: FudiSpacing.lg),
-            FilledButton(
-              onPressed: onExplore,
-              child: const Text('Explorar ofertas'),
+            FudiPressableScale(
+              onTap: onExplore,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: FudiColors.primary,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text('Explorar ofertas', style: TextStyle(color: Colors.white)),
+              ),
             ),
           ],
         ),

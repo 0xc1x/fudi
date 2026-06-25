@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
@@ -120,9 +121,14 @@ class _MapPickerScreenState extends ConsumerState<MapPickerScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ubica tu local', style: FudiTypography.h4),
-        leading: IconButton(
-          icon: const Icon(FudiIcons.chevronLeft),
-          onPressed: () => Navigator.pop(context),
+        leading: FudiPressableScale(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(shape: BoxShape.circle),
+            child: const Icon(FudiIcons.chevronLeft),
+          ),
         ),
       ),
       body: Stack(

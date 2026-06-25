@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
@@ -61,9 +62,9 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       leading: Padding(
         padding: const EdgeInsets.only(left: FudiSpacing.sm),
-        child: IconButton(
-          onPressed: () => context.pop(),
-          icon: Container(
+        child: FudiPressableScale(
+          onTap: () => context.pop(),
+          child: Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(
@@ -265,13 +266,16 @@ class _PaymentMethodCard extends StatelessWidget {
                   style: FudiTypography.labelSmall,
                 ),
               ),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  'Editar',
-                  style: FudiTypography.bodyMedium.copyWith(
-                    color: FudiColors.primary,
-                    fontWeight: FontWeight.w500,
+              FudiPressableScale(
+                onTap: () {},
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Text(
+                    'Editar',
+                    style: FudiTypography.bodyMedium.copyWith(
+                      color: FudiColors.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
@@ -472,15 +476,15 @@ class _PayoutCard extends StatelessWidget {
                     ),
                   ),
                   if (payout.status == BusinessPayoutStatus.paid)
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.download_rounded,
-                        color: FudiColors.primary,
-                        size: 20,
-                      ),
-                      style: IconButton.styleFrom(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    FudiPressableScale(
+                      onTap: () {},
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Icon(
+                          Icons.download_rounded,
+                          color: FudiColors.primary,
+                          size: 20,
+                        ),
                       ),
                     ),
                 ],

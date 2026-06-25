@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_spacing.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/utils/map_style.dart';
@@ -144,9 +145,14 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Selecciona tu ubicación', style: FudiTypography.h4),
-        leading: IconButton(
-          icon: const Icon(FudiIcons.chevronLeft),
-          onPressed: () => Navigator.pop(context),
+        leading: FudiPressableScale(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(color: FudiColors.muted, shape: BoxShape.circle),
+            child: const Icon(FudiIcons.chevronLeft, size: 20),
+          ),
         ),
       ),
       body: Stack(
@@ -228,18 +234,16 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
                   const SizedBox(height: FudiSpacing.md),
                   SizedBox(
                     width: double.infinity,
-                    child: FilledButton(
-                      onPressed: _confirm,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: FudiColors.primary,
-                        foregroundColor: FudiColors.primaryForeground,
+                    child: FudiPressableScale(
+                      onTap: _confirm,
+                      child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
+                        decoration: BoxDecoration(
+                          color: FudiColors.primary,
                           borderRadius: BorderRadius.circular(FudiRadius.xl),
                         ),
-                        textStyle: FudiTypography.labelMedium,
+                        child: const Center(child: Text('Confirmar ubicación', style: TextStyle(color: Colors.white))),
                       ),
-                      child: const Text('Confirmar ubicación'),
                     ),
                   ),
                 ],

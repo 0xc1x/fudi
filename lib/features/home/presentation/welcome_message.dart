@@ -82,8 +82,6 @@ class WelcomeMessage {
   }
 
   static String getTimeBasedEmoji(int hour) {
-    if (hour >= 6 && hour < 12) return '☀️';
-    if (hour >= 12 && hour < 19) return '🌤️';
-    return '🌙';
+    return '';
   }
 }

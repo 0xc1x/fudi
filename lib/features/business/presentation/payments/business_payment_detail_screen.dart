@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
@@ -75,9 +76,9 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       leading: Padding(
         padding: const EdgeInsets.only(left: FudiSpacing.sm),
-        child: IconButton(
-          onPressed: () => context.pop(),
-          icon: Container(
+        child: FudiPressableScale(
+          onTap: () => context.pop(),
+          child: Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(
@@ -596,17 +597,15 @@ class _InfoCard extends StatelessWidget {
 class _DownloadReceiptButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: () {},
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: FudiSpacing.lg),
-          side: BorderSide(color: FudiColors.borderSolid),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(FudiRadius.xl),
-          ),
-          backgroundColor: FudiColors.background,
+    return FudiPressableScale(
+      onTap: () {},
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: FudiSpacing.lg),
+        decoration: BoxDecoration(
+          color: FudiColors.background,
+          borderRadius: BorderRadius.circular(FudiRadius.xl),
+          border: Border.all(color: FudiColors.borderSolid),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

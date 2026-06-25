@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/di/core_providers.dart';
 import '../../auth/presentation/auth_state_provider.dart';
@@ -72,27 +73,58 @@ final userSelectedAddressProvider =
 
 final consumerNotificationRepositoryProvider =
     Provider<ConsumerNotificationRepository>((ref) {
-  return SupabaseConsumerNotificationRepository(
-    supabaseClient: ref.watch(supabaseClientProvider),
-  );
-});
+      return SupabaseConsumerNotificationRepository(
+        supabaseClient: ref.watch(supabaseClientProvider),
+      );
+    });
 
 final consumerNotificationPreferencesProvider =
     FutureProvider<ConsumerNotificationPreferences>((ref) async {
-  return ref.watch(consumerNotificationRepositoryProvider).getPreferences();
-});
+      return ref.watch(consumerNotificationRepositoryProvider).getPreferences();
+    });
+
+const _kSelectedAddressIdKey = 'selected_address_id';
 
 class SelectedAddressNotifier extends Notifier<SavedAddressModel?> {
   @override
   SavedAddressModel? build() {
-    final addresses = ref.watch(savedAddressesProvider).asData?.value;
-    if (addresses != null && addresses.isNotEmpty) {
-      return addresses.first;
-    }
-    return null;
+    final addressesAsync = ref.watch(savedAddressesProvider);
+    final addresses = addressesAsync.asData?.value;
+    if (addresses == null || addresses.isEmpty) return null;
+
+    _restoreSavedSelection(addresses);
+
+    return addresses.firstWhere(
+      (a) => a.isDefault,
+      orElse: () => addresses.first,
+    );
   }
 
-  void select(SavedAddressModel address) {
+  Future<void> _restoreSavedSelection(List<SavedAddressModel> addresses) async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedId = prefs.getString(_kSelectedAddressIdKey);
+    if (savedId == null) return;
+
+    final match = addresses.cast<SavedAddressModel?>().firstWhere(
+      (a) => a!.id == savedId,
+      orElse: () => null,
+    );
+    if (match != null && match.id != state?.id) {
+      state = match;
+    }
+  }
+
+  Future<void> select(SavedAddressModel address) async {
     state = address;
+    await _persistId(address.id);
+    await ref
+        .read(consumerProfileRepositoryProvider)
+        .setDefaultAddress(address.id);
+    ref.invalidate(savedAddressesProvider);
+  }
+
+  Future<void> _persistId(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kSelectedAddressIdKey, id);
   }
 }

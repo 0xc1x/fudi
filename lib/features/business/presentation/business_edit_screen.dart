@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../domain/business_profile.dart';
@@ -120,9 +121,22 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
                 _field('Email', _email, required: false),
                 _field('Sitio web', _website, required: false),
                 const SizedBox(height: FudiSpacing.lg),
-                FilledButton(
-                  onPressed: _saving ? null : _save,
-                  child: Text(_saving ? 'Guardando...' : 'Guardar cambios'),
+                FudiPressableScale(
+                  onTap: _saving ? null : _save,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: FudiColors.primary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Center(
+                      child: Text(
+                        _saving ? 'Guardando...' : 'Guardar cambios',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),

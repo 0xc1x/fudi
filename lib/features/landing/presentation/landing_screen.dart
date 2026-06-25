@@ -5,6 +5,7 @@ import '../../../core/routing/route_names.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_logo.dart';
 import '../../../core/ui/fudi_spacing.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_typography.dart';
 
 class LandingScreen extends StatefulWidget {
@@ -142,35 +143,42 @@ class _StickyNavbar extends StatelessWidget {
               ),
               const SizedBox(width: FudiSpacing.xl),
             ],
-            TextButton(
-              onPressed: () => context.go(RouteNames.loginPath),
-              style: TextButton.styleFrom(
-                foregroundColor: FudiColors.foreground,
-                textStyle: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              child: const Text('Iniciar sesión'),
-            ),
-            const SizedBox(width: FudiSpacing.sm),
-            FilledButton(
-              onPressed: () => context.go(RouteNames.signupPath),
-              style: FilledButton.styleFrom(
-                backgroundColor: FudiColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
+            FudiPressableScale(
+              onTap: () => context.go(RouteNames.loginPath),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
                   borderRadius: BorderRadius.circular(100),
                 ),
+                child: const Text('Iniciar sesión', style: TextStyle(color: FudiColors.foreground, fontWeight: FontWeight.w600)),
               ),
-              child: const Text('Registrarse'),
+            ),
+            const SizedBox(width: FudiSpacing.sm),
+            FudiPressableScale(
+              onTap: () => context.go(RouteNames.signupPath),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: FudiColors.primary,
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: const Text('Registrarse', style: TextStyle(color: Colors.white)),
+              ),
             ),
             if (isMobile) ...[
               const SizedBox(width: FudiSpacing.sm),
-              IconButton(
-                onPressed: onMenuPressed,
-                icon: Icon(Icons.menu, color: FudiColors.foreground),
+              FudiPressableScale(
+                onTap: onMenuPressed,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Colors.transparent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.menu, color: FudiColors.foreground),
+                ),
               ),
             ],
           ],
@@ -195,15 +203,23 @@ class _NavLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg),
-      child: TextButton(
-        onPressed: () => context.go(path),
-        style: TextButton.styleFrom(
-          foregroundColor: isDark
-              ? FudiColors.foreground
-              : Colors.white.withValues(alpha: 0.9),
-          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+      child: FudiPressableScale(
+        onTap: () => context.go(path),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: FudiSpacing.sm,
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: isDark
+                  ? FudiColors.foreground
+                  : Colors.white.withValues(alpha: 0.9),
+            ),
+          ),
         ),
-        child: Text(label),
       ),
     );
   }
@@ -253,20 +269,30 @@ class _MobileDrawer extends StatelessWidget {
               padding: const EdgeInsets.all(FudiSpacing.xl),
               child: Column(
                 children: [
-                  FilledButton(
-                    onPressed: () => context.go(RouteNames.signupPath),
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
+                  FudiPressableScale(
+                    onTap: () => context.go(RouteNames.signupPath),
+                    child: Container(
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: FudiColors.primary,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(child: Text('Crear cuenta', style: TextStyle(color: Colors.white))),
                     ),
-                    child: const Text('Crear cuenta'),
                   ),
                   const SizedBox(height: FudiSpacing.md),
-                  OutlinedButton(
-                    onPressed: () => context.go(RouteNames.loginPath),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
+                  FudiPressableScale(
+                    onTap: () => context.go(RouteNames.loginPath),
+                    child: Container(
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: FudiColors.primary),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(child: Text('Iniciar sesión', style: TextStyle(color: FudiColors.primary))),
                     ),
-                    child: const Text('Iniciar sesión'),
                   ),
                 ],
               ),
@@ -1437,15 +1463,17 @@ class _ContactForm extends StatelessWidget {
           maxLines: 5,
         ),
         const SizedBox(height: 40),
-        FilledButton(
-          onPressed: () {},
-          style: FilledButton.styleFrom(
-            minimumSize: const Size(200, 56),
-            shape: RoundedRectangleBorder(
+        FudiPressableScale(
+          onTap: () {},
+          child: Container(
+            width: 200,
+            height: 56,
+            decoration: BoxDecoration(
+              color: FudiColors.primary,
               borderRadius: BorderRadius.circular(12),
             ),
+            child: const Center(child: Text('Enviar mensaje', style: TextStyle(color: Colors.white))),
           ),
-          child: const Text('Enviar mensaje'),
         ),
       ],
     );
