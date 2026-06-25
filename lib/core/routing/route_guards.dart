@@ -116,8 +116,10 @@ class RouteGuards {
       return RouteNames.homePath;
     }
 
-    // Business trying to access consumer-only routes
-    if (role == 'business' && isConsumerOnlyRoute(currentPath)) {
+    // Business trying to access consumer-only routes or consumer home
+    if (role == 'business' &&
+        (isConsumerOnlyRoute(currentPath) ||
+            currentPath == RouteNames.homePath)) {
       return RouteNames.businessProductsPath;
     }
 

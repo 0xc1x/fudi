@@ -83,17 +83,90 @@ class _BootstrapLoadingApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: FudiTheme.light(),
-      home: const Scaffold(
+      home: Scaffold(
         backgroundColor: FudiColors.primary,
-        body: Center(
-          child: FudiLogo(
-            variant: FudiLogoVariant.wordmark,
-            color: FudiColors.accentForeground,
-          ),
+        body: Stack(
+          children: [
+            const _LoadingBackgroundPatterns(),
+            Center(
+              child: FractionallySizedBox(
+                widthFactor: 0.92,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 780),
+                  child: const FudiLogo(
+                    variant: FudiLogoVariant.wordmark,
+                    width: double.infinity,
+                    color: FudiColors.accentForeground,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+class _LoadingBackgroundPatterns extends StatelessWidget {
+  const _LoadingBackgroundPatterns();
+
+  @override
+  Widget build(BuildContext context) {
+    final patterns = [
+      _PatternData(top: -70, left: -60, width: 320, rotation: 0.2),
+      _PatternData(top: 50, right: -80, width: 260, rotation: -0.49),
+      _PatternData(topFraction: 0.35, left: -40, width: 170, rotation: 0.14),
+      _PatternData(topFraction: 0.45, right: -60, width: 210, rotation: -0.26),
+      _PatternData(bottom: -50, left: -45, width: 240, rotation: 0.35),
+      _PatternData(bottom: -80, right: -65, width: 310, rotation: -0.31),
+    ];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final h = constraints.maxHeight;
+        return Stack(
+          children: patterns.map((p) {
+            return Positioned(
+              top: p.top != null ? p.top : (p.topFraction != null ? h * p.topFraction! : null),
+              left: p.left,
+              right: p.right,
+              bottom: p.bottom,
+              child: Transform.rotate(
+                angle: p.rotation,
+                child: Opacity(
+                  opacity: 0.09,
+                  child: FudiLogo(
+                    variant: FudiLogoVariant.icon,
+                    width: p.width,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+}
+
+class _PatternData {
+  final double? top;
+  final double? topFraction;
+  final double? left;
+  final double? right;
+  final double? bottom;
+  final double width;
+  final double rotation;
+  _PatternData({
+    this.top,
+    this.topFraction,
+    this.left,
+    this.right,
+    this.bottom,
+    required this.width,
+    required this.rotation,
+  });
 }
 
 class _BootstrapErrorScreen extends StatelessWidget {
