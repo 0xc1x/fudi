@@ -19,6 +19,7 @@ import '../domain/business_payout.dart';
 import '../domain/business_payout_repository.dart';
 import '../domain/business_stats_repository.dart';
 import '../../offers/domain/offer.dart';
+import '../../offers/domain/offer_category.dart';
 import '../../orders/domain/order_model.dart';
 import '../../orders/domain/coupon.dart';
 import '../../auth/presentation/auth_state_provider.dart';
@@ -198,4 +199,101 @@ final businessNotificationPreferencesProvider =
   return ref
       .watch(businessNotificationRepositoryProvider)
       .getPreferences(businessId);
+});
+
+/// ── Products list filter/sort state ──────────────────────────────────────────
+
+enum ProductsSort {
+  newest,
+  nameAZ,
+  nameZA,
+  priceLow,
+  priceHigh,
+  stockLow,
+}
+
+class SelectedBranchIdNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void select(String? id) => state = id;
+}
+
+final selectedBranchIdProvider =
+    NotifierProvider<SelectedBranchIdNotifier, String?>(
+      SelectedBranchIdNotifier.new,
+    );
+
+class ProductsSearchQueryNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void update(String value) => state = value;
+  void clear() => state = '';
+}
+
+final productsSearchQueryProvider =
+    NotifierProvider<ProductsSearchQueryNotifier, String>(
+      ProductsSearchQueryNotifier.new,
+    );
+
+class ProductsSortNotifier extends Notifier<ProductsSort> {
+  @override
+  ProductsSort build() => ProductsSort.newest;
+
+  void select(ProductsSort value) => state = value;
+}
+
+final productsSortProvider = NotifierProvider<ProductsSortNotifier, ProductsSort>(
+  ProductsSortNotifier.new,
+);
+
+class ProductsCategoryFilterNotifier extends Notifier<OfferCategory?> {
+  @override
+  OfferCategory? build() => null;
+
+  void select(OfferCategory? value) => state = value;
+}
+
+final productsCategoryFilterProvider =
+    NotifierProvider<ProductsCategoryFilterNotifier, OfferCategory?>(
+      ProductsCategoryFilterNotifier.new,
+    );
+
+/// Derived provider: all offers filtered + sorted by current state
+final filteredBusinessOffersProvider =
+    Provider.family<List<Offer>, String>((ref, businessId) {
+  final allOffers =
+      ref.watch(businessOffersProvider(businessId)).asData?.value ?? [];
+  final branchId = ref.watch(selectedBranchIdProvider);
+  final query = ref.watch(productsSearchQueryProvider).toLowerCase().trim();
+  final sort = ref.watch(productsSortProvider);
+  final category = ref.watch(productsCategoryFilterProvider);
+
+  var filtered = allOffers.where((o) {
+    if (branchId != null && o.businessLocationId != branchId) return false;
+    if (query.isNotEmpty && !o.title.toLowerCase().contains(query)) return false;
+    if (category != null && o.category != category) return false;
+    return true;
+  }).toList();
+
+  switch (sort) {
+    case ProductsSort.newest:
+      filtered.sort(
+        (a, b) =>
+            b.createdAt?.compareTo(a.createdAt ?? DateTime(0)) ?? 0,
+      );
+    case ProductsSort.nameAZ:
+      filtered.sort((a, b) => a.title.compareTo(b.title));
+    case ProductsSort.nameZA:
+      filtered.sort((a, b) => b.title.compareTo(a.title));
+    case ProductsSort.priceLow:
+      filtered.sort((a, b) => a.discountedPrice.compareTo(b.discountedPrice));
+    case ProductsSort.priceHigh:
+      filtered.sort((a, b) => b.discountedPrice.compareTo(a.discountedPrice));
+    case ProductsSort.stockLow:
+      filtered.sort((a, b) => a.stock.compareTo(b.stock));
+  }
+
+  return filtered;
 });

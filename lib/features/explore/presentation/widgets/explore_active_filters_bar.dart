@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/ui/atoms/fudi_filter_chip.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
@@ -99,21 +100,6 @@ class _ExploreFilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: FudiSpacing.xs),
-      child: Chip(
-        label: Text(label),
-        onDeleted: onClear,
-        deleteIconColor: FudiColors.mutedForeground,
-        backgroundColor: FudiColors.secondary.withValues(alpha: 0.3),
-        side: BorderSide(color: FudiColors.primary.withValues(alpha: 0.2)),
-        labelStyle: FudiTypography.bodySmall.copyWith(
-          color: FudiColors.primary,
-          fontWeight: FontWeight.w600,
-        ),
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        visualDensity: VisualDensity.compact,
-      ),
-    );
+    return FudiFilterChip(label: label, onClear: onClear);
   }
 }

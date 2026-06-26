@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../atoms/fudi_status_badge.dart';
 import '../../../features/orders/domain/order_status.dart';
 import '../fudi_colors.dart';
 import '../fudi_spacing.dart';
@@ -75,7 +76,7 @@ class OrderCard extends StatelessWidget {
                           'Pedido $orderNumber',
                           style: FudiTypography.bodySmall,
                         ),
-                        _StatusBadge(status: status),
+                        FudiStatusBadge.fromOrderStatus(orderStatus),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -109,46 +110,4 @@ class OrderCard extends StatelessWidget {
   }
 }
 
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.status});
-  final String status;
 
-  OrderStatus get _orderStatus => OrderStatus.fromString(status);
-
-  @override
-  Widget build(BuildContext context) {
-    final (color, textColor) = switch (_orderStatus) {
-      OrderStatus.completed => (
-        const Color(0xFFDCFCE7),
-        const Color(0xFF166534),
-      ),
-      OrderStatus.readyForPickup => (
-        const Color(0xFFFEF9C3),
-        const Color(0xFF854D0E),
-      ),
-      OrderStatus.cancelled ||
-      OrderStatus.expired => (const Color(0xFFFEE2E2), const Color(0xFF991B1B)),
-      OrderStatus.confirmed => (
-        FudiColors.secondary,
-        FudiColors.secondaryForeground,
-      ),
-      _ => (FudiColors.muted, FudiColors.mutedForeground),
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(FudiRadius.sm),
-      ),
-      child: Text(
-        _orderStatus.label,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}

@@ -8,6 +8,8 @@ import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
 import '../../../../core/ui/fudi_typography.dart';
+import '../../../../core/ui/atoms/fudi_stat_card.dart';
+import '../../../../core/ui/fudi_opening_hours_card.dart';
 import '../../domain/business_location.dart';
 import '../../domain/business_profile.dart';
 import '../../domain/business_stats.dart';
@@ -116,10 +118,10 @@ class _DetailContent extends ConsumerWidget {
                     const SizedBox(height: FudiSpacing.md),
                     _LocationInfoCard(location: location, profile: profile),
                     const SizedBox(height: FudiSpacing.md),
-                    if (profile != null && profile!.hours.isNotEmpty)
-                      _OpeningHoursCard(hours: profile!.hours),
-                    if (profile != null && profile!.hours.isNotEmpty)
+                    if (profile != null && profile!.hours.isNotEmpty) ...[
+                      FudiOpeningHoursCard(hours: profile!.hours),
                       const SizedBox(height: FudiSpacing.md),
+                    ],
                     _PerformanceCard(
                       location: location,
                       statsAsync: statsAsync,
@@ -224,42 +226,50 @@ class _StatsGrid extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: _StatCard(
+          child: FudiStatCard(
             icon: FudiIcons.package_,
             value: '${stats?.ordersCount ?? 0}',
             label: 'Ventas',
             iconColor: FudiColors.primary,
             valueColor: FudiColors.primary,
+            useSurfaceCard: true,
+            padding: const EdgeInsets.all(FudiSpacing.sm),
           ),
         ),
         const SizedBox(width: FudiSpacing.sm),
         Expanded(
-          child: _StatCard(
+          child: FudiStatCard(
             icon: FudiIcons.user,
             value: '${stats?.rescuedCount ?? 0}',
             label: 'Rescatadas',
             iconColor: Colors.green,
             valueColor: Colors.green,
+            useSurfaceCard: true,
+            padding: const EdgeInsets.all(FudiSpacing.sm),
           ),
         ),
         const SizedBox(width: FudiSpacing.sm),
         Expanded(
-          child: _StatCard(
+          child: FudiStatCard(
             icon: FudiIcons.star,
             value: stats != null ? stats.avgRating.toStringAsFixed(1) : '0.0',
             label: 'Rating',
             iconColor: Colors.orange,
             valueColor: Colors.orange,
+            useSurfaceCard: true,
+            padding: const EdgeInsets.all(FudiSpacing.sm),
           ),
         ),
         const SizedBox(width: FudiSpacing.sm),
         Expanded(
-          child: _StatCard(
+          child: FudiStatCard(
             icon: FudiIcons.trendingUp,
             value: '${stats?.topProducts.length ?? 0}',
             label: 'Productos',
             iconColor: Colors.blue,
             valueColor: Colors.blue,
+            useSurfaceCard: true,
+            padding: const EdgeInsets.all(FudiSpacing.sm),
           ),
         ),
       ],
@@ -267,48 +277,6 @@ class _StatsGrid extends StatelessWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  const _StatCard({
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.iconColor,
-    required this.valueColor,
-  });
-
-  final IconData icon;
-  final String value;
-  final String label;
-  final Color iconColor;
-  final Color valueColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return FudiSurfaceCard(
-      padding: const EdgeInsets.all(FudiSpacing.sm),
-      child: Column(
-        children: [
-          Icon(icon, size: 20, color: iconColor),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: FudiTypography.bodyMedium.copyWith(
-              fontWeight: FontWeight.bold,
-              color: valueColor,
-              fontSize: 16,
-            ),
-          ),
-          Text(
-            label,
-            style: FudiTypography.bodySmall.copyWith(
-              color: FudiColors.mutedForeground,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _ActionButtons extends ConsumerWidget {
   const _ActionButtons({required this.location});
@@ -464,85 +432,6 @@ class _LabeledInfoRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _OpeningHoursCard extends StatelessWidget {
-  const _OpeningHoursCard({required this.hours});
-
-  final List<BusinessHours> hours;
-
-  @override
-  Widget build(BuildContext context) {
-    return FudiSurfaceCard(
-      padding: const EdgeInsets.all(FudiSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(FudiIcons.clock, size: 20, color: FudiColors.primary),
-              const SizedBox(width: FudiSpacing.sm),
-              Text(
-                'Horario de atención',
-                style: FudiTypography.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: FudiSpacing.md),
-          ...hours.map(
-            (h) => Padding(
-              padding: const EdgeInsets.only(bottom: FudiSpacing.sm),
-              child: _HoursRow(day: h.day, hours: h.hours),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HoursRow extends StatelessWidget {
-  const _HoursRow({required this.day, required this.hours});
-
-  final String day;
-  final String hours;
-
-  @override
-  Widget build(BuildContext context) {
-    final isLast = hours == 'Cerrado';
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: FudiSpacing.sm),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: FudiColors.borderSolid)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: FudiSpacing.sm),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                day,
-                style: FudiTypography.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                hours,
-                style: FudiTypography.bodySmall.copyWith(
-                  color: isLast
-                      ? FudiColors.destructive
-                      : FudiColors.mutedForeground,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

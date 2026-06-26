@@ -8,6 +8,7 @@ import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
 import '../../../../core/ui/fudi_typography.dart';
+import '../../../../core/ui/fudi_tips_card.dart';
 import '../../../orders/domain/coupon.dart';
 import '../business_providers.dart';
 
@@ -267,7 +268,15 @@ class _FormBody extends StatelessWidget {
           const SizedBox(height: FudiSpacing.lg),
           _StatusSection(isActive: isActive, onActiveChanged: onActiveChanged),
           const SizedBox(height: FudiSpacing.lg),
-          _TipsCard(),
+          FudiTipsCard(
+            title: 'Consejos',
+            tips: const [
+              'Códigos cortos y memorables funcionan mejor',
+              'Usa descuentos del 10-20% para atraer clientes nuevos',
+              'Establece fechas de expiración para crear urgencia',
+              'Limita los usos para controlar el presupuesto',
+            ],
+          ),
           const SizedBox(height: FudiSpacing.xxl),
         ],
       ),
@@ -669,60 +678,6 @@ class _StatusSection extends StatelessWidget {
   }
 }
 
-class _TipsCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(FudiSpacing.lg),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
-        borderRadius: BorderRadius.circular(FudiRadius.xxl),
-        border: Border.all(color: const Color(0xFFBFDBFE)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Consejos',
-            style: FudiTypography.labelSmall.copyWith(
-              color: const Color(0xFF1E3A5F),
-            ),
-          ),
-          const SizedBox(height: FudiSpacing.sm),
-          _tip('Códigos cortos y memorables funcionan mejor'),
-          _tip('Usa descuentos del 10-20% para atraer clientes nuevos'),
-          _tip('Establece fechas de expiración para crear urgencia'),
-          _tip('Limita los usos para controlar el presupuesto'),
-        ],
-      ),
-    );
-  }
-
-  Widget _tip(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: FudiSpacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '• ',
-            style: FudiTypography.bodySmall.copyWith(
-              color: const Color(0xFF1D4ED8),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              text,
-              style: FudiTypography.bodySmall.copyWith(
-                color: const Color(0xFF1D4ED8),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _BottomBar extends StatelessWidget {
   const _BottomBar({

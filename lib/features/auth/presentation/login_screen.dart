@@ -8,6 +8,7 @@ import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/fudi_exception_l10n.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../../core/ui/atoms/icons/fudi_google_icon.dart';
 import '../../../core/ui/fudi_logo.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
 import 'auth_state_provider.dart';
@@ -539,18 +540,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       vertical: 14,
                                     ),
                                   ),
-                                  child: Row(
+                                  child: const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      SizedBox(
-                                        height: 20,
-                                        width: 20,
-                                        child: CustomPaint(
-                                          painter: _GoogleIconPainter(),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      const Text('Google'),
+                                      FudiGoogleIcon(size: 20),
+                                      SizedBox(width: 8),
+                                      Text('Google'),
                                     ],
                                   ),
                                 ),
@@ -632,47 +627,4 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 }
 
-class _GoogleIconPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final r = size.width / 2;
 
-    final paint4285F4 = Paint()..color = const Color(0xFF4285F4);
-    final paint34A853 = Paint()..color = const Color(0xFF34A853);
-    final paintFBBC05 = Paint()..color = const Color(0xFFFBBC05);
-    final paintEA4335 = Paint()..color = const Color(0xFFEA4335);
-
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: r),
-      -0.15,
-      1.83,
-      false,
-      paint4285F4,
-    );
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: r),
-      1.68,
-      1.46,
-      false,
-      paint34A853,
-    );
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: r),
-      3.14,
-      1.57,
-      false,
-      paintFBBC05,
-    );
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: r),
-      4.71,
-      1.46,
-      false,
-      paintEA4335,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}

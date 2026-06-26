@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/ui/atoms/fudi_status_badge.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
@@ -113,7 +114,10 @@ class ProfileOrderCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  _StatusIndicator(status: status),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: FudiStatusBadge.fromOrderStatus(status, size: FudiStatusBadgeSize.sm),
+                  ),
                 ],
               ),
             ),
@@ -163,104 +167,4 @@ class ProfileOrderCard extends StatelessWidget {
   }
 }
 
-class _StatusIndicator extends StatelessWidget {
-  const _StatusIndicator({required this.status});
 
-  final OrderStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final config = _statusConfig[status]!;
-
-    if (config.isPill) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: config.backgroundColor,
-            borderRadius: BorderRadius.circular(FudiRadius.sm),
-          ),
-          child: Text(
-            config.label,
-            style: TextStyle(
-              color: config.foregroundColor,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 4),
-      child: Text(
-        '• ${config.label}',
-        style: TextStyle(
-          color: FudiColors.mutedForeground.withValues(alpha: 0.5),
-          fontSize: 12,
-        ),
-      ),
-    );
-  }
-}
-
-class _StatusConfig {
-  const _StatusConfig({
-    required this.label,
-    required this.backgroundColor,
-    required this.foregroundColor,
-    required this.isPill,
-  });
-
-  final String label;
-  final Color backgroundColor;
-  final Color foregroundColor;
-  final bool isPill;
-}
-
-const _statusConfig = <OrderStatus, _StatusConfig>{
-  OrderStatus.pending: _StatusConfig(
-    label: 'Pendiente • Por confirmar',
-    backgroundColor: FudiColors.statusPendingBackground,
-    foregroundColor: FudiColors.statusPending,
-    isPill: true,
-  ),
-  OrderStatus.confirmed: _StatusConfig(
-    label: 'Confirmado',
-    backgroundColor: FudiColors.statusConfirmedBackground,
-    foregroundColor: FudiColors.statusConfirmed,
-    isPill: true,
-  ),
-  OrderStatus.readyForPickup: _StatusConfig(
-    label: 'Listo para recoger',
-    backgroundColor: FudiColors.statusReadyBackground,
-    foregroundColor: FudiColors.statusReady,
-    isPill: true,
-  ),
-  OrderStatus.pickedUp: _StatusConfig(
-    label: 'Recogido',
-    backgroundColor: FudiColors.statusPickedUpBackground,
-    foregroundColor: FudiColors.statusPickedUp,
-    isPill: true,
-  ),
-  OrderStatus.completed: _StatusConfig(
-    label: 'Completado',
-    backgroundColor: FudiColors.statusCompletedBackground,
-    foregroundColor: FudiColors.statusCompleted,
-    isPill: true,
-  ),
-  OrderStatus.cancelled: _StatusConfig(
-    label: 'Cancelado',
-    backgroundColor: FudiColors.statusCancelledBackground,
-    foregroundColor: FudiColors.statusCancelled,
-    isPill: true,
-  ),
-  OrderStatus.expired: _StatusConfig(
-    label: 'Expirado',
-    backgroundColor: FudiColors.statusExpiredBackground,
-    foregroundColor: FudiColors.statusExpired,
-    isPill: true,
-  ),
-};

@@ -12,6 +12,8 @@ import '../../../core/ui/fudi_settings_item.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../../core/ui/atoms/fudi_stat_card.dart';
+import '../../../core/ui/fudi_empty_state.dart';
+import '../../../core/ui/fudi_error_state.dart';
 import '../../auth/domain/user_profile.dart';
 import '../../auth/presentation/auth_state_provider.dart';
 import 'components/guest_welcome_view.dart';
@@ -282,25 +284,10 @@ class _OrdersTab extends ConsumerWidget {
         final past = orders.where((o) => o.status.isPast).toList();
 
         if (orders.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(FudiSpacing.xl),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    FudiIcons.shoppingBag,
-                    size: 48,
-                    color: FudiColors.mutedForeground,
-                  ),
-                  SizedBox(height: FudiSpacing.md),
-                  Text(
-                    'Aún no tienes pedidos',
-                    style: FudiTypography.bodyMedium,
-                  ),
-                ],
-              ),
-            ),
+          return const FudiEmptyState(
+            title: 'Aún no tienes pedidos',
+            description: 'Tus pedidos completados y activos aparecerán aquí',
+            icon: FudiIcons.shoppingBag,
           );
         }
 
@@ -375,22 +362,8 @@ class _OrdersTab extends ConsumerWidget {
           ),
         ),
       ),
-      error: (error, _) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(FudiSpacing.xl),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                FudiIcons.error,
-                size: 48,
-                color: FudiColors.destructive,
-              ),
-              const SizedBox(height: FudiSpacing.sm),
-              Text('Error al cargar pedidos', style: FudiTypography.bodyMedium),
-            ],
-          ),
-        ),
+      error: (error, _) => const FudiErrorState(
+        message: 'Error al cargar pedidos',
       ),
     );
   }

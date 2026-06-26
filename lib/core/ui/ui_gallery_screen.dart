@@ -63,6 +63,7 @@ class UiGalleryScreen extends StatelessWidget {
             child: DealCard(
               imageUrl:
                   'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=400',
+              offerTitle: 'Croissants Artesanales',
               businessName: 'Panadería La Esperanza',
               originalPrice: 15.00,
               discountedPrice: 7.50,

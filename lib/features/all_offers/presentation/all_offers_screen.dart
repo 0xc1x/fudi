@@ -7,10 +7,12 @@ import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../core/error/user_friendly_message.dart';
+import '../../../core/ui/atoms/fudi_filter_chip.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
+import '../../../core/ui/atoms/fudi_discount_badge.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_search_bar.dart';
 import '../../../core/ui/fudi_empty_state.dart';
@@ -153,22 +155,17 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
                     Positioned(
                       top: 8,
                       left: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
+                      child: FudiDiscountBadge(
+                        percent: offer.discountPercentage.round(),
+                        paddingGeometry: const EdgeInsets.symmetric(
                           horizontal: 6,
                           vertical: 2,
                         ),
-                        decoration: BoxDecoration(
-                          color: FudiColors.primary,
-                          borderRadius: BorderRadius.circular(FudiRadius.sm),
-                        ),
-                        child: Text(
-                          '-${offer.discountPercentage.round()}%',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        borderRadius: FudiRadius.sm,
+                        textStyle: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
@@ -459,25 +456,25 @@ class _ActiveFiltersBar extends StatelessWidget {
     final chips = <Widget>[];
 
     if (filters.category != null) {
-      chips.add(_FilterChip(
+      chips.add(FudiFilterChip(
         label: filters.category!.dbValue,
         onClear: () => onClear('category'),
       ));
     }
     if (filters.maxDistanceKm != null) {
-      chips.add(_FilterChip(
+      chips.add(FudiFilterChip(
         label: '${filters.maxDistanceKm!.toInt()} km',
         onClear: () => onClear('maxDistanceKm'),
       ));
     }
     if (filters.maxPrice != null) {
-      chips.add(_FilterChip(
+      chips.add(FudiFilterChip(
         label: 'Max \$${filters.maxPrice!.toStringAsFixed(0)}',
         onClear: () => onClear('maxPrice'),
       ));
     }
     if (filters.searchQuery != null && filters.searchQuery!.isNotEmpty) {
-      chips.add(_FilterChip(
+      chips.add(FudiFilterChip(
         label: '"${filters.searchQuery}"',
         onClear: () => onClear('searchQuery'),
       ));
@@ -513,32 +510,6 @@ class _ActiveFiltersBar extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({required this.label, required this.onClear});
-  final String label;
-  final VoidCallback onClear;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: FudiSpacing.xs),
-      child: Chip(
-        label: Text(label),
-        onDeleted: onClear,
-        deleteIconColor: FudiColors.mutedForeground,
-        backgroundColor: FudiColors.secondary.withValues(alpha: 0.3),
-        side: BorderSide(color: FudiColors.primary.withValues(alpha: 0.2)),
-        labelStyle: FudiTypography.bodySmall.copyWith(
-          color: FudiColors.primary,
-          fontWeight: FontWeight.w600,
-        ),
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        visualDensity: VisualDensity.compact,
       ),
     );
   }

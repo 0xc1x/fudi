@@ -12,14 +12,8 @@ import '../../../favorites/presentation/favorites_providers.dart';
 import '../../../offers/domain/offer.dart';
 import '../../../offers/presentation/offer_providers.dart';
 
-
-
 class HomeDealCard extends ConsumerWidget {
-  const HomeDealCard({
-    super.key,
-    required this.offer,
-    this.fullWidth = false,
-  });
+  const HomeDealCard({super.key, required this.offer, this.fullWidth = false});
 
   final Offer offer;
   final bool fullWidth;
@@ -37,6 +31,7 @@ class HomeDealCard extends ConsumerWidget {
 
     return DealCard(
       imageUrl: offer.imageUrl ?? offer.business.imageUrl ?? '',
+      offerTitle: offer.title,
       businessName: offer.business.name,
       originalPrice: offer.originalPrice,
       discountedPrice: offer.discountedPrice,
@@ -154,7 +149,7 @@ class OfferRowSection extends StatelessWidget {
       children: [
         FudiSectionHeader(title: title, icon: icon, onSeeAll: onSeeAll),
         SizedBox(
-          height: 320,
+          height: 260,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg),
@@ -162,10 +157,7 @@ class OfferRowSection extends StatelessWidget {
             separatorBuilder: (_, _) => const SizedBox(width: FudiSpacing.md),
             itemBuilder: (context, index) {
               final offer = offers[index];
-              return SizedBox(
-                width: 260,
-                child: HomeDealCard(offer: offer),
-              );
+              return SizedBox(width: 260, child: HomeDealCard(offer: offer));
             },
           ),
         ),

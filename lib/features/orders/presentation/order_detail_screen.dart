@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/ui/atoms/fudi_status_badge.dart';
 import '../../../core/ui/atoms/pickup_code_qr.dart';
+import '../../../core/ui/atoms/fudi_info_row.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_bottom_action_bar.dart';
 import '../../../core/ui/fudi_info_banner.dart';
+import '../../../core/ui/fudi_order_timeline.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_sticky_page_header.dart';
 import '../../../core/ui/fudi_surface_card.dart';
@@ -84,7 +87,7 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
       appBar: FudiStickyPageHeader(
         title: 'Detalle del pedido',
         subtitle: order.orderNumber,
-        actions: [_StatusBadge(status: order.status)],
+        actions: [FudiStatusBadge.fromOrderStatus(order.status)],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(FudiSpacing.lg),
@@ -101,9 +104,9 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
             const SizedBox(height: FudiSpacing.lg),
             _PriceDetailsCard(order: order),
             const SizedBox(height: FudiSpacing.lg),
-            _InstructionsCard(order: order),
+             _InstructionsCard(order: order),
             const SizedBox(height: FudiSpacing.lg),
-            _StatusHistoryCard(order: order),
+            FudiOrderTimeline(order: order),
             const SizedBox(height: FudiSpacing.lg),
 
             if (order.status == OrderStatus.completed) ...[
@@ -164,45 +167,6 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
               ),
             )
           : null,
-    );
-  }
-}
-
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.status});
-
-  final OrderStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final (bg, fg) = switch (status) {
-      OrderStatus.completed => (
-        const Color(0xFFDCFCE7),
-        const Color(0xFF166534),
-      ),
-      OrderStatus.readyForPickup => (
-        const Color(0xFFFEF9C3),
-        const Color(0xFF854D0E),
-      ),
-      OrderStatus.cancelled ||
-      OrderStatus.expired => (const Color(0xFFFEE2E2), const Color(0xFF991B1B)),
-      OrderStatus.confirmed => (
-        FudiColors.secondary,
-        FudiColors.secondaryForeground,
-      ),
-      _ => (FudiColors.primary, Colors.white),
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(FudiRadius.full),
-      ),
-      child: Text(
-        status.label,
-        style: TextStyle(color: fg, fontSize: 12, fontWeight: FontWeight.w600),
-      ),
     );
   }
 }
@@ -286,17 +250,25 @@ class _BusinessInfoCard extends StatelessWidget {
           Text(order.businessName, style: FudiTypography.h3),
           const SizedBox(height: FudiSpacing.lg),
           if (order.businessAddress != null)
-            _infoRow(Icons.location_on, 'Dirección', order.businessAddress!),
+            FudiInfoRow(
+              icon: Icons.location_on,
+              label: 'Dirección',
+              text: order.businessAddress!,
+            ),
           if (order.businessPhone != null) ...[
             const SizedBox(height: FudiSpacing.md),
-            _infoRow(Icons.phone, 'Teléfono', order.businessPhone!),
+            FudiInfoRow(
+              icon: Icons.phone,
+              label: 'Teléfono',
+              text: order.businessPhone!,
+            ),
           ],
           if (order.pickupTime != null) ...[
             const SizedBox(height: FudiSpacing.md),
-            _infoRow(
-              Icons.schedule,
-              'Horario de recogida',
-              _formatPickupTime(order.pickupTime!),
+            FudiInfoRow(
+              icon: Icons.schedule,
+              label: 'Horario de recogida',
+              text: _formatPickupTime(order.pickupTime!),
             ),
           ],
           const SizedBox(height: FudiSpacing.lg),
@@ -357,26 +329,6 @@ class _BusinessInfoCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _infoRow(IconData icon, String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: FudiColors.primary),
-        const SizedBox(width: FudiSpacing.md),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: FudiTypography.labelSmall),
-              const SizedBox(height: 2),
-              Text(value, style: FudiTypography.bodyMedium),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
@@ -563,188 +515,4 @@ class _InstructionsCard extends StatelessWidget {
   }
 }
 
-class _StatusHistoryCard extends StatelessWidget {
-  const _StatusHistoryCard({required this.order});
 
-  final OrderModel order;
-
-  @override
-  Widget build(BuildContext context) {
-    final entries = _buildEntries();
-
-    return FudiSurfaceCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.calendar_today,
-                size: 20,
-                color: FudiColors.primary,
-              ),
-              const SizedBox(width: FudiSpacing.sm),
-              Text('Historial del pedido', style: FudiTypography.labelMedium),
-            ],
-          ),
-          const SizedBox(height: FudiSpacing.lg),
-          ...List.generate(entries.length, (i) {
-            final entry = entries[i];
-            final isLast = i == entries.length - 1;
-            return _TimelineEntry(entry: entry, isLast: isLast);
-          }),
-        ],
-      ),
-    );
-  }
-
-  List<_HistoryEntry> _buildEntries() {
-    final entries = <_HistoryEntry>[];
-    final created = order.createdAt;
-
-    entries.add(
-      _HistoryEntry(
-        icon: Icons.receipt_long,
-        title: 'Pedido confirmado',
-        note: 'Pedido confirmado y pagado',
-        timestamp: created,
-        color: FudiColors.primary,
-        bgColor: FudiColors.primary.withValues(alpha: 0.1),
-      ),
-    );
-
-    if (order.status == OrderStatus.readyForPickup ||
-        order.status == OrderStatus.pickedUp ||
-        order.status == OrderStatus.completed) {
-      entries.add(
-        _HistoryEntry(
-          icon: Icons.schedule,
-          title: 'Listo para recoger',
-          note: 'Tu pedido está listo para recoger',
-          timestamp: order.pickupTime ?? created,
-          color: FudiColors.primary,
-          bgColor: FudiColors.primary.withValues(alpha: 0.1),
-        ),
-      );
-    }
-
-    if (order.status == OrderStatus.completed) {
-      entries.add(
-        _HistoryEntry(
-          icon: Icons.check_circle,
-          title: 'Completado',
-          note: 'Pedido recogido exitosamente',
-          timestamp: order.pickupTime ?? created,
-          color: const Color(0xFF16A34A),
-          bgColor: const Color(0xFFDCFCE7),
-        ),
-      );
-    }
-
-    if (order.status == OrderStatus.cancelled) {
-      entries.add(
-        _HistoryEntry(
-          icon: Icons.cancel,
-          title: 'Cancelado',
-          note: 'Pedido cancelado',
-          timestamp: created,
-          color: FudiColors.destructive,
-          bgColor: const Color(0xFFFEE2E2),
-        ),
-      );
-    }
-
-    if (order.status == OrderStatus.expired) {
-      entries.add(
-        _HistoryEntry(
-          icon: Icons.timer_off,
-          title: 'Expirado',
-          note: 'El pedido expiró sin ser recogido',
-          timestamp: created,
-          color: FudiColors.destructive,
-          bgColor: const Color(0xFFFEE2E2),
-        ),
-      );
-    }
-
-    return entries;
-  }
-}
-
-class _HistoryEntry {
-  const _HistoryEntry({
-    required this.icon,
-    required this.title,
-    required this.note,
-    required this.timestamp,
-    required this.color,
-    required this.bgColor,
-  });
-
-  final IconData icon;
-  final String title;
-  final String note;
-  final DateTime timestamp;
-  final Color color;
-  final Color bgColor;
-}
-
-class _TimelineEntry extends StatelessWidget {
-  const _TimelineEntry({required this.entry, required this.isLast});
-
-  final _HistoryEntry entry;
-  final bool isLast;
-
-  @override
-  Widget build(BuildContext context) {
-    final time =
-        '${entry.timestamp.hour.toString().padLeft(2, '0')}:${entry.timestamp.minute.toString().padLeft(2, '0')}';
-    final date =
-        '${entry.timestamp.day.toString().padLeft(2, '0')}/${entry.timestamp.month.toString().padLeft(2, '0')}/${entry.timestamp.year}';
-
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: entry.bgColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(entry.icon, size: 20, color: entry.color),
-              ),
-              if (!isLast)
-                Container(width: 2, height: 32, color: FudiColors.borderSolid),
-            ],
-          ),
-          const SizedBox(width: FudiSpacing.md),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: FudiSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(entry.title, style: FudiTypography.labelSmall),
-                      Text(time, style: FudiTypography.bodySmall),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(entry.note, style: FudiTypography.bodySmall),
-                  const SizedBox(height: 2),
-                  Text(date, style: FudiTypography.bodySmall),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

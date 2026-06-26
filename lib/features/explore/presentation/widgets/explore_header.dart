@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_logo.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_search_bar.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
@@ -86,8 +87,7 @@ class ExploreHeader extends StatelessWidget {
 }
 
 /// Botón píldora semitransparente usado en [ExploreHeader].
-/// Botón píldora semitransparente con animación de toque
-class ExploreHeaderPillButton extends StatefulWidget {
+class ExploreHeaderPillButton extends StatelessWidget {
   const ExploreHeaderPillButton({
     super.key,
     required this.icon,
@@ -102,102 +102,46 @@ class ExploreHeaderPillButton extends StatefulWidget {
   final bool hasIndicator;
 
   @override
-  State<ExploreHeaderPillButton> createState() =>
-      _ExploreHeaderPillButtonState();
-}
-
-class _ExploreHeaderPillButtonState extends State<ExploreHeaderPillButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 150),
-      vsync: this,
-    );
-
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _handleTapDown(TapDownDetails details) {
-    _controller.forward();
-  }
-
-  void _handleTapUp(TapUpDetails details) {
-    _controller.reverse();
-    widget.onTap();
-  }
-
-  void _handleTapCancel() {
-    _controller.reverse();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTapCancel: _handleTapCancel,
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: Opacity(
-              opacity: _scaleAnimation.value < 1.0 ? 0.85 : 1.0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: FudiSpacing.md,
-                  vertical: FudiSpacing.sm,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(FudiRadius.md),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      widget.icon,
-                      size: 16,
-                      color: FudiColors.primaryForeground,
-                    ),
-                    const SizedBox(width: FudiSpacing.xs),
-                    Text(
-                      widget.label,
-                      style: FudiTypography.bodySmall.copyWith(
-                        color: FudiColors.primaryForeground,
-                      ),
-                    ),
-                    if (widget.hasIndicator) ...[
-                      const SizedBox(width: 4),
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: const BoxDecoration(
-                          color: FudiColors.ring,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
+    return FudiPressableScale(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: FudiSpacing.md,
+          vertical: FudiSpacing.sm,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(FudiRadius.md),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: FudiColors.primaryForeground,
+            ),
+            const SizedBox(width: FudiSpacing.xs),
+            Text(
+              label,
+              style: FudiTypography.bodySmall.copyWith(
+                color: FudiColors.primaryForeground,
               ),
             ),
-          );
-        },
+            if (hasIndicator) ...[
+              const SizedBox(width: 4),
+              Container(
+                width: 6,
+                height: 6,
+                decoration: const BoxDecoration(
+                  color: FudiColors.ring,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }

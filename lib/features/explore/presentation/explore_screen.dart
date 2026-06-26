@@ -139,7 +139,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 delegate: SliverChildBuilderDelegate(
                   (_, _) => const Padding(
                     padding: EdgeInsets.only(bottom: FudiSpacing.md),
-                    child: ExploreDealCardSkeleton(),
+                    child: DealCardSkeleton(),
                   ),
                   childCount: 5,
                 ),
@@ -161,6 +161,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
     return DealCard(
       imageUrl: offer.imageUrl ?? offer.business.imageUrl ?? '',
+      offerTitle: offer.title,
       businessName: offer.business.name,
       originalPrice: offer.originalPrice,
       discountedPrice: offer.discountedPrice,

@@ -6,6 +6,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../../core/ui/atoms/fudi_heart_button.dart';
+import '../../../core/ui/atoms/fudi_discount_badge.dart';
+import '../../../core/ui/atoms/fudi_low_stock_badge.dart';
+import '../../../core/ui/atoms/fudi_circle_button.dart';
+import '../../../core/ui/atoms/fudi_stagger_item.dart';
+import '../../../core/ui/atoms/fudi_key_value_row.dart';
+import '../../../core/ui/fudi_star_rating.dart';
+import '../../../core/ui/fudi_bottom_action_bar.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_surface_card.dart';
 import '../../../core/ui/fudi_typography.dart';
@@ -174,33 +182,15 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
                         Positioned(
                           top: MediaQuery.of(context).padding.top + 12,
                           left: 16,
-                          child: FudiPressableScale(
+                          child: FudiCircleButton(
                             onTap: () => context.pop(),
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.9),
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: const Icon(
-                                FudiIcons.chevronLeft,
-                                size: 20,
-                              ),
-                            ),
+                            icon: FudiIcons.chevronLeft,
                           ),
                         ),
                         Positioned(
                           top: MediaQuery.of(context).padding.top + 12,
                           right: 16,
-                          child: _FavoriteCircleButton(
+                          child: FudiHeartButton(
                             isFavorite: isFavorite,
                             onTap: () => ref
                                 .read(favoritedOfferIdsProvider.notifier)
@@ -210,29 +200,11 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
                         Positioned(
                           bottom: 16,
                           right: 16,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(
-                                FudiRadius.full,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              '-$savings% OFF',
-                              style: FudiTypography.labelSmall.copyWith(
-                                color: FudiColors.primary,
-                              ),
+                          child: FudiDiscountBadge(
+                            percent: savings,
+                            backgroundColor: Colors.white,
+                            textStyle: FudiTypography.labelSmall.copyWith(
+                              color: FudiColors.primary,
                             ),
                           ),
                         ),
@@ -240,32 +212,15 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
                           Positioned(
                             bottom: 16,
                             left: 16,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
+                            child: FudiLowStockBadge(
+                              label: '¡Solo quedan ${offer.stock}!',
+                              paddingGeometry: const EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 8,
                               ),
-                              decoration: BoxDecoration(
-                                color: FudiColors.destructive,
-                                borderRadius: BorderRadius.circular(
-                                  FudiRadius.full,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: FudiColors.destructive.withValues(
-                                      alpha: 0.3,
-                                    ),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Text(
-                                '¡Solo quedan ${offer.stock}!',
-                                style: FudiTypography.bodySmall.copyWith(
-                                  color: FudiColors.destructiveForeground,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              textStyle: FudiTypography.bodySmall.copyWith(
+                                color: FudiColors.destructiveForeground,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -285,7 +240,7 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
                           const SizedBox(height: FudiSpacing.md),
 
                           // Card negocio — stagger 0
-                          _StaggerItem(
+                          FudiStaggerItem(
                             index: 0,
                             child: FudiSurfaceCard(
                               child: Column(
@@ -325,22 +280,9 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
                                             CrossAxisAlignment.end,
                                         children: [
                                           if (offer.rating > 0) ...[
-                                            Row(
-                                              children: [
-                                                const Icon(
-                                                  Icons.star_rounded,
-                                                  size: 16,
-                                                  color: Color(0xFFFACC15),
-                                                ),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  offer.rating.toStringAsFixed(
-                                                    1,
-                                                  ),
-                                                  style:
-                                                      FudiTypography.labelSmall,
-                                                ),
-                                              ],
+                                            FudiStarRating(
+                                              rating: offer.rating,
+                                              showText: true,
                                             ),
                                             Text(
                                               '(${offer.reviewCount} reseñas)',
@@ -434,7 +376,7 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
 
                           // Descripción — stagger 1
                           if (offer.description != null)
-                            _StaggerItem(
+                            FudiStaggerItem(
                               index: 1,
                               child: SizedBox(
                                 width: double.infinity,
@@ -465,7 +407,7 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
                           const SizedBox(height: FudiSpacing.md),
 
                           // Qué incluye — stagger 2
-                          _StaggerItem(
+                          FudiStaggerItem(
                             index: 2,
                             child: FudiSurfaceCard(
                               child: Column(
@@ -483,7 +425,7 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
                                     ),
                                   ),
                                   const SizedBox(height: FudiSpacing.sm),
-                                  _InfoRow(
+                                  FudiKeyValueRow(
                                     icon: FudiIcons.package_,
                                     label: 'Disponibles',
                                     value:
@@ -495,7 +437,7 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
                                         : FudiColors.destructive,
                                   ),
                                   const SizedBox(height: FudiSpacing.sm),
-                                  _InfoRow(
+                                  FudiKeyValueRow(
                                     icon: FudiIcons.clock,
                                     label: 'Recogida',
                                     value:
@@ -510,7 +452,7 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
                           const SizedBox(height: FudiSpacing.md),
 
                           // Instrucciones — stagger 3
-                          _StaggerItem(
+                          FudiStaggerItem(
                             index: 3,
                             child: FudiSurfaceCard(
                               child: Column(
@@ -536,7 +478,7 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
                           const SizedBox(height: FudiSpacing.md),
 
                           // Impacto ambiental — stagger 4
-                          _StaggerItem(
+                          FudiStaggerItem(
                             index: 4,
                             child: Container(
                               padding: const EdgeInsets.all(FudiSpacing.lg),
@@ -597,24 +539,7 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
             left: 0,
             right: 0,
             bottom: 0,
-            child: Container(
-              padding: EdgeInsets.only(
-                left: FudiSpacing.lg,
-                right: FudiSpacing.lg,
-                top: FudiSpacing.md,
-                bottom: FudiSpacing.md + MediaQuery.of(context).padding.bottom,
-              ),
-              decoration: const BoxDecoration(
-                color: FudiColors.background,
-                border: Border(top: BorderSide(color: FudiColors.borderSolid)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0x1A000000),
-                    blurRadius: 8,
-                    offset: Offset(0, -2),
-                  ),
-                ],
-              ),
+            child: FudiBottomActionBar(
               child: Row(
                 children: [
                   Column(
@@ -673,159 +598,9 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
   }
 }
 
-// ── Stagger item: cada sección entra con un delay incremental ────────────────
+// ── Botón reservar ───────────────────────────────────────────────────────────
 
-class _StaggerItem extends StatefulWidget {
-  const _StaggerItem({required this.index, required this.child});
-  final int index;
-  final Widget child;
-
-  @override
-  State<_StaggerItem> createState() => _StaggerItemState();
-}
-
-class _StaggerItemState extends State<_StaggerItem>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _opacity;
-  late final Animation<Offset> _slide;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _slide = Tween<Offset>(
-      begin: const Offset(0, 0.06),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
-
-    Future.delayed(Duration(milliseconds: 80 + widget.index * 60), () {
-      if (mounted) _controller.forward();
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _opacity,
-      child: SlideTransition(position: _slide, child: widget.child),
-    );
-  }
-}
-
-// ── Botón circular favorito con latido ───────────────────────────────────────
-
-class _FavoriteCircleButton extends StatefulWidget {
-  const _FavoriteCircleButton({required this.isFavorite, required this.onTap});
-  final bool isFavorite;
-  final VoidCallback onTap;
-
-  @override
-  State<_FavoriteCircleButton> createState() => _FavoriteCircleButtonState();
-}
-
-class _FavoriteCircleButtonState extends State<_FavoriteCircleButton>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 380),
-    );
-    _scale = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(
-          begin: 1.0,
-          end: 0.65,
-        ).chain(CurveTween(curve: Curves.easeIn)),
-        weight: 28,
-      ),
-      TweenSequenceItem(
-        tween: Tween(
-          begin: 0.65,
-          end: 1.4,
-        ).chain(CurveTween(curve: Curves.easeOut)),
-        weight: 44,
-      ),
-      TweenSequenceItem(
-        tween: Tween(
-          begin: 1.4,
-          end: 1.0,
-        ).chain(CurveTween(curve: Curves.elasticOut)),
-        weight: 28,
-      ),
-    ]).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(_FavoriteCircleButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.isFavorite != widget.isFavorite) {
-      _controller.forward(from: 0);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: AnimatedBuilder(
-        animation: _scale,
-        builder: (_, child) =>
-            Transform.scale(scale: _scale.value, child: child),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: widget.isFavorite
-                ? const Color(0xFFEF4444).withValues(alpha: 0.15)
-                : Colors.white.withValues(alpha: 0.9),
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Icon(
-            widget.isFavorite ? FudiIcons.heart : FudiIcons.heartOutline,
-            size: 20,
-            color: widget.isFavorite
-                ? const Color(0xFFEF4444)
-                : FudiColors.foreground,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Botón reservar con press scale ───────────────────────────────────────────
-
-class _ReserveButton extends StatefulWidget {
+class _ReserveButton extends StatelessWidget {
   const _ReserveButton({
     required this.offer,
     required this.isReserving,
@@ -836,122 +611,52 @@ class _ReserveButton extends StatefulWidget {
   final VoidCallback? onTap;
 
   @override
-  State<_ReserveButton> createState() => _ReserveButtonState();
-}
-
-class _ReserveButtonState extends State<_ReserveButton>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-      reverseDuration: const Duration(milliseconds: 200),
-    );
-    _scale = Tween<double>(
-      begin: 1.0,
-      end: 0.96,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final isDisabled = widget.onTap == null;
+    final isDisabled = onTap == null;
 
-    return GestureDetector(
-      onTap: widget.onTap,
-      onTapDown: isDisabled ? null : (_) => _controller.forward(),
-      onTapUp: isDisabled ? null : (_) => _controller.reverse(),
-      onTapCancel: isDisabled ? null : () => _controller.reverse(),
-      child: AnimatedBuilder(
-        animation: _scale,
-        builder: (_, child) =>
-            Transform.scale(scale: _scale.value, child: child),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          height: 56,
-          decoration: BoxDecoration(
-            color: isDisabled
-                ? FudiColors.primary.withValues(alpha: 0.4)
-                : FudiColors.primary,
-            borderRadius: BorderRadius.circular(FudiRadius.xl),
-            boxShadow: isDisabled
-                ? []
-                : [
-                    BoxShadow(
-                      color: FudiColors.primary.withValues(alpha: 0.4),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-          ),
-          child: Center(
-            child: widget.isReserving
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : Text(
-                    widget.offer.isOutOfStock
-                        ? 'Agotado'
-                        : widget.offer.isExpired
-                        ? 'Ventana de pickup cerrada'
-                        : 'Reservar ahora',
-                    style: FudiTypography.labelMedium.copyWith(
-                      color: Colors.white,
-                    ),
+    return FudiPressableScale(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        height: 56,
+        decoration: BoxDecoration(
+          color: isDisabled
+              ? FudiColors.primary.withValues(alpha: 0.4)
+              : FudiColors.primary,
+          borderRadius: BorderRadius.circular(FudiRadius.xl),
+          boxShadow: isDisabled
+              ? []
+              : [
+                  BoxShadow(
+                    color: FudiColors.primary.withValues(alpha: 0.4),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
                   ),
-          ),
+                ],
+        ),
+        child: Center(
+          child: isReserving
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(
+                  offer.isOutOfStock
+                      ? 'Agotado'
+                      : offer.isExpired
+                      ? 'Ventana de pickup cerrada'
+                      : 'Reservar ahora',
+                  style: FudiTypography.labelMedium.copyWith(
+                    color: Colors.white,
+                  ),
+                ),
         ),
       ),
     );
   }
 }
 
-// ── Widgets sin cambios ───────────────────────────────────────────────────────
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.valueColor,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color? valueColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: valueColor ?? FudiColors.mutedForeground),
-        const SizedBox(width: FudiSpacing.sm),
-        Text(label, style: FudiTypography.bodyMedium),
-        const Spacer(),
-        Text(
-          value,
-          style: FudiTypography.labelSmall.copyWith(
-            color: valueColor ?? FudiColors.foreground,
-          ),
-        ),
-      ],
-    );
-  }
-}

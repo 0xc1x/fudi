@@ -18,7 +18,7 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
     id, user_id, offer_id, business_id, order_number, status, 
     price, original_price, pickup_code, pickup_time, coupon_id, created_at,
     offers!orders_offer_id_fkey(
-      title, image,
+      title, image, business_location_id,
       business_locations:business_location_id (address)
     ),
     businesses!orders_business_id_fkey(name, phone),
@@ -122,6 +122,7 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
           : null,
       couponId: json['coupon_id'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
+      businessLocationId: offer?['business_location_id'] as String?,
       offerTitle: offer?['title'] as String? ?? 'Oferta',
       offerImageUrl: offer?['image'] as String?,
       businessName: business?['name'] as String? ?? 'Negocio',

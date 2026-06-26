@@ -9,6 +9,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
+import '../../../core/ui/atoms/fudi_discount_badge.dart';
+import '../../../core/ui/atoms/fudi_circle_button.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/utils/map_style.dart';
 import '../../../core/ui/fudi_spacing.dart';
@@ -182,7 +184,14 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
           Positioned(
             bottom: _selectedOffer != null ? 360 : 100,
             right: FudiSpacing.lg,
-            child: _MyLocationButton(onPress: _goToMyLocation),
+            child: FudiCircleButton(
+              onTap: _goToMyLocation,
+              icon: Icons.my_location,
+              size: 40,
+              iconSize: 24,
+              backgroundColor: FudiColors.background,
+              iconColor: FudiColors.primary,
+            ),
           ),
 
           if (!_mapReady) const Center(child: CircularProgressIndicator()),
@@ -627,38 +636,6 @@ class _ZoomButton extends StatelessWidget {
   }
 }
 
-class _MyLocationButton extends StatelessWidget {
-  const _MyLocationButton({required this.onPress});
-
-  final VoidCallback onPress;
-
-  @override
-  Widget build(BuildContext context) {
-    return FudiPressableScale(
-      onTap: onPress,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: FudiColors.background,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: const Icon(
-          Icons.my_location,
-          size: 24,
-          color: FudiColors.primary,
-        ),
-      ),
-    );
-  }
-}
 
 class _SelectedOfferCard extends StatelessWidget {
   const _SelectedOfferCard({
@@ -751,24 +728,16 @@ class _SelectedOfferCard extends StatelessWidget {
                       Positioned(
                         top: FudiSpacing.sm,
                         left: FudiSpacing.sm,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
+                        child: FudiDiscountBadge(
+                          percent: discountPercent,
+                          paddingGeometry: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
                           ),
-                          decoration: BoxDecoration(
-                            color: FudiColors.primary,
-                            borderRadius: BorderRadius.circular(
-                              FudiRadius.full,
-                            ),
-                          ),
-                          child: Text(
-                            '-$discountPercent%',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                            ),
+                          textStyle: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),

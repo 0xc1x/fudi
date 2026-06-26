@@ -127,7 +127,7 @@ class _LoadingBackgroundPatterns extends StatelessWidget {
         return Stack(
           children: patterns.map((p) {
             return Positioned(
-              top: p.top != null ? p.top : (p.topFraction != null ? h * p.topFraction! : null),
+              top: p.top ?? (p.topFraction != null ? h * p.topFraction! : null),
               left: p.left,
               right: p.right,
               bottom: p.bottom,

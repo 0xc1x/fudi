@@ -76,7 +76,7 @@ class FudiBottomNav extends ConsumerStatefulWidget {
 
 class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
     with SingleTickerProviderStateMixin {
-  static const _duration = Duration(milliseconds: 100);
+  static const _duration = Duration(milliseconds: 400);
 
   late AnimationController _controller;
   late Animation<double> _pillAnim;
@@ -91,7 +91,6 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this, duration: _duration);
-    // Valor placeholder; se reemplaza en el primer build.
     _pillAnim = AlwaysStoppedAnimation(0.0);
   }
 
@@ -104,11 +103,9 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
   /// Lanza la animación hacia [targetLeft].
   /// Parte del valor interpolado actual para soportar interrupciones en vuelo.
   void _animateTo(double targetLeft) {
-    if (_toLeft == targetLeft) return; // ya estamos ahí
+    if (_toLeft == targetLeft) return;
 
-    final startLeft = _fromLeft < 0
-        ? targetLeft // primer frame: sin animación
-        : _pillAnim.value; // si está animando, parte del punto actual
+    final startLeft = _fromLeft < 0 ? targetLeft : _pillAnim.value;
 
     _fromLeft = startLeft;
     _toLeft = targetLeft;
@@ -120,6 +117,8 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
     _controller
       ..reset()
       ..forward();
+
+    setState(() {});
   }
 
   @override
@@ -145,11 +144,8 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
           final targetLeft =
               currentIndex * itemWidth + (itemWidth - pillWidth) / 2;
 
-          // Si el destino cambió, programamos la animación para después
-          // del frame actual (no se puede mutar estado durante el build).
           if (_toLeft != targetLeft) {
             if (_fromLeft < 0) {
-              // Primer build: posicionamos sin animar.
               _fromLeft = targetLeft;
               _toLeft = targetLeft;
               _pillAnim = AlwaysStoppedAnimation(targetLeft);
@@ -163,7 +159,6 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
           return AnimatedBuilder(
             animation: _pillAnim,
             builder: (context, _) {
-              // animLeft es el valor real interpolado en cada frame.
               final animLeft = _pillAnim.value;
 
               return SizedBox(

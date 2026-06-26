@@ -7,6 +7,9 @@ import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../../../core/ui/atoms/fudi_info_row.dart';
+import '../../../../core/ui/atoms/fudi_status_badge.dart';
+import '../../../../core/ui/fudi_order_timeline.dart';
 import '../business_providers.dart';
 import '../../../orders/domain/order_model.dart';
 import '../../../orders/domain/order_status.dart';
@@ -59,7 +62,7 @@ class _OrderDetailScaffold extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final config = _statusConfig(order.status);
+
     return Scaffold(
       backgroundColor: FudiColors.background,
       appBar: AppBar(
@@ -90,29 +93,11 @@ class _OrderDetailScaffold extends ConsumerWidget {
           ],
         ),
         actions: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: config.backgroundColor,
-              borderRadius: BorderRadius.circular(FudiRadius.full),
-              border: Border.all(color: config.borderColor),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(config.icon, size: 14, color: config.iconColor),
-                const SizedBox(width: 4),
-                Text(
-                  order.status.label,
-                  style: FudiTypography.bodySmall.copyWith(
-                    color: config.textColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: FudiStatusBadge.fromOrderStatus(order.status),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: FudiSpacing.md),
         ],
       ),
       body: _OrderDetailContent(order: order),
@@ -140,7 +125,7 @@ class _OrderDetailContent extends ConsumerWidget {
               const SizedBox(height: FudiSpacing.md),
               _PickupInfoCard(order: order),
               const SizedBox(height: FudiSpacing.md),
-              _StatusHistoryCard(order: order),
+              FudiOrderTimeline(order: order, isBusiness: true),
               const SizedBox(height: FudiSpacing.md),
               _OrderInfoCard(order: order),
               if (!order.status.isTerminal) const SizedBox(height: 120),
@@ -233,79 +218,36 @@ class _CustomerInfoCard extends StatelessWidget {
         children: [
           const Text('Información del cliente', style: FudiTypography.h4),
           const SizedBox(height: FudiSpacing.sm),
-          _InfoRow(
+          FudiInfoRow(
             icon: FudiIcons.user,
             label: 'Nombre',
-            value: order.customerName ?? 'Sin nombre',
+            text: order.customerName ?? 'Sin nombre',
+            useIconBackground: true,
+            iconSize: 20,
+            spacing: 12,
           ),
           const SizedBox(height: FudiSpacing.sm),
-          _InfoRow(
+          FudiInfoRow(
             icon: FudiIcons.phone,
             label: 'Teléfono',
-            value: order.customerPhone ?? 'Sin teléfono',
+            text: order.customerPhone ?? 'Sin teléfono',
             isPrimary: order.customerPhone != null,
+            useIconBackground: true,
+            iconSize: 20,
+            spacing: 12,
           ),
           const SizedBox(height: FudiSpacing.sm),
-          _InfoRow(
+          FudiInfoRow(
             icon: FudiIcons.mail,
             label: 'Email',
-            value: order.customerEmail ?? 'Sin email',
+            text: order.customerEmail ?? 'Sin email',
             isPrimary: order.customerEmail != null,
+            useIconBackground: true,
+            iconSize: 20,
+            spacing: 12,
           ),
         ],
       ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.isPrimary = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool isPrimary;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: FudiColors.primary.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, size: 20, color: FudiColors.primary),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: FudiTypography.bodySmall.copyWith(
-                  color: FudiColors.mutedForeground,
-                ),
-              ),
-              Text(
-                value,
-                style: FudiTypography.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: isPrimary ? FudiColors.primary : FudiColors.foreground,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
@@ -327,58 +269,20 @@ class _PickupInfoCard extends StatelessWidget {
         children: [
           const Text('Información de recogida', style: FudiTypography.h4),
           const SizedBox(height: FudiSpacing.sm),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(FudiIcons.clock, size: 20, color: FudiColors.primary),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Horario de recogida',
-                      style: FudiTypography.bodySmall.copyWith(
-                        color: FudiColors.mutedForeground,
-                      ),
-                    ),
-                    Text(
-                      pickupTimeStr,
-                      style: FudiTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          FudiInfoRow(
+            icon: FudiIcons.clock,
+            label: 'Horario de recogida',
+            text: pickupTimeStr,
+            iconSize: 20,
+            spacing: 12,
           ),
           const SizedBox(height: FudiSpacing.sm),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(FudiIcons.mapPin, size: 20, color: FudiColors.primary),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Lugar de recogida',
-                      style: FudiTypography.bodySmall.copyWith(
-                        color: FudiColors.mutedForeground,
-                      ),
-                    ),
-                    Text(
-                      order.businessAddress ?? 'Sin dirección',
-                      style: FudiTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          FudiInfoRow(
+            icon: FudiIcons.mapPin,
+            label: 'Lugar de recogida',
+            text: order.businessAddress ?? 'Sin dirección',
+            iconSize: 20,
+            spacing: 12,
           ),
         ],
       ),
@@ -386,240 +290,7 @@ class _PickupInfoCard extends StatelessWidget {
   }
 }
 
-class _StatusHistoryCard extends StatelessWidget {
-  const _StatusHistoryCard({required this.order});
 
-  final OrderModel order;
-
-  @override
-  Widget build(BuildContext context) {
-    return FudiSurfaceCard(
-      padding: const EdgeInsets.all(FudiSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.calendar_today,
-                size: 20,
-                color: FudiColors.primary,
-              ),
-              const SizedBox(width: 8),
-              const Text('Historial de cambios', style: FudiTypography.h4),
-            ],
-          ),
-          const SizedBox(height: FudiSpacing.md),
-          ..._buildTimeline(),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildTimeline() {
-    final entries = <_TimelineEntry>[];
-    final pendingConfig = _statusConfig(OrderStatus.pending);
-
-    entries.add(
-      _TimelineEntry(
-        icon: pendingConfig.icon,
-        iconColor: pendingConfig.iconColor,
-        bgColor: pendingConfig.backgroundColor,
-        label: 'Pendiente',
-        time:
-            '${order.createdAt.hour.toString().padLeft(2, '0')}:${order.createdAt.minute.toString().padLeft(2, '0')}',
-        date:
-            '${order.createdAt.day.toString().padLeft(2, '0')}/${order.createdAt.month.toString().padLeft(2, '0')}/${order.createdAt.year}',
-        note: 'Pedido recibido',
-        isLast: order.status == OrderStatus.pending,
-      ),
-    );
-
-    final confirmedStatuses = [
-      OrderStatus.confirmed,
-      OrderStatus.readyForPickup,
-      OrderStatus.pickedUp,
-      OrderStatus.completed,
-    ];
-    if (confirmedStatuses.contains(order.status)) {
-      final c = _statusConfig(OrderStatus.confirmed);
-      entries.add(
-        _TimelineEntry(
-          icon: c.icon,
-          iconColor: c.iconColor,
-          bgColor: c.backgroundColor,
-          label: 'Confirmado',
-          time: '',
-          date: '',
-          note: 'Pedido confirmado por el negocio',
-          isLast: order.status == OrderStatus.confirmed,
-        ),
-      );
-    }
-
-    final readyStatuses = [
-      OrderStatus.readyForPickup,
-      OrderStatus.pickedUp,
-      OrderStatus.completed,
-    ];
-    if (readyStatuses.contains(order.status)) {
-      final c = _statusConfig(OrderStatus.readyForPickup);
-      entries.add(
-        _TimelineEntry(
-          icon: c.icon,
-          iconColor: c.iconColor,
-          bgColor: c.backgroundColor,
-          label: 'Listo para recoger',
-          time: '',
-          date: '',
-          note: 'Pedido preparado y listo para recoger',
-          isLast: order.status == OrderStatus.readyForPickup,
-        ),
-      );
-    }
-
-    if (order.status == OrderStatus.completed) {
-      final c = _statusConfig(OrderStatus.completed);
-      entries.add(
-        _TimelineEntry(
-          icon: c.icon,
-          iconColor: c.iconColor,
-          bgColor: c.backgroundColor,
-          label: 'Completado',
-          time: '',
-          date: '',
-          note: 'Pedido entregado al cliente',
-          isLast: true,
-        ),
-      );
-    }
-
-    if (order.status == OrderStatus.cancelled) {
-      final c = _statusConfig(OrderStatus.cancelled);
-      entries.add(
-        _TimelineEntry(
-          icon: c.icon,
-          iconColor: c.iconColor,
-          bgColor: c.backgroundColor,
-          label: 'Cancelado',
-          time: '',
-          date: '',
-          note: 'Pedido cancelado',
-          isLast: true,
-        ),
-      );
-    }
-
-    if (order.status == OrderStatus.expired) {
-      final c = _statusConfig(OrderStatus.expired);
-      entries.add(
-        _TimelineEntry(
-          icon: c.icon,
-          iconColor: c.iconColor,
-          bgColor: c.backgroundColor,
-          label: 'Expirado',
-          time: '',
-          date: '',
-          note: 'El tiempo de recogida expiró',
-          isLast: true,
-        ),
-      );
-    }
-
-    return entries;
-  }
-}
-
-class _TimelineEntry extends StatelessWidget {
-  const _TimelineEntry({
-    required this.icon,
-    required this.iconColor,
-    required this.bgColor,
-    required this.label,
-    required this.time,
-    required this.date,
-    required this.note,
-    required this.isLast,
-  });
-
-  final IconData icon;
-  final Color iconColor;
-  final Color bgColor;
-  final String label;
-  final String time;
-  final String date;
-  final String note;
-  final bool isLast;
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, size: 20, color: iconColor),
-              ),
-              if (!isLast)
-                Container(width: 2, height: 32, color: FudiColors.border),
-            ],
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: FudiSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        label,
-                        style: FudiTypography.bodyMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      if (time.isNotEmpty)
-                        Text(
-                          time,
-                          style: FudiTypography.bodySmall.copyWith(
-                            color: FudiColors.mutedForeground,
-                          ),
-                        ),
-                    ],
-                  ),
-                  Text(
-                    note,
-                    style: FudiTypography.bodySmall.copyWith(
-                      color: FudiColors.mutedForeground,
-                    ),
-                  ),
-                  if (date.isNotEmpty)
-                    Text(
-                      date,
-                      style: FudiTypography.bodySmall.copyWith(
-                        color: FudiColors.mutedForeground,
-                        fontSize: 11,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _OrderInfoCard extends StatelessWidget {
   const _OrderInfoCard({required this.order});
@@ -952,79 +623,4 @@ class _ActionBottomBar extends ConsumerWidget {
   }
 }
 
-_StatusConfig _statusConfig(OrderStatus status) {
-  switch (status) {
-    case OrderStatus.pending:
-      return _StatusConfig(
-        icon: FudiIcons.clock,
-        iconColor: Colors.orange.shade700,
-        backgroundColor: Colors.orange.shade100,
-        borderColor: Colors.orange.shade200,
-        textColor: Colors.orange.shade700,
-      );
-    case OrderStatus.confirmed:
-      return _StatusConfig(
-        icon: Icons.check_circle_outline,
-        iconColor: FudiColors.primary,
-        backgroundColor: FudiColors.primary.withValues(alpha: 0.1),
-        borderColor: FudiColors.primary.withValues(alpha: 0.2),
-        textColor: FudiColors.primary,
-      );
-    case OrderStatus.readyForPickup:
-      return _StatusConfig(
-        icon: Icons.check_circle,
-        iconColor: FudiColors.primary,
-        backgroundColor: FudiColors.primary.withValues(alpha: 0.1),
-        borderColor: FudiColors.primary.withValues(alpha: 0.2),
-        textColor: FudiColors.primary,
-      );
-    case OrderStatus.pickedUp:
-      return _StatusConfig(
-        icon: Icons.shopping_bag_outlined,
-        iconColor: Colors.blue.shade700,
-        backgroundColor: Colors.blue.shade100,
-        borderColor: Colors.blue.shade200,
-        textColor: Colors.blue.shade700,
-      );
-    case OrderStatus.completed:
-      return _StatusConfig(
-        icon: Icons.check_circle,
-        iconColor: Colors.green.shade600,
-        backgroundColor: Colors.green.shade100,
-        borderColor: Colors.green.shade200,
-        textColor: Colors.green.shade700,
-      );
-    case OrderStatus.cancelled:
-      return _StatusConfig(
-        icon: Icons.cancel,
-        iconColor: FudiColors.destructive,
-        backgroundColor: FudiColors.destructive.withValues(alpha: 0.1),
-        borderColor: FudiColors.destructive.withValues(alpha: 0.2),
-        textColor: FudiColors.destructive,
-      );
-    case OrderStatus.expired:
-      return _StatusConfig(
-        icon: Icons.timer_off,
-        iconColor: Colors.grey.shade700,
-        backgroundColor: Colors.grey.shade200,
-        borderColor: Colors.grey.shade300,
-        textColor: Colors.grey.shade700,
-      );
-  }
-}
 
-class _StatusConfig {
-  const _StatusConfig({
-    required this.icon,
-    required this.iconColor,
-    required this.backgroundColor,
-    required this.borderColor,
-    required this.textColor,
-  });
-
-  final IconData icon;
-  final Color iconColor;
-  final Color backgroundColor;
-  final Color borderColor;
-  final Color textColor;
-}

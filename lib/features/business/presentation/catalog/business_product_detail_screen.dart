@@ -8,6 +8,7 @@ import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
+import '../../../../core/ui/atoms/fudi_stat_card.dart';
 import '../business_providers.dart';
 import '../../../offers/domain/offer.dart';
 
@@ -270,31 +271,37 @@ class _StatsSection extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: _StatCard(
+          child: FudiStatCard(
             icon: FudiIcons.package_,
             iconColor: FudiColors.primary,
             value: '$_sold',
             label: 'Vendidos',
+            backgroundColor: Colors.white,
+            border: Border.all(color: FudiColors.borderSolid),
           ),
         ),
         const SizedBox(width: FudiSpacing.md),
         Expanded(
-          child: _StatCard(
+          child: FudiStatCard(
             icon: Icons.account_balance_wallet_rounded,
             iconColor: Colors.green,
             value: '\$${_revenue.toStringAsFixed(2)}',
             label: 'Ingresos',
             valueColor: Colors.green,
+            backgroundColor: Colors.white,
+            border: Border.all(color: FudiColors.borderSolid),
           ),
         ),
         const SizedBox(width: FudiSpacing.md),
         Expanded(
-          child: _StatCard(
+          child: FudiStatCard(
             icon: Icons.trending_up_rounded,
             iconColor: Colors.orange,
             value: '${offer.initialStock}',
             label: 'Creados',
             valueColor: Colors.orange,
+            backgroundColor: Colors.white,
+            border: Border.all(color: FudiColors.borderSolid),
           ),
         ),
       ],
@@ -302,49 +309,7 @@ class _StatsSection extends StatelessWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  const _StatCard({
-    required this.icon,
-    required this.iconColor,
-    required this.value,
-    required this.label,
-    this.valueColor,
-  });
 
-  final IconData icon;
-  final Color iconColor;
-  final String value;
-  final String label;
-  final Color? valueColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(FudiSpacing.md),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(FudiRadius.xl),
-        border: Border.all(color: FudiColors.borderSolid),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 20, color: iconColor),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: valueColor ?? FudiColors.foreground,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(label, style: FudiTypography.bodySmall),
-        ],
-      ),
-    );
-  }
-}
 
 class _QuickActions extends ConsumerWidget {
   const _QuickActions({required this.offer});

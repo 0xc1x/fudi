@@ -101,6 +101,9 @@ final _hideAppBarPaths = {
   RouteNames.favoritesPath,
   RouteNames.profilePath,
   RouteNames.businessProductsPath,
+  RouteNames.businessOrdersPath,
+  RouteNames.businessLocationsPath,
+  RouteNames.businessStatisticsPath,
 };
 
 bool _shouldHideAppBar(GoRouterState state) {

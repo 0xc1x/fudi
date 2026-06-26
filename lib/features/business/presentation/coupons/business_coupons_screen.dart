@@ -10,6 +10,9 @@ import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
 import '../../../../core/ui/fudi_typography.dart';
+import '../../../../core/ui/atoms/fudi_status_badge.dart';
+import '../../../../core/ui/atoms/fudi_stat_card.dart';
+import '../../../../core/ui/fudi_tips_card.dart';
 import '../../../orders/domain/coupon.dart';
 import '../business_providers.dart';
 import '../components/no_business_prompt.dart';
@@ -124,26 +127,32 @@ class _Content extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: _StatCard(
+              child: FudiStatCard(
                 label: 'Activos',
                 value: '$activeCount',
-                color: FudiColors.primary,
+                valueColor: FudiColors.primary,
+                backgroundColor: FudiColors.background,
+                border: Border.all(color: FudiColors.borderSolid),
               ),
             ),
             const SizedBox(width: FudiSpacing.md),
             Expanded(
-              child: _StatCard(
+              child: FudiStatCard(
                 label: 'Usos totales',
                 value: '$totalUses',
-                color: const Color(0xFF16A34A),
+                valueColor: const Color(0xFF16A34A),
+                backgroundColor: FudiColors.background,
+                border: Border.all(color: FudiColors.borderSolid),
               ),
             ),
             const SizedBox(width: FudiSpacing.md),
             Expanded(
-              child: _StatCard(
+              child: FudiStatCard(
                 label: 'Total',
                 value: '${coupons.length}',
-                color: const Color(0xFFEA580C),
+                valueColor: const Color(0xFFEA580C),
+                backgroundColor: FudiColors.background,
+                border: Border.all(color: FudiColors.borderSolid),
               ),
             ),
           ],
@@ -156,39 +165,16 @@ class _Content extends StatelessWidget {
         else
           ...coupons.map((c) => _CouponCard(coupon: c)),
         const SizedBox(height: FudiSpacing.lg),
-        _TipsCard(),
+        FudiTipsCard(
+          title: 'Consejos para cupones',
+          tips: const [
+            'Usa códigos memorables y fáciles de compartir',
+            'Define límites de uso para controlar el presupuesto',
+            'Establece compras mínimas para mantener rentabilidad',
+            'Revisa regularmente los cupones expirados',
+          ],
+        ),
       ],
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  const _StatCard({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(FudiSpacing.md),
-      decoration: BoxDecoration(
-        color: FudiColors.background,
-        borderRadius: BorderRadius.circular(FudiRadius.xl),
-        border: Border.all(color: FudiColors.borderSolid),
-      ),
-      child: Column(
-        children: [
-          Text(value, style: FudiTypography.h2.copyWith(color: color)),
-          const SizedBox(height: FudiSpacing.xs),
-          Text(label, style: FudiTypography.bodySmall),
-        ],
-      ),
     );
   }
 }
@@ -251,7 +237,7 @@ class _CouponHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(width: FudiSpacing.sm),
-            _StatusBadge(coupon: coupon),
+            _CouponStatusBadge(coupon: coupon),
           ],
         ),
       ],
@@ -259,44 +245,36 @@ class _CouponHeader extends StatelessWidget {
   }
 }
 
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.coupon});
+(String, Color, Color) _couponBadgeConfig(Coupon c) {
+  if (c.isValid) {
+    return ('Activo', const Color(0xFFDCFCE7), const Color(0xFF15803D));
+  }
+  if (c.isExpired) {
+    return ('Expirado', const Color(0xFFFEE2E2), FudiColors.destructive);
+  }
+  if (c.isExhausted) {
+    return (
+      'Límite alcanzado',
+      const Color(0xFFFFEDD5),
+      const Color(0xFFC2410C),
+    );
+  }
+  return ('Inactivo', FudiColors.muted, FudiColors.mutedForeground);
+}
+
+class _CouponStatusBadge extends StatelessWidget {
+  const _CouponStatusBadge({required this.coupon});
   final Coupon coupon;
 
   @override
   Widget build(BuildContext context) {
-    final (label, bg, fg) = _badgeConfig(coupon);
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: FudiSpacing.sm,
-        vertical: 2,
-      ),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(FudiRadius.full),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: fg),
-      ),
+    final (label, bg, fg) = _couponBadgeConfig(coupon);
+    return FudiStatusBadge(
+      label: label,
+      color: fg,
+      backgroundColor: bg,
+      size: FudiStatusBadgeSize.sm,
     );
-  }
-
-  (String, Color, Color) _badgeConfig(Coupon c) {
-    if (c.isValid) {
-      return ('Activo', const Color(0xFFDCFCE7), const Color(0xFF15803D));
-    }
-    if (c.isExpired) {
-      return ('Expirado', const Color(0xFFFEE2E2), FudiColors.destructive);
-    }
-    if (c.isExhausted) {
-      return (
-        'Límite alcanzado',
-        const Color(0xFFFFEDD5),
-        const Color(0xFFC2410C),
-      );
-    }
-    return ('Inactivo', FudiColors.muted, FudiColors.mutedForeground);
   }
 }
 
@@ -552,57 +530,3 @@ class _EmptyCoupons extends StatelessWidget {
   }
 }
 
-class _TipsCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(FudiSpacing.lg),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
-        borderRadius: BorderRadius.circular(FudiRadius.xxl),
-        border: Border.all(color: const Color(0xFFBFDBFE)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Consejos para cupones',
-            style: FudiTypography.labelSmall.copyWith(
-              color: const Color(0xFF1E3A5F),
-            ),
-          ),
-          const SizedBox(height: FudiSpacing.sm),
-          _tip('Usa códigos memorables y fáciles de compartir'),
-          _tip('Define límites de uso para controlar el presupuesto'),
-          _tip('Establece compras mínimas para mantener rentabilidad'),
-          _tip('Revisa regularmente los cupones expirados'),
-        ],
-      ),
-    );
-  }
-
-  Widget _tip(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: FudiSpacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '• ',
-            style: FudiTypography.bodySmall.copyWith(
-              color: const Color(0xFF1D4ED8),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              text,
-              style: FudiTypography.bodySmall.copyWith(
-                color: const Color(0xFF1D4ED8),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

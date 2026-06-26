@@ -8,10 +8,15 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../../core/ui/atoms/fudi_heart_button.dart';
+import '../../../core/ui/atoms/fudi_circle_button.dart';
+import '../../../core/ui/atoms/fudi_info_row.dart';
 import '../../../core/utils/map_style.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_surface_card.dart';
 import '../../../core/ui/fudi_typography.dart';
+import '../../../core/ui/fudi_star_rating.dart';
+import '../../../core/ui/fudi_opening_hours_card.dart';
 import '../domain/business_profile.dart';
 import 'business_profile_providers.dart';
 
@@ -63,12 +68,18 @@ class BusinessProfileScreen extends ConsumerWidget {
                 FudiPressableScale(
                   onTap: () => context.go('/'),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: FudiColors.primary,
                       borderRadius: BorderRadius.circular(100),
                     ),
-                    child: const Text('Volver al inicio', style: TextStyle(color: Colors.white)),
+                    child: const Text(
+                      'Volver al inicio',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ],
@@ -142,19 +153,19 @@ class _BusinessProfileContentState
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _CircleButton(
+                          FudiCircleButton(
                             onTap: () => context.pop(),
                             icon: FudiIcons.chevronLeft,
                           ),
                           Row(
                             children: [
-                              _FavoriteHeartButton(
+                              FudiHeartButton(
                                 isFavorite: _isFavorite,
                                 onTap: () =>
                                     setState(() => _isFavorite = !_isFavorite),
                               ),
                               const SizedBox(width: 8),
-                              _CircleButton(
+                              FudiCircleButton(
                                 onTap: () {},
                                 icon: Icons.share_rounded,
                               ),
@@ -256,7 +267,7 @@ class _BusinessProfileContentState
                                   const SizedBox(height: 8),
                                   Row(
                                     children: [
-                                      _StarRating(rating: profile.rating),
+                                      FudiStarRating(rating: profile.rating),
                                       const SizedBox(width: 8),
                                       Text(
                                         profile.rating.toStringAsFixed(1),
@@ -306,9 +317,8 @@ class _BusinessProfileContentState
                         _ContactInfoCard(profile: profile),
                         const SizedBox(height: FudiSpacing.lg),
 
-                        // Opening Hours
                         if (profile.hours.isNotEmpty) ...[
-                          _OpeningHoursCard(hours: profile.hours),
+                          FudiOpeningHoursCard(hours: profile.hours, title: 'Horario'),
                           const SizedBox(height: FudiSpacing.lg),
                         ],
 
@@ -431,10 +441,11 @@ class _ContactInfoCard extends StatelessWidget {
           Text('Información de contacto', style: FudiTypography.labelMedium),
           const SizedBox(height: FudiSpacing.lg),
           // Address
-          _ContactRow(
+          FudiInfoRow(
             icon: FudiIcons.mapPin,
             label: 'Dirección',
-            value: profile.address ?? '',
+            text: profile.address ?? '',
+            iconSize: 20,
             trailing: profile.latitude != null && profile.longitude != null
                 ? _TextLink(
                     text: 'Cómo llegar →',
@@ -446,33 +457,36 @@ class _ContactInfoCard extends StatelessWidget {
           // Phone
           if (profile.phone != null && profile.phone!.isNotEmpty) ...[
             const SizedBox(height: FudiSpacing.lg),
-            _ContactRow(
+            FudiInfoRow(
               icon: FudiIcons.phone,
               label: 'Teléfono',
-              value: profile.phone!,
+              text: profile.phone!,
               isLink: true,
+              iconSize: 20,
               onTap: () => _launchUrl('tel:${profile.phone}'),
             ),
           ],
           // Email
           if (profile.email != null && profile.email!.isNotEmpty) ...[
             const SizedBox(height: FudiSpacing.lg),
-            _ContactRow(
+            FudiInfoRow(
               icon: FudiIcons.mail,
               label: 'Email',
-              value: profile.email!,
+              text: profile.email!,
               isLink: true,
+              iconSize: 20,
               onTap: () => _launchUrl('mailto:${profile.email}'),
             ),
           ],
           // Website
           if (profile.website != null && profile.website!.isNotEmpty) ...[
             const SizedBox(height: FudiSpacing.lg),
-            _ContactRow(
+            FudiInfoRow(
               icon: Icons.language_rounded,
               label: 'Sitio web',
-              value: profile.website!,
+              text: profile.website!,
               isLink: true,
+              iconSize: 20,
               onTap: () {
                 var url = profile.website!;
                 if (!url.startsWith('http')) url = 'https://$url';
@@ -487,47 +501,6 @@ class _ContactInfoCard extends StatelessWidget {
 }
 
 /// Opening hours card.
-class _OpeningHoursCard extends StatelessWidget {
-  const _OpeningHoursCard({required this.hours});
-
-  final List<BusinessHours> hours;
-
-  @override
-  Widget build(BuildContext context) {
-    return FudiSurfaceCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(FudiIcons.clock, size: 20, color: FudiColors.primary),
-              const SizedBox(width: FudiSpacing.sm),
-              Text('Horario', style: FudiTypography.labelMedium),
-            ],
-          ),
-          const SizedBox(height: FudiSpacing.lg),
-          ...hours.map(
-            (h) => Padding(
-              padding: const EdgeInsets.only(bottom: FudiSpacing.md),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    h.day,
-                    style: FudiTypography.bodyMedium.copyWith(
-                      color: FudiColors.mutedForeground,
-                    ),
-                  ),
-                  Text(h.hours, style: FudiTypography.labelSmall),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 /// Reviews card with star rating summary and individual reviews.
 class _ReviewsCard extends StatelessWidget {
@@ -593,9 +566,7 @@ class _ReviewsCard extends StatelessWidget {
                   // TODO: Navigate to full reviews screen
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: FudiSpacing.sm,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: FudiSpacing.sm),
                   child: Text(
                     'Ver todas las reseñas (${profile.reviewCount})',
                     style: FudiTypography.bodyMedium.copyWith(
@@ -752,7 +723,7 @@ class _LocationCard extends ConsumerWidget {
               child: SizedBox(
                 width: double.infinity,
                 height: 192,
-                child:                   GoogleMap(
+                child: GoogleMap(
                   style: kMapStyleNoPoi,
                   initialCameraPosition: CameraPosition(
                     target: LatLng(profile.latitude!, profile.longitude!),
@@ -776,8 +747,7 @@ class _LocationCard extends ConsumerWidget {
             ),
             const SizedBox(height: FudiSpacing.md),
             FudiPressableScale(
-              onTap: () =>
-                  _openMaps(profile.latitude!, profile.longitude!),
+              onTap: () => _openMaps(profile.latitude!, profile.longitude!),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),
@@ -801,237 +771,7 @@ class _LocationCard extends ConsumerWidget {
   }
 }
 
-// ─── Shared Widgets ──────────────────────────────────────────────
-
-/// Floating heart button with heartbeat animation on toggle.
-class _FavoriteHeartButton extends StatefulWidget {
-  const _FavoriteHeartButton({
-    required this.isFavorite,
-    required this.onTap,
-  });
-
-  final bool isFavorite;
-  final VoidCallback onTap;
-
-  @override
-  State<_FavoriteHeartButton> createState() => _FavoriteHeartButtonState();
-}
-
-class _FavoriteHeartButtonState extends State<_FavoriteHeartButton>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 380),
-    );
-    _scale = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.65)
-            .chain(CurveTween(curve: Curves.easeIn)),
-        weight: 28,
-      ),
-      TweenSequenceItem(
-        tween: Tween(begin: 0.65, end: 1.4)
-            .chain(CurveTween(curve: Curves.easeOut)),
-        weight: 44,
-      ),
-      TweenSequenceItem(
-        tween: Tween(begin: 1.4, end: 1.0)
-            .chain(CurveTween(curve: Curves.elasticOut)),
-        weight: 28,
-      ),
-    ]).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(_FavoriteHeartButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.isFavorite != widget.isFavorite) {
-      _controller.forward(from: 0);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: AnimatedBuilder(
-        animation: _scale,
-        builder: (_, child) =>
-            Transform.scale(scale: _scale.value, child: child),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: widget.isFavorite
-                ? const Color(0xFFEF4444).withValues(alpha: 0.15)
-                : Colors.white.withValues(alpha: 0.9),
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Icon(
-            widget.isFavorite ? FudiIcons.heart : FudiIcons.heartOutline,
-            size: 20,
-            color: widget.isFavorite
-                ? const Color(0xFFEF4444)
-                : FudiColors.foreground,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Floating circle button used in the cover image overlay.
-class _CircleButton extends StatelessWidget {
-  const _CircleButton({
-    required this.onTap,
-    required this.icon,
-    this.iconColor,
-  });
-
-  final VoidCallback onTap;
-  final IconData icon;
-  final Color? iconColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return FudiPressableScale(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.9),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Icon(icon, size: 20, color: iconColor ?? FudiColors.foreground),
-      ),
-    );
-  }
-}
-
-/// Inline star rating display (read-only).
-class _StarRating extends StatelessWidget {
-  const _StarRating({required this.rating}) : size = 16;
-
-  final double rating;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(5, (i) {
-        final starValue = i + 1;
-        if (rating >= starValue) {
-          return Icon(
-            Icons.star_rounded,
-            size: size,
-            color: const Color(0xFFFACC15),
-          );
-        } else if (rating >= starValue - 0.5) {
-          return Icon(
-            Icons.star_half_rounded,
-            size: size,
-            color: const Color(0xFFFACC15),
-          );
-        }
-        return Icon(
-          Icons.star_outline_rounded,
-          size: size,
-          color: const Color(0xFFFACC15),
-        );
-      }),
-    );
-  }
-}
-
 /// Contact info row with icon, label, and value.
-class _ContactRow extends StatelessWidget {
-  const _ContactRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.isLink = false,
-    this.onTap,
-    this.trailing,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool isLink;
-  final VoidCallback? onTap;
-  final Widget? trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: FudiColors.primary),
-        const SizedBox(width: FudiSpacing.sm),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: FudiTypography.labelSmall),
-              const SizedBox(height: 2),
-              if (isLink && onTap != null)
-                FudiPressableScale(
-                  onTap: onTap,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Text(
-                      value,
-                      style: FudiTypography.bodyMedium.copyWith(
-                        color: FudiColors.primary,
-                      ),
-                    ),
-                  ),
-                )
-              else
-                Text(
-                  value,
-                  style: FudiTypography.bodyMedium.copyWith(
-                    color: FudiColors.mutedForeground,
-                  ),
-                ),
-              if (trailing != null) ...[const SizedBox(height: 4), trailing!],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 /// Tappable text link (e.g. "Cómo llegar →").
 class _TextLink extends StatelessWidget {
   const _TextLink({required this.text, required this.onTap});

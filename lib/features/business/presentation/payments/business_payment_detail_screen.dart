@@ -8,6 +8,8 @@ import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
 import '../../../../core/ui/fudi_typography.dart';
+import '../../../../core/ui/atoms/fudi_status_badge.dart';
+import '../../../../core/ui/atoms/fudi_button.dart';
 import '../../domain/business_payout.dart';
 import '../business_providers.dart';
 
@@ -99,7 +101,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: FudiSpacing.lg),
-          child: _AppBarStatusBadge(status: status),
+          child: FudiStatusBadge.fromPayoutStatus(status, size: FudiStatusBadgeSize.sm),
         ),
       ],
       backgroundColor: FudiColors.background,
@@ -111,41 +113,6 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-class _AppBarStatusBadge extends StatelessWidget {
-  const _AppBarStatusBadge({required this.status});
-  final BusinessPayoutStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final config = _statusConfig(status);
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: FudiSpacing.md,
-        vertical: FudiSpacing.xs,
-      ),
-      decoration: BoxDecoration(
-        color: config.bgColor,
-        borderRadius: BorderRadius.circular(FudiRadius.full),
-        border: Border.all(color: config.borderColor),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(config.icon, size: 12, color: config.iconColor),
-          const SizedBox(width: 4),
-          Text(
-            config.label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: config.textColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _Content extends StatelessWidget {
   const _Content({required this.payout});
@@ -169,7 +136,13 @@ class _Content extends StatelessWidget {
         _InfoCard(),
         if (payout.status == BusinessPayoutStatus.paid) ...[
           const SizedBox(height: FudiSpacing.lg),
-          _DownloadReceiptButton(),
+          FudiButton(
+            text: 'Descargar comprobante',
+            icon: Icons.download_rounded,
+            variant: FudiButtonVariant.outlined,
+            fullWidth: true,
+            onPressed: () {},
+          ),
         ],
         const SizedBox(height: FudiSpacing.lg),
       ],
@@ -594,89 +567,6 @@ class _InfoCard extends StatelessWidget {
   }
 }
 
-class _DownloadReceiptButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return FudiPressableScale(
-      onTap: () {},
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: FudiSpacing.lg),
-        decoration: BoxDecoration(
-          color: FudiColors.background,
-          borderRadius: BorderRadius.circular(FudiRadius.xl),
-          border: Border.all(color: FudiColors.borderSolid),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.download_rounded,
-              size: 20,
-              color: FudiColors.foreground,
-            ),
-            const SizedBox(width: FudiSpacing.sm),
-            Text(
-              'Descargar comprobante',
-              style: FudiTypography.bodyMedium.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
-class _StatusConfig {
-  const _StatusConfig({
-    required this.label,
-    required this.icon,
-    required this.bgColor,
-    required this.borderColor,
-    required this.textColor,
-    required this.iconColor,
-  });
-  final String label;
-  final IconData icon;
-  final Color bgColor;
-  final Color borderColor;
-  final Color textColor;
-  final Color iconColor;
-}
 
-_StatusConfig _statusConfig(BusinessPayoutStatus status) => switch (status) {
-  BusinessPayoutStatus.paid => const _StatusConfig(
-    label: 'Pagado',
-    icon: Icons.check_circle_outline_rounded,
-    bgColor: Color(0xFFDCFCE7),
-    borderColor: Color(0xFFBBF7D0),
-    textColor: Color(0xFF15803D),
-    iconColor: Color(0xFF16A34A),
-  ),
-  BusinessPayoutStatus.processing => const _StatusConfig(
-    label: 'Procesando',
-    icon: Icons.schedule_rounded,
-    bgColor: Color(0xFFFFEDD5),
-    borderColor: Color(0xFFFED7AA),
-    textColor: Color(0xFFC2410C),
-    iconColor: Color(0xFFEA580C),
-  ),
-  BusinessPayoutStatus.pending => _StatusConfig(
-    label: 'Pendiente',
-    icon: Icons.schedule_rounded,
-    bgColor: FudiColors.primary.withValues(alpha: 0.1),
-    borderColor: FudiColors.primary.withValues(alpha: 0.2),
-    textColor: FudiColors.primary,
-    iconColor: FudiColors.primary,
-  ),
-  BusinessPayoutStatus.failed => const _StatusConfig(
-    label: 'Fallido',
-    icon: Icons.error_outline_rounded,
-    bgColor: Color(0xFFFEE2E2),
-    borderColor: Color(0xFFFECACA),
-    textColor: Color(0xFFDC2626),
-    iconColor: Color(0xFFEF4444),
-  ),
-};
+

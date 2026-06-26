@@ -8,6 +8,8 @@ import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
 import '../../../../core/ui/fudi_typography.dart';
+import '../../../../core/ui/atoms/fudi_status_badge.dart';
+import '../../../../core/ui/fudi_empty_state.dart';
 import '../../domain/business_payout.dart';
 import '../business_providers.dart';
 import '../components/no_business_prompt.dart';
@@ -173,7 +175,14 @@ class _Content extends StatelessWidget {
         Text('Historial de pagos', style: FudiTypography.h4),
         const SizedBox(height: FudiSpacing.sm),
         if (filtered.isEmpty)
-          const _EmptyPayouts()
+          const FudiSurfaceCard(
+            padding: EdgeInsets.all(FudiSpacing.xl),
+            child: FudiEmptyState(
+              title: 'No hay pagos',
+              description: 'Aún no hay pagos registrados para este negocio.',
+              icon: Icons.account_balance_wallet_outlined,
+            ),
+          )
         else
           ...filtered.map((p) => _PayoutCard(payout: p)),
         const SizedBox(height: FudiSpacing.lg),
@@ -435,7 +444,6 @@ class _PayoutCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final config = _statusConfig(payout.status);
     return Padding(
       padding: const EdgeInsets.only(bottom: FudiSpacing.md),
       child: FudiSurfaceCard(
@@ -464,7 +472,10 @@ class _PayoutCard extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: FudiSpacing.sm),
-                            _StatusBadge(config: config),
+                            FudiStatusBadge.fromPayoutStatus(
+                              payout.status,
+                              size: FudiStatusBadgeSize.sm,
+                            ),
                           ],
                         ),
                         const SizedBox(height: FudiSpacing.xs),
@@ -557,92 +568,7 @@ class _PayoutCard extends StatelessWidget {
   }
 }
 
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.config});
-  final _StatusConfig config;
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: FudiSpacing.sm,
-        vertical: 2,
-      ),
-      decoration: BoxDecoration(
-        color: config.bgColor,
-        borderRadius: BorderRadius.circular(FudiRadius.full),
-        border: Border.all(color: config.borderColor),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(config.icon, size: 12, color: config.iconColor),
-          const SizedBox(width: 4),
-          Text(
-            config.label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: config.textColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusConfig {
-  const _StatusConfig({
-    required this.label,
-    required this.icon,
-    required this.bgColor,
-    required this.borderColor,
-    required this.textColor,
-    required this.iconColor,
-  });
-  final String label;
-  final IconData icon;
-  final Color bgColor;
-  final Color borderColor;
-  final Color textColor;
-  final Color iconColor;
-}
-
-_StatusConfig _statusConfig(BusinessPayoutStatus status) => switch (status) {
-  BusinessPayoutStatus.paid => const _StatusConfig(
-    label: 'Pagado',
-    icon: Icons.check_circle_outline_rounded,
-    bgColor: Color(0xFFDCFCE7),
-    borderColor: Color(0xFFBBF7D0),
-    textColor: Color(0xFF15803D),
-    iconColor: Color(0xFF16A34A),
-  ),
-  BusinessPayoutStatus.processing => const _StatusConfig(
-    label: 'Procesando',
-    icon: Icons.schedule_rounded,
-    bgColor: Color(0xFFFFEDD5),
-    borderColor: Color(0xFFFED7AA),
-    textColor: Color(0xFFC2410C),
-    iconColor: Color(0xFFEA580C),
-  ),
-  BusinessPayoutStatus.pending => _StatusConfig(
-    label: 'Pendiente',
-    icon: Icons.schedule_rounded,
-    bgColor: FudiColors.primary.withValues(alpha: 0.1),
-    borderColor: FudiColors.primary.withValues(alpha: 0.2),
-    textColor: FudiColors.primary,
-    iconColor: FudiColors.primary,
-  ),
-  BusinessPayoutStatus.failed => const _StatusConfig(
-    label: 'Fallido',
-    icon: Icons.error_outline_rounded,
-    bgColor: Color(0xFFFEE2E2),
-    borderColor: Color(0xFFFECACA),
-    textColor: Color(0xFFDC2626),
-    iconColor: Color(0xFFEF4444),
-  ),
-};
 
 class _CycleInfoCard extends StatelessWidget {
   @override
@@ -687,11 +613,4 @@ class _CycleInfoCard extends StatelessWidget {
   }
 }
 
-class _EmptyPayouts extends StatelessWidget {
-  const _EmptyPayouts();
-  @override
-  Widget build(BuildContext context) => const FudiSurfaceCard(
-    padding: EdgeInsets.all(FudiSpacing.xl),
-    child: Center(child: Text('Aún no hay pagos registrados')),
-  );
-}
+

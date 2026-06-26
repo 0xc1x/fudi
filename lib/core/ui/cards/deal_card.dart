@@ -5,11 +5,15 @@ import '../fudi_colors.dart';
 import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
 import '../atoms/icons/fudi_icons.dart';
+import '../atoms/fudi_discount_badge.dart';
+import '../atoms/fudi_low_stock_badge.dart';
+import '../atoms/fudi_heart_button.dart';
 
 class DealCard extends StatefulWidget {
   const DealCard({
     super.key,
     required this.imageUrl,
+    required this.offerTitle,
     required this.businessName,
     required this.originalPrice,
     required this.discountedPrice,
@@ -24,6 +28,7 @@ class DealCard extends StatefulWidget {
   });
 
   final String imageUrl;
+  final String offerTitle;
   final String businessName;
   final double originalPrice;
   final double discountedPrice;
@@ -44,7 +49,6 @@ class _DealCardState extends State<DealCard>
     with SingleTickerProviderStateMixin {
   late final AnimationController _pressController;
   late final Animation<double> _pressScale;
-
   bool _isPressed = false;
 
   @override
@@ -66,21 +70,6 @@ class _DealCardState extends State<DealCard>
     super.dispose();
   }
 
-  void _onTapDown(TapDownDetails _) {
-    setState(() => _isPressed = true);
-    _pressController.forward();
-  }
-
-  void _onTapUp(TapUpDetails _) {
-    setState(() => _isPressed = false);
-    _pressController.reverse();
-  }
-
-  void _onTapCancel() {
-    setState(() => _isPressed = false);
-    _pressController.reverse();
-  }
-
   int get _discountPercent => widget.originalPrice > 0
       ? ((1 - widget.discountedPrice / widget.originalPrice) * 100).round()
       : 0;
@@ -93,34 +82,34 @@ class _DealCardState extends State<DealCard>
           Transform.scale(scale: _pressScale.value, child: child),
       child: GestureDetector(
         onTap: widget.onTap,
-        onTapDown: _onTapDown,
-        onTapUp: _onTapUp,
-        onTapCancel: _onTapCancel,
+        onTapDown: (_) {
+          setState(() => _isPressed = true);
+          _pressController.forward();
+        },
+        onTapUp: (_) {
+          setState(() => _isPressed = false);
+          _pressController.reverse();
+        },
+        onTapCancel: () {
+          setState(() => _isPressed = false);
+          _pressController.reverse();
+        },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
             color: FudiColors.card,
             borderRadius: BorderRadius.circular(FudiRadius.lg),
-            border: Border.all(
-              color: _isPressed
-                  ? FudiColors.border.withValues(alpha: 0.25)
-                  : FudiColors.border.withValues(alpha: 0.09),
-              width: 1.0,
-            ),
             boxShadow: [
               BoxShadow(
-                // La sombra se aplana al presionar — feedback sutil de "hundido"
-                color: FudiColors.primary.withValues(
-                  alpha: _isPressed ? 0.01 : 0.03,
-                ),
-                blurRadius: _isPressed ? 4 : 12,
+                color: Colors.black.withValues(alpha: _isPressed ? 0.04 : 0.08),
+                blurRadius: _isPressed ? 4 : 16,
                 spreadRadius: _isPressed ? 0 : -2,
-                offset: Offset(0, _isPressed ? 1 : 4),
+                offset: Offset(0, _isPressed ? 1 : 6),
               ),
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(FudiRadius.lg - 1),
+            borderRadius: BorderRadius.circular(FudiRadius.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -135,43 +124,60 @@ class _DealCardState extends State<DealCard>
   Widget _buildImage() {
     return Stack(
       children: [
+        // ── Imagen principal ─────────────────────────────────────────────
         CachedNetworkImage(
           imageUrl: widget.imageUrl,
-          height: 200,
+          height: 160,
           width: double.infinity,
           fit: BoxFit.cover,
           placeholder: (context, url) => Shimmer.fromColors(
             baseColor: FudiColors.muted,
-            highlightColor: Colors.white,
-            child: Container(height: 250, color: FudiColors.muted),
+            highlightColor: Colors.white.withValues(alpha: 0.6),
+            child: Container(height: 160, color: FudiColors.muted),
           ),
           errorWidget: (context, url, error) => Container(
-            height: 250,
+            height: 160,
             color: FudiColors.muted,
-            child: const Icon(
-              FudiIcons.imageOff,
-              color: FudiColors.mutedForeground,
+            child: const Center(
+              child: Icon(
+                FudiIcons.imageOff,
+                color: FudiColors.mutedForeground,
+              ),
             ),
           ),
         ),
+
+        // ── Badge de descuento — pill roja esquina superior derecha ──────
         if (_discountPercent > 0)
           Positioned(
             top: FudiSpacing.sm,
             right: FudiSpacing.sm,
-            child: _DiscountBadge(percent: _discountPercent),
+            child: FudiDiscountBadge(percent: _discountPercent),
           ),
+
+        // ── Badge de stock bajo — esquina inferior izquierda ────────────
         if (widget.availableQuantity <= 3)
           Positioned(
             bottom: FudiSpacing.sm,
             left: FudiSpacing.sm,
-            child: _LowStockBadge(count: widget.availableQuantity),
+            child: FudiLowStockBadge(
+              label: 'Solo quedan ${widget.availableQuantity}',
+            ),
           ),
+
+        // ── Botón corazón — esquina superior izquierda ───────────────────
         Positioned(
           top: FudiSpacing.sm,
           left: FudiSpacing.sm,
-          child: _FavoriteButton(
+          child: FudiHeartButton(
             isFavorite: widget.isFavorite,
-            onToggle: widget.onFavoriteToggle,
+            onTap: widget.onFavoriteToggle ?? () {},
+            size: 30,
+            iconSize: 18,
+            activeColor: FudiColors.destructive,
+            inactiveColor: FudiColors.mutedForeground,
+            activeBackground: FudiColors.destructive.withValues(alpha: 0.12),
+            inactiveBackground: Colors.white,
           ),
         ),
       ],
@@ -180,294 +186,178 @@ class _DealCardState extends State<DealCard>
 
   Widget _buildContent(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(
-        left: FudiSpacing.md,
-        right: FudiSpacing.md,
-        top: FudiSpacing.md,
-        bottom: 0,
+      padding: const EdgeInsets.fromLTRB(
+        FudiSpacing.md,
+        FudiSpacing.sm + 2,
+        FudiSpacing.md,
+        FudiSpacing.md,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  widget.businessName,
-                  style: FudiTypography.h3.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              if (widget.rating > 0) ...[
-                const SizedBox(width: FudiSpacing.sm),
-                _RatingPill(rating: widget.rating),
-              ],
-            ],
-          ),
-          const SizedBox(height: FudiSpacing.xs),
-          Row(
-            children: [
-              const Icon(
-                FudiIcons.mapPin,
-                size: 14,
-                color: FudiColors.mutedForeground,
-              ),
-              const SizedBox(width: 4),
-              Flexible(
-                child: Text(
-                  widget.distance,
-                  style: FudiTypography.bodySmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 1),
-          Divider(
-            height: 1,
-            color: FudiColors.borderSolid.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 1),
-          Container(
-            margin: const EdgeInsets.only(bottom: FudiSpacing.sm),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+          // ── Columna izquierda: 4/5 — datos sin precio ─────────────────
+          Expanded(
+            flex: 4,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(
-                        FudiIcons.clock,
-                        size: 14,
-                        color: FudiColors.primary,
+                Text(
+                  widget.offerTitle,
+                  style: FudiTypography.h3.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    height: 1.2,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(
+                      FudiIcons.mapPin,
+                      size: 12,
+                      color: FudiColors.mutedForeground,
+                    ),
+                    const SizedBox(width: 3),
+                    Flexible(
+                      child: Text(
+                        '${widget.distance} · ${widget.businessName}',
+                        style: FudiTypography.bodySmall.copyWith(
+                          color: FudiColors.mutedForeground,
+                          fontSize: 11,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          'Recoge antes de ${widget.pickupUntil.format(context)}',
-                          style: FudiTypography.bodySmall.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: FudiColors.primary,
-                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Recoge antes de las ${widget.pickupUntil.format(context)}',
+                  style: FudiTypography.bodySmall.copyWith(
+                    color: FudiColors.mutedForeground,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: FudiSpacing.sm),
+
+          // ── Columna derecha: 1/5 — precio ────────────────────────────
+          Expanded(
+            flex: 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '\$${widget.originalPrice.toStringAsFixed(2)}',
+                  style: FudiTypography.bodySmall.copyWith(
+                    decoration: TextDecoration.lineThrough,
+                    decorationColor: FudiColors.mutedForeground,
+                    color: FudiColors.mutedForeground,
+                    fontSize: 12,
+                    height: 1.0,
+                  ),
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  '\$${widget.discountedPrice.toStringAsFixed(2)}',
+                  style: FudiTypography.priceLarge.copyWith(
+                    color: FudiColors.primary,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 20,
+                    height: 1.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DealCardSkeleton extends StatelessWidget {
+  const DealCardSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: FudiColors.muted,
+      highlightColor: Colors.white,
+      child: Material(
+        color: FudiColors.muted,
+        borderRadius: BorderRadius.circular(FudiRadius.xl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(height: 200, color: FudiColors.muted),
+            const Padding(
+              padding: EdgeInsets.all(FudiSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 14,
+                    width: 160,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: FudiColors.muted),
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  SizedBox(
+                    height: 10,
+                    width: 100,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: FudiColors.muted),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  SizedBox(
+                    height: 10,
+                    width: 200,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: FudiColors.muted),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  SizedBox(
+                    height: 1,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: FudiColors.muted),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        height: 14,
+                        width: 80,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(color: FudiColors.muted),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 32,
+                        width: 90,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(color: FudiColors.muted),
                         ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(width: FudiSpacing.sm),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '\$${widget.originalPrice.toStringAsFixed(2)}',
-                      style: FudiTypography.priceOriginal.copyWith(height: 1.0),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '\$${widget.discountedPrice.toStringAsFixed(2)}',
-                      style: FudiTypography.priceLarge.copyWith(height: 1.0),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Badges sin cambios ────────────────────────────────────────────────────────
-
-class _DiscountBadge extends StatelessWidget {
-  const _DiscountBadge({required this.percent});
-  final int percent;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(FudiRadius.full),
-      ),
-      child: Text(
-        '-$percent%',
-        style: const TextStyle(
-          color: FudiColors.primary,
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-}
-
-class _LowStockBadge extends StatelessWidget {
-  const _LowStockBadge({required this.count});
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: FudiColors.destructive,
-        borderRadius: BorderRadius.circular(FudiRadius.full),
-      ),
-      child: Text(
-        'Solo quedan $count!',
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
-class _RatingPill extends StatelessWidget {
-  const _RatingPill({required this.rating});
-  final double rating;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: FudiColors.secondary,
-        borderRadius: BorderRadius.circular(FudiRadius.sm),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(FudiIcons.star, size: 14, color: FudiColors.primary),
-          const SizedBox(width: 2),
-          Text(
-            rating.toStringAsFixed(1),
-            style: FudiTypography.bodySmall.copyWith(
-              color: FudiColors.primary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Botón favorito con animación propia ───────────────────────────────────────
-
-class _FavoriteButton extends StatefulWidget {
-  const _FavoriteButton({required this.isFavorite, this.onToggle});
-
-  final bool isFavorite;
-  final VoidCallback? onToggle;
-
-  @override
-  State<_FavoriteButton> createState() => _FavoriteButtonState();
-}
-
-class _FavoriteButtonState extends State<_FavoriteButton>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 350),
-    );
-    _scale = TweenSequence<double>([
-      // Comprime
-      TweenSequenceItem(
-        tween: Tween(
-          begin: 1.0,
-          end: 0.7,
-        ).chain(CurveTween(curve: Curves.easeIn)),
-        weight: 30,
-      ),
-      // Rebote exagerado — el corazón "late"
-      TweenSequenceItem(
-        tween: Tween(
-          begin: 0.7,
-          end: 1.35,
-        ).chain(CurveTween(curve: Curves.easeOut)),
-        weight: 45,
-      ),
-      // Asentarse
-      TweenSequenceItem(
-        tween: Tween(
-          begin: 1.35,
-          end: 1.0,
-        ).chain(CurveTween(curve: Curves.elasticOut)),
-        weight: 25,
-      ),
-    ]).animate(_controller);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(_FavoriteButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.isFavorite != widget.isFavorite) {
-      _controller.forward(from: 0);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onToggle,
-      // Absorbe el tap para que no lo propague a la card
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedBuilder(
-        animation: _scale,
-        builder: (context, child) =>
-            Transform.scale(scale: _scale.value, child: child),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            // El fondo cambia de blanco a rojo suave al marcar favorito
-            color: widget.isFavorite
-                ? FudiColors.destructive.withValues(alpha: 0.12)
-                : Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 4,
-                offset: Offset(0, 2),
+                ],
               ),
-            ],
-          ),
-          child: Icon(
-            widget.isFavorite ? FudiIcons.favorites : FudiIcons.heartOutline,
-            size: 18,
-            color: widget.isFavorite
-                ? FudiColors.destructive
-                : FudiColors.mutedForeground,
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -7,6 +7,8 @@ import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
+import '../../../core/ui/fudi_empty_state.dart';
+import '../../../core/ui/fudi_error_state.dart';
 import '../../../features/profile/domain/user_order.dart' as profile;
 import '../../../features/profile/presentation/components/profile_order_card.dart';
 import '../../orders/domain/order_model.dart';
@@ -142,44 +144,9 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 48,
-                      color: FudiColors.destructive,
-                    ),
-                    const SizedBox(height: FudiSpacing.md),
-                    Text(
-                      'Error al cargar pedidos',
-                      style: FudiTypography.bodyMedium,
-                    ),
-                    const SizedBox(height: FudiSpacing.md),
-                    FudiPressableScale(
-                      onTap: () =>
-                          ref.read(userOrdersProvider.notifier).refresh(),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: FudiSpacing.lg,
-                          vertical: FudiSpacing.sm,
-                        ),
-                        decoration: BoxDecoration(
-                          color: FudiColors.primary,
-                          borderRadius: BorderRadius.circular(FudiRadius.md),
-                        ),
-                        child: Text(
-                          'Reintentar',
-                          style: FudiTypography.labelSmall.copyWith(
-                            color: FudiColors.primaryForeground,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              error: (error, _) => FudiErrorState(
+                message: 'Error al cargar pedidos',
+                onRetry: () => ref.read(userOrdersProvider.notifier).refresh(),
               ),
             ),
           ),
@@ -203,15 +170,10 @@ class _OrderList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (orders.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(emptyIcon, size: 48, color: FudiColors.mutedForeground),
-            const SizedBox(height: FudiSpacing.md),
-            Text(emptyMessage, style: FudiTypography.bodyMedium),
-          ],
-        ),
+      return FudiEmptyState(
+        title: emptyMessage,
+        description: 'Vuelve más tarde o realiza una búsqueda diferente',
+        icon: emptyIcon,
       );
     }
 
