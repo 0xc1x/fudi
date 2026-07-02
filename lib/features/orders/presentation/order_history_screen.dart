@@ -37,7 +37,7 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mis Pedidos', style: FudiTypography.headlineMedium),
+        title: const Text('Mis Pedidos', style: FudiTypography.headlineMedium),
         backgroundColor: FudiColors.background,
         surfaceTintColor: Colors.transparent,
         leading: FudiPressableScale(
@@ -45,7 +45,7 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
           child: Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: FudiColors.muted,
               shape: BoxShape.circle,
             ),
@@ -64,7 +64,8 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
             ),
             child: TextField(
               controller: _searchController,
-              onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
+              onChanged: (value) =>
+                  setState(() => _searchQuery = value.toLowerCase()),
               decoration: InputDecoration(
                 hintText: 'Buscar pedidos...',
                 prefixIcon: const Icon(Icons.search, size: 20),
@@ -77,7 +78,7 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
                         child: Container(
                           width: 36,
                           height: 36,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: FudiColors.muted,
                             shape: BoxShape.circle,
                           ),
@@ -102,14 +103,22 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
             child: ordersAsync.when(
               data: (orders) {
                 final filtered = _searchQuery.isNotEmpty
-                    ? orders.where((o) =>
-                        o.businessName.toLowerCase().contains(_searchQuery) ||
-                        o.offerTitle.toLowerCase().contains(_searchQuery) ||
-                        o.orderNumber.toLowerCase().contains(_searchQuery))
+                    ? orders.where(
+                        (o) =>
+                            o.businessName.toLowerCase().contains(
+                              _searchQuery,
+                            ) ||
+                            o.offerTitle.toLowerCase().contains(_searchQuery) ||
+                            o.orderNumber.toLowerCase().contains(_searchQuery),
+                      )
                     : orders;
 
-                final active = filtered.where((o) => o.status.isActive).toList();
-                final past = filtered.where((o) => o.status.isTerminal).toList();
+                final active = filtered
+                    .where((o) => o.status.isActive)
+                    .toList();
+                final past = filtered
+                    .where((o) => o.status.isTerminal)
+                    .toList();
                 return DefaultTabController(
                   length: 2,
                   child: Column(

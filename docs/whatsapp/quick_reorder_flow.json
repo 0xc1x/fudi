@@ -1,0 +1,131 @@
+{
+  "version": "7.3",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "LAST_ORDER": [
+      "CONFIRM_REORDER"
+    ],
+    "CONFIRM_REORDER": [],
+    "SUCCESS": []
+  },
+  "screens": [
+    {
+      "id": "LAST_ORDER",
+      "title": "Repetir pedido",
+      "data": {
+        "last_order_id": {
+          "type": "string",
+          "__example__": "abc-123"
+        },
+        "business_name": {
+          "type": "string",
+          "__example__": "Panadería El Trigo"
+        },
+        "offer_title": {
+          "type": "string",
+          "__example__": "Sorpresa de panadería"
+        },
+        "price": {
+          "type": "string",
+          "__example__": "$3.50"
+        },
+        "original_price": {
+          "type": "string",
+          "__example__": "$8.00"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Tu último pedido"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.offer_title} en ${data.business_name}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Precio: ${data.price} (antes ${data.original_price})"
+          },
+          {
+            "type": "TextBody",
+            "text": "¿Quieres repetir el mismo pedido?"
+          },
+          {
+            "type": "Footer",
+            "label": "Sí, repetir pedido",
+            "on-click-action": {
+              "name": "navigate",
+              "next": {
+                "type": "screen",
+                "name": "CONFIRM_REORDER"
+              },
+              "payload": {
+                "last_order_id": "${data.last_order_id}",
+                "business_name": "${data.business_name}",
+                "offer_title": "${data.offer_title}",
+                "price": "${data.price}",
+                "original_price": "${data.original_price}"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "CONFIRM_REORDER",
+      "title": "Confirmar pedido",
+      "data": {
+        "last_order_id": { "type": "string" },
+        "business_name": { "type": "string" },
+        "offer_title": { "type": "string" },
+        "price": { "type": "string" },
+        "original_price": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextBody",
+            "text": "Vas a comprar ${data.offer_title} en ${data.business_name} por ${data.price}. Al confirmar se generará tu código de recogida."
+          },
+          {
+            "type": "Footer",
+            "label": "Confirmar pedido",
+            "on-click-action": {
+              "name": "data_exchange",
+              "payload": {
+                "action": "reorder",
+                "last_order_id": "${data.last_order_id}",
+                "business_name": "${data.business_name}",
+                "offer_title": "${data.offer_title}"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "SUCCESS",
+      "title": "Pedido realizado",
+      "terminal": true,
+      "success": true,
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "¡Pedido confirmado!"
+          },
+          {
+            "type": "TextBody",
+            "text": "Recibirás el código de recogida y los detalles por WhatsApp. Pasá por ${data.business_name} en tu ventana de recogida."
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -323,7 +323,7 @@ class _QuickActions extends ConsumerWidget {
         Expanded(
           child: FudiPressableScale(
             onTap: () =>
-                context.push('/business/products/edit/${offer.id}'),
+                context.push('/business/products/${offer.id}/edit'),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 14),
               decoration: BoxDecoration(

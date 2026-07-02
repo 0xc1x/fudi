@@ -1,0 +1,382 @@
+{
+  "version": "7.3",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "PREFS_MAIN": [
+      "PICKUP_REMINDERS",
+      "FAVORITE_ALERTS",
+      "DEAL_ALERTS",
+      "SUMMARY_PREFS",
+      "QUIET_HOURS",
+      "REVIEW_PREFS"
+    ],
+    "PICKUP_REMINDERS": [
+      "PREFS_MAIN"
+    ],
+    "FAVORITE_ALERTS": [
+      "PREFS_MAIN"
+    ],
+    "DEAL_ALERTS": [
+      "PREFS_MAIN"
+    ],
+    "SUMMARY_PREFS": [
+      "PREFS_MAIN"
+    ],
+    "QUIET_HOURS": [
+      "PREFS_MAIN"
+    ],
+    "REVIEW_PREFS": [
+      "PREFS_MAIN"
+    ]
+  },
+  "screens": [
+    {
+      "id": "PREFS_MAIN",
+      "title": "Preferencias de notificación",
+      "terminal": true,
+      "success": true,
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Configura tus notificaciones"
+          },
+          {
+            "type": "TextBody",
+            "text": "Selecciona qué notificaciones quieres recibir por WhatsApp."
+          },
+          {
+            "type": "List",
+            "children": [
+              {
+                "type": "ListItem",
+                "title": "Recordatorios de recogida",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "PICKUP_REMINDERS"
+                  },
+                  "payload": {}
+                }
+              },
+              {
+                "type": "ListItem",
+                "title": "Alertas de favoritos",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "FAVORITE_ALERTS"
+                  },
+                  "payload": {}
+                }
+              },
+              {
+                "type": "ListItem",
+                "title": "Ofertas de última hora",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "DEAL_ALERTS"
+                  },
+                  "payload": {}
+                }
+              },
+              {
+                "type": "ListItem",
+                "title": "Resumen semanal",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "SUMMARY_PREFS"
+                  },
+                  "payload": {}
+                }
+              },
+              {
+                "type": "ListItem",
+                "title": "Horario de silencio",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "QUIET_HOURS"
+                  },
+                  "payload": {}
+                }
+              },
+              {
+                "type": "ListItem",
+                "title": "Notificaciones de reseñas",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "REVIEW_PREFS"
+                  },
+                  "payload": {}
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "PICKUP_REMINDERS",
+      "title": "Recordatorios de recogida",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "pickup_reminders_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "¿Quieres recibir un recordatorio cuando se acerque la hora de recoger tu pedido?"
+              },
+              {
+                "type": "SingleSelect",
+                "required": true,
+                "label": "Recordatorios",
+                "name": "pickup_reminders_enabled",
+                "options": [
+                  { "id": "true", "title": "Sí, enviar recordatorios" },
+                  { "id": "false", "title": "No, no enviar recordatorios" }
+                ]
+              },
+              {
+                "type": "Footer",
+                "label": "Guardar y volver",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "preference": "pickup_reminders_enabled",
+                    "value": "${form.pickup_reminders_enabled}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "FAVORITE_ALERTS",
+      "title": "Alertas de favoritos",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "favorite_alerts_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "¿Quieres recibir una alerta cuando tus negocios favoritos publiquen nuevas ofertas?"
+              },
+              {
+                "type": "SingleSelect",
+                "required": true,
+                "label": "Alertas de favoritos",
+                "name": "favorite_alerts_enabled",
+                "options": [
+                  { "id": "true", "title": "Sí, avísame" },
+                  { "id": "false", "title": "No, gracias" }
+                ]
+              },
+              {
+                "type": "Footer",
+                "label": "Guardar y volver",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "preference": "favorite_alerts_enabled",
+                    "value": "${form.favorite_alerts_enabled}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "DEAL_ALERTS",
+      "title": "Ofertas de última hora",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "deal_alerts_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "¿Quieres recibir notificaciones de ofertas de última hora cerca de ti?"
+              },
+              {
+                "type": "SingleSelect",
+                "required": true,
+                "label": "Alertas de ofertas",
+                "name": "last_minute_deals_enabled",
+                "options": [
+                  { "id": "true", "title": "Sí, quiero ofertas" },
+                  { "id": "false", "title": "No, gracias" }
+                ]
+              },
+              {
+                "type": "Footer",
+                "label": "Guardar y volver",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "preference": "last_minute_deals_enabled",
+                    "value": "${form.last_minute_deals_enabled}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "SUMMARY_PREFS",
+      "title": "Resumen semanal",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "summary_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "¿Quieres recibir un resumen semanal de tu actividad en Fudi?"
+              },
+              {
+                "type": "SingleSelect",
+                "required": true,
+                "label": "Resumen semanal",
+                "name": "weekly_summary_enabled",
+                "options": [
+                  { "id": "true", "title": "Sí, envíame el resumen" },
+                  { "id": "false", "title": "No, gracias" }
+                ]
+              },
+              {
+                "type": "Footer",
+                "label": "Guardar y volver",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "preference": "weekly_summary_enabled",
+                    "value": "${form.weekly_summary_enabled}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "QUIET_HOURS",
+      "title": "Horario de silencio",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "quiet_hours_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "Define un horario en el que NO quieras recibir notificaciones."
+              },
+              {
+                "type": "TextInput",
+                "required": false,
+                "label": "Desde (HH:MM, ej: 22:00)",
+                "name": "quiet_hours_from",
+                "input-type": "text"
+              },
+              {
+                "type": "TextInput",
+                "required": false,
+                "label": "Hasta (HH:MM, ej: 08:00)",
+                "name": "quiet_hours_to",
+                "input-type": "text"
+              },
+              {
+                "type": "Footer",
+                "label": "Guardar y volver",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "preference": "quiet_hours",
+                    "from": "${form.quiet_hours_from}",
+                    "to": "${form.quiet_hours_to}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "REVIEW_PREFS",
+      "title": "Notificaciones de reseñas",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "review_prefs_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "¿Quieres recibir notificaciones cuando alguien deje una reseña sobre tu negocio?"
+              },
+              {
+                "type": "SingleSelect",
+                "required": true,
+                "label": "Alertas de reseñas",
+                "name": "reviews_enabled",
+                "options": [
+                  { "id": "true", "title": "Sí, notifícame" },
+                  { "id": "false", "title": "No, gracias" }
+                ]
+              },
+              {
+                "type": "Footer",
+                "label": "Guardar y volver",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "preference": "reviews_enabled",
+                    "value": "${form.reviews_enabled}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

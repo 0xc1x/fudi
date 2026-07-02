@@ -1,17 +1,16 @@
 import 'package:fudi/features/auth/domain/user_profile.dart';
 
 class WelcomeData {
-  final String greeting;
-  final String displayName;
-  final String contextualMessage;
-  final String emoji;
-
   const WelcomeData({
     required this.greeting,
     required this.displayName,
     required this.contextualMessage,
     required this.emoji,
   });
+  final String greeting;
+  final String displayName;
+  final String contextualMessage;
+  final String emoji;
 
   String get fullMessage => '$greeting, $displayName! $contextualMessage';
 }

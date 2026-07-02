@@ -36,7 +36,7 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
 
       return response.map(_mapOrderFromJson).toList();
     } catch (e) {
-      throw UnknownDataException(message: 'Error al cargar los pedidos');
+      throw const UnknownDataException(message: 'Error al cargar los pedidos');
     }
   }
 
@@ -46,7 +46,7 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
         .from('orders')
         .stream(primaryKey: ['id'])
         .eq('business_id', businessId)
-        .order('created_at', ascending: false)
+        .order('created_at')
         .asyncMap((_) => getBusinessOrders(businessId));
   }
 
@@ -58,7 +58,7 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
           .update({'status': status.dbValue})
           .eq('id', orderId);
     } catch (e) {
-      throw UnknownDataException(
+      throw const UnknownDataException(
         message: 'Error al actualizar el estado del pedido',
       );
     }
@@ -94,7 +94,7 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(
+      throw const UnknownDataException(
         message: 'Error al validar el código de recogida',
       );
     }
@@ -104,8 +104,7 @@ class SupabaseBusinessOrderRepository implements BusinessOrderRepository {
     final offer = json['offers'] as Map<String, dynamic>?;
     final business = json['businesses'] as Map<String, dynamic>?;
     final customer = json['profiles'] as Map<String, dynamic>?;
-    final location =
-        offer?['business_locations'] as Map<String, dynamic>?;
+    final location = offer?['business_locations'] as Map<String, dynamic>?;
 
     return OrderModel(
       id: json['id'] as String,

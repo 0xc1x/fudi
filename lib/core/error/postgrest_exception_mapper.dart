@@ -43,7 +43,6 @@ extension PostgrestExceptionMapper on PostgrestException {
         'pg_details': details,
         'pg_hint': hint,
       },
-      severity: ErrorSeverity.medium,
     );
   }
 }

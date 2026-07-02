@@ -81,7 +81,7 @@ class _ExploreCategoryGridState extends ConsumerState<ExploreCategoryGrid> {
         children: [
           const ExplorPopularAreasSection(),
           const SizedBox(height: FudiSpacing.lg),
-          Text('Categorías', style: FudiTypography.headlineSmall),
+          const Text('Categorías', style: FudiTypography.headlineSmall),
           const SizedBox(height: FudiSpacing.md),
           LayoutBuilder(
             builder: (context, constraints) {
@@ -212,7 +212,7 @@ class ExplorPopularAreasSection extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Áreas Populares', style: FudiTypography.headlineSmall),
+            const Text('Áreas Populares', style: FudiTypography.headlineSmall),
             const SizedBox(height: FudiSpacing.md),
             FudiInfoChipsBar(
               padding: EdgeInsets.zero,
@@ -290,8 +290,6 @@ class ExploreCategoryCard extends StatelessWidget {
                 child: ShaderMask(
                   shaderCallback: (rect) {
                     return const LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
                       colors: [Colors.transparent, Colors.black],
                       stops: [0.0, 0.4],
                     ).createShader(
@@ -320,7 +318,7 @@ class ExploreCategoryCard extends StatelessWidget {
                         style: FudiTypography.h2.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 6),

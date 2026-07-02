@@ -7,7 +7,7 @@ import '../../../../core/ui/fudi_typography.dart';
 import '../../../offers/domain/offer.dart';
 
 class PickupDetailsCard extends StatelessWidget {
-  const PickupDetailsCard({required this.offer});
+  const PickupDetailsCard({super.key, required this.offer});
 
   final Offer offer;
 
@@ -20,54 +20,69 @@ class PickupDetailsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Detalles de recogida', style: FudiTypography.labelMedium),
-          const SizedBox(height: FudiSpacing.md),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.location_on, size: 20, color: FudiColors.primary),
-              const SizedBox(width: FudiSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Dirección de recogida',
-                      style: FudiTypography.labelSmall,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      offer.business.address,
-                      style: FudiTypography.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          const Text('Detalles de recogida', style: FudiTypography.labelMedium),
+          const SizedBox(height: FudiSpacing.sm),
+          _buildItem(
+            icon: Icons.location_on_rounded,
+            title: 'Dirección del local',
+            subtitle: offer.business.address,
           ),
-          const SizedBox(height: FudiSpacing.md),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(Icons.schedule, size: 20, color: FudiColors.primary),
-              const SizedBox(width: FudiSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Horario de recogida',
-                      style: FudiTypography.labelSmall,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Hoy antes de $untilTime',
-                      style: FudiTypography.bodySmall,
-                    ),
-                  ],
+          const SizedBox(height: FudiSpacing.sm),
+          _buildItem(
+            icon: Icons.alarm_rounded,
+            title: 'Límite de retiro',
+            subtitle: 'Hoy antes de $untilTime',
+            highlight: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    bool highlight = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(FudiSpacing.sm),
+      decoration: BoxDecoration(
+        color: highlight ? const Color(0xFFFEF2F2) : FudiColors.background,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: highlight ? const Color(0xFFFEE2E2) : FudiColors.borderSolid,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: highlight ? FudiColors.destructive : FudiColors.primary,
+          ),
+          const SizedBox(width: FudiSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: FudiTypography.labelSmall.copyWith(
+                    fontSize: 11,
+                    color: FudiColors.mutedForeground,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: FudiTypography.bodySmall.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

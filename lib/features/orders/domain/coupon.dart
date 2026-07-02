@@ -12,6 +12,23 @@ class Coupon {
     this.isActive = true,
     this.expiresAt,
   });
+  factory Coupon.fromJson(Map<String, dynamic> json) {
+    return Coupon(
+      id: json['id'] as String,
+      businessId: json['business_id'] as String,
+      code: json['code'] as String,
+      name: json['name'] as String,
+      type: json['type'] as String,
+      value: (json['value'] as num).toDouble(),
+      minOrderAmount: (json['min_order_amount'] as num? ?? 0).toDouble(),
+      maxUses: json['max_uses'] as int?,
+      usedCount: json['used_count'] as int? ?? 0,
+      isActive: json['is_active'] as bool? ?? true,
+      expiresAt: json['expires_at'] != null
+          ? DateTime.parse(json['expires_at'] as String)
+          : null,
+    );
+  }
 
   final String id;
   final String businessId;
@@ -36,23 +53,5 @@ class Coupon {
     } else {
       return value.clamp(0, price);
     }
-  }
-
-  factory Coupon.fromJson(Map<String, dynamic> json) {
-    return Coupon(
-      id: json['id'] as String,
-      businessId: json['business_id'] as String,
-      code: json['code'] as String,
-      name: json['name'] as String,
-      type: json['type'] as String,
-      value: (json['value'] as num).toDouble(),
-      minOrderAmount: (json['min_order_amount'] as num? ?? 0).toDouble(),
-      maxUses: json['max_uses'] as int?,
-      usedCount: json['used_count'] as int? ?? 0,
-      isActive: json['is_active'] as bool? ?? true,
-      expiresAt: json['expires_at'] != null
-          ? DateTime.parse(json['expires_at'] as String)
-          : null,
-    );
   }
 }

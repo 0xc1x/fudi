@@ -41,8 +41,9 @@ class BusinessProductsContent extends ConsumerWidget {
     );
     final availableCount = offers.fold<int>(0, (sum, o) => sum + o.stock);
 
-    final filteredOffers =
-        ref.watch(filteredBusinessOffersProvider(business.id));
+    final filteredOffers = ref.watch(
+      filteredBusinessOffersProvider(business.id),
+    );
 
     return CustomScrollView(
       slivers: [
@@ -58,9 +59,9 @@ class BusinessProductsContent extends ConsumerWidget {
             onTap: () => context.push('/business/products/create'),
           ),
         ),
-        SliverToBoxAdapter(
+        const SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
+            padding: EdgeInsets.fromLTRB(
               FudiSpacing.lg,
               FudiSpacing.md,
               FudiSpacing.lg,
@@ -69,15 +70,15 @@ class BusinessProductsContent extends ConsumerWidget {
             child: Row(
               children: [
                 Text('Todos los productos', style: FudiTypography.h4),
-                const Spacer(),
-                const ProductsSortButton(),
+                Spacer(),
+                ProductsSortButton(),
               ],
             ),
           ),
         ),
-        SliverToBoxAdapter(
+        const SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
+            padding: EdgeInsets.fromLTRB(
               FudiSpacing.lg,
               0,
               FudiSpacing.lg,
@@ -85,9 +86,9 @@ class BusinessProductsContent extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                const Expanded(child: ProductsSearchBar()),
-                const SizedBox(width: FudiSpacing.sm),
-                const BusinessProductsActiveFilters(),
+                Expanded(child: ProductsSearchBar()),
+                SizedBox(width: FudiSpacing.sm),
+                BusinessProductsActiveFilters(),
               ],
             ),
           ),

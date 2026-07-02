@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/error/data_exceptions.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/postgrest_exception_mapper.dart';
+import '../../../core/utils/num_utils.dart';
 import '../domain/business_payout.dart';
 import '../domain/business_payout_repository.dart';
 
@@ -29,7 +30,7 @@ class SupabaseBusinessPayoutRepository implements BusinessPayoutRepository {
     } on FudiException {
       rethrow;
     } catch (_) {
-      throw UnknownDataException(message: 'Error al cargar pagos');
+      throw const UnknownDataException(message: 'Error al cargar pagos');
     }
   }
 
@@ -47,7 +48,9 @@ class SupabaseBusinessPayoutRepository implements BusinessPayoutRepository {
     } on FudiException {
       rethrow;
     } catch (_) {
-      throw UnknownDataException(message: 'Error al cargar detalle del pago');
+      throw const UnknownDataException(
+        message: 'Error al cargar detalle del pago',
+      );
     }
   }
 
@@ -56,9 +59,9 @@ class SupabaseBusinessPayoutRepository implements BusinessPayoutRepository {
     businessId: json['business_id'] as String,
     periodStart: DateTime.parse(json['period_start'] as String),
     periodEnd: DateTime.parse(json['period_end'] as String),
-    grossAmount: _toDouble(json['gross_amount']) ?? 0,
-    platformFee: _toDouble(json['platform_fee']) ?? 0,
-    netAmount: _toDouble(json['net_amount']) ?? 0,
+    grossAmount: parseDouble(json['gross_amount']) ?? 0,
+    platformFee: parseDouble(json['platform_fee']) ?? 0,
+    netAmount: parseDouble(json['net_amount']) ?? 0,
     status: BusinessPayoutStatus.fromString(json['status'] as String?),
     gatewayPayoutId: json['gateway_payout_id'] as String?,
     paidAt: json['paid_at'] != null
@@ -68,10 +71,4 @@ class SupabaseBusinessPayoutRepository implements BusinessPayoutRepository {
         ? DateTime.parse(json['created_at'] as String)
         : null,
   );
-
-  double? _toDouble(dynamic value) {
-    if (value == null) return null;
-    if (value is num) return value.toDouble();
-    return null;
-  }
 }

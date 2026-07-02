@@ -1,0 +1,243 @@
+{
+  "version": "7.3",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "CATEGORY": [
+      "ORDER_SELECTION"
+    ],
+    "ORDER_SELECTION": [
+      "DESCRIPTION"
+    ],
+    "DESCRIPTION": [
+      "CONTACT_INFO"
+    ],
+    "CONTACT_INFO": [
+      "CONFIRM"
+    ],
+    "CONFIRM": [],
+    "SUCCESS": []
+  },
+  "screens": [
+    {
+      "id": "CATEGORY",
+      "title": "Soporte",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "category_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "¿Con qué podemos ayudarte? Selecciona una categoría."
+              },
+              {
+                "type": "SingleSelect",
+                "required": true,
+                "label": "Categoría",
+                "name": "category",
+                "options": [
+                  {
+                    "id": "order_issue",
+                    "title": "Problema con un pedido"
+                  },
+                  {
+                    "id": "payment_issue",
+                    "title": "Problema de pago"
+                  },
+                  {
+                    "id": "account_issue",
+                    "title": "Problema con mi cuenta"
+                  },
+                  {
+                    "id": "business_complaint",
+                    "title": "Queja sobre un negocio"
+                  },
+                  {
+                    "id": "suggestion",
+                    "title": "Sugerencia"
+                  },
+                  {
+                    "id": "other",
+                    "title": "Otro"
+                  }
+                ]
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "ORDER_SELECTION"
+                  },
+                  "payload": {
+                    "category": "${form.category}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ORDER_SELECTION",
+      "title": "Seleccionar pedido",
+      "data": {
+        "category": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "order_selection_form",
+            "children": [
+              {
+                "type": "TextInput",
+                "required": false,
+                "label": "Número de pedido (si aplica)",
+                "name": "order_number",
+                "input-type": "text"
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "DESCRIPTION"
+                  },
+                  "payload": {
+                    "category": "${data.category}",
+                    "order_number": "${form.order_number}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "DESCRIPTION",
+      "title": "Describe el problema",
+      "data": {
+        "category": { "type": "string" },
+        "order_number": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "description_form",
+            "children": [
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Cuéntanos en detalle qué pasó",
+                "name": "description",
+                "input-type": "text"
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "CONTACT_INFO"
+                  },
+                  "payload": {
+                    "category": "${data.category}",
+                    "order_number": "${data.order_number}",
+                    "description": "${form.description}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CONTACT_INFO",
+      "title": "Información de contacto",
+      "data": {
+        "category": { "type": "string" },
+        "order_number": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "contact_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "¿Cómo podemos contactarte si necesitamos más información?"
+              },
+              {
+                "type": "TextInput",
+                "required": false,
+                "label": "Correo electrónico alternativo",
+                "name": "contact_email",
+                "input-type": "email"
+              },
+              {
+                "type": "Footer",
+                "label": "Enviar ticket",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "CONFIRM"
+                  },
+                  "payload": {
+                    "category": "${data.category}",
+                    "order_number": "${data.order_number}",
+                    "description": "${data.description}",
+                    "contact_email": "${form.contact_email}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CONFIRM",
+      "title": "Ticket enviado",
+      "terminal": true,
+      "success": true,
+      "data": {
+        "ticket_id": {
+          "type": "string",
+          "__example__": "TKT-5678"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Ticket creado"
+          },
+          {
+            "type": "TextBody",
+            "text": "Tu ticket de soporte ha sido registrado con el ID ${data.ticket_id}. Nuestro equipo te responderá a la brevedad. Guarda este número para dar seguimiento."
+          }
+        ]
+      }
+    }
+  ]
+}

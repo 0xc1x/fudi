@@ -22,7 +22,7 @@ class FudiSettingsGroup extends StatelessWidget {
       children: [
         Text(title, style: FudiTypography.h2),
         const SizedBox(height: FudiSpacing.md),
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             color: FudiColors.background,
             borderRadius: BorderRadius.circular(FudiRadius.xl),
@@ -36,7 +36,7 @@ class FudiSettingsGroup extends StatelessWidget {
                 children: [
                   item,
                   if (index < items.length - 1)
-                    Divider(
+                    const Divider(
                       height: 1,
                       thickness: 1,
                       color: FudiColors.borderSolid,

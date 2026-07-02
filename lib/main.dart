@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'core/bootstrap/app_bootstrap.dart';
 import 'core/di/core_providers.dart';
+import 'core/l10n/app_localizations.dart';
 import 'core/ui/fudi_colors.dart';
 import 'core/ui/fudi_logo.dart';
 import 'core/ui/fudi_spacing.dart';
@@ -31,7 +35,7 @@ class _FudiRootState extends State<_FudiRoot> {
   @override
   void initState() {
     super.initState();
-    _runBootstrap();
+    unawaited(_runBootstrap());
   }
 
   Future<void> _runBootstrap() async {
@@ -44,7 +48,7 @@ class _FudiRootState extends State<_FudiRoot> {
     } catch (e, st) {
       if (!mounted) return;
       setState(() => _bootstrapError = e);
-      Sentry.captureException(e, stackTrace: st);
+      unawaited(Sentry.captureException(e, stackTrace: st));
     }
   }
 
@@ -94,7 +98,6 @@ class _BootstrapLoadingApp extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 780),
                   child: const FudiLogo(
-                    variant: FudiLogoVariant.wordmark,
                     width: double.infinity,
                     color: FudiColors.accentForeground,
                   ),
@@ -151,13 +154,6 @@ class _LoadingBackgroundPatterns extends StatelessWidget {
 }
 
 class _PatternData {
-  final double? top;
-  final double? topFraction;
-  final double? left;
-  final double? right;
-  final double? bottom;
-  final double width;
-  final double rotation;
   _PatternData({
     this.top,
     this.topFraction,
@@ -167,6 +163,13 @@ class _PatternData {
     required this.width,
     required this.rotation,
   });
+  final double? top;
+  final double? topFraction;
+  final double? left;
+  final double? right;
+  final double? bottom;
+  final double width;
+  final double rotation;
 }
 
 class _BootstrapErrorScreen extends StatelessWidget {
@@ -184,7 +187,6 @@ class _BootstrapErrorScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               FudiLogo(
-                variant: FudiLogoVariant.wordmark,
                 width: MediaQuery.sizeOf(context).width * 0.8,
                 color: FudiColors.accentForeground.withValues(alpha: 0.8),
               ),
@@ -223,6 +225,14 @@ class FudiApp extends ConsumerWidget {
       title: 'Fudi',
       debugShowCheckedModeBanner: false,
       theme: FudiTheme.light(),
+      locale: const Locale('es'),
+      supportedLocales: const [Locale('es')],
+      localizationsDelegates: const [
+        FudiLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       routerConfig: router,
       builder: (context, child) {
         return AuthFeedbackListener(

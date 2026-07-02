@@ -12,10 +12,7 @@ import '../../../offers/presentation/offer_providers.dart';
 import '../../../../core/ui/fudi_section_header.dart';
 
 class HomeBusinessCard extends ConsumerWidget {
-  const HomeBusinessCard({
-    super.key,
-    required this.business,
-  });
+  const HomeBusinessCard({super.key, required this.business});
 
   final BusinessSummary business;
 
@@ -63,7 +60,7 @@ class BusinessesRowSection extends StatelessWidget {
           onSeeAll: onSeeAll,
         ),
         SizedBox(
-          height: 240,
+          height: 220,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg),

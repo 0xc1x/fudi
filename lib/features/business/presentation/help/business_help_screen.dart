@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
@@ -78,6 +81,158 @@ class _BusinessHelpScreenState extends State<BusinessHelpScreen> {
         .toList();
   }
 
+  void _showComingSoon(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Próximamente disponible'),
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Future<void> _launchEmail(BuildContext context) async {
+    final uri = Uri(
+      scheme: 'mailto',
+      path: 'soporte@fudi.app',
+      queryParameters: {'subject': 'Contacto - Centro de ayuda'},
+    );
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No se pudo abrir el cliente de correo'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _launchPhone(BuildContext context) async {
+    final uri = Uri(scheme: 'tel', path: '+525512345678');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No se pudo abrir el marcador telefónico'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  void _openProductsInfo(BuildContext context) {
+    unawaited(Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const HelpCategoryDetailPage(
+          title: 'Gestión de productos',
+          sections: [
+            HelpSection(
+              title: 'Crear productos',
+              items: [
+                HelpItem(
+                  title: 'Nuevo producto',
+                  description: 'Ve a la sección de Productos y toca "Crear nuevo producto". Completa el nombre, descripción, precio original, precio con descuento, cantidad disponible y horario de recogida.',
+                ),
+                HelpItem(
+                  title: 'Precios sugeridos',
+                  description: 'El precio con descuento debe ser menor al original. Recomendamos ofrecer al menos un 30-50% de descuento para atraer más compradores.',
+                ),
+                HelpItem(
+                  title: 'Horarios de recogida',
+                  description: 'Define ventanas de recogida para que los clientes sepan cuándo pasar por tu local. Puedes establecer múltiples horarios para un mismo producto.',
+                ),
+              ],
+            ),
+            HelpSection(
+              title: 'Editar productos',
+              items: [
+                HelpItem(
+                  title: 'Modificar existentes',
+                  description: 'Ve al detalle del producto y toca "Editar". Puedes cambiar cualquier campo, incluyendo precio, cantidad y horarios. Los cambios se aplican inmediatamente.',
+                ),
+                HelpItem(
+                  title: 'Pausar productos',
+                  description: 'Si un producto no está disponible temporalmente, puedes pausarlo desde la edición. Los clientes no lo verán hasta que lo reactives.',
+                ),
+              ],
+            ),
+            HelpSection(
+              title: 'Administrar inventario',
+              items: [
+                HelpItem(
+                  title: 'Control de existencias',
+                  description: 'Cada vez que un cliente compra, el inventario se actualiza automáticamente. Asegúrate de que la cantidad disponible sea precisa para evitar sobreventas.',
+                ),
+                HelpItem(
+                  title: 'Productos agotados',
+                  description: 'Cuando un producto se agota, se marca automáticamente como "Agotado". Puedes crear una nueva oferta para el día siguiente con existencias renovadas.',
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ));
+  }
+
+  void _openBusinessPaymentsInfo(BuildContext context) {
+    unawaited(Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const HelpCategoryDetailPage(
+          title: 'Pagos y facturación',
+          sections: [
+            HelpSection(
+              title: 'Cobros',
+              items: [
+                HelpItem(
+                  title: 'Procesamiento de pagos',
+                  description: 'Los pagos de tus clientes se procesan automáticamente a través de nuestra pasarela segura. Recibes el monto total de cada venta, menos la comisión acordada.',
+                ),
+                HelpItem(
+                  title: 'Comisiones',
+                  description: 'La comisión por transacción se descuenta automáticamente de cada pago. Puedes consultar el desglose en tu sección de Pagos y Cobros.',
+                ),
+              ],
+            ),
+            HelpSection(
+              title: 'Pagos',
+              items: [
+                HelpItem(
+                  title: 'Calendario de pagos',
+                  description: 'Los pagos se procesan dos veces al mes (días 5 y 20). El dinero se transfiere a tu cuenta bancaria registrada en un plazo de 2-3 días hábiles.',
+                ),
+                HelpItem(
+                  title: 'Consulta de pagos',
+                  description: 'En la sección "Balance y Cobros" puedes ver el historial completo de transacciones, pagos procesados y próximos pagos.',
+                ),
+              ],
+            ),
+            HelpSection(
+              title: 'Facturación',
+              items: [
+                HelpItem(
+                  title: 'Facturas',
+                  description: 'Puedes descargar facturas de cada período de pago desde la sección de Pagos. Las facturas incluyen el desglose de ventas, comisiones y montos transferidos.',
+                ),
+                HelpItem(
+                  title: 'Datos fiscales',
+                  description: 'Asegúrate de mantener actualizados tus datos fiscales y cuenta bancaria en la configuración de tu perfil para evitar retrasos en los pagos.',
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ));
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -100,37 +255,45 @@ class _BusinessHelpScreenState extends State<BusinessHelpScreen> {
             borderRadius: FudiRadius.xl,
           ),
           const SizedBox(height: FudiSpacing.lg),
-          const FudiQuickContact(),
+          FudiQuickContact(
+            onChatTap: () => _showComingSoon(context),
+            onEmailTap: () => _launchEmail(context),
+            onCallTap: () => _launchPhone(context),
+          ),
           const SizedBox(height: FudiSpacing.lg),
-          const FudiCategoriesSection(
+          FudiCategoriesSection(
             categories: [
               FudiHelpCategory(
                 icon: FudiIcons.package_,
                 label: 'Gestión de productos',
                 subtitle: 'Crear, editar y administrar',
-                bgColor: Color(0xFFE8F5E9),
+                bgColor: const Color(0xFFE8F5E9),
                 iconColor: FudiColors.primary,
+                onTap: () => _openProductsInfo(context),
               ),
               FudiHelpCategory(
                 icon: Icons.attach_money_rounded,
                 label: 'Pagos y facturación',
                 subtitle: 'Cobros y métodos de pago',
-                bgColor: Color(0xFFDCFCE7),
-                iconColor: Color(0xFF16A34A),
+                bgColor: const Color(0xFFDCFCE7),
+                iconColor: const Color(0xFF16A34A),
+                onTap: () => _openBusinessPaymentsInfo(context),
               ),
               FudiHelpCategory(
                 icon: Icons.menu_book_rounded,
                 label: 'Guías y tutoriales',
                 subtitle: 'Aprende a usar la plataforma',
-                bgColor: Color(0xFFFFEDD5),
-                iconColor: Color(0xFFEA580C),
+                bgColor: const Color(0xFFFFEDD5),
+                iconColor: const Color(0xFFEA580C),
+                onTap: () => context.push('/how-it-works'),
               ),
               FudiHelpCategory(
                 icon: Icons.shield_rounded,
                 label: 'Políticas y seguridad',
                 subtitle: 'Términos y privacidad',
-                bgColor: Color(0xFFEFF6FF),
-                iconColor: Color(0xFF2563EB),
+                bgColor: const Color(0xFFEFF6FF),
+                iconColor: const Color(0xFF2563EB),
+                onTap: () => context.push('/privacy'),
               ),
             ],
           ),
@@ -142,7 +305,9 @@ class _BusinessHelpScreenState extends State<BusinessHelpScreen> {
                 setState(() => _expandedFAQ = _expandedFAQ == id ? null : id),
           ),
           const SizedBox(height: FudiSpacing.lg),
-          const FudiContactSupportCard(),
+          FudiContactSupportCard(
+            onTap: () => _launchEmail(context),
+          ),
           const SizedBox(height: FudiSpacing.lg),
           const FudiScheduleInfo(),
         ],
@@ -165,7 +330,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: FudiColors.muted,
               shape: BoxShape.circle,
             ),
@@ -173,7 +338,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-      title: Column(
+      title: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Centro de ayuda', style: FudiTypography.h4),

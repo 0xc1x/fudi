@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -40,7 +42,7 @@ class ProductMenu extends ConsumerWidget {
           ref.invalidate(businessOffersProvider(offer.businessId));
         } else if (value == 'edit') {
           if (context.mounted) {
-            context.push('/business/products/edit/${offer.id}');
+            unawaited(context.push('/business/products/${offer.id}/edit'));
           }
         } else if (value == 'delete') {
           final confirmed = await showDialog<bool>(

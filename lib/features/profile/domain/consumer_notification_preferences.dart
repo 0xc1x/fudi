@@ -40,12 +40,19 @@ class ConsumerNotificationPreferences {
       emailEnabled: emailEnabled ?? this.emailEnabled,
       smsEnabled: smsEnabled ?? this.smsEnabled,
       whatsappEnabled: whatsappEnabled ?? this.whatsappEnabled,
-      favoriteAlertsEnabled: favoriteAlertsEnabled ?? this.favoriteAlertsEnabled,
-      pickupRemindersEnabled: pickupRemindersEnabled ?? this.pickupRemindersEnabled,
-      lastMinuteDealsEnabled: lastMinuteDealsEnabled ?? this.lastMinuteDealsEnabled,
+      favoriteAlertsEnabled:
+          favoriteAlertsEnabled ?? this.favoriteAlertsEnabled,
+      pickupRemindersEnabled:
+          pickupRemindersEnabled ?? this.pickupRemindersEnabled,
+      lastMinuteDealsEnabled:
+          lastMinuteDealsEnabled ?? this.lastMinuteDealsEnabled,
       weeklySummaryEnabled: weeklySummaryEnabled ?? this.weeklySummaryEnabled,
-      quietHoursFrom: quietHoursFrom == _sentinel ? this.quietHoursFrom : quietHoursFrom as String?,
-      quietHoursTo: quietHoursTo == _sentinel ? this.quietHoursTo : quietHoursTo as String?,
+      quietHoursFrom: quietHoursFrom == _sentinel
+          ? this.quietHoursFrom
+          : quietHoursFrom as String?,
+      quietHoursTo: quietHoursTo == _sentinel
+          ? this.quietHoursTo
+          : quietHoursTo as String?,
     );
   }
 
@@ -60,8 +67,6 @@ class ConsumerNotificationPreferences {
     pickupRemindersEnabled: true,
     lastMinuteDealsEnabled: false,
     weeklySummaryEnabled: true,
-    quietHoursFrom: null,
-    quietHoursTo: null,
   );
 
   static const empty = ConsumerNotificationPreferences(
@@ -73,7 +78,5 @@ class ConsumerNotificationPreferences {
     pickupRemindersEnabled: true,
     lastMinuteDealsEnabled: false,
     weeklySummaryEnabled: true,
-    quietHoursFrom: null,
-    quietHoursTo: null,
   );
 }

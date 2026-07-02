@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/di/core_providers.dart';
 import '../../../core/routing/route_names.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/fudi_exception_l10n.dart';
@@ -51,7 +50,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     final authState = ref.read(authControllerProvider);
     if (authState.hasError) {
-      final error = authState.error!;
+      final error = authState.error;
       final message = error is FudiException
           ? error.userMessage()
           : 'No pudimos iniciar sesión. Intenta de nuevo.';
@@ -59,34 +58,83 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  InputDecoration _inputDecoration({
+    required String hintText,
+    required Widget prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+      hintText: hintText,
+      hintStyle: const TextStyle(
+        color: FudiColors.mutedForeground,
+        fontSize: 14,
+      ),
+      filled: true,
+      fillColor: FudiColors.background,
+      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: FudiColors.borderSolid),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: FudiColors.borderSolid),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: FudiColors.primary, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.redAccent),
+      ),
+    );
+  }
+
   Future<void> _openForgotPasswordDialog() async {
     final emailController = TextEditingController(
       text: _emailController.text.trim(),
     );
-    final formKey = GlobalKey<FormState>();
+    final dialogFormKey = GlobalKey<FormState>();
 
     await showDialog<void>(
       context: context,
       builder: (dialogContext) {
-        final config = ref.read(appConfigProvider);
-
         return AlertDialog(
-          title: const Text('Recuperar contraseña'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          backgroundColor: FudiColors.background,
+          title: const Text(
+            'Recuperar contraseña',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
           content: Form(
-            key: formKey,
+            key: dialogFormKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Te enviaremos un enlace para restablecer tu contraseña.',
+                  'Te enviaremos un enlace seguro para restablecer el acceso a tu cuenta.',
+                  style: TextStyle(
+                    color: FudiColors.mutedForeground,
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Correo electrónico',
-                    border: OutlineInputBorder(),
+                  decoration: _inputDecoration(
+                    hintText: 'tu@email.com',
+                    prefixIcon: const Icon(
+                      FudiIcons.mail,
+                      size: 20,
+                      color: FudiColors.mutedForeground,
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -98,27 +146,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     return null;
                   },
                 ),
-                if (!config.hasAuthResetRedirectUrl) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    'Aviso: AUTH_RESET_REDIRECT_URL no está configurado. Supabase usará su redirect por defecto.',
-                    style: Theme.of(dialogContext).textTheme.bodySmall,
-                  ),
-                ],
               ],
             ),
           ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           actions: [
-            FudiPressableScale(
-              onTap: () => Navigator.of(dialogContext).pop(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: const Text('Cancelar'),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(
+                  color: FudiColors.mutedForeground,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             FudiPressableScale(
               onTap: () async {
-                if (!formKey.currentState!.validate()) return;
+                if (!dialogFormKey.currentState!.validate()) return;
 
                 try {
                   await ref
@@ -126,7 +171,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       .sendPasswordResetEmail(
                         email: emailController.text.trim(),
                       );
-
                   if (!dialogContext.mounted) return;
                   Navigator.of(dialogContext).pop();
                   if (!mounted) return;
@@ -141,26 +185,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   if (!dialogContext.mounted) return;
                   final message = error is FudiException
                       ? error.userMessage()
-                      : 'No pudimos enviar el correo de recuperación.';
+                      : 'No pudimos enviar el correo.';
                   ScaffoldMessenger.of(
                     dialogContext,
                   ).showSnackBar(SnackBar(content: Text(message)));
                 }
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: FudiColors.primary,
-                  borderRadius: BorderRadius.circular(100),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text('Enviar enlace', style: TextStyle(color: Colors.white)),
+                child: const Text(
+                  'Enviar enlace',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ],
         );
       },
     );
-
     emailController.dispose();
   }
 
@@ -170,29 +222,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isLoading = authState.isLoading;
 
     return Scaffold(
-      backgroundColor: FudiColors.muted,
+      backgroundColor: FudiColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            Container(
-              color: FudiColors.background,
-              padding: const EdgeInsets.all(16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: FudiColors.muted,
-                      shape: BoxShape.circle,
-                    ),
-                    child: FudiPressableScale(
-                      onTap: () => context.go(RouteNames.homePath),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(color: FudiColors.muted, shape: BoxShape.circle),
-                        child: const Icon(FudiIcons.chevronLeft, size: 20),
+                  FudiPressableScale(
+                    onTap: () => context.go(RouteNames.homePath),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: FudiColors.muted,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        FudiIcons.chevronLeft,
+                        size: 20,
+                        color: FudiColors.foreground,
                       ),
                     ),
                   ),
@@ -200,230 +250,154 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Text(
                     'Iniciar sesión',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
             ),
+            const Divider(color: FudiColors.borderSolid, height: 1),
             Expanded(
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 448),
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 32,
+                    ),
                     child: Form(
                       key: _formKey,
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const FudiLogo(
-                            variant: FudiLogoVariant.icon,
-                            size: FudiLogoSize.lg,
+                          const Center(
+                            child: FudiLogo(
+                              variant: FudiLogoVariant.icon,
+                              size: FudiLogoSize.lg,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           Text(
                             'Bienvenido de vuelta',
                             style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 6),
                           Text(
                             'Inicia sesión para rescatar comida y ahorrar',
                             style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(color: FudiColors.mutedForeground),
+                            textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 24),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: FudiColors.background,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: FudiColors.borderSolid),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
+                          const SizedBox(height: 32),
+
+                          Text(
+                            'Correo electrónico',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                            decoration: _inputDecoration(
+                              hintText: 'tu@email.com',
+                              prefixIcon: const Icon(
+                                FudiIcons.mail,
+                                size: 20,
+                                color: FudiColors.mutedForeground,
+                              ),
                             ),
-                            padding: const EdgeInsets.all(24),
-                            child: Column(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Correo electrónico',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    TextFormField(
-                                      controller: _emailController,
-                                      keyboardType: TextInputType.emailAddress,
-                                      decoration: InputDecoration(
-                                        prefixIcon: const Icon(
-                                          FudiIcons.mail,
-                                          size: 20,
-                                          color: FudiColors.mutedForeground,
-                                        ),
-                                        hintText: 'tu@email.com',
-                                        hintStyle: const TextStyle(
-                                          color: FudiColors.mutedForeground,
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: FudiColors.borderSolid,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: FudiColors.borderSolid,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: FudiColors.primary,
-                                            width: 2,
-                                          ),
-                                        ),
-                                      ),
-                                      validator: (value) {
-                                        if (value == null ||
-                                            value.trim().isEmpty) {
-                                          return 'Ingresa tu correo';
-                                        }
-                                        if (!value.contains('@')) {
-                                          return 'Correo inválido';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  ],
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Ingresa tu correo';
+                              }
+                              if (!value.contains('@')) {
+                                return 'Correo inválido';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+
+                          Text(
+                            'Contraseña',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            textInputAction: TextInputAction.done,
+                            decoration: _inputDecoration(
+                              hintText: '••••••••',
+                              prefixIcon: const Icon(
+                                FudiIcons.lock,
+                                size: 20,
+                                color: FudiColors.mutedForeground,
+                              ),
+                              suffixIcon: FudiPressableScale(
+                                onTap: () => setState(
+                                  () => _obscurePassword = !_obscurePassword,
                                 ),
-                                const SizedBox(height: 16),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Contraseña',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    TextFormField(
-                                      controller: _passwordController,
-                                      obscureText: _obscurePassword,
-                                      decoration: InputDecoration(
-                                        prefixIcon: const Icon(
-                                          FudiIcons.lock,
-                                          size: 20,
-                                          color: FudiColors.mutedForeground,
-                                        ),
-                                        suffixIcon: FudiPressableScale(
-                                          onTap: () => setState(
-                                            () => _obscurePassword =
-                                                !_obscurePassword,
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10),
-                                            child: Icon(
-                                              _obscurePassword
-                                                  ? FudiIcons.eye
-                                                  : FudiIcons.eyeOff,
-                                              size: 20,
-                                              color: FudiColors.mutedForeground,
-                                            ),
-                                          ),
-                                        ),
-                                        hintText: '••••••••',
-                                        hintStyle: const TextStyle(
-                                          color: FudiColors.mutedForeground,
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: FudiColors.borderSolid,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: FudiColors.borderSolid,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: FudiColors.primary,
-                                            width: 2,
-                                          ),
-                                        ),
-                                      ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Ingresa tu contraseña';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  ],
+                                child: Icon(
+                                  _obscurePassword
+                                      ? FudiIcons.eye
+                                      : FudiIcons.eyeOff,
+                                  size: 20,
+                                  color: FudiColors.mutedForeground,
                                 ),
-                                const SizedBox(height: 12),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: FudiPressableScale(
-                                    onTap: isLoading
-                                        ? null
-                                        : _openForgotPasswordDialog,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      child: const Text(
-                                        '¿Olvidaste tu contraseña?',
-                                        style: TextStyle(color: FudiColors.primary),
-                                      ),
-                                    ),
+                              ),
+                            ),
+                            validator: (value) =>
+                                (value == null || value.isEmpty)
+                                ? 'Ingresa tu contraseña'
+                                : null,
+                          ),
+                          const SizedBox(height: 14),
+
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: FudiPressableScale(
+                              onTap: isLoading
+                                  ? null
+                                  : _openForgotPasswordDialog,
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 4),
+                                child: Text(
+                                  '¿Olvidaste tu contraseña?',
+                                  style: TextStyle(
+                                    color: FudiColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
                           ),
+                          const SizedBox(height: 24),
+
                           if (_errorMessage != null) ...[
-                            const SizedBox(height: 12),
                             Container(
-                              width: double.infinity,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 12,
                               ),
                               decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.errorContainer,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .errorContainer
+                                    .withValues(alpha: 0.8),
                                 borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.error.withValues(alpha: 0.2),
+                                ),
                               ),
                               child: Row(
                                 children: [
@@ -434,67 +408,50 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         color: Theme.of(
                                           context,
                                         ).colorScheme.onErrorContainer,
+                                        fontSize: 13,
                                       ),
                                     ),
                                   ),
                                   FudiPressableScale(
                                     onTap: () =>
                                         setState(() => _errorMessage = null),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(4),
-                                      child: Icon(
-                                        FudiIcons.x,
-                                        size: 18,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onErrorContainer,
-                                      ),
+                                    child: Icon(
+                                      FudiIcons.x,
+                                      size: 16,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onErrorContainer,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
+                            const SizedBox(height: 16),
                           ],
-                          const SizedBox(height: 16),
+
                           FudiPressableScale(
                             onTap: isLoading ? null : _submit,
                             child: Container(
-                              width: double.infinity,
-                              height: 56,
+                              height: 54,
                               decoration: BoxDecoration(
                                 color: FudiColors.primary,
                                 borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.2),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
                               ),
                               child: Center(
                                 child: isLoading
-                                    ? const Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: FudiColors.primaryForeground,
-                                            ),
-                                          ),
-                                          SizedBox(width: 8),
-                                          Text('Iniciando sesión...', style: TextStyle(color: Colors.white)),
-                                        ],
+                                    ? const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.5,
+                                          color: FudiColors.primaryForeground,
+                                        ),
                                       )
                                     : const Text(
                                         'Iniciar sesión',
                                         style: TextStyle(
                                           color: Colors.white,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.bold,
                                           fontSize: 16,
                                         ),
                                       ),
@@ -502,6 +459,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 24),
+
                           const Row(
                             children: [
                               Expanded(
@@ -513,7 +471,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   'o continuar con',
                                   style: TextStyle(
                                     color: FudiColors.mutedForeground,
-                                    fontSize: 13,
+                                    fontSize: 12,
                                   ),
                                 ),
                               ),
@@ -522,75 +480,91 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 20),
+
                           Row(
                             children: [
                               Expanded(
-                                child: OutlinedButton(
-                                  onPressed: null,
-                                  style: OutlinedButton.styleFrom(
-                                    backgroundColor: FudiColors.background,
-                                    side: const BorderSide(
-                                      color: FudiColors.borderSolid,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+                                child: FudiPressableScale(
+                                  onTap: () {},
+                                  child: Container(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 14,
                                     ),
-                                  ),
-                                  child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      FudiGoogleIcon(size: 20),
-                                      SizedBox(width: 8),
-                                      Text('Google'),
-                                    ],
+                                    decoration: BoxDecoration(
+                                      color: FudiColors.background,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: FudiColors.borderSolid,
+                                      ),
+                                    ),
+                                    child: const Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        FudiGoogleIcon(),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          'Google',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: FudiColors.foreground,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
-                                child: OutlinedButton(
-                                  onPressed: null,
-                                  style: OutlinedButton.styleFrom(
-                                    backgroundColor: FudiColors.background,
-                                    side: const BorderSide(
-                                      color: FudiColors.borderSolid,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+                                child: FudiPressableScale(
+                                  onTap: () {},
+                                  child: Container(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 14,
                                     ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.apple,
-                                        size: 20,
-                                        color:
-                                            Theme.of(context).brightness ==
-                                                Brightness.dark
-                                            ? Colors.white
-                                            : Colors.black,
+                                    decoration: BoxDecoration(
+                                      color: FudiColors.background,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: FudiColors.borderSolid,
                                       ),
-                                      const SizedBox(width: 8),
-                                      const Text('Apple'),
-                                    ],
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.apple,
+                                          size: 20,
+                                          color:
+                                              Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? Colors.white
+                                              : Colors.black,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        const Text(
+                                          'Apple',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: FudiColors.foreground,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 32),
+
                           Text.rich(
                             TextSpan(
                               text: '¿No tienes una cuenta? ',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: FudiColors.mutedForeground,
                               ),
                               children: [
@@ -600,11 +574,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   child: GestureDetector(
                                     onTap: () =>
                                         context.go(RouteNames.signupPath),
-                                    child: Text(
+                                    child: const Text(
                                       'Regístrate gratis',
                                       style: TextStyle(
                                         color: FudiColors.primary,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),
@@ -626,5 +600,3 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 }
-
-

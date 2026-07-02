@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -38,8 +40,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ? OfferCategory.fromDb(categoryId)
         : null;
     setState(() => _selectedCategoryId = categoryId);
-    ref.read(popularOffersProvider.notifier).filterByCategory(category);
-    ref.read(nearbyOffersProvider.notifier).filterByCategory(category);
+    unawaited(ref.read(popularOffersProvider.notifier).filterByCategory(category));
+    unawaited(ref.read(nearbyOffersProvider.notifier).filterByCategory(category));
   }
 
   @override
@@ -52,16 +54,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       backgroundColor: FudiColors.background,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: const _HomeAppBar(),
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(kToolbarHeight),
+        child: _HomeAppBar(),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
           if (_selectedCategoryId != null) {
             final category = OfferCategory.fromDb(_selectedCategoryId);
-            ref.read(popularOffersProvider.notifier).filterByCategory(category);
-            ref.read(nearbyOffersProvider.notifier).filterByCategory(category);
+            unawaited(ref.read(popularOffersProvider.notifier).filterByCategory(category));
+            unawaited(ref.read(nearbyOffersProvider.notifier).filterByCategory(category));
           } else {
             await ref.read(popularOffersProvider.notifier).refresh();
             await ref.read(nearbyOffersProvider.notifier).refresh();
@@ -204,10 +206,7 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: const [
         Padding(
           padding: EdgeInsets.only(right: FudiSpacing.md),
-          child: FudiLogo(
-            variant: FudiLogoVariant.wordmark,
-            size: FudiLogoSize.xxl,
-          ),
+          child: FudiLogo(size: FudiLogoSize.xxl),
         ),
       ],
     );
@@ -255,14 +254,10 @@ class _CategoryChips extends StatelessWidget {
           onSelected(catId);
         },
         initialCount: 5,
-        activeColor: FudiColors.greenDark,
-        activeTextColor: FudiColors.green,
         inactiveColor: FudiColors.green.withValues(alpha: 0.3),
         inactiveTextColor: FudiColors.greenDark.withValues(alpha: 0.7),
         borderColor: FudiColors.greenDark.withValues(alpha: 0.15),
         borderRadius: FudiRadius.md,
-        height: 40.0,
-        horizontalChipPadding: FudiSpacing.lg,
       ),
     );
   }
@@ -324,15 +319,15 @@ class _LocationPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(FudiSpacing.lg),
+    return const Padding(
+      padding: EdgeInsets.all(FudiSpacing.lg),
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.all(FudiSpacing.md),
+          padding: EdgeInsets.all(FudiSpacing.md),
           child: Row(
             children: [
-              const Icon(FudiIcons.mapPin, color: FudiColors.primary),
-              const SizedBox(width: FudiSpacing.md),
+              Icon(FudiIcons.mapPin, color: FudiColors.primary),
+              SizedBox(width: FudiSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,7 +336,7 @@ class _LocationPrompt extends StatelessWidget {
                       'Activa tu ubicación',
                       style: FudiTypography.labelMedium,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       'Para ver ofertas cerca de ti',
                       style: FudiTypography.bodySmall,

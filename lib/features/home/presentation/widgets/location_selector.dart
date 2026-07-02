@@ -85,13 +85,13 @@ class _LocationSelectorState extends ConsumerState<LocationSelector>
 
     overlay.insert(_overlayEntry!);
     setState(() => _isOpen = true);
-    _chevronController.forward();
+    unawaited(_chevronController.forward());
   }
 
   void _closeDropdown() async {
     if (mounted && _isOpen) {
       setState(() => _isOpen = false);
-      _chevronController.reverse();
+      unawaited(_chevronController.reverse());
 
       // Si tienes acceso al controlador del dropdown podrías hacer un reverse,
       // pero como está dentro del OverlayEntry, una forma sencilla es darle un delay
@@ -119,7 +119,7 @@ class _LocationSelectorState extends ConsumerState<LocationSelector>
 
   void _onAddAddress() {
     _closeDropdown();
-    context.push(RouteNames.savedAddressesPath);
+    unawaited(context.push(RouteNames.savedAddressesPath));
   }
 
   @override
@@ -237,7 +237,7 @@ class _LocationDropdownOverlayState
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     // Arranca la animación de entrada en cuanto el widget se monta.
-    _controller.forward();
+    unawaited(_controller.forward());
   }
 
   Future<void> _animateClose() async {
@@ -414,7 +414,7 @@ class _AnimatedAddressItemState extends State<_AnimatedAddressItem>
 
     // Stagger: cada item espera un poco más que el anterior
     Future.delayed(Duration(milliseconds: 40 * widget.staggerIndex), () {
-      if (mounted) _controller.forward();
+      if (mounted) unawaited(_controller.forward());
     });
   }
 

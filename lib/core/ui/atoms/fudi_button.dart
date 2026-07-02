@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../fudi_colors.dart';
 import '../fudi_spacing.dart';
@@ -42,7 +43,6 @@ class _FudiButtonState extends State<FudiButton>
       vsync: this,
       duration: const Duration(milliseconds: 80),
       lowerBound: 0.96,
-      upperBound: 1.0,
       value: 1.0,
     );
     _scaleAnimation = _controller;
@@ -56,19 +56,19 @@ class _FudiButtonState extends State<FudiButton>
 
   void _onTapDown(TapDownDetails details) {
     if (widget.onPressed != null && !widget.isLoading) {
-      _controller.reverse();
+      unawaited(_controller.reverse());
     }
   }
 
   void _onTapUp(TapUpDetails details) {
     if (widget.onPressed != null && !widget.isLoading) {
-      _controller.forward();
+      unawaited(_controller.forward());
     }
   }
 
   void _onTapCancel() {
     if (widget.onPressed != null && !widget.isLoading) {
-      _controller.forward();
+      unawaited(_controller.forward());
     }
   }
 

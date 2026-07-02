@@ -90,7 +90,7 @@ class _StickyNavbar extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      height: 90,
+      height: isMobile ? 72 : 90,
       padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.xl),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.95),
@@ -117,26 +117,26 @@ class _StickyNavbar extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () => context.go(RouteNames.landingPath),
-              child: FudiLogo(size: FudiLogoSize.md),
+              child: const FudiLogo(),
             ),
             const Spacer(),
             if (!isMobile) ...[
-              _NavLink(
+              const _NavLink(
                 label: 'Cómo funciona',
                 path: RouteNames.howItWorksPath,
                 isDark: true,
               ),
-              _NavLink(
+              const _NavLink(
                 label: 'Para negocios',
                 path: RouteNames.forBusinessPath,
                 isDark: true,
               ),
-              _NavLink(
+              const _NavLink(
                 label: 'Sobre nosotros',
                 path: RouteNames.aboutPath,
                 isDark: true,
               ),
-              _NavLink(
+              const _NavLink(
                 label: 'Contacto',
                 path: RouteNames.helpPath,
                 isDark: true,
@@ -146,24 +146,43 @@ class _StickyNavbar extends StatelessWidget {
             FudiPressableScale(
               onTap: () => context.go(RouteNames.loginPath),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 12 : 24,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                   borderRadius: BorderRadius.circular(100),
                 ),
-                child: const Text('Iniciar sesión', style: TextStyle(color: FudiColors.foreground, fontWeight: FontWeight.w600)),
+                child: Text(
+                  'Iniciar sesión',
+                  style: TextStyle(
+                    color: FudiColors.foreground,
+                    fontWeight: FontWeight.w600,
+                    fontSize: isMobile ? 14 : null,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(width: FudiSpacing.sm),
+            SizedBox(width: isMobile ? 4 : FudiSpacing.sm),
             FudiPressableScale(
               onTap: () => context.go(RouteNames.signupPath),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 12 : 24,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: FudiColors.primary,
                   borderRadius: BorderRadius.circular(100),
                 ),
-                child: const Text('Registrarse', style: TextStyle(color: Colors.white)),
+                child: Text(
+                  'Registrarse',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: isMobile ? 14 : null,
+                  ),
+                ),
               ),
             ),
             if (isMobile) ...[
@@ -177,7 +196,7 @@ class _StickyNavbar extends StatelessWidget {
                     color: Colors.transparent,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.menu, color: FudiColors.foreground),
+                  child: const Icon(Icons.menu, color: FudiColors.foreground),
                 ),
               ),
             ],
@@ -206,9 +225,7 @@ class _NavLink extends StatelessWidget {
       child: FudiPressableScale(
         onTap: () => context.go(path),
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: FudiSpacing.sm,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: FudiSpacing.sm),
           child: Text(
             label,
             style: TextStyle(
@@ -239,27 +256,27 @@ class _MobileDrawer extends StatelessWidget {
               child: FudiLogo(size: FudiLogoSize.lg),
             ),
             const Divider(),
-            _DrawerItem(
+            const _DrawerItem(
               label: 'Cómo funciona',
               icon: Icons.info_outline,
               path: RouteNames.howItWorksPath,
             ),
-            _DrawerItem(
+            const _DrawerItem(
               label: 'Para negocios',
               icon: Icons.business_outlined,
               path: RouteNames.forBusinessPath,
             ),
-            _DrawerItem(
+            const _DrawerItem(
               label: 'Sobre nosotros',
               icon: Icons.people_outline,
               path: RouteNames.aboutPath,
             ),
-            _DrawerItem(
+            const _DrawerItem(
               label: 'Contacto',
               icon: Icons.contact_mail_outlined,
               path: RouteNames.helpPath,
             ),
-            _DrawerItem(
+            const _DrawerItem(
               label: 'Ayuda',
               icon: Icons.help_outline,
               path: RouteNames.helpPath,
@@ -278,7 +295,12 @@ class _MobileDrawer extends StatelessWidget {
                         color: FudiColors.primary,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Center(child: Text('Crear cuenta', style: TextStyle(color: Colors.white))),
+                      child: const Center(
+                        child: Text(
+                          'Crear cuenta',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: FudiSpacing.md),
@@ -291,7 +313,12 @@ class _MobileDrawer extends StatelessWidget {
                         border: Border.all(color: FudiColors.primary),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Center(child: Text('Iniciar sesión', style: TextStyle(color: FudiColors.primary))),
+                      child: const Center(
+                        child: Text(
+                          'Iniciar sesión',
+                          style: TextStyle(color: FudiColors.primary),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -353,7 +380,6 @@ class _SliverHero extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.xl),
             child: isDesktop
                 ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(child: _HeroContent()),
                       const SizedBox(width: 80),
@@ -444,10 +470,11 @@ class _HeroContent extends StatelessWidget {
 class _HeroImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width > 600;
     return Center(
       child: SizedBox(
-        width: 380,
-        height: 380,
+        width: isWide ? 380 : 260,
+        height: isWide ? 380 : 260,
         child: Stack(
           children: [
             Positioned.fill(
@@ -579,15 +606,28 @@ class _HeroStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: isDesktop
-          ? MainAxisAlignment.start
-          : MainAxisAlignment.center,
+    final isWide = MediaQuery.of(context).size.width > 600;
+    if (isWide) {
+      return Row(
+        mainAxisAlignment: isDesktop
+            ? MainAxisAlignment.start
+            : MainAxisAlignment.center,
+        children: const [
+          _StatItem(value: '50K+', label: 'Usuarios activos'),
+          SizedBox(width: 48),
+          _StatItem(value: '2000+', label: 'Comercios'),
+          SizedBox(width: 48),
+          _StatItem(value: '100K+', label: 'Comidas salvadas'),
+        ],
+      );
+    }
+    return const Wrap(
+      runSpacing: 16,
+      spacing: 32,
+      alignment: WrapAlignment.center,
       children: [
         _StatItem(value: '50K+', label: 'Usuarios activos'),
-        const SizedBox(width: 48),
         _StatItem(value: '2000+', label: 'Comercios'),
-        const SizedBox(width: 48),
         _StatItem(value: '100K+', label: 'Comidas salvadas'),
       ],
     );
@@ -601,6 +641,7 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width > 600;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -609,7 +650,7 @@ class _StatItem extends StatelessWidget {
           style: FudiTypography.h2.copyWith(
             color: FudiColors.primary,
             fontWeight: FontWeight.w800,
-            fontSize: 28,
+            fontSize: isWide ? 28 : 22,
           ),
         ),
         const SizedBox(height: 4),
@@ -628,10 +669,11 @@ class _StatItem extends StatelessWidget {
 class _SliverFeatures extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width > 600;
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 100,
+        padding: EdgeInsets.symmetric(
+          vertical: isWide ? 100 : 48,
           horizontal: FudiSpacing.xl,
         ),
         child: Column(
@@ -640,7 +682,7 @@ class _SliverFeatures extends StatelessWidget {
               '¿Por qué elegir Fudi?',
               textAlign: TextAlign.center,
               style: FudiTypography.h2.copyWith(
-                fontSize: 40,
+                fontSize: isWide ? 40 : 28,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -650,7 +692,7 @@ class _SliverFeatures extends StatelessWidget {
               textAlign: TextAlign.center,
               style: FudiTypography.bodyLarge.copyWith(
                 color: FudiColors.mutedForeground,
-                fontSize: 18,
+                fontSize: isWide ? 18 : 16,
               ),
             ),
             const SizedBox(height: 80),
@@ -663,7 +705,7 @@ class _SliverFeatures extends StatelessWidget {
               mainAxisSpacing: 30,
               crossAxisSpacing: 30,
               childAspectRatio: 0.85,
-              children: [
+              children: const [
                 _FeatureCard(
                   icon: '🍽️',
                   title: 'Reduce el desperdicio',
@@ -710,8 +752,9 @@ class _FeatureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width > 600;
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(isWide ? 32 : 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -755,11 +798,12 @@ class _FeatureCard extends StatelessWidget {
 class _SliverHowItWorks extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width > 600;
     return SliverToBoxAdapter(
       child: Container(
         color: const Color(0xFFF8F9FA),
-        padding: const EdgeInsets.symmetric(
-          vertical: 100,
+        padding: EdgeInsets.symmetric(
+          vertical: isWide ? 100 : 48,
           horizontal: FudiSpacing.xl,
         ),
         child: Column(
@@ -767,7 +811,7 @@ class _SliverHowItWorks extends StatelessWidget {
             Text(
               'Cómo funciona',
               style: FudiTypography.h2.copyWith(
-                fontSize: 40,
+                fontSize: isWide ? 40 : 28,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -777,7 +821,7 @@ class _SliverHowItWorks extends StatelessWidget {
               textAlign: TextAlign.center,
               style: FudiTypography.bodyLarge.copyWith(
                 color: FudiColors.mutedForeground,
-                fontSize: 18,
+                fontSize: isWide ? 18 : 16,
               ),
             ),
             const SizedBox(height: 80),
@@ -788,7 +832,7 @@ class _SliverHowItWorks extends StatelessWidget {
               mainAxisSpacing: 40,
               crossAxisSpacing: 40,
               childAspectRatio: 1.2,
-              children: [
+              children: const [
                 _HowItWorksStep(
                   number: '1',
                   title: 'Explora ofertas cerca de ti',
@@ -829,8 +873,9 @@ class _HowItWorksStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width > 600;
     return Container(
-      padding: const EdgeInsets.all(40),
+      padding: EdgeInsets.all(isWide ? 40 : 24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(32),
@@ -890,10 +935,11 @@ class _HowItWorksStep extends StatelessWidget {
 class _SliverTestimonials extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width > 600;
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 100,
+        padding: EdgeInsets.symmetric(
+          vertical: isWide ? 100 : 48,
           horizontal: FudiSpacing.xl,
         ),
         child: Column(
@@ -901,7 +947,7 @@ class _SliverTestimonials extends StatelessWidget {
             Text(
               'Lo que dicen nuestros usuarios',
               style: FudiTypography.h2.copyWith(
-                fontSize: 40,
+                fontSize: isWide ? 40 : 28,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -911,7 +957,7 @@ class _SliverTestimonials extends StatelessWidget {
               textAlign: TextAlign.center,
               style: FudiTypography.bodyLarge.copyWith(
                 color: FudiColors.mutedForeground,
-                fontSize: 18,
+                fontSize: isWide ? 18 : 16,
               ),
             ),
             const SizedBox(height: 80),
@@ -1045,11 +1091,12 @@ class _TestimonialCard extends StatelessWidget {
 class _SliverFAQ extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width > 600;
     return SliverToBoxAdapter(
       child: Container(
         color: const Color(0xFFF8F9FA),
-        padding: const EdgeInsets.symmetric(
-          vertical: 100,
+        padding: EdgeInsets.symmetric(
+          vertical: isWide ? 100 : 48,
           horizontal: FudiSpacing.xl,
         ),
         child: Center(
@@ -1060,7 +1107,7 @@ class _SliverFAQ extends StatelessWidget {
                 Text(
                   'Preguntas frecuentes',
                   style: FudiTypography.h2.copyWith(
-                    fontSize: 40,
+                    fontSize: isWide ? 40 : 28,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -1070,7 +1117,7 @@ class _SliverFAQ extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: FudiTypography.bodyLarge.copyWith(
                     color: FudiColors.mutedForeground,
-                    fontSize: 18,
+                    fontSize: isWide ? 18 : 16,
                   ),
                 ),
                 const SizedBox(height: 80),
@@ -1160,11 +1207,12 @@ class _FAQItem extends StatelessWidget {
 class _SliverCTA extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width > 600;
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.all(40),
+        padding: EdgeInsets.all(isWide ? 40 : 16),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 40),
+          padding: EdgeInsets.symmetric(vertical: isWide ? 80 : 40, horizontal: isWide ? 40 : 24),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [FudiColors.primary, Color(0xFF2E7D32)],
@@ -1182,23 +1230,23 @@ class _SliverCTA extends StatelessWidget {
           ),
           child: Column(
             children: [
-              const Text(
+              Text(
                 '¿Listo para empezar a ahorrar?',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 48,
+                  fontSize: isWide ? 48 : 28,
                   fontWeight: FontWeight.w800,
                   height: 1.1,
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Descarga Fudi hoy y únete a miles de usuarios que ya están rescatando comida deliciosa',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 20,
+                  fontSize: isWide ? 20 : 16,
                   height: 1.5,
                 ),
               ),
@@ -1235,11 +1283,12 @@ class _SliverCTA extends StatelessWidget {
 class _SliverFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width > 600;
     return SliverToBoxAdapter(
       child: Container(
         color: const Color(0xFF0F1115),
-        padding: const EdgeInsets.symmetric(
-          vertical: 100,
+        padding: EdgeInsets.symmetric(
+          vertical: isWide ? 100 : 48,
           horizontal: FudiSpacing.xl,
         ),
         child: Center(
@@ -1247,65 +1296,125 @@ class _SliverFooter extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 1200),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 300,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const FudiLogo(
-                            color: Colors.white,
-                            size: FudiLogoSize.lg,
-                          ),
-                          const SizedBox(height: 32),
-                          Text(
-                            'Rescata comida, ahorra dinero y ayuda al planeta. Juntos podemos hacer la diferencia.',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.5),
-                              fontSize: 16,
-                              height: 1.6,
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-                          Row(
+                isWide
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 300,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _SocialButton(icon: Icons.facebook),
-                              _SocialButton(icon: Icons.camera_alt),
-                              _SocialButton(icon: Icons.alternate_email),
+                              const FudiLogo(
+                                color: Colors.white,
+                                size: FudiLogoSize.lg,
+                              ),
+                              const SizedBox(height: 32),
+                              Text(
+                                'Rescata comida, ahorra dinero y ayuda al planeta. Juntos podemos hacer la diferencia.',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  fontSize: 16,
+                                  height: 1.6,
+                                ),
+                              ),
+                              const SizedBox(height: 32),
+                              const Row(
+                                children: [
+                                  _SocialButton(icon: Icons.facebook),
+                                  _SocialButton(icon: Icons.camera_alt),
+                                  _SocialButton(icon: Icons.alternate_email),
+                                ],
+                              ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                        const _FooterColumn(
+                          title: 'Producto',
+                          links: {
+                            'Cómo funciona': RouteNames.howItWorksPath,
+                            'Preguntas frecuentes': RouteNames.helpPath,
+                            'Para negocios': RouteNames.forBusinessPath,
+                          },
+                        ),
+                        const _FooterColumn(
+                          title: 'Compañía',
+                          links: {
+                            'Sobre nosotros': RouteNames.aboutPath,
+                            'Contacto': RouteNames.helpPath,
+                            'Inicio': RouteNames.landingPath,
+                          },
+                        ),
+                        const _FooterColumn(
+                          title: 'Legal',
+                          links: {
+                            'Términos de uso': RouteNames.termsPath,
+                            'Privacidad': RouteNames.privacyPath,
+                            'Ayuda': RouteNames.helpPath,
+                          },
+                        ),
+                      ],
+                    )
+                  : Wrap(
+                      runSpacing: 40,
+                      spacing: 40,
+                      children: [
+                        SizedBox(
+                          width: 300,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const FudiLogo(
+                                color: Colors.white,
+                                size: FudiLogoSize.lg,
+                              ),
+                              const SizedBox(height: 32),
+                              Text(
+                                'Rescata comida, ahorra dinero y ayuda al planeta. Juntos podemos hacer la diferencia.',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  fontSize: 16,
+                                  height: 1.6,
+                                ),
+                              ),
+                              const SizedBox(height: 32),
+                              const Row(
+                                children: [
+                                  _SocialButton(icon: Icons.facebook),
+                                  _SocialButton(icon: Icons.camera_alt),
+                                  _SocialButton(icon: Icons.alternate_email),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const _FooterColumn(
+                          title: 'Producto',
+                          links: {
+                            'Cómo funciona': RouteNames.howItWorksPath,
+                            'Preguntas frecuentes': RouteNames.helpPath,
+                            'Para negocios': RouteNames.forBusinessPath,
+                          },
+                        ),
+                        const _FooterColumn(
+                          title: 'Compañía',
+                          links: {
+                            'Sobre nosotros': RouteNames.aboutPath,
+                            'Contacto': RouteNames.helpPath,
+                            'Inicio': RouteNames.landingPath,
+                          },
+                        ),
+                        const _FooterColumn(
+                          title: 'Legal',
+                          links: {
+                            'Términos de uso': RouteNames.termsPath,
+                            'Privacidad': RouteNames.privacyPath,
+                            'Ayuda': RouteNames.helpPath,
+                          },
+                        ),
+                      ],
                     ),
-                    _FooterColumn(
-                      title: 'Producto',
-                      links: {
-                        'Cómo funciona': RouteNames.howItWorksPath,
-                        'Preguntas frecuentes': RouteNames.helpPath,
-                        'Para negocios': RouteNames.forBusinessPath,
-                      },
-                    ),
-                    _FooterColumn(
-                      title: 'Compañía',
-                      links: {
-                        'Sobre nosotros': RouteNames.aboutPath,
-                        'Contacto': RouteNames.helpPath,
-                        'Inicio': RouteNames.landingPath,
-                      },
-                    ),
-                    _FooterColumn(
-                      title: 'Legal',
-                      links: {
-                        'Términos de uso': RouteNames.termsPath,
-                        'Privacidad': RouteNames.privacyPath,
-                        'Ayuda': RouteNames.helpPath,
-                      },
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 80),
                 const Divider(color: Colors.white10),
                 const SizedBox(height: 40),
@@ -1387,10 +1496,11 @@ class _FooterColumn extends StatelessWidget {
 class _SliverContact extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width > 600;
     return SliverToBoxAdapter(
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          vertical: 100,
+        padding: EdgeInsets.symmetric(
+          vertical: isWide ? 100 : 48,
           horizontal: FudiSpacing.xl,
         ),
         child: Center(
@@ -1401,7 +1511,7 @@ class _SliverContact extends StatelessWidget {
                 Text(
                   'Contáctanos',
                   style: FudiTypography.h2.copyWith(
-                    fontSize: 40,
+                    fontSize: isWide ? 40 : 28,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -1411,7 +1521,7 @@ class _SliverContact extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: FudiTypography.bodyLarge.copyWith(
                     color: FudiColors.mutedForeground,
-                    fontSize: 18,
+                    fontSize: isWide ? 18 : 16,
                   ),
                 ),
                 const SizedBox(height: 80),
@@ -1472,7 +1582,12 @@ class _ContactForm extends StatelessWidget {
               color: FudiColors.primary,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Center(child: Text('Enviar mensaje', style: TextStyle(color: Colors.white))),
+            child: const Center(
+              child: Text(
+                'Enviar mensaje',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
           ),
         ),
       ],
@@ -1524,27 +1639,27 @@ class _ContactField extends StatelessWidget {
 class _ContactInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Información de contacto',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
         ),
-        const SizedBox(height: 40),
-        const _ContactInfoItem(
+        SizedBox(height: 40),
+        _ContactInfoItem(
           icon: Icons.email_outlined,
           title: 'Email',
           value: 'hola@fudi.app',
         ),
-        const SizedBox(height: 32),
-        const _ContactInfoItem(
+        SizedBox(height: 32),
+        _ContactInfoItem(
           icon: Icons.phone_outlined,
           title: 'Teléfono',
           value: '+34 900 123 456',
         ),
-        const SizedBox(height: 32),
-        const _ContactInfoItem(
+        SizedBox(height: 32),
+        _ContactInfoItem(
           icon: Icons.location_on_outlined,
           title: 'Oficina',
           value: 'Carrer de la Pau, 10\n08002 Barcelona, España',
@@ -1583,7 +1698,10 @@ class _ContactInfoItem extends StatelessWidget {
           children: [
             Text(
               title,
-              style: TextStyle(color: FudiColors.mutedForeground, fontSize: 14),
+              style: const TextStyle(
+                color: FudiColors.mutedForeground,
+                fontSize: 14,
+              ),
             ),
             const SizedBox(height: 4),
             Text(

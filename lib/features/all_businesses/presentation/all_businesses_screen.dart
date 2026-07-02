@@ -199,10 +199,13 @@ class _AllBusinessesHeader extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: const BoxDecoration(shape: BoxShape.circle),
-                    child: const Icon(FudiIcons.chevronLeft, color: FudiColors.foreground),
+                    child: const Icon(
+                      FudiIcons.chevronLeft,
+                      color: FudiColors.foreground,
+                    ),
                   ),
                 ),
-                Text('Negocios cerca', style: FudiTypography.h1),
+                const Text('Negocios cerca', style: FudiTypography.h1),
               ],
             ),
             FudiSearchBar(
@@ -217,9 +220,7 @@ class _AllBusinessesHeader extends StatelessWidget {
               selectedItem: selectedType,
               labelBuilder: (type) => type ?? 'Todos',
               onSelected: (type) => onTypeChanged(type),
-              height: 40,
               padding: EdgeInsets.zero,
-              horizontalChipPadding: FudiSpacing.lg,
             ),
           ],
         ),
@@ -227,4 +228,3 @@ class _AllBusinessesHeader extends StatelessWidget {
     );
   }
 }
-

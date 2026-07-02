@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -38,7 +40,7 @@ class FirebaseTracker implements AnalyticsTracker {
     final analytics = _analytics;
     if (analytics == null) return;
     try {
-      analytics.setAnalyticsCollectionEnabled(enabled);
+      unawaited(analytics.setAnalyticsCollectionEnabled(enabled));
     } catch (e) {
       _reportError('setEnabled', e);
     }
@@ -103,7 +105,7 @@ class FirebaseTracker implements AnalyticsTracker {
     if (analytics == null) return;
 
     try {
-      await analytics.setUserId(id: null);
+      await analytics.setUserId();
     } catch (e) {
       _reportError('reset', e);
     }
@@ -147,9 +149,11 @@ class FirebaseTracker implements AnalyticsTracker {
   /// Per `.agents/analytics-growth.md`: "No enviar errores de analytics
   /// a Sentry como crashes — solo como messages."
   void _reportError(String method, Object error) {
-    Sentry.captureMessage(
-      'FirebaseTracker.$method failed: $error',
-      level: SentryLevel.warning,
+    unawaited(
+      Sentry.captureMessage(
+        'FirebaseTracker.$method failed: $error',
+        level: SentryLevel.warning,
+      ),
     );
   }
 }

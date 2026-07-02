@@ -14,7 +14,7 @@ class LocationsHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: Text('Mis Locales', style: FudiTypography.h4)),
+        const Expanded(child: Text('Mis Locales', style: FudiTypography.h4)),
         FudiPressableScale(
           onTap: () => context.push(RouteNames.businessLocationCreatePath),
           child: Container(
@@ -31,7 +31,12 @@ class LocationsHeader extends StatelessWidget {
               children: [
                 const Icon(FudiIcons.plus, size: 16, color: Colors.white),
                 const SizedBox(width: 4),
-                Text('Agregar', style: FudiTypography.labelSmall.copyWith(color: Colors.white)),
+                Text(
+                  'Agregar',
+                  style: FudiTypography.labelSmall.copyWith(
+                    color: Colors.white,
+                  ),
+                ),
               ],
             ),
           ),

@@ -249,13 +249,15 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   }
 
   void _loadOffers() {
-    ref
-        .read(filteredOffersProvider.notifier)
-        .applyFilters(
-          category: _filters.category,
-          maxPrice: _filters.maxPrice,
-          maxDistanceKm: _filters.maxDistanceKm,
-          searchQuery: _filters.searchQuery,
-        );
+    unawaited(
+      ref
+          .read(filteredOffersProvider.notifier)
+          .applyFilters(
+            category: _filters.category,
+            maxPrice: _filters.maxPrice,
+            maxDistanceKm: _filters.maxDistanceKm,
+            searchQuery: _filters.searchQuery,
+          ),
+    );
   }
 }

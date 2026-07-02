@@ -72,7 +72,7 @@ class _OrdersFiltersSheetState extends State<OrdersFiltersSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Estado', style: FudiTypography.h2),
+              const Text('Estado', style: FudiTypography.h2),
               if (_selectedStatus != null)
                 FudiPressableScale(
                   onTap: () => setState(() => _selectedStatus = null),
@@ -108,7 +108,7 @@ class _OrdersFiltersSheetState extends State<OrdersFiltersSheet> {
                 },
                 selectedColor: FudiColors.secondary,
                 checkmarkColor: FudiColors.primary,
-                side: BorderSide(color: FudiColors.borderSolid),
+                side: const BorderSide(color: FudiColors.borderSolid),
               );
             }).toList(),
           ),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -33,10 +35,6 @@ import 'retry_policy.dart';
 /// This class lives in the **Data layer**. Domain never imports it
 /// directly — it's injected via Riverpod providers.
 class SecureHttpClient {
-  final Dio _dio;
-  final SupabaseClient _supabaseClient;
-  final CircuitBreaker _circuitBreaker;
-
   /// Creates a [SecureHttpClient] with sensible defaults.
   ///
   /// [baseUrl] — The base URL for all requests (typically Supabase URL).
@@ -69,6 +67,9 @@ class SecureHttpClient {
       _ErrorMappingInterceptor(),
     ]);
   }
+  final Dio _dio;
+  final SupabaseClient _supabaseClient;
+  final CircuitBreaker _circuitBreaker;
 
   /// Exposes the underlying Dio instance for advanced use cases
   /// (e.g., file uploads with progress). Use with caution.
@@ -278,10 +279,9 @@ class SecureHttpClient {
 /// If not authenticated, the request proceeds without the header
 /// (public endpoints like /offers still work).
 class _AuthInterceptor extends Interceptor {
-  final SupabaseClient _supabaseClient;
-
   _AuthInterceptor({required SupabaseClient supabaseClient})
     : _supabaseClient = supabaseClient;
+  final SupabaseClient _supabaseClient;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -319,7 +319,7 @@ class _SentryTracingInterceptor extends Interceptor {
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     final span = response.requestOptions.extra['sentrySpan'] as ISentrySpan?;
     span?.status = const SpanStatus.ok();
-    span?.finish();
+    if (span != null) unawaited(span.finish());
 
     SentryBreadcrumb.apiCall(
       response.requestOptions.method,
@@ -333,8 +333,8 @@ class _SentryTracingInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final span = err.requestOptions.extra['sentrySpan'] as ISentrySpan?;
-    span?.status = SpanStatus.internalError();
-    span?.finish();
+    span?.status = const SpanStatus.internalError();
+    if (span != null) unawaited(span.finish());
 
     SentryBreadcrumb.apiCall(
       err.requestOptions.method,

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../fudi_colors.dart';
 import 'icons/fudi_icons.dart';
@@ -71,7 +72,7 @@ class _FudiHeartButtonState extends State<FudiHeartButton>
   void didUpdateWidget(FudiHeartButton oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.isFavorite != widget.isFavorite) {
-      _controller.forward(from: 0);
+      unawaited(_controller.forward(from: 0));
     }
   }
 

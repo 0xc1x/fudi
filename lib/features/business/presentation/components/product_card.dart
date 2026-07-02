@@ -68,7 +68,13 @@ class ProductCard extends ConsumerWidget {
                                 size: FudiStatusBadgeSize.sm,
                               ),
                               const Spacer(),
-                              if (soldCount > 0) _SoldChip(count: soldCount),
+                              if (soldCount > 0)
+                                Flexible(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: _SoldChip(count: soldCount),
+                                  ),
+                                ),
                             ],
                           ),
                           const SizedBox(height: FudiSpacing.sm),
@@ -94,7 +100,7 @@ class ProductCard extends ConsumerWidget {
                                 const SizedBox(width: FudiSpacing.xs),
                                 _InfoChip(
                                   icon: Icons.inventory_2_outlined,
-                                  label: 'Stock: ${offer.stock}',
+                                  label: '${offer.stock}',
                                 ),
                               ],
                             ),
@@ -111,7 +117,6 @@ class ProductCard extends ConsumerWidget {
                       horizontal: FudiSpacing.md,
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
@@ -141,10 +146,7 @@ class ProductCard extends ConsumerWidget {
               color: FudiColors.borderSolid.withValues(alpha: 0.5),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: FudiSpacing.sm,
-                vertical: 0,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.sm),
               child: Row(
                 children: [
                   Expanded(
@@ -155,16 +157,16 @@ class ProductCard extends ConsumerWidget {
                           context.push('/business/products/${offer.id}'),
                     ),
                   ),
-                  const SizedBox(width: FudiSpacing.sm),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: _ActionButton(
                       label: 'Editar',
                       icon: Icons.edit_outlined,
                       onTap: () =>
-                          context.push('/business/products/edit/${offer.id}'),
+                          context.push('/business/products/${offer.id}/edit'),
                     ),
                   ),
-                  const SizedBox(width: FudiSpacing.sm),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: ProductMenu(
                       offer: offer,
@@ -187,27 +189,33 @@ class ProductCard extends ConsumerWidget {
 
   Widget _buildMenuTrigger(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
       decoration: BoxDecoration(
         color: FudiColors.destructive.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(FudiRadius.xs),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'Más acciones',
-            style: FudiTypography.bodySmall.copyWith(
-              color: FudiColors.destructive,
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                'Más acciones',
+                style: FudiTypography.bodySmall.copyWith(
+                  color: FudiColors.destructive,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
             ),
           ),
-          const SizedBox(width: 4),
-          Icon(
+          const SizedBox(width: 2),
+          const Icon(
             Icons.keyboard_arrow_down_rounded,
             color: FudiColors.destructive,
-            size: 18,
+            size: 16,
           ),
         ],
       ),
@@ -314,22 +322,28 @@ class _ActionButton extends StatelessWidget {
     return FudiPressableScale(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
         decoration: BoxDecoration(
           color: FudiColors.muted,
           borderRadius: BorderRadius.circular(FudiRadius.xs),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: FudiColors.mutedForeground),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: FudiTypography.bodySmall.copyWith(
-                color: FudiColors.foreground,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
+            Icon(icon, size: 14, color: FudiColors.mutedForeground),
+            const SizedBox(width: 4),
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  style: FudiTypography.bodySmall.copyWith(
+                    color: FudiColors.foreground,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
               ),
             ),
           ],

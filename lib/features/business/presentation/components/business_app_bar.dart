@@ -57,10 +57,7 @@ class BusinessAppBar extends ConsumerWidget implements PreferredSizeWidget {
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: FudiSpacing.md),
-            child: FudiLogo(
-              variant: FudiLogoVariant.wordmark,
-              size: FudiLogoSize.xxxl,
-            ),
+            child: FudiLogo(size: FudiLogoSize.xxxl),
           ),
         ],
       );
@@ -96,7 +93,7 @@ class BusinessAppBar extends ConsumerWidget implements PreferredSizeWidget {
       actions: const [
         Padding(
           padding: EdgeInsets.only(right: FudiSpacing.md),
-          child: FudiLogo(variant: FudiLogoVariant.icon, size: FudiLogoSize.md),
+          child: FudiLogo(variant: FudiLogoVariant.icon),
         ),
       ],
     );

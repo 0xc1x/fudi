@@ -1,9 +1,6 @@
 import 'fudi_exception.dart';
 
 sealed class PaymentException extends FudiException {
-  final String? paymentId;
-  final String? gateway;
-
   const PaymentException({
     required super.message,
     super.code,
@@ -13,15 +10,16 @@ sealed class PaymentException extends FudiException {
     this.paymentId,
     this.gateway,
   });
+  final String? paymentId;
+  final String? gateway;
 }
 
 class PaymentRejectedException extends PaymentException {
-  final String? rejectionReason;
-
   const PaymentRejectedException({
     super.message = 'Pago rechazado',
     this.rejectionReason,
   }) : super(code: 'PAY_001', severity: ErrorSeverity.medium);
+  final String? rejectionReason;
 }
 
 class PaymentTimeoutException extends PaymentException {

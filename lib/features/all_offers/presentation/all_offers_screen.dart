@@ -43,7 +43,7 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
   void _loadInitialView() {
     final extra = GoRouterState.of(context).extra;
     if (extra is AllOffersView && extra != AllOffersView.all) {
-      ref.read(allActiveOffersProvider.notifier).loadView(extra);
+      unawaited(ref.read(allActiveOffersProvider.notifier).loadView(extra));
     }
   }
 
@@ -94,12 +94,13 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
                 : SliverPadding(
                     padding: const EdgeInsets.all(FudiSpacing.lg),
                     sliver: SliverGrid(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: FudiSpacing.md,
-                        crossAxisSpacing: FudiSpacing.md,
-                        childAspectRatio: 0.80,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: FudiSpacing.md,
+                            crossAxisSpacing: FudiSpacing.md,
+                            childAspectRatio: 0.80,
+                          ),
                       delegate: SliverChildBuilderDelegate(
                         (context, index) =>
                             _buildGridCard(context, offers[index]),
@@ -110,7 +111,7 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
             loading: () => SliverPadding(
               padding: const EdgeInsets.all(FudiSpacing.lg),
               sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   mainAxisSpacing: FudiSpacing.md,
                   crossAxisSpacing: FudiSpacing.md,
@@ -204,9 +205,7 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
                 children: [
                   Text(
                     offer.business.name,
-                    style: FudiTypography.labelSmall.copyWith(
-                      fontSize: 12,
-                    ),
+                    style: FudiTypography.labelSmall.copyWith(fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -322,14 +321,16 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
   }
 
   void _loadOffers() {
-    ref
-        .read(allActiveOffersProvider.notifier)
-        .applyFilters(
-          category: _filters.category,
-          maxPrice: _filters.maxPrice,
-          maxDistanceKm: _filters.maxDistanceKm,
-          searchQuery: _filters.searchQuery,
-        );
+    unawaited(
+      ref
+          .read(allActiveOffersProvider.notifier)
+          .applyFilters(
+            category: _filters.category,
+            maxPrice: _filters.maxPrice,
+            maxDistanceKm: _filters.maxDistanceKm,
+            searchQuery: _filters.searchQuery,
+          ),
+    );
   }
 }
 
@@ -370,17 +371,14 @@ class _AllOffersHeader extends StatelessWidget {
                   child: Container(
                     width: 40,
                     height: 40,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: FudiColors.muted,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(FudiIcons.chevronLeft, size: 24),
                   ),
                 ),
-                Text(
-                  'Todas las ofertas',
-                  style: FudiTypography.h1,
-                ),
+                const Text('Todas las ofertas', style: FudiTypography.h1),
               ],
             ),
             const SizedBox(height: FudiSpacing.md),
@@ -456,28 +454,36 @@ class _ActiveFiltersBar extends StatelessWidget {
     final chips = <Widget>[];
 
     if (filters.category != null) {
-      chips.add(FudiFilterChip(
-        label: filters.category!.dbValue,
-        onClear: () => onClear('category'),
-      ));
+      chips.add(
+        FudiFilterChip(
+          label: filters.category!.dbValue,
+          onClear: () => onClear('category'),
+        ),
+      );
     }
     if (filters.maxDistanceKm != null) {
-      chips.add(FudiFilterChip(
-        label: '${filters.maxDistanceKm!.toInt()} km',
-        onClear: () => onClear('maxDistanceKm'),
-      ));
+      chips.add(
+        FudiFilterChip(
+          label: '${filters.maxDistanceKm!.toInt()} km',
+          onClear: () => onClear('maxDistanceKm'),
+        ),
+      );
     }
     if (filters.maxPrice != null) {
-      chips.add(FudiFilterChip(
-        label: 'Max \$${filters.maxPrice!.toStringAsFixed(0)}',
-        onClear: () => onClear('maxPrice'),
-      ));
+      chips.add(
+        FudiFilterChip(
+          label: 'Max \$${filters.maxPrice!.toStringAsFixed(0)}',
+          onClear: () => onClear('maxPrice'),
+        ),
+      );
     }
     if (filters.searchQuery != null && filters.searchQuery!.isNotEmpty) {
-      chips.add(FudiFilterChip(
-        label: '"${filters.searchQuery}"',
-        onClear: () => onClear('searchQuery'),
-      ));
+      chips.add(
+        FudiFilterChip(
+          label: '"${filters.searchQuery}"',
+          onClear: () => onClear('searchQuery'),
+        ),
+      );
     }
 
     return Padding(
@@ -515,8 +521,6 @@ class _ActiveFiltersBar extends StatelessWidget {
   }
 }
 
-
-
 class _OfferImage extends StatelessWidget {
   const _OfferImage({required this.offer});
   final Offer offer;
@@ -553,7 +557,7 @@ class _GridCardSkeleton extends StatelessWidget {
     return Shimmer.fromColors(
       baseColor: FudiColors.muted,
       highlightColor: Colors.white,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: FudiColors.muted,
           borderRadius: BorderRadius.circular(FudiRadius.lg),
@@ -567,23 +571,11 @@ class _GridCardSkeleton extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    height: 10,
-                    width: 120,
-                    color: FudiColors.muted,
-                  ),
+                  Container(height: 10, width: 120, color: FudiColors.muted),
                   const SizedBox(height: 6),
-                  Container(
-                    height: 8,
-                    width: 80,
-                    color: FudiColors.muted,
-                  ),
+                  Container(height: 8, width: 80, color: FudiColors.muted),
                   const SizedBox(height: 8),
-                  Container(
-                    height: 14,
-                    width: 60,
-                    color: FudiColors.muted,
-                  ),
+                  Container(height: 14, width: 60, color: FudiColors.muted),
                 ],
               ),
             ),

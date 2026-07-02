@@ -1,0 +1,93 @@
+{
+  "@@locale": "es",
+  "appName": "Fudi",
+  "@appName": {
+    "description": "The application name"
+  },
+  "homeTitle": "Inicio",
+  "@homeTitle": {
+    "description": "Home screen title"
+  },
+  "exploreTitle": "Explorar",
+  "@exploreTitle": {
+    "description": "Explore screen title"
+  },
+  "ordersTitle": "Pedidos",
+  "@ordersTitle": {
+    "description": "Orders screen title"
+  },
+  "favoritesTitle": "Favoritos",
+  "@favoritesTitle": {
+    "description": "Favorites screen title"
+  },
+  "profileTitle": "Perfil",
+  "@profileTitle": {
+    "description": "Profile screen title"
+  },
+  "offlineMessage": "Sin conexión a Internet",
+  "@offlineMessage": {
+    "description": "Offline banner message"
+  },
+  "activateLocation": "Activa tu ubicación",
+  "@activateLocation": {
+    "description": "Location prompt title"
+  },
+  "activateLocationDescription": "Para ver ofertas cerca de ti",
+  "@activateLocationDescription": {
+    "description": "Location prompt description"
+  },
+  "lastHours": "Últimas Horas",
+  "@lastHours": {
+    "description": "Expiring offers section title"
+  },
+  "recentlyAdded": "Recién Agregados",
+  "@recentlyAdded": {
+    "description": "Recent offers section title"
+  },
+  "popularOffers": "Ofertas Populares",
+  "@popularOffers": {
+    "description": "Popular offers section title"
+  },
+  "nearbyBusinesses": "Negocios Cerca",
+  "@nearbyBusinesses": {
+    "description": "Nearby businesses section title"
+  },
+  "nearbyOffers": "Cerca de Ti",
+  "@nearbyOffers": {
+    "description": "Nearby offers section title"
+  },
+  "productNotFound": "Producto no encontrado",
+  "@productNotFound": {
+    "description": "Error when offer is not found"
+  },
+  "productNotAvailable": "Este producto no está disponible",
+  "@productNotAvailable": {
+    "description": "Error message when product is unavailable"
+  },
+  "backToHome": "Volver al inicio",
+  "@backToHome": {
+    "description": "Button to navigate home"
+  },
+  "confirmTerms": "Al confirmar aceptas los términos y condiciones de Fudi",
+  "@confirmTerms": {
+    "description": "Terms agreement text in checkout"
+  },
+  "couponNotFound": "Cupón no encontrado o inválido",
+  "@couponNotFound": {
+    "description": "Coupon validation error"
+  },
+  "couponExpired": "Este cupón ya no es válido",
+  "@couponExpired": {
+    "description": "Expired coupon error"
+  },
+  "minAmountRequired": "Monto mínimo para este cupón: {amount}",
+  "@minAmountRequired": {
+    "description": "Minimum order amount for coupon",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "15.000"
+      }
+    }
+  }
+}

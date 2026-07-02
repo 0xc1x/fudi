@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -23,7 +25,6 @@ const _androidOfferChannel = AndroidNotificationChannel(
   'fudi_offers',
   'Ofertas',
   description: 'Ofertas cercanas y recomendaciones',
-  importance: Importance.defaultImportance,
 );
 
 Future<void> initLocalNotifications() async {
@@ -45,8 +46,10 @@ Future<void> initLocalNotifications() async {
     onDidReceiveNotificationResponse: (response) {},
   );
 
-  final android = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>();
+  final android = flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >();
   await android?.createNotificationChannel(_androidChannel);
   await android?.createNotificationChannel(_androidOfferChannel);
 }
@@ -84,7 +87,11 @@ class _PushNotificationHandlerState
 
       if (kIsWeb) {
         if (!supportsWebNotifications) {
-          _showWebNotificationsUnsupported();
+          if (isSafari() && isiOS() && !isStandalone()) {
+            _showInstallToEnableNotifications();
+          } else {
+            _showWebNotificationsUnsupported();
+          }
           return;
         }
 
@@ -164,7 +171,7 @@ class _PushNotificationHandlerState
     try {
       context.go(link);
     } catch (e, st) {
-      Sentry.captureException(e, stackTrace: st);
+      unawaited(Sentry.captureException(e, stackTrace: st));
     }
   }
 
@@ -176,10 +183,7 @@ class _PushNotificationHandlerState
           '$browser bloqueó las notificaciones. Activálas manualmente en Configuración del sitio.',
         ),
         duration: const Duration(seconds: 8),
-        action: SnackBarAction(
-          label: 'OK',
-          onPressed: () {},
-        ),
+        action: SnackBarAction(label: 'OK', onPressed: () {}),
       ),
     );
   }
@@ -188,12 +192,33 @@ class _PushNotificationHandlerState
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text(
-          'Las notificaciones web no están disponibles en iOS Safari. Usá la app desde Chrome o instalala en tu dispositivo.',
+          'Tu navegador no soporta notificaciones push. Probá con Chrome, Firefox, o Safari en macOS.',
+        ),
+        duration: const Duration(seconds: 10),
+        action: SnackBarAction(label: 'OK', onPressed: () {}),
+      ),
+    );
+  }
+
+  void _showInstallToEnableNotifications() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'Instalá Fudi en tu pantalla de inicio para recibir notificaciones en iOS.',
         ),
         duration: const Duration(seconds: 10),
         action: SnackBarAction(
-          label: 'OK',
-          onPressed: () {},
+          label: 'Cómo',
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Tocá el botón Compartir en Safari y seleccioná "Agregar a inicio". Luego abrí la app desde el ícono.',
+                ),
+                duration: Duration(seconds: 12),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -207,7 +232,7 @@ class _PushNotificationHandlerState
     final title = notification.title ?? 'Fudi';
     final body = notification.body ?? '';
 
-    flutterLocalNotificationsPlugin.show(
+    unawaited(flutterLocalNotificationsPlugin.show(
       id: notification.hashCode,
       title: title,
       body: body,
@@ -215,10 +240,9 @@ class _PushNotificationHandlerState
         android: AndroidNotificationDetails(
           channel,
           channel == _androidChannel.id ? 'Pedidos' : 'Ofertas',
-          channelDescription:
-              channel == _androidChannel.id
-                  ? 'Notificaciones de pedidos'
-                  : 'Ofertas cercanas',
+          channelDescription: channel == _androidChannel.id
+              ? 'Notificaciones de pedidos'
+              : 'Ofertas cercanas',
           importance: Importance.high,
           priority: Priority.high,
           icon: '@mipmap/ic_launcher',
@@ -230,7 +254,7 @@ class _PushNotificationHandlerState
         ),
       ),
       payload: notification.data['link'],
-    );
+    ));
   }
 
   @override

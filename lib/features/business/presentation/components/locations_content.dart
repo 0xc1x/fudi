@@ -30,10 +30,10 @@ class LocationsContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CustomScrollView(
       slivers: [
-        SliverAppBar(
+        const SliverAppBar(
           pinned: true,
           backgroundColor: FudiColors.background,
-          title: const Text('Gestión', style: FudiTypography.h2),
+          title: Text('Gestión', style: FudiTypography.h2),
         ),
         SliverPadding(
           padding: const EdgeInsets.all(FudiSpacing.md),

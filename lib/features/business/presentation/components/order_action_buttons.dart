@@ -51,13 +51,13 @@ class OrderActionButtons extends ConsumerWidget {
                   .updateOrderStatus(order.id, OrderStatus.cancelled);
               _invalidateOrders(ref);
             },
-            icon: Icon(
+            icon: const Icon(
               FudiIcons.xCircle,
               size: 20,
               color: FudiColors.destructive,
             ),
             style: IconButton.styleFrom(
-              side: BorderSide(color: FudiColors.borderSolid),
+              side: const BorderSide(color: FudiColors.borderSolid),
               padding: const EdgeInsets.all(10),
             ),
           ),

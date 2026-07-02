@@ -16,7 +16,7 @@ class ReverseGeocodeResult {
   final String? city;
 
   String get bestZoneName =>
-    neighbourhood ?? quarter ?? cityDistrict ?? city ?? displayName;
+      neighbourhood ?? quarter ?? cityDistrict ?? city ?? displayName;
 }
 
 Future<ReverseGeocodeResult> reverseGeocode({
@@ -28,13 +28,11 @@ Future<ReverseGeocodeResult> reverseGeocode({
         'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude&accept-language=es';
     final response = await Dio().get<Map<String, dynamic>>(
       url,
-      options: Options(
-        headers: {'User-Agent': 'FudiApp/1.0'},
-      ),
+      options: Options(headers: {'User-Agent': 'FudiApp/1.0'}),
     );
     final data = response.data;
     if (data == null) {
-      return ReverseGeocodeResult(displayName: '');
+      return const ReverseGeocodeResult(displayName: '');
     }
 
     final address = data['address'] as Map<String, dynamic>?;
@@ -47,6 +45,6 @@ Future<ReverseGeocodeResult> reverseGeocode({
       city: address?['city'] as String?,
     );
   } catch (_) {
-    return ReverseGeocodeResult(displayName: '');
+    return const ReverseGeocodeResult(displayName: '');
   }
 }

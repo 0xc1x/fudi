@@ -7,14 +7,15 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+
 import '../../../../core/error/user_friendly_message.dart';
+import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
-import '../../../../core/ui/atoms/icons/fudi_icons.dart';
-import '../../../../core/utils/reverse_geocode.dart';
 import '../../../../core/utils/map_style.dart';
+import '../../../../core/utils/reverse_geocode.dart';
 import '../../../auth/presentation/auth_state_provider.dart';
 import '../../domain/business_location.dart';
 import '../../domain/business_profile.dart';
@@ -23,11 +24,11 @@ import '../business_providers.dart';
 import 'map_picker_screen.dart';
 
 const _businessTypes = [
-  ('restaurant', 'Restaurante'),
-  ('bakery', 'Panadería'),
-  ('cafe', 'Cafetería'),
-  ('grocery', 'Supermercado'),
-  ('other', 'Otro'),
+  ('restaurant', 'Restaurante', Icons.restaurant_rounded),
+  ('bakery', 'Panadería', Icons.bakery_dining_rounded),
+  ('cafe', 'Cafetería', Icons.local_cafe_rounded),
+  ('grocery', 'Supermercado', Icons.shopping_bag_outlined),
+  ('other', 'Otro', Icons.storefront_rounded),
 ];
 
 class BusinessLocationCreateScreen extends ConsumerStatefulWidget {
@@ -59,7 +60,7 @@ class _BusinessLocationCreateScreenState
   @override
   void initState() {
     super.initState();
-    _determinePosition();
+    unawaited(_determinePosition());
   }
 
   @override
@@ -103,9 +104,9 @@ class _BusinessLocationCreateScreenState
       _selectedLocation = LatLng(position.latitude, position.longitude);
       if (mounted) setState(() => _mapLoading = false);
       await _reverseGeocode(_selectedLocation);
-      _mapController?.animateCamera(
+      unawaited(_mapController?.animateCamera(
         CameraUpdate.newLatLngZoom(_selectedLocation, 16),
-      );
+      ));
     } catch (_) {
       if (mounted) setState(() => _mapLoading = false);
     }
@@ -129,12 +130,12 @@ class _BusinessLocationCreateScreenState
     _hasSelectedLocation = true;
     _geoDebounce?.cancel();
     _geoDebounce = Timer(const Duration(milliseconds: 600), () {
-      if (mounted) _reverseGeocode(_selectedLocation);
+      if (mounted) unawaited(_reverseGeocode(_selectedLocation));
     });
   }
 
   void _openFullMap() {
-    Navigator.push<MapPickerResult>(
+    unawaited(Navigator.push<MapPickerResult>(
       context,
       MaterialPageRoute(
         builder: (_) => MapPickerScreen(
@@ -151,11 +152,11 @@ class _BusinessLocationCreateScreenState
           }
           _zone = result.zone;
         });
-        _mapController?.animateCamera(
+        unawaited(_mapController?.animateCamera(
           CameraUpdate.newLatLng(_selectedLocation),
-        );
+        ));
       }
-    });
+    }));
   }
 
   Future<void> _submit() async {
@@ -163,7 +164,7 @@ class _BusinessLocationCreateScreenState
     if (!_hasSelectedLocation) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Selecciona la ubicación en el mapa'),
+          content: Text('Por favor, selecciona la ubicación en el mapa'),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
@@ -174,7 +175,7 @@ class _BusinessLocationCreateScreenState
     setState(() => _isSubmitting = true);
 
     try {
-      var business = ref.read(currentBusinessProvider).value;
+      final business = ref.read(currentBusinessProvider).value;
 
       if (business == null) {
         final authState = ref.read(authSessionNotifierProvider);
@@ -205,7 +206,7 @@ class _BusinessLocationCreateScreenState
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Negocio creado correctamente'),
-              backgroundColor: Colors.green,
+              backgroundColor: FudiColors.success,
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -233,7 +234,7 @@ class _BusinessLocationCreateScreenState
         context.pop();
       }
     } catch (e, st) {
-      Sentry.captureException(e, stackTrace: st);
+      unawaited(Sentry.captureException(e, stackTrace: st));
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -251,277 +252,328 @@ class _BusinessLocationCreateScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FudiColors.background,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        leading: FudiPressableScale(
-          onTap: () => context.pop(),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(shape: BoxShape.circle),
-            child: const Icon(FudiIcons.chevronLeft),
+        leading: Center(
+          child: FudiPressableScale(
+            onTap: () => context.pop(),
+            child: Container(
+              width: 38,
+              height: 38,
+              decoration: const BoxDecoration(
+                color: FudiColors.background,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(FudiIcons.chevronLeft, size: 18, color: FudiColors.foreground),
+            ),
           ),
         ),
-        title: const Text('Nueva sucursal', style: FudiTypography.h4),
+        title: Text(
+          'Nueva sucursal',
+          style: FudiTypography.h4.copyWith(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(FudiSpacing.md),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildBusinessInfoSection(),
-              const SizedBox(height: FudiSpacing.md),
-              _buildMapSection(),
-              const SizedBox(height: FudiSpacing.md),
-              _buildContactSection(),
-              const SizedBox(height: 120),
-            ],
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg, vertical: FudiSpacing.xl),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Detalles Básicos',
+                  style: FudiTypography.bodyMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: FudiColors.foreground,
+                  ),
+                ),
+                const SizedBox(height: FudiSpacing.md),
+                _buildField(
+                  label: 'Nombre de la sucursal',
+                  controller: _nameController,
+                  hint: 'Ej: Sucursal Cumbayá / Mall del Sol',
+                  icon: FudiIcons.storefront,
+                  isRequired: true,
+                ),
+                const SizedBox(height: FudiSpacing.lg),
+                
+                Text(
+                  'Tipo de Establecimiento',
+                  style: FudiTypography.bodySmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: FudiColors.mutedForeground,
+                  ),
+                ),
+                const SizedBox(height: FudiSpacing.sm),
+                _buildBusinessTypeSelector(),
+                
+                const SizedBox(height: FudiSpacing.xl),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Ubicación Geográfica',
+                      style: FudiTypography.bodyMedium.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: FudiColors.foreground,
+                      ),
+                    ),
+                    Text(
+                      '* Requerido',
+                      style: FudiTypography.bodySmall.copyWith(
+                        color: FudiColors.primary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: FudiSpacing.md),
+                _buildMapSection(),
+                
+                const SizedBox(height: FudiSpacing.xl),
+                Text(
+                  'Información de Contacto',
+                  style: FudiTypography.bodyMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: FudiColors.foreground,
+                  ),
+                ),
+                const SizedBox(height: FudiSpacing.md),
+                _buildField(
+                  label: 'Dirección Completa',
+                  controller: _addressController,
+                  hint: 'Asigna la ubicación usando el mapa superior',
+                  icon: FudiIcons.mapPin,
+                  isRequired: true,
+                  maxLines: 2,
+                ),
+                const SizedBox(height: FudiSpacing.lg),
+                _buildField(
+                  label: 'Teléfono de contacto (Opcional)',
+                  controller: _phoneController,
+                  hint: 'Ej: +593 98 765 4321',
+                  icon: FudiIcons.phone,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[+\d\s()-]')),
+                  ],
+                ),
+                const SizedBox(height: 140),
+              ],
+            ),
           ),
         ),
       ),
       bottomSheet: Container(
-        padding: const EdgeInsets.all(FudiSpacing.md),
+        padding: const EdgeInsets.only(
+          left: FudiSpacing.lg,
+          right: FudiSpacing.lg,
+          top: FudiSpacing.md,
+          bottom: FudiSpacing.xl,
+        ),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border(top: BorderSide(color: FudiColors.border)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, -4),
+            )
+          ],
+          border: const Border(top: BorderSide(color: FudiColors.border, width: 0.5)),
         ),
         child: SizedBox(
           width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _isSubmitting ? null : _submit,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: FudiColors.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          child: FudiPressableScale(
+            onTap: _isSubmitting ? null : _submit,
+            child: Container(
+              height: 52,
+              decoration: BoxDecoration(
+                color: _isSubmitting ? FudiColors.muted : FudiColors.primary,
+                borderRadius: BorderRadius.circular(FudiRadius.md),
               ),
-            ),
-            child: _isSubmitting
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
+              alignment: Alignment.center,
+              child: _isSubmitting
+                  ? const SizedBox(
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(
+                      'Confirmar y Crear Sucursal',
+                      style: FudiTypography.bodyMedium.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  )
-                : const Text(
-                    'Crear sucursal',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildBusinessInfoSection() {
-    return Container(
-      padding: const EdgeInsets.all(FudiSpacing.md),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(FudiRadius.lg),
-        border: Border.all(color: FudiColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Información del negocio',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          _buildField(
-            label: 'Nombre de la sucursal *',
-            controller: _nameController,
-            hint: 'Ej: Sucursal Centro',
-            icon: FudiIcons.storefront,
-          ),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
-            initialValue: _selectedBusinessType,
-            decoration: InputDecoration(
-              labelText: 'Tipo de negocio *',
-              filled: true,
-              fillColor: FudiColors.background.withValues(alpha: 0.5),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(FudiRadius.md),
-                borderSide: BorderSide.none,
+  Widget _buildBusinessTypeSelector() {
+    return SizedBox(
+      height: 42,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: _businessTypes.length,
+        itemBuilder: (context, index) {
+          final type = _businessTypes[index];
+          final isSelected = _selectedBusinessType == type.$1;
+          return Padding(
+            padding: const EdgeInsets.only(right: FudiSpacing.sm),
+            child: ChoiceChip(
+              label: Row(
+                children: [
+                  Icon(
+                    type.$3,
+                    size: 16,
+                    color: isSelected ? Colors.white : FudiColors.mutedForeground,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(type.$2),
+                ],
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
+              selected: isSelected,
+              onSelected: (selected) {
+                if (selected) {
+                  setState(() => _selectedBusinessType = type.$1);
+                }
+              },
+              selectedColor: FudiColors.primary,
+              backgroundColor: FudiColors.background,
+              labelStyle: FudiTypography.bodySmall.copyWith(
+                color: isSelected ? Colors.white : FudiColors.foreground,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
-            ),
-            items: _businessTypes.map((t) {
-              return DropdownMenuItem(
-                value: t.$1,
-                child: Row(
-                  children: [
-                    Icon(
-                      _typeIcon(t.$1),
-                      size: 18,
-                      color: FudiColors.mutedForeground,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(t.$2),
-                  ],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(FudiRadius.sm),
+                side: BorderSide(
+                  color: isSelected ? FudiColors.primary : FudiColors.border,
                 ),
-              );
-            }).toList(),
-            onChanged: (value) {
-              if (value != null) {
-                setState(() => _selectedBusinessType = value);
-              }
-            },
-            validator: (value) =>
-                value == null ? 'Selecciona un tipo de negocio' : null,
-          ),
-        ],
+              ),
+              showCheckmark: false,
+              elevation: 0,
+              pressElevation: 0,
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildMapSection() {
-    return GestureDetector(
-      onTap: _openFullMap,
-      child: Container(
-        height: 280,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(FudiRadius.lg),
-          border: Border.all(color: FudiColors.border),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
-          children: [
-            if (_mapLoading)
-              const Center(child: CircularProgressIndicator())
-            else
-              GoogleMap(
-                style: kMapStyleNoPoi,
-                initialCameraPosition: CameraPosition(
-                  target: _selectedLocation,
-                  zoom: 16,
-                ),
-                onMapCreated: (controller) => _mapController = controller,
-                onCameraMove: _onCameraMove,
-                myLocationEnabled: true,
-                myLocationButtonEnabled: false,
-                zoomControlsEnabled: false,
-                mapToolbarEnabled: false,
+    return Container(
+      height: 220,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(FudiRadius.md),
+        border: Border.all(color: FudiColors.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          if (_mapLoading)
+            const Center(child: CircularProgressIndicator())
+          else
+            GoogleMap(
+              style: kMapStyleNoPoi,
+              initialCameraPosition: CameraPosition(
+                target: _selectedLocation,
+                zoom: 16,
               ),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 35),
-                child: Icon(
-                  Icons.location_on,
-                  size: 48,
-                  color: FudiColors.primary,
-                ),
+              onMapCreated: (controller) => _mapController = controller,
+              onCameraMove: _onCameraMove,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              mapToolbarEnabled: false,
+            ),
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 24),
+              child: Icon(
+                Icons.location_on_rounded,
+                size: 40,
+                color: FudiColors.primary,
               ),
             ),
-            Positioned(
-              top: FudiSpacing.sm,
-              right: FudiSpacing.sm,
-              child: FloatingActionButton.small(
-                onPressed: () async {
-                  await _determinePosition();
-                  _openFullMap();
-                },
-                backgroundColor: Colors.white,
-                heroTag: null,
+          ),
+          Positioned(
+            top: FudiSpacing.sm,
+            right: FudiSpacing.sm,
+            child: FudiPressableScale(
+              onTap: () async {
+                await _determinePosition();
+                _openFullMap();
+              },
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 6,
+                    )
+                  ],
+                ),
                 child: const Icon(
-                  Icons.open_in_full,
-                  color: FudiColors.primary,
+                  Icons.fullscreen_rounded,
+                  color: FudiColors.foreground,
                   size: 20,
                 ),
               ),
             ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.9),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      FudiIcons.mapPin,
-                      size: 16,
-                      color: FudiColors.mutedForeground,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        _addressController.text.isNotEmpty
-                            ? _addressController.text
-                            : 'Presioná para abrir el mapa',
-                        style: FudiTypography.bodySmall.copyWith(
-                          color: _addressController.text.isNotEmpty
-                              ? FudiColors.foreground
-                              : FudiColors.mutedForeground,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+          ),
+          Positioned(
+            bottom: FudiSpacing.sm,
+            left: FudiSpacing.sm,
+            right: FudiSpacing.sm,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.sm, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.95),
+                borderRadius: BorderRadius.circular(FudiRadius.sm),
+                border: Border.all(color: FudiColors.border.withValues(alpha: 0.5)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    FudiIcons.mapPin,
+                    size: 14,
+                    color: FudiColors.primary,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      _addressController.text.isNotEmpty
+                          ? _addressController.text
+                          : 'Arrastra el mapa para ubicar la sucursal',
+                      style: FudiTypography.bodySmall.copyWith(
+                        fontSize: 11,
+                        color: _addressController.text.isNotEmpty
+                            ? FudiColors.foreground
+                            : FudiColors.mutedForeground,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const Icon(
-                      Icons.open_in_full,
-                      size: 14,
-                      color: FudiColors.mutedForeground,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContactSection() {
-    return Container(
-      padding: const EdgeInsets.all(FudiSpacing.md),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(FudiRadius.lg),
-        border: Border.all(color: FudiColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Contacto',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          _buildField(
-            label: 'Dirección *',
-            controller: _addressController,
-            hint: 'Se actualiza automáticamente con el mapa',
-            icon: FudiIcons.mapPin,
-            maxLines: 2,
-          ),
-          const SizedBox(height: 16),
-          _buildField(
-            label: 'Teléfono',
-            controller: _phoneController,
-            hint: 'Ej: +593 987654321',
-            icon: FudiIcons.phone,
-            keyboardType: TextInputType.phone,
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[+\d\s()-]')),
-            ],
           ),
         ],
       ),
@@ -536,60 +588,62 @@ class _BusinessLocationCreateScreenState
     TextInputType? keyboardType,
     List<TextInputFormatter>? inputFormatters,
     int maxLines = 1,
+    bool isRequired = false,
+    bool readOnly = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 16, color: FudiColors.mutedForeground),
-              const SizedBox(width: 8),
-            ],
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+        Text(
+          '$label${isRequired ? ' *' : ''}',
+          style: FudiTypography.bodySmall.copyWith(
+            fontWeight: FontWeight.w600,
+            color: FudiColors.mutedForeground,
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
           maxLines: maxLines,
+          readOnly: readOnly,
+          style: FudiTypography.bodyMedium.copyWith(color: FudiColors.foreground),
           decoration: InputDecoration(
             hintText: hint,
+            hintStyle: FudiTypography.bodyMedium.copyWith(color: FudiColors.mutedForeground.withValues(alpha: 0.7)),
             filled: true,
-            fillColor: FudiColors.background.withValues(alpha: 0.5),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(FudiRadius.md),
-              borderSide: BorderSide.none,
-            ),
+            fillColor: readOnly ? FudiColors.background.withValues(alpha: 0.3) : Colors.white,
+            prefixIcon: icon != null 
+                ? Icon(icon, size: 18, color: FudiColors.mutedForeground.withValues(alpha: 0.7))
+                : null,
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
+              horizontal: FudiSpacing.md,
+              vertical: FudiSpacing.sm + 2,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(FudiRadius.sm),
+              borderSide: const BorderSide(color: FudiColors.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(FudiRadius.sm),
+              borderSide: const BorderSide(color: FudiColors.primary, width: 1.5),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(FudiRadius.sm),
+              borderSide: const BorderSide(color: Colors.redAccent),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(FudiRadius.sm),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
             ),
           ),
           validator: (value) =>
-              (value == null || value.isEmpty) && label.contains('*')
-                  ? 'Campo requerido'
-                  : null,
+              (value == null || value.trim().isEmpty) && isRequired
+              ? 'Este campo es obligatorio'
+              : null,
         ),
       ],
     );
-  }
-
-  IconData _typeIcon(String type) {
-    return switch (type) {
-      'restaurant' => Icons.restaurant,
-      'bakery' => Icons.bakery_dining,
-      'cafe' => Icons.local_cafe,
-      'grocery' => Icons.shopping_cart,
-      _ => Icons.store,
-    };
   }
 }

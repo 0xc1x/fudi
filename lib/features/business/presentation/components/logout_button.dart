@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/ui/fudi_colors.dart';
@@ -13,7 +15,7 @@ class LogoutButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return FudiPressableScale(
       onTap: () {
-        showDialog(
+        unawaited(showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Cerrar sesión'),
@@ -29,7 +31,7 @@ class LogoutButton extends ConsumerWidget {
               FudiPressableScale(
                 onTap: () {
                   Navigator.of(ctx).pop();
-                  ref.read(authControllerProvider.notifier).signOut();
+                  unawaited(ref.read(authControllerProvider.notifier).signOut());
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -42,7 +44,7 @@ class LogoutButton extends ConsumerWidget {
               ),
             ],
           ),
-        );
+        ));
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),

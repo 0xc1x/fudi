@@ -15,18 +15,6 @@ import 'app_environment.dart';
 /// final config = AppConfig.fromEnv(AppEnvironment.dev);
 /// print(config.supabaseUrl);
 class AppConfig {
-  final AppEnvironment environment;
-  final String supabaseUrl;
-  final String supabaseAnonKey;
-  final String sentryDsn;
-  final String googleMapsApiKey;
-  final String authResetRedirectUrl;
-  final String firebaseApiKey;
-  final String firebaseProjectId;
-  final String firebaseMessagingSenderId;
-  final String firebaseAppId;
-  final String firebaseVapidKey;
-
   const AppConfig({
     required this.environment,
     required this.supabaseUrl,
@@ -60,6 +48,17 @@ class AppConfig {
       firebaseVapidKey: _resolve('FIREBASE_VAPID_KEY'),
     );
   }
+  final AppEnvironment environment;
+  final String supabaseUrl;
+  final String supabaseAnonKey;
+  final String sentryDsn;
+  final String googleMapsApiKey;
+  final String authResetRedirectUrl;
+  final String firebaseApiKey;
+  final String firebaseProjectId;
+  final String firebaseMessagingSenderId;
+  final String firebaseAppId;
+  final String firebaseVapidKey;
 
   /// Convenience getters for environment checks.
   bool get isDev => environment == AppEnvironment.dev;
@@ -102,38 +101,16 @@ String _resolveAny(List<String> keys) {
 }
 
 const _dartDefine = {
-  'SUPABASE_URL': String.fromEnvironment('SUPABASE_URL', defaultValue: ''),
-  'SUPABASE_ANON_KEY': String.fromEnvironment(
-    'SUPABASE_ANON_KEY',
-    defaultValue: '',
-  ),
-  'SENTRY_DSN': String.fromEnvironment('SENTRY_DSN', defaultValue: ''),
-  'GOOGLE_MAPS_API_KEY': String.fromEnvironment(
-    'GOOGLE_MAPS_API_KEY',
-    defaultValue: '',
-  ),
-  'AUTH_RESET_REDIRECT_URL': String.fromEnvironment(
-    'AUTH_RESET_REDIRECT_URL',
-    defaultValue: '',
-  ),
-  'FIREBASE_API_KEY': String.fromEnvironment(
-    'FIREBASE_API_KEY',
-    defaultValue: '',
-  ),
-  'FIREBASE_PROJECT_ID': String.fromEnvironment(
-    'FIREBASE_PROJECT_ID',
-    defaultValue: '',
-  ),
+  'SUPABASE_URL': String.fromEnvironment('SUPABASE_URL'),
+  'SUPABASE_ANON_KEY': String.fromEnvironment('SUPABASE_ANON_KEY'),
+  'SENTRY_DSN': String.fromEnvironment('SENTRY_DSN'),
+  'GOOGLE_MAPS_API_KEY': String.fromEnvironment('GOOGLE_MAPS_API_KEY'),
+  'AUTH_RESET_REDIRECT_URL': String.fromEnvironment('AUTH_RESET_REDIRECT_URL'),
+  'FIREBASE_API_KEY': String.fromEnvironment('FIREBASE_API_KEY'),
+  'FIREBASE_PROJECT_ID': String.fromEnvironment('FIREBASE_PROJECT_ID'),
   'FIREBASE_MESSAGING_SENDER_ID': String.fromEnvironment(
     'FIREBASE_MESSAGING_SENDER_ID',
-    defaultValue: '',
   ),
-  'FIREBASE_APP_ID': String.fromEnvironment(
-    'FIREBASE_APP_ID',
-    defaultValue: '',
-  ),
-  'FIREBASE_VAPID_KEY': String.fromEnvironment(
-    'FIREBASE_VAPID_KEY',
-    defaultValue: '',
-  ),
+  'FIREBASE_APP_ID': String.fromEnvironment('FIREBASE_APP_ID'),
+  'FIREBASE_VAPID_KEY': String.fromEnvironment('FIREBASE_VAPID_KEY'),
 };

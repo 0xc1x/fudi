@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -78,8 +79,13 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
     with SingleTickerProviderStateMixin {
   static const _duration = Duration(milliseconds: 400);
 
+  /// Cuánto se ensancha la píldora en el punto máximo del recorrido,
+  /// como fracción de su ancho normal (0.18 = +18% en el pico).
+  static const _stretchFactor = 0.18;
+
   late AnimationController _controller;
   late Animation<double> _pillAnim;
+  late Animation<double> _stretchAnim;
 
   /// Posición desde la que arranca la animación actual.
   double _fromLeft = -1; // -1 = todavía no inicializado
@@ -91,7 +97,26 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this, duration: _duration);
-    _pillAnim = AlwaysStoppedAnimation(0.0);
+    _pillAnim = const AlwaysStoppedAnimation(0.0);
+
+    // Estiramiento: 0 → 1 en la primera mitad del recorrido, 1 → 0 en la
+    // segunda. No depende del layout, así que se puede armar una sola vez.
+    _stretchAnim = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.0,
+          end: 0.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
+        weight: 50,
+      ),
+    ]).animate(_controller);
   }
 
   @override
@@ -114,9 +139,8 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
       CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubic),
     );
 
-    _controller
-      ..reset()
-      ..forward();
+    _controller.reset();
+    unawaited(_controller.forward());
 
     setState(() {});
   }
@@ -132,9 +156,7 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(color: FudiColors.borderSolid, width: 1),
-        ),
+        border: Border(top: BorderSide(color: FudiColors.borderSolid)),
       ),
       constraints: const BoxConstraints(maxWidth: 480),
       child: LayoutBuilder(
@@ -157,9 +179,16 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
           }
 
           return AnimatedBuilder(
-            animation: _pillAnim,
+            animation: _controller,
             builder: (context, _) {
               final animLeft = _pillAnim.value;
+
+              // Ancho extra en el pico del recorrido, repartido a ambos
+              // lados para que el estiramiento quede centrado en la píldora.
+              final stretchExtra =
+                  pillWidth * _stretchFactor * _stretchAnim.value;
+              final animatedPillWidth = pillWidth + stretchExtra;
+              final animatedLeft = animLeft - stretchExtra / 2;
 
               return SizedBox(
                 height: 64,
@@ -189,8 +218,8 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
 
                     // ── CAPA 2: píldora deslizante ─────────────────────────
                     Positioned(
-                      left: animLeft,
-                      width: pillWidth,
+                      left: animatedLeft,
+                      width: animatedPillWidth,
                       top: 12,
                       bottom: 12,
                       child: IgnorePointer(
@@ -208,15 +237,17 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
 
                     // ── CAPA 3: ventana-máscara con contenido "clavado" ────
                     //
-                    // La ventana (ClipRect) se mueve junto a la píldora.
-                    // El Transform.translate compensa ese movimiento con
-                    // -animLeft, de modo que el Row interior queda
-                    // absolutamente fijo respecto a la pantalla.
-                    // El efecto resultante: la píldora "revela" el texto
-                    // blanco que ya estaba ahí, sin que el contenido salte.
+                    // La ventana (ClipRect) se mueve y se estira junto con
+                    // la píldora. El Transform.translate compensa ese
+                    // movimiento con -animLeft (usando la posición SIN
+                    // estirar, para que el contenido no se distorsione),
+                    // de modo que el Row interior queda absolutamente fijo
+                    // respecto a la pantalla. El efecto resultante: la
+                    // píldora "revela" el texto blanco que ya estaba ahí,
+                    // sin que el contenido salte ni se deforme.
                     Positioned(
-                      left: animLeft,
-                      width: pillWidth,
+                      left: animatedLeft,
+                      width: animatedPillWidth,
                       top: 0,
                       bottom: 0,
                       child: IgnorePointer(
@@ -282,7 +313,7 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
 // ── Modelo ────────────────────────────────────────────────────────────────────
 
 class _NavItem {
+  const _NavItem({required this.label, required this.icon});
   final String label;
   final IconData icon;
-  const _NavItem({required this.label, required this.icon});
 }

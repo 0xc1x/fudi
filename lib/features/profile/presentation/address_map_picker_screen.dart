@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -38,18 +40,20 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
     super.initState();
     _currentLocation =
         widget.initialLocation ?? const LatLng(-0.22985, -78.52495);
-    _determinePosition();
+    unawaited(_determinePosition());
   }
 
   Future<void> _determinePosition() async {
     if (widget.initialLocation != null) {
       setState(() => _loading = false);
-      _resolveAddress(widget.initialLocation!);
+      if (widget.initialLocation != null) {
+        unawaited(_resolveAddress(widget.initialLocation!));
+      }
       return;
     }
 
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         setState(() => _loading = false);
         return;
@@ -81,8 +85,8 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
         _loading = false;
       });
 
-      _mapController?.animateCamera(CameraUpdate.newLatLngZoom(latLng, 16));
-      _resolveAddress(latLng);
+      unawaited(_mapController?.animateCamera(CameraUpdate.newLatLngZoom(latLng, 16)));
+      unawaited(_resolveAddress(latLng));
     } catch (e) {
       debugPrint('Error obteniendo ubicación: $e');
       setState(() => _loading = false);
@@ -127,7 +131,7 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
   }
 
   void _onCameraIdle() {
-    _resolveAddress(_currentLocation);
+    unawaited(_resolveAddress(_currentLocation));
   }
 
   void _confirm() {
@@ -150,7 +154,10 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
           child: Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(color: FudiColors.muted, shape: BoxShape.circle),
+            decoration: const BoxDecoration(
+              color: FudiColors.muted,
+              shape: BoxShape.circle,
+            ),
             child: const Icon(FudiIcons.chevronLeft, size: 20),
           ),
         ),
@@ -176,9 +183,9 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
             ),
 
           if (!_loading)
-            Center(
+            const Center(
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 35),
+                padding: EdgeInsets.only(bottom: 35),
                 child: Icon(
                   Icons.location_on,
                   size: 50,
@@ -242,7 +249,12 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
                           color: FudiColors.primary,
                           borderRadius: BorderRadius.circular(FudiRadius.xl),
                         ),
-                        child: const Center(child: Text('Confirmar ubicación', style: TextStyle(color: Colors.white))),
+                        child: const Center(
+                          child: Text(
+                            'Confirmar ubicación',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
                       ),
                     ),
                   ),

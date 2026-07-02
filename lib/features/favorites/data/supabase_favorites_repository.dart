@@ -1,4 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../core/utils/num_utils.dart';
 import '../../offers/domain/offer_category.dart';
 import '../domain/favorite_offer.dart';
 import '../domain/favorites_repository.dart';
@@ -41,7 +43,7 @@ class SupabaseFavoritesRepository implements FavoritesRepository {
         .select('offer_id')
         .eq('user_id', userId);
 
-    return (response as List).map((row) => row['offer_id'] as String).toSet();
+    return (response as List).map((row) => (row as Map<String, dynamic>)['offer_id'] as String).toSet();
   }
 
   @override
@@ -89,18 +91,11 @@ class SupabaseFavoritesRepository implements FavoritesRepository {
       zone: locationJson?['zone'] as String?,
       category: OfferCategory.fromDb(offerJson['category'] as String?),
       title: offerJson['title'] as String? ?? 'Oferta',
-      rating: _toDouble(offerJson['rating']) ?? 0,
-      discountedPrice: _toDouble(offerJson['discounted_price']) ?? 0,
-      originalPrice: _toDouble(offerJson['original_price']) ?? 0,
+      rating: parseDouble(offerJson['rating']) ?? 0,
+      discountedPrice: parseDouble(offerJson['discounted_price']) ?? 0,
+      originalPrice: parseDouble(offerJson['original_price']) ?? 0,
       imageUrl: offerJson['image'] as String?,
     );
   }
 
-  double? _toDouble(dynamic value) {
-    if (value == null) return null;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is num) return value.toDouble();
-    return null;
-  }
 }

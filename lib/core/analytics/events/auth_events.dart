@@ -9,9 +9,8 @@ enum AuthMethod { email, google, apple }
 
 /// User initiates a login attempt.
 class AuthLoginStartedEvent extends AnalyticsEvent {
-  final AuthMethod method;
-
   AuthLoginStartedEvent({required this.method});
+  final AuthMethod method;
 
   @override
   String get name => 'auth_login_started';
@@ -22,10 +21,9 @@ class AuthLoginStartedEvent extends AnalyticsEvent {
 
 /// Login succeeded.
 class AuthLoginCompletedEvent extends AnalyticsEvent {
+  AuthLoginCompletedEvent({required this.method, required this.isNewUser});
   final AuthMethod method;
   final bool isNewUser;
-
-  AuthLoginCompletedEvent({required this.method, required this.isNewUser});
 
   @override
   String get name => 'auth_login_completed';
@@ -39,10 +37,9 @@ class AuthLoginCompletedEvent extends AnalyticsEvent {
 
 /// Login failed.
 class AuthLoginFailedEvent extends AnalyticsEvent {
+  AuthLoginFailedEvent({required this.method, required this.errorType});
   final AuthMethod method;
   final String errorType;
-
-  AuthLoginFailedEvent({required this.method, required this.errorType});
 
   @override
   String get name => 'auth_login_failed';
@@ -56,10 +53,9 @@ class AuthLoginFailedEvent extends AnalyticsEvent {
 
 /// Signup completed successfully.
 class AuthSignupCompletedEvent extends AnalyticsEvent {
+  AuthSignupCompletedEvent({required this.method, required this.role});
   final AuthMethod method;
   final String role;
-
-  AuthSignupCompletedEvent({required this.method, required this.role});
 
   @override
   String get name => 'auth_signup_completed';

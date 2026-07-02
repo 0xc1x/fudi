@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -35,6 +37,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Coupon? _appliedCoupon;
   bool _validatingCoupon = false;
   int _selectedPaymentIndex = 0;
+  bool _priceBreakdownExpanded = true;
 
   bool _confirmed = false;
   ReservationSuccess? _confirmationResult;
@@ -62,12 +65,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         ref.invalidate(userOrdersProvider);
       }
       if (next.step == ReservationStep.error && next.errorMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.errorMessage!),
-            backgroundColor: FudiColors.destructive,
-          ),
-        );
+        _showErrorSnackBar(next.errorMessage!);
       }
     });
 
@@ -75,11 +73,48 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       data: (offer) => _confirmed
           ? ConfirmationView(offer: offer, result: _confirmationResult!)
           : _buildCheckoutContent(context, offer, reservationState),
-      loading: () =>
-          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () => const Scaffold(
+        backgroundColor: FudiColors.background,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: FudiColors.primary,
+            strokeWidth: 2.5,
+          ),
+        ),
+      ),
       error: (error, _) => Scaffold(
+        backgroundColor: FudiColors.background,
         appBar: const FudiStickyPageHeader(title: 'Checkout'),
-        body: Center(child: Text('Error: $error')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(FudiSpacing.xl),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline_rounded,
+                  size: 32,
+                  color: FudiColors.destructive,
+                ),
+                const SizedBox(height: FudiSpacing.md),
+                Text(
+                  'No pudimos cargar la orden',
+                  style: FudiTypography.h4.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: FudiSpacing.xs),
+                Text(
+                  userFriendlyMessage(error),
+                  style: FudiTypography.bodyMedium.copyWith(
+                    color: FudiColors.mutedForeground,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -98,117 +133,185 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final total = offer.discountedPrice + serviceFee - discount;
 
     return Scaffold(
+      backgroundColor: FudiColors.background,
       appBar: const FudiStickyPageHeader(title: 'Confirmar reserva'),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(FudiSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ProductSummaryCard(offer: offer),
-                const SizedBox(height: FudiSpacing.lg),
-                PickupDetailsCard(offer: offer),
-                const SizedBox(height: FudiSpacing.lg),
-                CouponSection(
-                  controller: _couponController,
-                  appliedCoupon: _appliedCoupon,
-                  validating: _validatingCoupon,
-                  enabled: !isProcessing,
-                  onApply: () => _validateCoupon(offer),
-                  onRemove: () => setState(() {
-                    _appliedCoupon = null;
-                    _couponController.clear();
-                  }),
-                ),
-                const SizedBox(height: FudiSpacing.lg),
-                PaymentMethodSection(
-                  selectedIndex: _selectedPaymentIndex,
-                  onChanged: (i) => setState(() => _selectedPaymentIndex = i),
-                ),
-                const SizedBox(height: FudiSpacing.lg),
-                PriceBreakdownCard(
-                  offer: offer,
-                  coupon: _appliedCoupon,
-                  couponDiscount: discount,
-                  serviceFee: serviceFee,
-                  total: total,
-                ),
-                const SizedBox(height: FudiSpacing.lg),
-                const FudiInfoBanner(
-                  title: 'Importante',
-                  message:
-                      'Presenta tu código de reserva al recoger.\n'
-                      'El contenido puede variar según disponibilidad.\n'
-                      'La cancelación está disponible hasta 2 horas antes.',
-                  icon: Icons.info_outline,
-                  backgroundColor: Color(0xFFFFF7ED),
-                  borderColor: Color(0xFFFED7AA),
-                  foregroundColor: Color(0xFF9A3412),
-                ),
-                const SizedBox(height: 120),
-              ],
-            ),
-          ),
-          if (isProcessing)
-            Container(
-              color: Colors.black26,
-              child: const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(color: Colors.white),
-                    SizedBox(height: FudiSpacing.md),
-                    Text(
-                      'Procesando reserva...',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
+      body: AbsorbPointer(
+        absorbing: isProcessing,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: FudiSpacing.md,
+                vertical: FudiSpacing.md,
+              ),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  ProductSummaryCard(offer: offer),
+                  const SizedBox(height: FudiSpacing.sm),
+                  PickupDetailsCard(offer: offer),
+                  const SizedBox(height: FudiSpacing.sm),
+                  CouponSection(
+                    controller: _couponController,
+                    appliedCoupon: _appliedCoupon,
+                    validating: _validatingCoupon,
+                    enabled: !isProcessing,
+                    onApply: () => _validateCoupon(offer),
+                    onRemove: () => setState(() {
+                      _appliedCoupon = null;
+                      _couponController.clear();
+                    }),
+                  ),
+                  const SizedBox(height: FudiSpacing.sm),
+                  PaymentMethodSection(
+                    selectedIndex: _selectedPaymentIndex,
+                    onChanged: (i) => setState(() => _selectedPaymentIndex = i),
+                  ),
+                  const SizedBox(height: FudiSpacing.md),
+                  Theme(
+                    data: Theme.of(
+                      context,
+                    ).copyWith(dividerColor: Colors.transparent),
+                    child: ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      childrenPadding: EdgeInsets.zero,
+                      initiallyExpanded: _priceBreakdownExpanded,
+                      onExpansionChanged: (v) => setState(
+                        () => _priceBreakdownExpanded = v,
+                      ),
+                      title: Text(
+                        _priceBreakdownExpanded
+                            ? 'Contraer'
+                            : 'Ver desglose de precio',
+                        style: FudiTypography.bodyMedium.copyWith(
+                          color: FudiColors.mutedForeground,
+                          fontWeight: FontWeight.w500,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                      iconColor: FudiColors.mutedForeground,
+                      collapsedIconColor: FudiColors.mutedForeground,
+                      children: [
+                        PriceBreakdownCard(
+                          offer: offer,
+                          coupon: _appliedCoupon,
+                          couponDiscount: discount,
+                          serviceFee: serviceFee,
+                          total: total,
+                        ),
+                        const SizedBox(height: FudiSpacing.md),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  const FudiInfoBanner(
+                    title: 'Política de Rescate Circular',
+                    message:
+                        'Asegúrate de retirar a tiempo. Al rescatar esta comida evitas desperdicios directos de CO₂ en el mercado local.',
+                    icon: Icons.eco_rounded,
+                    backgroundColor: Color(0xFFF0FDF4),
+                    borderColor: Color(0xFFBBF7D0),
+                    foregroundColor: Color(0xFF166534),
+                  ),
+                  const SizedBox(height: 160),
+                ]),
               ),
             ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: FudiBottomActionBar(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             FudiPressableScale(
-              onTap:
-                  offer.isAvailable && !isProcessing && !_validatingCoupon
+              onTap: offer.isAvailable && !isProcessing && !_validatingCoupon
                   ? () => _confirmAndPay(offer)
                   : null,
               child: Container(
                 width: double.infinity,
-                height: 56,
+                height: 58,
+                padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.md),
                 decoration: BoxDecoration(
-                  color: FudiColors.primary,
-                  borderRadius: BorderRadius.circular(FudiRadius.lg),
+                  color: (offer.isAvailable && !isProcessing)
+                      ? FudiColors.primary
+                      : FudiColors.muted,
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                child: Center(
-                  child: isProcessing
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Text(
-                          'Confirmar y pagar \$${total > 0 ? total.toStringAsFixed(2) : '0.00'}',
-                          style: FudiTypography.labelMedium.copyWith(
-                            color: Colors.white,
-                          ),
+                child: isProcessing
+                    ? const Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(width: FudiSpacing.md),
+                            Text(
+                              'Validando transacción...',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'TOTAL A PAGAR',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                  fontSize: 9,
+                                  letterSpacing: 1.1,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                '\$${total > 0 ? total.toStringAsFixed(2) : '0.00'}',
+                                style: FudiTypography.h4.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                'Reservar',
+                                style: FudiTypography.labelMedium.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: FudiSpacing.xs),
+                              const Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                color: Colors.white,
+                                size: 14,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
               ),
             ),
-            const SizedBox(height: FudiSpacing.xs),
+            const SizedBox(height: FudiSpacing.sm),
             Text(
-              'Al confirmar aceptas los términos y condiciones de Fudi',
+              'Términos y condiciones de Economía Circular aplicados.',
               style: FudiTypography.bodySmall.copyWith(
-                fontSize: 10,
+                fontSize: 9,
                 color: FudiColors.mutedForeground,
               ),
               textAlign: TextAlign.center,
@@ -233,52 +336,46 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         )).future,
       );
 
+      if (!mounted) return;
+
       if (coupon == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Cupón no encontrado o inválido'),
-              backgroundColor: FudiColors.destructive,
-            ),
-          );
-        }
+        _showErrorSnackBar('Cupón no encontrado o inválido');
       } else if (!coupon.isValid) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Este cupón ya no es válido'),
-              backgroundColor: FudiColors.destructive,
-            ),
-          );
-        }
+        _showErrorSnackBar('Este cupón ya no es válido');
       } else if (offer.discountedPrice < coupon.minOrderAmount) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Monto mínimo para este cupón: \$${coupon.minOrderAmount.toStringAsFixed(0)}',
-              ),
-              backgroundColor: FudiColors.destructive,
-            ),
-          );
-        }
+        _showErrorSnackBar(
+          'Monto mínimo para este cupón: \$${coupon.minOrderAmount.toStringAsFixed(0)}',
+        );
       } else {
         setState(() => _appliedCoupon = coupon);
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(userFriendlyMessage(e))));
-      }
+      if (mounted) _showErrorSnackBar(userFriendlyMessage(e));
     } finally {
       if (mounted) setState(() => _validatingCoupon = false);
     }
   }
 
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
+        backgroundColor: FudiColors.destructive,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(FudiSpacing.md),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
   void _confirmAndPay(Offer offer) {
-    ref
-        .read(reservationControllerProvider.notifier)
-        .reserveAndPay(offerId: offer.id, couponId: _appliedCoupon?.id);
+    unawaited(
+      ref
+          .read(reservationControllerProvider.notifier)
+          .reserveAndPay(offerId: offer.id, couponId: _appliedCoupon?.id),
+    );
   }
 }

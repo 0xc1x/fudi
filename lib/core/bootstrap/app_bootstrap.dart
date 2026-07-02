@@ -11,15 +11,14 @@ import '../config/app_environment.dart';
 import 'validating_local_storage.dart';
 
 class AppBootstrapResult {
-  final AppEnvironment environment;
-  final AppConfig config;
-  final bool sentryEnabled;
-
   const AppBootstrapResult({
     required this.environment,
     required this.config,
     required this.sentryEnabled,
   });
+  final AppEnvironment environment;
+  final AppConfig config;
+  final bool sentryEnabled;
 }
 
 class AppBootstrap {
@@ -43,7 +42,6 @@ class AppBootstrap {
       publishableKey: config.supabaseAnonKey,
       debug: config.isDev,
       authOptions: FlutterAuthClientOptions(
-        autoRefreshToken: false,
         localStorage: ValidatingLocalStorage(
           delegate: SharedPreferencesLocalStorage(
             persistSessionKey: persistSessionKey,
@@ -67,23 +65,18 @@ class AppBootstrap {
     await SharedPreferences.getInstance();
 
     bool sentryEnabled = false;
-    if (config.hasSentry) {
+    if (config.hasSentry && !config.isDev) {
       sentryEnabled = true;
       await SentryFlutter.init((options) {
         options.dsn = config.sentryDsn;
         options.environment = config.environment.name;
         options.release = 'fudi@1.0.0+1';
-        options.tracesSampleRate = config.isDev
-            ? 1.0
-            : (config.isStaging ? 0.5 : 0.2);
+        options.tracesSampleRate = config.isStaging ? 0.5 : 0.2;
         // ignore: experimental_member_use
-        options.profilesSampleRate = config.isDev
-            ? 1.0
-            : (config.isStaging ? 0.3 : 0.1);
+        options.profilesSampleRate = config.isStaging ? 0.3 : 0.1;
         options.attachStacktrace = true;
         options.attachThreads = true;
         options.sendDefaultPii = false;
-        options.enableLogs = true;
 
         options.beforeSend = (event, hint) {
           event.tags ??= {};

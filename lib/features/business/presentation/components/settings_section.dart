@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/routing/route_names.dart';
+import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_settings_item.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
@@ -17,8 +18,8 @@ class SettingsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
+          const Padding(
+            padding: EdgeInsets.fromLTRB(
               FudiSpacing.md,
               FudiSpacing.md,
               FudiSpacing.md,
@@ -26,25 +27,37 @@ class SettingsSection extends StatelessWidget {
             ),
             child: Text('Configuración', style: FudiTypography.h4),
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: FudiColors.border),
           FudiSettingsItem(
             icon: FudiIcons.settings,
             label: 'Configuración general',
             onTap: () => context.push('/profile/settings'),
           ),
-          const Divider(height: 1, indent: FudiSpacing.lg + 20 + FudiSpacing.md),
+          const Divider(
+            height: 1,
+            indent: FudiSpacing.lg + 20 + FudiSpacing.md,
+            color: FudiColors.border,
+          ),
           FudiSettingsItem(
             icon: FudiIcons.bell,
             label: 'Notificaciones',
             onTap: () => context.push(RouteNames.businessNotificationsPath),
           ),
-          const Divider(height: 1, indent: FudiSpacing.lg + 20 + FudiSpacing.md),
+          const Divider(
+            height: 1,
+            indent: FudiSpacing.lg + 20 + FudiSpacing.md,
+            color: FudiColors.border,
+          ),
           FudiSettingsItem(
             icon: FudiIcons.creditCard,
             label: 'Métodos de cobro',
             onTap: () => context.push(RouteNames.businessPaymentsPath),
           ),
-          const Divider(height: 1, indent: FudiSpacing.lg + 20 + FudiSpacing.md),
+          const Divider(
+            height: 1,
+            indent: FudiSpacing.lg + 20 + FudiSpacing.md,
+            color: FudiColors.border,
+          ),
           FudiSettingsItem(
             icon: FudiIcons.helpCircle,
             label: 'Centro de ayuda',

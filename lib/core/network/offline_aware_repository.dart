@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,11 +13,6 @@ import '../error/network_exceptions.dart';
 /// Carries the data and metadata about whether it came from cache
 /// and whether the data might be stale.
 class OfflineResult<T> {
-  final T data;
-  final bool fromCache;
-  final bool isStale;
-  final DateTime? cachedAt;
-
   const OfflineResult({
     required this.data,
     this.fromCache = false,
@@ -38,6 +34,10 @@ class OfflineResult<T> {
     isStale: isStale,
     cachedAt: cachedAt,
   );
+  final T data;
+  final bool fromCache;
+  final bool isStale;
+  final DateTime? cachedAt;
 }
 
 /// Stale-while-revalidate repository pattern.
@@ -62,14 +62,13 @@ class OfflineResult<T> {
 /// if (result.fromCache) { showOfflineBanner(); }
 /// ```
 class OfflineAwareRepository {
-  final InternetConnection _connectivity;
-  final FlutterSecureStorage _secureStorage;
-
   OfflineAwareRepository({
     required InternetConnection connectivity,
     FlutterSecureStorage? secureStorage,
   }) : _connectivity = connectivity,
        _secureStorage = secureStorage ?? const FlutterSecureStorage();
+  final InternetConnection _connectivity;
+  final FlutterSecureStorage _secureStorage;
 
   /// Executes an operation with offline-aware caching.
   ///
@@ -241,14 +240,16 @@ class OfflineAwareRepository {
     void Function(T) onRefreshed,
   ) {
     // Fire and forget — errors are silently swallowed
-    remote()
-        .then((freshData) async {
-          await _saveToCache(cacheKey, freshData, serializer);
-          onRefreshed(freshData);
-        })
-        .catchError((_) {
-          // Background refresh failure is non-fatal
-        });
+    unawaited(
+      remote()
+          .then((freshData) async {
+            await _saveToCache(cacheKey, freshData, serializer);
+            onRefreshed(freshData);
+          })
+          .catchError((_) {
+            // Background refresh failure is non-fatal
+          }),
+    );
   }
 
   String _storageKey(String cacheKey) => 'fudi_cache_$cacheKey';
@@ -256,20 +257,19 @@ class OfflineAwareRepository {
 
 /// Internal cache entry with metadata.
 class _CacheEntry {
-  final Map<String, dynamic> data;
-  final DateTime cachedAt;
-
   _CacheEntry({required this.data, required this.cachedAt});
-
-  Map<String, dynamic> toJson() => {
-    'data': data,
-    'cached_at': cachedAt.toIso8601String(),
-  };
 
   factory _CacheEntry.fromJson(Map<String, dynamic> json) => _CacheEntry(
     data: json['data'] as Map<String, dynamic>,
     cachedAt: DateTime.parse(json['cached_at'] as String),
   );
+  final Map<String, dynamic> data;
+  final DateTime cachedAt;
+
+  Map<String, dynamic> toJson() => {
+    'data': data,
+    'cached_at': cachedAt.toIso8601String(),
+  };
 }
 
 /// Riverpod provider for [OfflineAwareRepository].

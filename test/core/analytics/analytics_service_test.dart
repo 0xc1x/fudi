@@ -146,14 +146,14 @@ void main() {
 
     group('setUserProperties', () {
       test('does nothing without consent', () async {
-        final props = UserProperties(role: 'user');
+        const props = UserProperties(role: 'user');
         await service.setUserProperties(props);
         expect(tracker.properties, isNull);
       });
 
       test('sets properties when consent is granted', () async {
         service.setConsent(true);
-        final props = UserProperties(role: 'user', city: 'Bogota');
+        const props = UserProperties(role: 'user', city: 'Bogota');
         await service.setUserProperties(props);
         expect(tracker.properties?.role, 'user');
         expect(tracker.properties?.city, 'Bogota');
@@ -378,7 +378,7 @@ void main() {
 
   group('UserProperties', () {
     test('toMap omits null values', () {
-      final props = UserProperties(role: 'user');
+      const props = UserProperties(role: 'user');
       final map = props.toMap();
       expect(map.containsKey('role'), true);
       expect(map.containsKey('city'), false);
@@ -386,7 +386,7 @@ void main() {
     });
 
     test('toMap includes all set values', () {
-      final props = UserProperties(
+      const props = UserProperties(
         userId: 'u1',
         role: 'business',
         city: 'Bogota',
@@ -402,20 +402,20 @@ void main() {
     });
 
     test('copyWith preserves existing values', () {
-      final props = UserProperties(role: 'user', city: 'Medellin');
+      const props = UserProperties(role: 'user', city: 'Medellin');
       final updated = props.copyWith(city: 'Bogota');
       expect(updated.role, 'user');
       expect(updated.city, 'Bogota');
     });
 
     test('copyWith does not modify original', () {
-      final props = UserProperties(role: 'user');
+      const props = UserProperties(role: 'user');
       props.copyWith(role: 'business');
       expect(props.role, 'user');
     });
 
     test('toString includes map representation', () {
-      final props = UserProperties(role: 'user');
+      const props = UserProperties(role: 'user');
       expect(props.toString(), contains('UserProperties'));
       expect(props.toString(), contains('role'));
     });

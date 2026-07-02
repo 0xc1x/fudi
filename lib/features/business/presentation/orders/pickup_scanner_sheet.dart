@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -46,7 +48,7 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
 
   @override
   void dispose() {
-    _scannerController.dispose();
+    unawaited(_scannerController.dispose());
     super.dispose();
   }
 
@@ -70,7 +72,7 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
               ),
             ),
             const SizedBox(height: FudiSpacing.lg),
-            Text('Escanear código QR', style: FudiTypography.h3),
+            const Text('Escanear código QR', style: FudiTypography.h3),
             const SizedBox(height: FudiSpacing.xs),
             Text(
               'Apunta la cámara al código QR del cliente',
@@ -202,7 +204,10 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
               color: FudiColors.primary,
               borderRadius: BorderRadius.circular(100),
             ),
-            child: const Text('Escanear de nuevo', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Escanear de nuevo',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ),
       ],
@@ -215,7 +220,7 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
       _isValidating = false;
       _isSuccess = null;
     });
-    _scannerController.start();
+    unawaited(_scannerController.start());
   }
 
   void _onBarcodeDetect(BarcodeCapture capture) {
@@ -225,12 +230,12 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
     final rawValue = capture.barcodes.first.rawValue;
     if (rawValue == null || rawValue.isEmpty) return;
 
-    _scannerController.stop();
+    unawaited(_scannerController.stop());
     setState(() {
       _scannedValue = rawValue;
     });
 
-    _validateQrCode(rawValue);
+    unawaited(_validateQrCode(rawValue));
   }
 
   Future<void> _validateQrCode(String qrData) async {

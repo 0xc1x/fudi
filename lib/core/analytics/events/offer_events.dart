@@ -7,6 +7,12 @@ import '../models/analytics_event.dart';
 
 /// The user viewed the offer list.
 class OfferListViewedEvent extends AnalyticsEvent {
+  OfferListViewedEvent({
+    required this.source,
+    this.filters,
+    required this.count,
+  });
+
   /// Where the list was accessed from: home, explore, search.
   final String source;
 
@@ -15,12 +21,6 @@ class OfferListViewedEvent extends AnalyticsEvent {
 
   /// Number of offers visible.
   final int count;
-
-  OfferListViewedEvent({
-    required this.source,
-    this.filters,
-    required this.count,
-  });
 
   @override
   String get name => 'offer_list_viewed';
@@ -35,17 +35,16 @@ class OfferListViewedEvent extends AnalyticsEvent {
 
 /// The user viewed a single offer's detail screen.
 class OfferDetailViewedEvent extends AnalyticsEvent {
-  final String offerId;
-  final String businessId;
-  final double price;
-  final double? discountPct;
-
   OfferDetailViewedEvent({
     required this.offerId,
     required this.businessId,
     required this.price,
     this.discountPct,
   });
+  final String offerId;
+  final String businessId;
+  final double price;
+  final double? discountPct;
 
   @override
   String get name => 'offer_detail_viewed';
@@ -61,15 +60,14 @@ class OfferDetailViewedEvent extends AnalyticsEvent {
 
 /// The user performed a search.
 class OfferSearchPerformedEvent extends AnalyticsEvent {
-  final String query;
-  final OfferCategory? category;
-  final int resultsCount;
-
   OfferSearchPerformedEvent({
     required this.query,
     this.category,
     required this.resultsCount,
   });
+  final String query;
+  final OfferCategory? category;
+  final int resultsCount;
 
   @override
   String get name => 'offer_search_performed';
@@ -84,13 +82,12 @@ class OfferSearchPerformedEvent extends AnalyticsEvent {
 
 /// The user applied a filter on the offer list.
 class OfferFilterAppliedEvent extends AnalyticsEvent {
-  final String filterType;
-  final String filterValue;
-
   OfferFilterAppliedEvent({
     required this.filterType,
     required this.filterValue,
   });
+  final String filterType;
+  final String filterValue;
 
   @override
   String get name => 'offer_filter_applied';
@@ -104,10 +101,10 @@ class OfferFilterAppliedEvent extends AnalyticsEvent {
 
 /// The user interacted with the map view.
 class OfferMapInteractionEvent extends AnalyticsEvent {
+  OfferMapInteractionEvent({required this.action});
+
   /// pan, zoom, or tap_marker.
   final String action;
-
-  OfferMapInteractionEvent({required this.action});
 
   @override
   String get name => 'offer_map_interaction';
@@ -118,10 +115,9 @@ class OfferMapInteractionEvent extends AnalyticsEvent {
 
 /// The user favorited an offer.
 class OfferFavoritedEvent extends AnalyticsEvent {
+  OfferFavoritedEvent({required this.offerId, required this.businessId});
   final String offerId;
   final String businessId;
-
-  OfferFavoritedEvent({required this.offerId, required this.businessId});
 
   @override
   String get name => 'offer_favorited';

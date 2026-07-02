@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 Future<void> main(List<String> args) async {
-  final supabaseUrl = Platform.environment['SUPABASE_URL'] ??
+  final supabaseUrl =
+      Platform.environment['SUPABASE_URL'] ??
       'https://sxqopofoynsqkztozlix.supabase.co';
   final supabaseKey = Platform.environment['SUPABASE_ANON_KEY'] ?? '';
-  final userAgent = 'FudiAppBackfill/1.0';
+  const userAgent = 'FudiAppBackfill/1.0';
 
   if (supabaseKey.isEmpty) {
     stderr.writeln('ERROR: SUPABASE_ANON_KEY env var required');
@@ -16,7 +17,11 @@ Future<void> main(List<String> args) async {
   client.userAgent = userAgent;
 
   try {
-    final records = await _fetchNullZoneLocations(client, supabaseUrl, supabaseKey);
+    final records = await _fetchNullZoneLocations(
+      client,
+      supabaseUrl,
+      supabaseKey,
+    );
     stderr.writeln('Found ${records.length} records with NULL zone');
 
     for (final record in records) {

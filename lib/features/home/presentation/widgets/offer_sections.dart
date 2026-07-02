@@ -149,7 +149,7 @@ class OfferRowSection extends StatelessWidget {
       children: [
         FudiSectionHeader(title: title, icon: icon, onSeeAll: onSeeAll),
         SizedBox(
-          height: 260,
+          height: 275,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.lg),

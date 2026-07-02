@@ -189,7 +189,7 @@ class _ProfileHeader extends ConsumerWidget {
                   ),
                 ),
               ),
-              error: (_, _) => Row(
+              error: (_, _) => const Row(
                 children: [
                   Expanded(
                     child: FudiStatCard(
@@ -198,7 +198,7 @@ class _ProfileHeader extends ConsumerWidget {
                       label: 'Ahorrado',
                     ),
                   ),
-                  const SizedBox(width: FudiSpacing.sm),
+                  SizedBox(width: FudiSpacing.sm),
                   Expanded(
                     child: FudiStatCard(
                       icon: FudiIcons.package_,
@@ -206,7 +206,7 @@ class _ProfileHeader extends ConsumerWidget {
                       label: 'Pedidos',
                     ),
                   ),
-                  const SizedBox(width: FudiSpacing.sm),
+                  SizedBox(width: FudiSpacing.sm),
                   Expanded(
                     child: FudiStatCard(
                       icon: FudiIcons.leaf,
@@ -260,7 +260,6 @@ class _ProfileTabs extends StatelessWidget {
         ),
         indicatorColor: FudiColors.primary,
         indicatorSize: TabBarIndicatorSize.tab,
-        indicatorWeight: 2,
         dividerColor: FudiColors.borderSolid,
         tabs: const [
           Tab(text: 'Historial'),
@@ -297,7 +296,7 @@ class _OrdersTab extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (upcoming.isNotEmpty) ...[
-                Text('Próximos pedidos', style: FudiTypography.h2),
+                const Text('Próximos pedidos', style: FudiTypography.h2),
                 const SizedBox(height: FudiSpacing.md),
                 ...upcoming.map(
                   (o) => Padding(
@@ -309,8 +308,11 @@ class _OrdersTab extends ConsumerWidget {
               if (past.isNotEmpty) ...[
                 Row(
                   children: [
-                    Expanded(
-                      child: Text('Pedidos anteriores', style: FudiTypography.h2),
+                    const Expanded(
+                      child: Text(
+                        'Pedidos anteriores',
+                        style: FudiTypography.h2,
+                      ),
                     ),
                     FudiPressableScale(
                       onTap: () => context.push('/orders'),
@@ -333,12 +335,14 @@ class _OrdersTab extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: FudiSpacing.md),
-                ...past.take(5).map(
-                  (o) => Padding(
-                    padding: const EdgeInsets.only(bottom: FudiSpacing.md),
-                    child: ProfileOrderCard.fromUserOrder(o),
-                  ),
-                ),
+                ...past
+                    .take(5)
+                    .map(
+                      (o) => Padding(
+                        padding: const EdgeInsets.only(bottom: FudiSpacing.md),
+                        child: ProfileOrderCard.fromUserOrder(o),
+                      ),
+                    ),
               ],
             ],
           ),
@@ -362,9 +366,8 @@ class _OrdersTab extends ConsumerWidget {
           ),
         ),
       ),
-      error: (error, _) => const FudiErrorState(
-        message: 'Error al cargar pedidos',
-      ),
+      error: (error, _) =>
+          const FudiErrorState(message: 'Error al cargar pedidos'),
     );
   }
 }
@@ -434,12 +437,10 @@ class _SettingsTab extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: FudiSpacing.xl),
-          ProfileSignOutButton(),
+          const ProfileSignOutButton(),
           const SizedBox(height: FudiSpacing.xxl),
         ],
       ),
     );
   }
 }
-
-

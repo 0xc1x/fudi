@@ -30,8 +30,8 @@ class _BusinessPaymentsScreenState
   Widget build(BuildContext context) {
     final businessAsync = ref.watch(currentBusinessProvider);
     return Scaffold(
-      backgroundColor: FudiColors.muted,
-      appBar: _AppBar(),
+      backgroundColor: FudiColors.background,
+      appBar: const _AppBar(),
       body: businessAsync.when(
         data: (business) {
           if (business == null) return const NoBusinessPrompt();
@@ -42,12 +42,24 @@ class _BusinessPaymentsScreenState
               filter: _filter,
               onFilterChanged: (f) => setState(() => _filter = f),
             ),
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('$e')),
+            loading: () => const Center(
+              child: CircularProgressIndicator(
+                color: FudiColors.primary,
+                strokeWidth: 2,
+              ),
+            ),
+            error: (e, _) =>
+                Center(child: Text('$e', style: FudiTypography.bodyMedium)),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
+        loading: () => const Center(
+          child: CircularProgressIndicator(
+            color: FudiColors.primary,
+            strokeWidth: 2,
+          ),
+        ),
+        error: (e, _) =>
+            Center(child: Text('$e', style: FudiTypography.bodyMedium)),
       ),
     );
   }
@@ -56,6 +68,7 @@ class _BusinessPaymentsScreenState
 enum _PayoutFilter { all, completed, processing }
 
 class _AppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _AppBar();
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
@@ -66,29 +79,38 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
         padding: const EdgeInsets.only(left: FudiSpacing.sm),
         child: FudiPressableScale(
           onTap: () => context.pop(),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: FudiColors.muted,
-              shape: BoxShape.circle,
+          child: const Center(
+            child: Icon(
+              FudiIcons.chevronLeft,
+              size: 20,
+              color: FudiColors.foreground,
             ),
-            child: const Icon(FudiIcons.chevronLeft, size: 20),
           ),
         ),
       ),
-      title: Column(
+      title: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Pagos', style: FudiTypography.h4),
-          Text('Historial de cobros', style: FudiTypography.bodySmall),
+          Text(
+            'Balance y Cobros',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: FudiColors.foreground,
+            ),
+          ),
+          Text(
+            'Historial financiero del comercio',
+            style: TextStyle(fontSize: 11, color: FudiColors.mutedForeground),
+          ),
         ],
       ),
       backgroundColor: FudiColors.background,
-      surfaceTintColor: Colors.transparent,
       elevation: 0,
-      scrolledUnderElevation: 1,
-      shadowColor: Colors.black12,
+      scrolledUnderElevation: 0,
+      shape: const Border(
+        bottom: BorderSide(color: FudiColors.borderSolid),
+      ),
     );
   }
 }
@@ -131,62 +153,53 @@ class _Content extends StatelessWidget {
     };
 
     return ListView(
-      padding: const EdgeInsets.all(FudiSpacing.lg),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(FudiSpacing.md),
       children: [
+        // Bento Grid Layout para balances
         Row(
           children: [
             Expanded(
               child: _BalanceCard(
-                icon: Icons.attach_money_rounded,
                 label: 'Total cobrado',
                 value: paid,
-                subtitle: '$paidCount pagos completados',
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF16A34A), Color(0xFF15803D)],
-                ),
+                subtitle: '$paidCount transferencias',
+                color: const Color(0xFFF0FDF4),
+                textColor: const Color(0xFF15803D),
               ),
             ),
-            const SizedBox(width: FudiSpacing.md),
+            const SizedBox(width: FudiSpacing.sm),
             Expanded(
               child: _BalanceCard(
-                icon: FudiIcons.clock,
-                label: 'Pendiente',
+                label: 'Por procesar',
                 value: pending,
-                subtitle: 'Próximo pago en 3 días',
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    FudiColors.primary,
-                    FudiColors.primary.withValues(alpha: 0.8),
-                  ],
-                ),
+                subtitle: 'Corte automático en 3d',
+                color: const Color(0xFFEFF6FF),
+                textColor: const Color(0xFF1D4ED8),
               ),
             ),
           ],
         ),
-        const SizedBox(height: FudiSpacing.lg),
-        _PaymentMethodCard(),
+        const SizedBox(height: FudiSpacing.md),
+        const _PaymentMethodCard(),
         const SizedBox(height: FudiSpacing.lg),
         _FilterBar(filter: filter, onSelected: onFilterChanged),
-        const SizedBox(height: FudiSpacing.lg),
-        Text('Historial de pagos', style: FudiTypography.h4),
-        const SizedBox(height: FudiSpacing.sm),
+        const SizedBox(height: FudiSpacing.md),
         if (filtered.isEmpty)
           const FudiSurfaceCard(
-            padding: EdgeInsets.all(FudiSpacing.xl),
-            child: FudiEmptyState(
-              title: 'No hay pagos',
-              description: 'Aún no hay pagos registrados para este negocio.',
-              icon: Icons.account_balance_wallet_outlined,
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: FudiSpacing.xl),
+              child: FudiEmptyState(
+                title: 'Sin movimientos',
+                description: 'No encontramos transacciones bajo este filtro.',
+                icon: Icons.receipt_long_rounded,
+              ),
             ),
           )
         else
           ...filtered.map((p) => _PayoutCard(payout: p)),
-        const SizedBox(height: FudiSpacing.lg),
-        _CycleInfoCard(),
+        const SizedBox(height: FudiSpacing.md),
+        const _CycleInfoCard(),
       ],
     );
   }
@@ -194,63 +207,55 @@ class _Content extends StatelessWidget {
 
 class _BalanceCard extends StatelessWidget {
   const _BalanceCard({
-    required this.icon,
     required this.label,
     required this.value,
     required this.subtitle,
-    required this.gradient,
+    required this.color,
+    required this.textColor,
   });
 
-  final IconData icon;
   final String label;
   final double value;
   final String subtitle;
-  final Gradient gradient;
+  final Color color;
+  final Color textColor;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.all(FudiSpacing.md),
       decoration: BoxDecoration(
-        gradient: gradient,
-        borderRadius: BorderRadius.circular(FudiRadius.xxl),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x1A000000),
-            blurRadius: 12,
-            offset: Offset(0, 4),
-          ),
-        ],
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: textColor.withValues(alpha: 0.15)),
       ),
-      padding: const EdgeInsets.all(FudiSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(icon, size: 20, color: Colors.white.withValues(alpha: 0.9)),
-              const SizedBox(width: FudiSpacing.xs),
-              Text(
-                label,
-                style: FudiTypography.bodySmall.copyWith(
-                  color: Colors.white.withValues(alpha: 0.9),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: FudiSpacing.sm),
           Text(
-            '\$${value.toStringAsFixed(2)}',
-            style: const TextStyle(
-              fontSize: 28,
+            label,
+            style: TextStyle(
+              fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: textColor.withValues(alpha: 0.8),
+              letterSpacing: 0.3,
             ),
           ),
           const SizedBox(height: FudiSpacing.xs),
           Text(
+            '\$${value.toStringAsFixed(2)}',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
             subtitle,
-            style: FudiTypography.bodySmall.copyWith(
-              color: Colors.white.withValues(alpha: 0.75),
+            style: TextStyle(
+              fontSize: 10,
+              color: textColor.withValues(alpha: 0.7),
             ),
           ),
         ],
@@ -260,89 +265,57 @@ class _BalanceCard extends StatelessWidget {
 }
 
 class _PaymentMethodCard extends StatelessWidget {
+  const _PaymentMethodCard();
   @override
   Widget build(BuildContext context) {
     return FudiSurfaceCard(
-      padding: const EdgeInsets.all(FudiSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Método de cobro',
-                  style: FudiTypography.labelSmall,
-                ),
-              ),
-              FudiPressableScale(
-                onTap: () {},
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: Text(
-                    'Editar',
-                    style: FudiTypography.bodyMedium.copyWith(
-                      color: FudiColors.primary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: FudiSpacing.sm),
           Container(
-            padding: const EdgeInsets.all(FudiSpacing.md),
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
-              color: FudiColors.muted,
-              borderRadius: BorderRadius.circular(FudiRadius.xl),
+              color: FudiColors.foreground,
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(
+            child: const Center(
+              child: Text(
+                'BP',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: FudiSpacing.md),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(FudiRadius.md),
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF2563EB), Color(0xFF9333EA)],
-                    ),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'BC',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
+                Text(
+                  'Banco del Pacífico',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(width: FudiSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Banco del Pacífico',
-                        style: FudiTypography.labelSmall,
-                      ),
-                      Text(
-                        '**** **** **** 4532',
-                        style: FudiTypography.bodySmall,
-                      ),
-                    ],
+                Text(
+                  'Cuenta corriente •••• 4532',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: FudiColors.mutedForeground,
                   ),
-                ),
-                Icon(
-                  FudiIcons.creditCard,
-                  color: FudiColors.mutedForeground,
-                  size: 20,
                 ),
               ],
+            ),
+          ),
+          FudiPressableScale(
+            onTap: () {},
+            child: Text(
+              'Editar',
+              style: FudiTypography.bodySmall.copyWith(
+                color: FudiColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -353,84 +326,56 @@ class _PaymentMethodCard extends StatelessWidget {
 
 class _FilterBar extends StatelessWidget {
   const _FilterBar({required this.filter, required this.onSelected});
-
   final _PayoutFilter filter;
   final ValueChanged<_PayoutFilter> onSelected;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          _FilterChip(
-            label: 'Todos',
-            selected: filter == _PayoutFilter.all,
-            selectedColor: FudiColors.primary,
-            onTap: () => onSelected(_PayoutFilter.all),
-          ),
-          const SizedBox(width: FudiSpacing.sm),
-          _FilterChip(
-            label: 'Pagados',
-            selected: filter == _PayoutFilter.completed,
-            selectedColor: const Color(0xFF16A34A),
-            onTap: () => onSelected(_PayoutFilter.completed),
-          ),
-          const SizedBox(width: FudiSpacing.sm),
-          _FilterChip(
-            label: 'Procesando',
-            selected: filter == _PayoutFilter.processing,
-            selectedColor: const Color(0xFFEA580C),
-            onTap: () => onSelected(_PayoutFilter.processing),
-          ),
-        ],
-      ),
+    return Row(
+      children: [
+        _buildChip(
+          'Todos',
+          filter == _PayoutFilter.all,
+          () => onSelected(_PayoutFilter.all),
+        ),
+        const SizedBox(width: FudiSpacing.xs),
+        _buildChip(
+          'Completados',
+          filter == _PayoutFilter.completed,
+          () => onSelected(_PayoutFilter.completed),
+        ),
+        const SizedBox(width: FudiSpacing.xs),
+        _buildChip(
+          'En proceso',
+          filter == _PayoutFilter.processing,
+          () => onSelected(_PayoutFilter.processing),
+        ),
+      ],
     );
   }
-}
 
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.selectedColor,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final Color selectedColor;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildChip(String label, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(
-          horizontal: FudiSpacing.lg,
-          vertical: FudiSpacing.sm,
+          horizontal: FudiSpacing.md,
+          vertical: 6,
         ),
         decoration: BoxDecoration(
-          color: selected ? selectedColor : FudiColors.background,
-          borderRadius: BorderRadius.circular(FudiRadius.md),
-          border: selected ? null : Border.all(color: FudiColors.borderSolid),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: selectedColor.withValues(alpha: 0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
+          color: isSelected ? FudiColors.foreground : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? FudiColors.foreground : FudiColors.borderSolid,
+          ),
         ),
         child: Text(
           label,
-          style: FudiTypography.bodyMedium.copyWith(
-            color: selected ? Colors.white : FudiColors.foreground,
-            fontWeight: FontWeight.w500,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            color: isSelected ? Colors.white : FudiColors.mutedForeground,
           ),
         ),
       ),
@@ -445,79 +390,48 @@ class _PayoutCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: FudiSpacing.md),
+      padding: const EdgeInsets.only(bottom: FudiSpacing.xs),
       child: FudiSurfaceCard(
-        padding: const EdgeInsets.all(FudiSpacing.lg),
         child: InkWell(
           onTap: () => context.push('/business/payments/${payout.id}'),
-          borderRadius: BorderRadius.circular(FudiRadius.xl),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          borderRadius: BorderRadius.circular(8),
+          child: Row(
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            Text(
-                              '\$${payout.netAmount.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF16A34A),
-                              ),
-                            ),
-                            const SizedBox(width: FudiSpacing.sm),
-                            FudiStatusBadge.fromPayoutStatus(
-                              payout.status,
-                              size: FudiStatusBadgeSize.sm,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: FudiSpacing.xs),
                         Text(
-                          _periodLabel(payout),
-                          style: FudiTypography.bodySmall,
+                          '\$${payout.netAmount.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: FudiSpacing.sm),
+                        FudiStatusBadge.fromPayoutStatus(
+                          payout.status,
+                          size: FudiStatusBadgeSize.sm,
                         ),
                       ],
                     ),
-                  ),
-                  if (payout.status == BusinessPayoutStatus.paid)
-                    FudiPressableScale(
-                      onTap: () {},
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Icon(
-                          Icons.download_rounded,
-                          color: FudiColors.primary,
-                          size: 20,
-                        ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _periodLabel(payout),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: FudiColors.mutedForeground,
                       ),
                     ),
-                ],
+                  ],
+                ),
               ),
-              const SizedBox(height: FudiSpacing.md),
-              Divider(color: FudiColors.borderSolid, height: 1),
-              const SizedBox(height: FudiSpacing.sm),
-              Row(
-                children: [
-                  Icon(
-                    Icons.calendar_today,
-                    size: 12,
-                    color: FudiColors.mutedForeground,
-                  ),
-                  const SizedBox(width: FudiSpacing.xs),
-                  Text(
-                    payout.status == BusinessPayoutStatus.paid
-                        ? 'Pagado el ${_formatDate(payout.paidAt ?? payout.createdAt)}'
-                        : 'Estimado para ${_formatDate(payout.createdAt)}',
-                    style: FudiTypography.bodySmall,
-                  ),
-                ],
+              const Icon(
+                FudiIcons.chevronRight,
+                size: 16,
+                color: FudiColors.mutedForeground,
               ),
             ],
           ),
@@ -531,80 +445,50 @@ class _PayoutCard extends StatelessWidget {
     final end = p.periodEnd;
     const months = [
       '',
-      'Enero',
-      'Febrero',
-      'Marzo',
-      'Abril',
-      'Mayo',
-      'Junio',
-      'Julio',
-      'Agosto',
-      'Septiembre',
-      'Octubre',
-      'Noviembre',
-      'Diciembre',
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic',
     ];
-    return '${months[start.month]} ${start.day}-${end.day}, ${start.year}';
-  }
-
-  String _formatDate(DateTime? date) {
-    if (date == null) return '';
-    const months = [
-      '',
-      'enero',
-      'febrero',
-      'marzo',
-      'abril',
-      'mayo',
-      'junio',
-      'julio',
-      'agosto',
-      'septiembre',
-      'octubre',
-      'noviembre',
-      'diciembre',
-    ];
-    return '${date.day} de ${months[date.month]} de ${date.year}';
+    return '${months[start.month]} ${start.day} - ${end.day}, ${start.year}';
   }
 }
 
-
-
 class _CycleInfoCard extends StatelessWidget {
+  const _CycleInfoCard();
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(FudiSpacing.lg),
+      padding: const EdgeInsets.all(FudiSpacing.md),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
-        borderRadius: BorderRadius.circular(FudiRadius.xxl),
-        border: Border.all(color: const Color(0xFFBFDBFE)),
+        color: FudiColors.muted.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(10),
       ),
-      child: Row(
+      child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(FudiIcons.trendingUp, size: 20, color: const Color(0xFF2563EB)),
-          const SizedBox(width: FudiSpacing.sm),
+          Icon(
+            Icons.info_outline_rounded,
+            size: 16,
+            color: FudiColors.mutedForeground,
+          ),
+          SizedBox(width: FudiSpacing.sm),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Ciclo de pagos',
-                  style: FudiTypography.labelSmall.copyWith(
-                    color: const Color(0xFF1E3A5F),
-                  ),
-                ),
-                const SizedBox(height: FudiSpacing.xs),
-                Text(
-                  'Los pagos se procesan dos veces al mes (días 5 y 20). '
-                  'El dinero de tus ventas se transfiere a tu cuenta bancaria '
-                  'en un plazo de 2-3 días hábiles.',
-                  style: FudiTypography.bodySmall.copyWith(
-                    color: const Color(0xFF1D4ED8),
-                  ),
-                ),
-              ],
+            child: Text(
+              'Ciclo automático: Transferencias directas quincenales (días 5 y 20). Los depósitos toman de 48 a 72 horas hábiles.',
+              style: TextStyle(
+                fontSize: 11,
+                color: FudiColors.mutedForeground,
+                height: 1.3,
+              ),
             ),
           ),
         ],
@@ -612,5 +496,3 @@ class _CycleInfoCard extends StatelessWidget {
     );
   }
 }
-
-

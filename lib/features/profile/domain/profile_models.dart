@@ -81,6 +81,16 @@ class NotificationSettings {
     required this.weeklySummaryEnabled,
     required this.promotionsEnabled,
   });
+  factory NotificationSettings.fromJson(Map<String, dynamic> json) {
+    return NotificationSettings(
+      newDealsEnabled: json['newDealsEnabled'] as bool? ?? true,
+      favoriteAlertsEnabled: json['favoriteAlertsEnabled'] as bool? ?? true,
+      pickupReminderEnabled: json['pickupReminderEnabled'] as bool? ?? true,
+      lastMinuteDealsEnabled: json['lastMinuteDealsEnabled'] as bool? ?? false,
+      weeklySummaryEnabled: json['weeklySummaryEnabled'] as bool? ?? true,
+      promotionsEnabled: json['promotionsEnabled'] as bool? ?? false,
+    );
+  }
 
   final bool newDealsEnabled;
   final bool favoriteAlertsEnabled;
@@ -119,17 +129,6 @@ class NotificationSettings {
       'weeklySummaryEnabled': weeklySummaryEnabled,
       'promotionsEnabled': promotionsEnabled,
     };
-  }
-
-  factory NotificationSettings.fromJson(Map<String, dynamic> json) {
-    return NotificationSettings(
-      newDealsEnabled: json['newDealsEnabled'] as bool? ?? true,
-      favoriteAlertsEnabled: json['favoriteAlertsEnabled'] as bool? ?? true,
-      pickupReminderEnabled: json['pickupReminderEnabled'] as bool? ?? true,
-      lastMinuteDealsEnabled: json['lastMinuteDealsEnabled'] as bool? ?? false,
-      weeklySummaryEnabled: json['weeklySummaryEnabled'] as bool? ?? true,
-      promotionsEnabled: json['promotionsEnabled'] as bool? ?? false,
-    );
   }
 
   static const defaults = NotificationSettings(
@@ -198,6 +197,17 @@ class PaymentMethod {
     required this.cardholderName,
     required this.isDefault,
   });
+  factory PaymentMethod.fromJson(Map<String, dynamic> json) {
+    return PaymentMethod(
+      id: json['id'] as String,
+      brand: json['brand'] as String? ?? 'Tarjeta',
+      last4: json['last4'] as String? ?? '0000',
+      expiryMonth: json['expiryMonth'] as int? ?? 1,
+      expiryYear: json['expiryYear'] as int? ?? 2000,
+      cardholderName: json['cardholderName'] as String? ?? '',
+      isDefault: json['isDefault'] as bool? ?? false,
+    );
+  }
 
   final String id;
   final String brand;
@@ -217,18 +227,6 @@ class PaymentMethod {
       'cardholderName': cardholderName,
       'isDefault': isDefault,
     };
-  }
-
-  factory PaymentMethod.fromJson(Map<String, dynamic> json) {
-    return PaymentMethod(
-      id: json['id'] as String,
-      brand: json['brand'] as String? ?? 'Tarjeta',
-      last4: json['last4'] as String? ?? '0000',
-      expiryMonth: json['expiryMonth'] as int? ?? 1,
-      expiryYear: json['expiryYear'] as int? ?? 2000,
-      cardholderName: json['cardholderName'] as String? ?? '',
-      isDefault: json['isDefault'] as bool? ?? false,
-    );
   }
 }
 

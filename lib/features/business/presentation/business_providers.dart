@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/core_providers.dart';
@@ -92,14 +93,108 @@ final businessOrdersStreamProvider =
           .watchBusinessOrders(businessId);
     });
 
+/// ── Period selection ─────────────────────────────────────────────────────────
+
+enum DashboardPeriod { week, month, year, custom }
+
+extension DashboardPeriodX on DashboardPeriod {
+  String get label {
+    switch (this) {
+      case DashboardPeriod.week:
+        return 'Semana';
+      case DashboardPeriod.month:
+        return 'Mes';
+      case DashboardPeriod.year:
+        return 'Año';
+      case DashboardPeriod.custom:
+        return 'Rango';
+    }
+  }
+
+  int get approxDays {
+    switch (this) {
+      case DashboardPeriod.week:
+        return 7;
+      case DashboardPeriod.month:
+        return 30;
+      case DashboardPeriod.year:
+        return 365;
+      case DashboardPeriod.custom:
+        return 30;
+    }
+  }
+}
+
+class SelectedPeriodNotifier extends Notifier<DashboardPeriod> {
+  @override
+  DashboardPeriod build() => DashboardPeriod.month;
+
+  void select(DashboardPeriod period) => state = period;
+}
+
+final selectedPeriodProvider =
+    NotifierProvider<SelectedPeriodNotifier, DashboardPeriod>(
+      SelectedPeriodNotifier.new,
+    );
+
+class CustomDateRangeNotifier extends Notifier<DateTimeRange?> {
+  @override
+  DateTimeRange? build() => null;
+
+  void select(DateTimeRange? range) => state = range;
+  void clear() => state = null;
+}
+
+final customDateRangeProvider =
+    NotifierProvider<CustomDateRangeNotifier, DateTimeRange?>(
+      CustomDateRangeNotifier.new,
+    );
+
+({DateTime start, DateTime end}) _computeDateRange(
+  DashboardPeriod period,
+  DateTimeRange? customRange,
+) {
+  final now = DateTime.now();
+  switch (period) {
+    case DashboardPeriod.week:
+      return (start: now.subtract(const Duration(days: 6)), end: now);
+    case DashboardPeriod.month:
+      return (
+        start: DateTime(now.year, now.month),
+        end: DateTime(now.year, now.month + 1, 0),
+      );
+    case DashboardPeriod.year:
+      return (start: DateTime(now.year), end: DateTime(now.year, 12, 31));
+    case DashboardPeriod.custom:
+      final range = customRange;
+      if (range == null) {
+        return (
+          start: DateTime(now.year, now.month),
+          end: DateTime(now.year, now.month + 1, 0),
+        );
+      }
+      return (start: range.start, end: range.end);
+  }
+}
+
+/// Exposes the computed start/end dates derived from the selected period.
+final statsDateRangeProvider = Provider<({DateTime start, DateTime end})>((
+  ref,
+) {
+  final period = ref.watch(selectedPeriodProvider);
+  final customRange = ref.watch(customDateRangeProvider);
+  return _computeDateRange(period, customRange);
+});
+
 /// Stats providers
 final businessStatsProvider = FutureProvider.family<BusinessStats, String>((
   ref,
   businessId,
 ) async {
+  final range = ref.watch(statsDateRangeProvider);
   return ref
       .watch(businessStatsRepositoryProvider)
-      .getBusinessStats(businessId);
+      .getBusinessStats(businessId, startDate: range.start, endDate: range.end);
 });
 
 final businessLocationsProvider =
@@ -186,31 +281,24 @@ final currentBusinessProvider = FutureProvider<BusinessProfile?>((ref) async {
 
 final businessNotificationRepositoryProvider =
     Provider<BusinessNotificationRepository>((ref) {
-  return SupabaseBusinessNotificationRepository(
-    supabaseClient: ref.watch(supabaseClientProvider),
-  );
-});
+      return SupabaseBusinessNotificationRepository(
+        supabaseClient: ref.watch(supabaseClientProvider),
+      );
+    });
 
 final businessNotificationPreferencesProvider =
     FutureProvider.family<BusinessNotificationPreferences, String>((
-  ref,
-  businessId,
-) async {
-  return ref
-      .watch(businessNotificationRepositoryProvider)
-      .getPreferences(businessId);
-});
+      ref,
+      businessId,
+    ) async {
+      return ref
+          .watch(businessNotificationRepositoryProvider)
+          .getPreferences(businessId);
+    });
 
 /// ── Products list filter/sort state ──────────────────────────────────────────
 
-enum ProductsSort {
-  newest,
-  nameAZ,
-  nameZA,
-  priceLow,
-  priceHigh,
-  stockLow,
-}
+enum ProductsSort { newest, nameAZ, nameZA, priceLow, priceHigh, stockLow }
 
 class SelectedBranchIdNotifier extends Notifier<String?> {
   @override
@@ -244,9 +332,10 @@ class ProductsSortNotifier extends Notifier<ProductsSort> {
   void select(ProductsSort value) => state = value;
 }
 
-final productsSortProvider = NotifierProvider<ProductsSortNotifier, ProductsSort>(
-  ProductsSortNotifier.new,
-);
+final productsSortProvider =
+    NotifierProvider<ProductsSortNotifier, ProductsSort>(
+      ProductsSortNotifier.new,
+    );
 
 class ProductsCategoryFilterNotifier extends Notifier<OfferCategory?> {
   @override
@@ -261,8 +350,10 @@ final productsCategoryFilterProvider =
     );
 
 /// Derived provider: all offers filtered + sorted by current state
-final filteredBusinessOffersProvider =
-    Provider.family<List<Offer>, String>((ref, businessId) {
+final filteredBusinessOffersProvider = Provider.family<List<Offer>, String>((
+  ref,
+  businessId,
+) {
   final allOffers =
       ref.watch(businessOffersProvider(businessId)).asData?.value ?? [];
   final branchId = ref.watch(selectedBranchIdProvider);
@@ -270,9 +361,11 @@ final filteredBusinessOffersProvider =
   final sort = ref.watch(productsSortProvider);
   final category = ref.watch(productsCategoryFilterProvider);
 
-  var filtered = allOffers.where((o) {
+  final filtered = allOffers.where((o) {
     if (branchId != null && o.businessLocationId != branchId) return false;
-    if (query.isNotEmpty && !o.title.toLowerCase().contains(query)) return false;
+    if (query.isNotEmpty && !o.title.toLowerCase().contains(query)) {
+      return false;
+    }
     if (category != null && o.category != category) return false;
     return true;
   }).toList();
@@ -280,8 +373,7 @@ final filteredBusinessOffersProvider =
   switch (sort) {
     case ProductsSort.newest:
       filtered.sort(
-        (a, b) =>
-            b.createdAt?.compareTo(a.createdAt ?? DateTime(0)) ?? 0,
+        (a, b) => b.createdAt?.compareTo(a.createdAt ?? DateTime(0)) ?? 0,
       );
     case ProductsSort.nameAZ:
       filtered.sort((a, b) => a.title.compareTo(b.title));

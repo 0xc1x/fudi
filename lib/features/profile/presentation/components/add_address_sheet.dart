@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -16,14 +18,14 @@ import 'saved_address_card.dart';
 // ─── Show Bottom Sheet ──────────────────────────────────────────────
 
 void showAddAddressSheet(BuildContext context, WidgetRef ref) {
-  showModalBottomSheet(
+  unawaited(showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(FudiRadius.xxl)),
-    ),
+    // CRUCIAL: Transparente aquí para que se vea el radio del Container hijo
+    backgroundColor: Colors.transparent,
+    barrierColor: Colors.black.withValues(alpha: 0.5),
     builder: (_) => const AddAddressSheet(),
-  );
+  ));
 }
 
 // ─── Add Address Sheet ──────────────────────────────────────────────
@@ -54,16 +56,15 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
 
   void _onTypeSelected(AddressType type) {
     setState(() => _selectedType = type);
-    if (_labelController.text.isEmpty) {
+    if (_labelController.text.isEmpty ||
+        _labelController.text == 'Casa' ||
+        _labelController.text == 'Trabajo') {
       final defaults = {
         AddressType.home: 'Casa',
         AddressType.work: 'Trabajo',
         AddressType.other: '',
       };
-      final label = defaults[type] ?? '';
-      if (label.isNotEmpty) {
-        _labelController.text = label;
-      }
+      _labelController.text = defaults[type] ?? '';
     }
   }
 
@@ -80,7 +81,7 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
       setState(() {
         _pickedLocation = result.latLng;
         if (result.address != null && result.address!.isNotEmpty) {
-          _addressController.text = result.address!;
+          _addressController.text = result.address ?? '';
         }
       });
     }
@@ -91,18 +92,12 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
     final address = _addressController.text.trim();
 
     if (label.isEmpty || address.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Completa al menos la etiqueta y la dirección'),
-        ),
-      );
+      _showSnackBar('Completa los campos obligatorios.', isError: true);
       return;
     }
 
     if (_pickedLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecciona la ubicación en el mapa')),
-      );
+      _showSnackBar('Por favor, selecciona el mapa.', isError: true);
       return;
     }
 
@@ -128,309 +123,389 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
 
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error al guardar: $e')));
-      }
+      if (mounted) _showSnackBar('Error: $e', isError: true);
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
+  }
+
+  void _showSnackBar(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: isError
+            ? FudiColors.destructiveVibrant
+            : FudiColors.success,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(FudiSpacing.lg),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
+    // Decorador alternativo basado en bloques integrados sin bordes toscos
+    InputDecoration blockInputDecoration({
+      required String hint,
+      required IconData icon,
+    }) {
+      return InputDecoration(
+        hintText: hint,
+        hintStyle: FudiTypography.bodyMedium.copyWith(
+          color: FudiColors.mutedForeground.withValues(alpha: 0.7),
+        ),
+        prefixIcon: Icon(
+          icon,
+          size: 20,
+          color: FudiColors.foreground.withValues(alpha: 0.6),
+        ),
+        filled: true,
+        fillColor: FudiColors.inputBackground.withValues(alpha: 0.5),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: FudiColors.primary, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: FudiSpacing.lg,
+          vertical: FudiSpacing.md,
+        ),
+      );
+    }
+
     return Padding(
       padding: EdgeInsets.only(bottom: bottomInset),
-      child: Column(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              color: FudiColors.background,
-              border: Border(bottom: BorderSide(color: FudiColors.borderSolid)),
-            ),
-            padding: const EdgeInsets.all(FudiSpacing.lg),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text('Agregar dirección', style: FudiTypography.h3),
+      child: DecoratedBox(
+        // DISEÑO NUEVO: Contenedor con curvas garantizadas y fondo sólido limpio
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Indicador visual superior (Pill/Notch) para UX de arrastre
+              const SizedBox(height: 12),
+              Container(
+                width: 48,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: FudiColors.borderSolid,
+                  borderRadius: BorderRadius.circular(2.5),
                 ),
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: FudiPressableScale(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        color: FudiColors.muted,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(FudiIcons.x, size: 20),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
 
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(FudiSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Etiqueta', style: FudiTypography.labelSmall),
-                  const SizedBox(height: FudiSpacing.sm),
-                  TextField(
-                    controller: _labelController,
-                    decoration: InputDecoration(
-                      hintText: 'Casa, Trabajo, Gimnasio...',
-                      filled: true,
-                      fillColor: FudiColors.inputBackground,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(FudiRadius.xl),
-                        borderSide: BorderSide.none,
+              // Encabezado simplificado
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  FudiSpacing.xl,
+                  FudiSpacing.md,
+                  FudiSpacing.xl,
+                  FudiSpacing.xs,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '¿Dónde entregamos?',
+                      style: FudiTypography.h3.copyWith(
+                        fontWeight: FontWeight.w800,
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(FudiRadius.xl),
-                        borderSide: const BorderSide(
-                          color: FudiColors.primary,
-                          width: 2,
+                    ),
+                    FudiPressableScale(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: const CircleAvatar(
+                        radius: 16,
+                        backgroundColor: FudiColors.inputBackground,
+                        child: Icon(
+                          FudiIcons.x,
+                          size: 14,
+                          color: FudiColors.foreground,
                         ),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: FudiSpacing.lg,
-                        vertical: FudiSpacing.md,
-                      ),
                     ),
-                  ),
+                  ],
+                ),
+              ),
 
-                  const SizedBox(height: FudiSpacing.lg),
-
-                  Text('Tipo', style: FudiTypography.labelSmall),
-                  const SizedBox(height: FudiSpacing.sm),
-                  Row(
+              Flexible(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(FudiSpacing.xl),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: AddressTypeButton(
-                          icon: FudiIcons.home,
-                          label: 'Casa',
-                          isSelected: _selectedType == AddressType.home,
-                          onTap: () => _onTypeSelected(AddressType.home),
+                      // DISEÑO NUEVO: Selector de tipo horizontal segmentado integrado
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: FudiColors.inputBackground.withValues(
+                            alpha: 0.6,
+                          ),
+                          borderRadius: BorderRadius.circular(24),
                         ),
-                      ),
-                      const SizedBox(width: FudiSpacing.sm),
-                      Expanded(
-                        child: AddressTypeButton(
-                          icon: Icons.work_outline_rounded,
-                          label: 'Trabajo',
-                          isSelected: _selectedType == AddressType.work,
-                          onTap: () => _onTypeSelected(AddressType.work),
-                        ),
-                      ),
-                      const SizedBox(width: FudiSpacing.sm),
-                      Expanded(
-                        child: AddressTypeButton(
-                          icon: FudiIcons.mapPin,
-                          label: 'Otro',
-                          isSelected: _selectedType == AddressType.other,
-                          onTap: () => _onTypeSelected(AddressType.other),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: FudiSpacing.lg),
-
-                  Text(
-                    'Ubicación en el mapa',
-                    style: FudiTypography.labelSmall,
-                  ),
-                  const SizedBox(height: FudiSpacing.sm),
-                  FudiPressableScale(
-                    onTap: _pickOnMap,
-                    child: Container(
-                      width: double.infinity,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: _pickedLocation != null
-                              ? FudiColors.primary
-                              : FudiColors.borderSolid,
-                          width: _pickedLocation != null ? 2 : 1,
-                        ),
-                        borderRadius: BorderRadius.circular(FudiRadius.xl),
-                        color: _pickedLocation != null
-                            ? FudiColors.primary.withValues(alpha: 0.05)
-                            : null,
-                      ),
-                      child: Center(
                         child: Row(
-                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              _pickedLocation != null
-                                  ? Icons.check_circle
-                                  : Icons.map_outlined,
-                              size: 20,
-                              color: _pickedLocation != null
-                                  ? FudiColors.primary
-                                  : FudiColors.foreground,
+                            Expanded(
+                              child: SegmentedTypeButton(
+                                label: 'Casa',
+                                isSelected: _selectedType == AddressType.home,
+                                onTap: () => _onTypeSelected(AddressType.home),
+                              ),
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              _pickedLocation != null
-                                  ? 'Ubicación seleccionada'
-                                  : 'Seleccionar en el mapa',
-                              style: TextStyle(
-                                color: _pickedLocation != null
-                                    ? FudiColors.primary
-                                    : FudiColors.foreground,
+                            Expanded(
+                              child: SegmentedTypeButton(
+                                label: 'Trabajo',
+                                isSelected: _selectedType == AddressType.work,
+                                onTap: () => _onTypeSelected(AddressType.work),
+                              ),
+                            ),
+                            Expanded(
+                              child: SegmentedTypeButton(
+                                label: 'Otro',
+                                isSelected: _selectedType == AddressType.other,
+                                onTap: () => _onTypeSelected(AddressType.other),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                  ),
 
-                  const SizedBox(height: FudiSpacing.lg),
+                      const SizedBox(height: FudiSpacing.xl),
 
-                  Text('Dirección', style: FudiTypography.labelSmall),
-                  const SizedBox(height: FudiSpacing.sm),
-                  TextField(
-                    controller: _addressController,
-                    decoration: InputDecoration(
-                      hintText: 'Calle, número, piso...',
-                      filled: true,
-                      fillColor: FudiColors.inputBackground,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(FudiRadius.xl),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(FudiRadius.xl),
-                        borderSide: const BorderSide(
-                          color: FudiColors.primary,
-                          width: 2,
+                      // Campo: Nombre/Etiqueta
+                      Text(
+                        'Nombre de esta dirección',
+                        style: FudiTypography.labelSmall.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: FudiSpacing.lg,
-                        vertical: FudiSpacing.md,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: FudiSpacing.lg),
-
-                  Text('Tipo de vivienda', style: FudiTypography.labelSmall),
-                  const SizedBox(height: FudiSpacing.sm),
-                  FudiSelectableChipsBar<HousingType>(
-                    items: HousingType.values,
-                    selectedItem: _selectedHousingType,
-                    labelBuilder: addressHousingTypeLabel,
-                    iconBuilder: (ht) => Icon(
-                      addressHousingTypeIcon(ht),
-                      size: 16,
-                    ),
-                    onSelected: (ht) => setState(() {
-                      _selectedHousingType =
-                          _selectedHousingType == ht ? null : ht;
-                    }),
-                    height: 44,
-                    padding: EdgeInsets.zero,
-                    horizontalChipPadding: FudiSpacing.md,
-                    activeColor: FudiColors.primary,
-                    activeTextColor: FudiColors.primaryForeground,
-                    inactiveColor: FudiColors.muted,
-                    inactiveTextColor: FudiColors.foreground,
-                    borderColor: FudiColors.borderSolid,
-                    borderRadius: FudiRadius.full,
-                  ),
-
-                  const SizedBox(height: FudiSpacing.lg),
-
-                  Text('Referencias', style: FudiTypography.labelSmall),
-                  const SizedBox(height: FudiSpacing.sm),
-                  TextField(
-                    controller: _referencesController,
-                    maxLines: 2,
-                    decoration: InputDecoration(
-                      hintText: 'Portón verde, 3er piso, frente al parque...',
-                      filled: true,
-                      fillColor: FudiColors.inputBackground,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(FudiRadius.xl),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(FudiRadius.xl),
-                        borderSide: const BorderSide(
-                          color: FudiColors.primary,
-                          width: 2,
+                      const SizedBox(height: FudiSpacing.xs),
+                      TextField(
+                        controller: _labelController,
+                        textCapitalization: TextCapitalization.sentences,
+                        decoration: blockInputDecoration(
+                          hint: 'Ej. Casa de campo, Mi Ofi...',
+                          icon: Icons.edit_outlined,
                         ),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: FudiSpacing.lg,
-                        vertical: FudiSpacing.md,
-                      ),
-                    ),
-                  ),
 
-                  const SizedBox(height: FudiSpacing.xxl),
+                      const SizedBox(height: FudiSpacing.lg),
 
-                  FudiPressableScale(
-                    onTap: _isSaving ? null : _save,
-                    child: Container(
-                      width: double.infinity,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: FudiColors.primary,
-                        borderRadius: BorderRadius.circular(FudiRadius.xl),
-                      ),
-                      child: Center(
-                        child: _isSaving
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: FudiColors.primaryForeground,
+                      // DISEÑO NUEVO: Tarjeta de acción de mapa estilizada como feature
+                      FudiPressableScale(
+                        onTap: _pickOnMap,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(FudiSpacing.md),
+                          decoration: BoxDecoration(
+                            color: _pickedLocation != null
+                                ? FudiColors.primary.withValues(alpha: 0.06)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: _pickedLocation != null
+                                  ? FudiColors.primary
+                                  : FudiColors.borderSolid,
+                              width: _pickedLocation != null ? 2 : 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: _pickedLocation != null
+                                      ? FudiColors.primary
+                                      : FudiColors.inputBackground,
+                                  shape: BoxShape.circle,
                                 ),
-                              )
-                            : const Text('Guardar dirección', style: TextStyle(color: FudiColors.primaryForeground)),
+                                child: Icon(
+                                  _pickedLocation != null
+                                      ? Icons.pin_drop
+                                      : Icons.map_outlined,
+                                  color: _pickedLocation != null
+                                      ? Colors.white
+                                      : FudiColors.foreground,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: FudiSpacing.md),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _pickedLocation != null
+                                          ? '¡Ubicación detectada!'
+                                          : 'Ubicar en el mapa',
+                                      style: FudiTypography.bodyMedium.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      _pickedLocation != null
+                                          ? 'Coordenadas registradas de forma exacta'
+                                          : 'Toca para abrir el GPS',
+                                      style: FudiTypography.bodySmall.copyWith(
+                                        color: FudiColors.mutedForeground,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                Icons.chevron_right,
+                                color: FudiColors.mutedForeground.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
 
-                  const SizedBox(height: FudiSpacing.lg),
-                ],
+                      const SizedBox(height: FudiSpacing.lg),
+
+                      // Campo: Dirección
+                      Text(
+                        'Dirección exacta',
+                        style: FudiTypography.labelSmall.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: FudiSpacing.xs),
+                      TextField(
+                        controller: _addressController,
+                        textCapitalization: TextCapitalization.sentences,
+                        decoration: blockInputDecoration(
+                          hint: 'Calle, número, apartamento...',
+                          icon: FudiIcons.mapPin,
+                        ),
+                      ),
+
+                      const SizedBox(height: FudiSpacing.lg),
+
+                      // Campo: Tipo de Vivienda
+                      Text(
+                        'Tipo de vivienda',
+                        style: FudiTypography.labelSmall.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: FudiSpacing.xs),
+                      FudiSelectableChipsBar<HousingType>(
+                        items: HousingType.values,
+                        selectedItem: _selectedHousingType,
+                        labelBuilder: addressHousingTypeLabel,
+                        iconBuilder: (ht) =>
+                            Icon(addressHousingTypeIcon(ht), size: 14),
+                        onSelected: (ht) => setState(() {
+                          _selectedHousingType = _selectedHousingType == ht
+                              ? null
+                              : ht;
+                        }),
+                        padding: EdgeInsets.zero,
+                        horizontalChipPadding: FudiSpacing.md,
+                        activeColor: FudiColors.foreground,
+                        activeTextColor: Colors.white,
+                        inactiveColor: FudiColors.inputBackground.withValues(
+                          alpha: 0.5,
+                        ),
+                        inactiveTextColor: FudiColors.foreground,
+                        borderColor: Colors.transparent,
+                        borderRadius: FudiRadius.full,
+                      ),
+
+                      const SizedBox(height: FudiSpacing.lg),
+
+                      // Campo: Referencias
+                      Text(
+                        'Referencias o indicaciones adicionales',
+                        style: FudiTypography.labelSmall.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: FudiSpacing.xs),
+                      TextField(
+                        controller: _referencesController,
+                        maxLines: 2,
+                        textCapitalization: TextCapitalization.sentences,
+                        decoration: blockInputDecoration(
+                          hint: 'Ej. Frente al portón blanco, timbre roto...',
+                          icon: Icons.notes_outlined,
+                        ),
+                      ),
+
+                      const SizedBox(height: FudiSpacing.xxl),
+
+                      // Botón Principal de Guardado Neo-minimalista
+                      FudiPressableScale(
+                        onTap: _isSaving ? null : _save,
+                        child: Container(
+                          width: double.infinity,
+                          height: 54,
+                          decoration: BoxDecoration(
+                            color: FudiColors.primary,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Center(
+                            child: _isSaving
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: FudiColors.primaryForeground,
+                                    ),
+                                  )
+                                : Text(
+                                    'Confirmar Dirección',
+                                    style: FudiTypography.labelMedium.copyWith(
+                                      color: FudiColors.primaryForeground,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: FudiSpacing.sm),
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-// ─── Type Selector Button ───────────────────────────────────────────
+// ─── Componente Nuevo: Botón Segmentado de Tipo ─────────────────────
 
-class AddressTypeButton extends StatelessWidget {
-  const AddressTypeButton({
+class SegmentedTypeButton extends StatelessWidget {
+  const SegmentedTypeButton({
     super.key,
-    required this.icon,
     required this.label,
     required this.isSelected,
     required this.onTap,
   });
 
-  final IconData icon;
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
@@ -440,31 +515,30 @@ class AddressTypeButton extends StatelessWidget {
     return FudiPressableScale(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          border: Border.all(
-            color: isSelected ? FudiColors.primary : FudiColors.borderSolid,
-            width: isSelected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(FudiRadius.xl),
-          color: isSelected ? FudiColors.primary.withValues(alpha: 0.05) : null,
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 20,
-              color: isSelected ? FudiColors.primary : FudiColors.foreground,
+        child: Center(
+          child: Text(
+            label,
+            style: FudiTypography.bodyMedium.copyWith(
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected
+                  ? FudiColors.foreground
+                  : FudiColors.mutedForeground,
             ),
-            const SizedBox(height: FudiSpacing.xs),
-            Text(
-              label,
-              style: FudiTypography.bodySmall.copyWith(
-                fontWeight: FontWeight.w500,
-                color: isSelected ? FudiColors.primary : FudiColors.foreground,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

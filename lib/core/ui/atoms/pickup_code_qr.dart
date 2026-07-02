@@ -25,19 +25,7 @@ class PickupCodeQr extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: QrImageView(
-        data: _qrData,
-        version: QrVersions.auto,
-        size: size,
-        eyeStyle: const QrEyeStyle(
-          eyeShape: QrEyeShape.square,
-          color: Colors.black,
-        ),
-        dataModuleStyle: const QrDataModuleStyle(
-          dataModuleShape: QrDataModuleShape.square,
-          color: Colors.black,
-        ),
-      ),
+      child: QrImageView(data: _qrData, size: size),
     );
   }
 }

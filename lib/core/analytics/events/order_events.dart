@@ -6,15 +6,14 @@ import '../models/analytics_event.dart';
 
 /// The user started the reserve flow for an offer.
 class OrderReserveStartedEvent extends AnalyticsEvent {
-  final String offerId;
-  final String businessId;
-  final double amount;
-
   OrderReserveStartedEvent({
     required this.offerId,
     required this.businessId,
     required this.amount,
   });
+  final String offerId;
+  final String businessId;
+  final double amount;
 
   @override
   String get name => 'order_reserve_started';
@@ -29,15 +28,14 @@ class OrderReserveStartedEvent extends AnalyticsEvent {
 
 /// The user initiated payment for an order.
 class OrderPaymentInitiatedEvent extends AnalyticsEvent {
-  final String orderId;
-  final double amount;
-  final String paymentMethod;
-
   OrderPaymentInitiatedEvent({
     required this.orderId,
     required this.amount,
     required this.paymentMethod,
   });
+  final String orderId;
+  final double amount;
+  final String paymentMethod;
 
   @override
   String get name => 'order_payment_initiated';
@@ -52,15 +50,14 @@ class OrderPaymentInitiatedEvent extends AnalyticsEvent {
 
 /// Payment completed successfully.
 class OrderPaymentCompletedEvent extends AnalyticsEvent {
-  final String orderId;
-  final double amount;
-  final String gateway;
-
   OrderPaymentCompletedEvent({
     required this.orderId,
     required this.amount,
     required this.gateway,
   });
+  final String orderId;
+  final double amount;
+  final String gateway;
 
   @override
   String get name => 'order_payment_completed';
@@ -75,10 +72,9 @@ class OrderPaymentCompletedEvent extends AnalyticsEvent {
 
 /// Payment failed.
 class OrderPaymentFailedEvent extends AnalyticsEvent {
+  OrderPaymentFailedEvent({required this.orderId, required this.errorType});
   final String orderId;
   final String errorType;
-
-  OrderPaymentFailedEvent({required this.orderId, required this.errorType});
 
   @override
   String get name => 'order_payment_failed';
@@ -92,10 +88,9 @@ class OrderPaymentFailedEvent extends AnalyticsEvent {
 
 /// Pickup was confirmed by the business or the user.
 class OrderPickupConfirmedEvent extends AnalyticsEvent {
+  OrderPickupConfirmedEvent({required this.orderId, required this.businessId});
   final String orderId;
   final String businessId;
-
-  OrderPickupConfirmedEvent({required this.orderId, required this.businessId});
 
   @override
   String get name => 'order_pickup_confirmed';
@@ -109,17 +104,16 @@ class OrderPickupConfirmedEvent extends AnalyticsEvent {
 
 /// Order was cancelled.
 class OrderCancelledEvent extends AnalyticsEvent {
-  final String orderId;
-  final String reason;
-
-  /// Who cancelled: user, business, or system.
-  final String by;
-
   OrderCancelledEvent({
     required this.orderId,
     required this.reason,
     required this.by,
   });
+  final String orderId;
+  final String reason;
+
+  /// Who cancelled: user, business, or system.
+  final String by;
 
   @override
   String get name => 'order_cancelled';

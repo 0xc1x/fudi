@@ -20,11 +20,9 @@ class FudiTheme {
       hoverColor: FudiColors.secondary.withValues(alpha: 0.08),
       colorScheme: const ColorScheme.light(
         primary: FudiColors.primary,
-        onPrimary: FudiColors.primaryForeground,
         secondary: FudiColors.secondary,
         onSecondary: FudiColors.secondaryForeground,
         error: FudiColors.destructive,
-        onError: FudiColors.destructiveForeground,
         surface: FudiColors.background,
         onSurface: FudiColors.foreground,
         outline: FudiColors.foreground,
@@ -36,10 +34,10 @@ class FudiTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FudiRadius.lg),
-          side: const BorderSide(color: FudiColors.foreground, width: 1.0),
+          side: const BorderSide(color: FudiColors.foreground),
         ),
       ),
-      textTheme: TextTheme(
+      textTheme: const TextTheme(
         displayLarge: FudiTypography.h1,
         displayMedium: FudiTypography.h2,
         displaySmall: FudiTypography.h3,

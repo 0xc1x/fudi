@@ -1,0 +1,297 @@
+{
+  "version": "7.3",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "WELCOME": [
+      "PRODUCT_RATING"
+    ],
+    "PRODUCT_RATING": [
+      "BUSINESS_RATING"
+    ],
+    "BUSINESS_RATING": [
+      "COMMENT"
+    ],
+    "COMMENT": [
+      "CONFIRM"
+    ],
+    "CONFIRM": [],
+    "SUCCESS": []
+  },
+  "screens": [
+    {
+      "id": "WELCOME",
+      "title": "Calificar experiencia",
+      "data": {
+        "order_id": {
+          "type": "string",
+          "__example__": "abc-123"
+        },
+        "business_name": {
+          "type": "string",
+          "__example__": "Panadería El Trigo"
+        },
+        "offer_title": {
+          "type": "string",
+          "__example__": "Sorpresa de panadería"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "¿Qué tal tu experiencia en ${data.business_name}?"
+          },
+          {
+            "type": "TextBody",
+            "text": "Ayuda a la comunidad calificando tu pedido: ${data.offer_title}. Solo te tomará un momento."
+          },
+          {
+            "type": "Footer",
+            "label": "Comenzar",
+            "on-click-action": {
+              "name": "navigate",
+              "next": {
+                "type": "screen",
+                "name": "PRODUCT_RATING"
+              },
+              "payload": {
+                "order_id": "${data.order_id}",
+                "business_name": "${data.business_name}",
+                "offer_title": "${data.offer_title}"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "PRODUCT_RATING",
+      "title": "Califica el producto",
+      "data": {
+        "order_id": { "type": "string" },
+        "business_name": { "type": "string" },
+        "offer_title": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "product_rating_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "¿Qué tal estaba ${data.offer_title}?"
+              },
+              {
+                "type": "SingleSelect",
+                "required": true,
+                "label": "Calificación",
+                "name": "product_rating",
+                "options": [
+                  { "id": "5", "title": "5 - Excelente" },
+                  { "id": "4", "title": "4 - Bueno" },
+                  { "id": "3", "title": "3 - Regular" },
+                  { "id": "2", "title": "2 - Malo" },
+                  { "id": "1", "title": "1 - Pésimo" }
+                ]
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "BUSINESS_RATING"
+                  },
+                  "payload": {
+                    "order_id": "${data.order_id}",
+                    "business_name": "${data.business_name}",
+                    "offer_title": "${data.offer_title}",
+                    "product_rating": "${form.product_rating}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "BUSINESS_RATING",
+      "title": "Califica el negocio",
+      "data": {
+        "order_id": { "type": "string" },
+        "business_name": { "type": "string" },
+        "offer_title": { "type": "string" },
+        "product_rating": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "business_rating_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "¿Cómo fue tu experiencia general en ${data.business_name}?"
+              },
+              {
+                "type": "SingleSelect",
+                "required": true,
+                "label": "Calificación del negocio",
+                "name": "business_rating",
+                "options": [
+                  { "id": "5", "title": "5 - Excelente" },
+                  { "id": "4", "title": "4 - Bueno" },
+                  { "id": "3", "title": "3 - Regular" },
+                  { "id": "2", "title": "2 - Malo" },
+                  { "id": "1", "title": "1 - Pésimo" }
+                ]
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "COMMENT"
+                  },
+                  "payload": {
+                    "order_id": "${data.order_id}",
+                    "business_name": "${data.business_name}",
+                    "offer_title": "${data.offer_title}",
+                    "product_rating": "${data.product_rating}",
+                    "business_rating": "${form.business_rating}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "COMMENT",
+      "title": "Comentario (opcional)",
+      "data": {
+        "order_id": { "type": "string" },
+        "business_name": { "type": "string" },
+        "offer_title": { "type": "string" },
+        "product_rating": { "type": "string" },
+        "business_rating": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "comment_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "¿Quieres agregar algún comentario sobre tu experiencia?"
+              },
+              {
+                "type": "TextInput",
+                "required": false,
+                "label": "Tu comentario",
+                "name": "comment",
+                "input-type": "text"
+              },
+              {
+                "type": "Footer",
+                "label": "Revisar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "CONFIRM"
+                  },
+                  "payload": {
+                    "order_id": "${data.order_id}",
+                    "business_name": "${data.business_name}",
+                    "offer_title": "${data.offer_title}",
+                    "product_rating": "${data.product_rating}",
+                    "business_rating": "${data.business_rating}",
+                    "comment": "${form.comment}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CONFIRM",
+      "title": "Confirmar calificación",
+      "data": {
+        "order_id": { "type": "string" },
+        "business_name": { "type": "string" },
+        "offer_title": { "type": "string" },
+        "product_rating": { "type": "string" },
+        "business_rating": { "type": "string" },
+        "comment": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Confirma tu calificación"
+          },
+          {
+            "type": "TextBody",
+            "text": "Producto: ${data.product_rating}/5"
+          },
+          {
+            "type": "TextBody",
+            "text": "Negocio: ${data.business_rating}/5"
+          },
+          {
+            "type": "TextBody",
+            "text": "Comentario: ${data.comment}"
+          },
+          {
+            "type": "Footer",
+            "label": "Enviar calificación",
+            "on-click-action": {
+              "name": "data_exchange",
+              "payload": {
+                "order_id": "${data.order_id}",
+                "product_rating": "${data.product_rating}",
+                "business_rating": "${data.business_rating}",
+                "comment": "${data.comment}"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "SUCCESS",
+      "title": "Calificación enviada",
+      "terminal": true,
+      "success": true,
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "¡Gracias por tu calificación!"
+          },
+          {
+            "type": "TextBody",
+            "text": "Tu opinión ayuda a otros usuarios y a los negocios a mejorar. Vuelve pronto a Fudi."
+          }
+        ]
+      }
+    }
+  ]
+}

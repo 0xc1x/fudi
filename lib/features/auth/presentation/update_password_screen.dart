@@ -156,8 +156,11 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
                       onTap: isLoading
                           ? null
                           : () => context.go(RouteNames.loginPath),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         child: Text(
                           'Volver al login',
                           style: TextStyle(color: FudiColors.primary),

@@ -7,15 +7,9 @@ import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/atoms/fudi_heart_button.dart';
-import '../../../core/ui/atoms/fudi_discount_badge.dart';
-import '../../../core/ui/atoms/fudi_low_stock_badge.dart';
 import '../../../core/ui/atoms/fudi_circle_button.dart';
 import '../../../core/ui/atoms/fudi_stagger_item.dart';
-import '../../../core/ui/atoms/fudi_key_value_row.dart';
-import '../../../core/ui/fudi_star_rating.dart';
-import '../../../core/ui/fudi_bottom_action_bar.dart';
 import '../../../core/ui/fudi_spacing.dart';
-import '../../../core/ui/fudi_surface_card.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../../core/utils/geo_utils.dart';
 import '../../favorites/presentation/favorites_providers.dart';
@@ -33,11 +27,11 @@ class ProductDetailScreen extends ConsumerWidget {
     final offerAsync = ref.watch(offerDetailProvider(id));
 
     return offerAsync.when(
-      data: (offer) => _OfferDetailContent(offer: offer),
-      loading: () =>
-          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      data: (offer) => _OfferDetailContentMinimal(offer: offer),
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator.adaptive()),
+      ),
       error: (error, _) => Scaffold(
-        appBar: AppBar(),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(FudiSpacing.xl),
@@ -50,28 +44,21 @@ class ProductDetailScreen extends ConsumerWidget {
                   color: FudiColors.mutedForeground,
                 ),
                 const SizedBox(height: FudiSpacing.md),
-                Text(
-                  'Producto no encontrado',
+                const Text(
+                  'Algo salió mal',
                   style: FudiTypography.headlineSmall,
-                ),
-                const SizedBox(height: FudiSpacing.xs),
-                Text(
-                  'Este producto no está disponible',
-                  style: FudiTypography.bodyMedium.copyWith(
-                    color: FudiColors.mutedForeground,
-                  ),
                 ),
                 const SizedBox(height: FudiSpacing.xl),
                 FudiPressableScale(
                   onTap: () => context.go('/'),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: FudiSpacing.lg,
-                      vertical: FudiSpacing.md,
+                      horizontal: 24,
+                      vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: FudiColors.primary,
-                      borderRadius: BorderRadius.circular(FudiRadius.full),
+                      color: FudiColors.foreground,
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Text(
                       'Volver al inicio',
@@ -88,49 +75,17 @@ class ProductDetailScreen extends ConsumerWidget {
   }
 }
 
-// ── Contenido principal con animaciones de entrada ────────────────────────────
-
-class _OfferDetailContent extends ConsumerStatefulWidget {
-  const _OfferDetailContent({required this.offer});
+class _OfferDetailContentMinimal extends ConsumerStatefulWidget {
+  const _OfferDetailContentMinimal({required this.offer});
   final Offer offer;
 
   @override
-  ConsumerState<_OfferDetailContent> createState() =>
-      _OfferDetailContentState();
+  ConsumerState<_OfferDetailContentMinimal> createState() =>
+      _OfferDetailContentMinimalState();
 }
 
-class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
-    with SingleTickerProviderStateMixin {
-  // Controla el fade+slide de entrada de toda la pantalla
-  late final AnimationController _enterController;
-  late final Animation<double> _fadeAnim;
-  late final Animation<Offset> _slideAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _enterController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 420),
-    );
-    _fadeAnim = CurvedAnimation(
-      parent: _enterController,
-      curve: Curves.easeOut,
-    );
-    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.04), end: Offset.zero)
-        .animate(
-          CurvedAnimation(parent: _enterController, curve: Curves.easeOutCubic),
-        );
-
-    _enterController.forward();
-  }
-
-  @override
-  void dispose() {
-    _enterController.dispose();
-    super.dispose();
-  }
-
+class _OfferDetailContentMinimalState
+    extends ConsumerState<_OfferDetailContentMinimal> {
   @override
   Widget build(BuildContext context) {
     final offer = widget.offer;
@@ -143,436 +98,434 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
         .round();
 
     return Scaffold(
+      backgroundColor: FudiColors.surfaceBackground,
       body: Stack(
         children: [
-          FadeTransition(
-            opacity: _fadeAnim,
-            child: SlideTransition(
-              position: _slideAnim,
-              child: CustomScrollView(
-                slivers: [
-                  // ── Hero imagen ─────────────────────────────────────────
-                  SliverToBoxAdapter(
-                    child: Stack(
-                      children: [
-                        SizedBox(
-                          height: 288,
-                          width: double.infinity,
-                          child: offer.imageUrl != null
-                              ? CachedNetworkImage(
-                                  imageUrl: offer.imageUrl!,
-                                  fit: BoxFit.cover,
-                                  errorWidget: (_, _, _) => Container(
-                                    color: FudiColors.muted,
-                                    child: const Icon(
-                                      Icons.broken_image_outlined,
-                                      size: 64,
-                                    ),
-                                  ),
-                                )
-                              : Container(
-                                  color: FudiColors.muted,
-                                  child: const Icon(
-                                    Icons.restaurant,
-                                    size: 64,
-                                    color: FudiColors.mutedForeground,
-                                  ),
-                                ),
-                        ),
-                        Positioned(
-                          top: MediaQuery.of(context).padding.top + 12,
-                          left: 16,
-                          child: FudiCircleButton(
-                            onTap: () => context.pop(),
-                            icon: FudiIcons.chevronLeft,
-                          ),
-                        ),
-                        Positioned(
-                          top: MediaQuery.of(context).padding.top + 12,
-                          right: 16,
-                          child: FudiHeartButton(
-                            isFavorite: isFavorite,
-                            onTap: () => ref
-                                .read(favoritedOfferIdsProvider.notifier)
-                                .toggleFavorite(offer.id),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 16,
-                          right: 16,
-                          child: FudiDiscountBadge(
-                            percent: savings,
-                            backgroundColor: Colors.white,
-                            textStyle: FudiTypography.labelSmall.copyWith(
-                              color: FudiColors.primary,
-                            ),
-                          ),
-                        ),
-                        if (offer.stock <= 3 && offer.stock > 0)
-                          Positioned(
-                            bottom: 16,
-                            left: 16,
-                            child: FudiLowStockBadge(
-                              label: '¡Solo quedan ${offer.stock}!',
-                              paddingGeometry: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              textStyle: FudiTypography.bodySmall.copyWith(
-                                color: FudiColors.destructiveForeground,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-
-                  // ── Contenido con stagger ───────────────────────────────
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: FudiSpacing.xxl,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: FudiSpacing.md),
-
-                          // Card negocio — stagger 0
-                          FudiStaggerItem(
-                            index: 0,
-                            child: FudiSurfaceCard(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              offer.business.name,
-                                              style: FudiTypography
-                                                  .headlineSmall
-                                                  .copyWith(
-                                                    fontWeight: FontWeight.w800,
-                                                  ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              offer.business.type,
-                                              style: FudiTypography.bodyMedium
-                                                  .copyWith(
-                                                    color: FudiColors
-                                                        .mutedForeground,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          if (offer.rating > 0) ...[
-                                            FudiStarRating(
-                                              rating: offer.rating,
-                                              showText: true,
-                                            ),
-                                            Text(
-                                              '(${offer.reviewCount} reseñas)',
-                                              style: FudiTypography.bodySmall
-                                                  .copyWith(
-                                                    color: FudiColors
-                                                        .mutedForeground,
-                                                  ),
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: FudiSpacing.md),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        FudiIcons.mapPin,
-                                        size: 16,
-                                        color: FudiColors.mutedForeground,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        _formatDistance(offer),
-                                        style: FudiTypography.bodySmall
-                                            .copyWith(
-                                              color: FudiColors.mutedForeground,
-                                            ),
-                                      ),
-                                      const SizedBox(width: FudiSpacing.md),
-                                      Icon(
-                                        FudiIcons.clock,
-                                        size: 16,
-                                        color: FudiColors.mutedForeground,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        'Recoge antes de ${_formatTime(offer.pickupEnd)}',
-                                        style: FudiTypography.bodySmall
-                                            .copyWith(
-                                              color: FudiColors.mutedForeground,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: FudiSpacing.md),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: FudiPressableScale(
-                                      onTap: () => context.push(
-                                        '/business-profile/${offer.businessId}',
-                                      ),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: FudiSpacing.md,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: FudiColors.muted,
-                                          borderRadius: BorderRadius.circular(
-                                            FudiRadius.xl,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              FudiIcons.store,
-                                              size: 20,
-                                              color: FudiColors.foreground,
-                                            ),
-                                            const SizedBox(
-                                              width: FudiSpacing.sm,
-                                            ),
-                                            Text(
-                                              'Ver perfil del negocio',
-                                              style: FudiTypography.labelSmall,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: FudiSpacing.md),
-
-                          // Descripción — stagger 1
-                          if (offer.description != null)
-                            FudiStaggerItem(
-                              index: 1,
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: FudiSurfaceCard(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Descripción',
-                                        style: FudiTypography.labelMedium,
-                                      ),
-                                      const SizedBox(height: FudiSpacing.sm),
-                                      Text(
-                                        offer.description!,
-                                        style: FudiTypography.bodyMedium
-                                            .copyWith(
-                                              color: FudiColors.mutedForeground,
-                                              height: 1.5,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                          const SizedBox(height: FudiSpacing.md),
-
-                          // Qué incluye — stagger 2
-                          FudiStaggerItem(
-                            index: 2,
-                            child: FudiSurfaceCard(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '¿Qué incluye?',
-                                    style: FudiTypography.labelMedium,
-                                  ),
-                                  const SizedBox(height: FudiSpacing.sm),
-                                  Text(
-                                    'Bolsa sorpresa con una selección variada de productos frescos del día.',
-                                    style: FudiTypography.bodySmall.copyWith(
-                                      color: FudiColors.mutedForeground,
-                                    ),
-                                  ),
-                                  const SizedBox(height: FudiSpacing.sm),
-                                  FudiKeyValueRow(
-                                    icon: FudiIcons.package_,
-                                    label: 'Disponibles',
-                                    value:
-                                        '${offer.stock} de ${offer.initialStock}',
-                                    valueColor: offer.stock > 3
-                                        ? FudiColors.success
-                                        : offer.stock > 0
-                                        ? FudiColors.warning
-                                        : FudiColors.destructive,
-                                  ),
-                                  const SizedBox(height: FudiSpacing.sm),
-                                  FudiKeyValueRow(
-                                    icon: FudiIcons.clock,
-                                    label: 'Recogida',
-                                    value:
-                                        '${_formatTime(offer.pickupStart)} - ${_formatTime(offer.pickupEnd)}',
-                                    valueColor: FudiColors.primary,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: FudiSpacing.md),
-
-                          // Instrucciones — stagger 3
-                          FudiStaggerItem(
-                            index: 3,
-                            child: FudiSurfaceCard(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Instrucciones de recogida',
-                                    style: FudiTypography.labelMedium,
-                                  ),
-                                  const SizedBox(height: FudiSpacing.sm),
-                                  Text(
-                                    'Presenta tu código de reserva en el mostrador. El pedido estará listo en una bolsa con tu nombre.',
-                                    style: FudiTypography.bodyMedium.copyWith(
-                                      color: FudiColors.mutedForeground,
-                                      height: 1.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: FudiSpacing.md),
-
-                          // Impacto ambiental — stagger 4
-                          FudiStaggerItem(
-                            index: 4,
-                            child: Container(
-                              padding: const EdgeInsets.all(FudiSpacing.lg),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF0FDF4),
-                                borderRadius: BorderRadius.circular(
-                                  FudiRadius.xl,
-                                ),
-                                border: Border.all(
-                                  color: const Color(0xFFBBF7D0),
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        FudiIcons.leaf,
-                                        size: 20,
-                                        color: const Color(0xFF166534),
-                                      ),
-                                      const SizedBox(width: FudiSpacing.sm),
-                                      Text(
-                                        'Impacto ambiental',
-                                        style: FudiTypography.labelMedium
-                                            .copyWith(
-                                              color: const Color(0xFF166534),
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: FudiSpacing.sm),
-                                  Text(
-                                    'Al rescatar este producto, ayudarás a evitar el desperdicio de alimentos y reducir las emisiones de CO₂.',
-                                    style: FudiTypography.bodySmall.copyWith(
-                                      color: const Color(0xFF15803D),
-                                      height: 1.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 120),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // ── Barra inferior con botón de reserva ──────────────────────────
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: FudiBottomActionBar(
-              child: Row(
-                children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          // ── Cuerpo de Scroll Principal ─────────────────────────────────────
+          CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              // Header con Imagen Expandible
+              SliverAppBar(
+                expandedHeight: 320,
+                pinned: true,
+                elevation: 0,
+                backgroundColor: FudiColors.surfaceBackground,
+                automaticallyImplyLeading: false,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(
+                    fit: StackFit.expand,
                     children: [
-                      Text(
-                        '\$${offer.originalPrice.toStringAsFixed(2)}',
-                        style: FudiTypography.bodySmall.copyWith(
-                          decoration: TextDecoration.lineThrough,
-                          color: FudiColors.mutedForeground,
-                        ),
-                      ),
-                      Text(
-                        '\$${offer.discountedPrice.toStringAsFixed(2)}',
-                        style: FudiTypography.headlineSmall.copyWith(
-                          color: FudiColors.primary,
-                          fontWeight: FontWeight.w800,
+                      offer.imageUrl != null
+                          ? CachedNetworkImage(
+                              imageUrl: offer.imageUrl!,
+                              fit: BoxFit.cover,
+                            )
+                          : Container(color: FudiColors.muted),
+                      const Positioned.fill(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.black45,
+                                Colors.transparent,
+                                FudiColors.surfaceBackground,
+                              ],
+                              stops: [0.0, 0.5, 1.0],
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(width: FudiSpacing.md),
-                  Expanded(
-                    child: _ReserveButton(
-                      offer: offer,
-                      isReserving: isReserving,
-                      onTap: offer.isAvailable && !isReserving
-                          ? () => context.push('/checkout/${offer.id}')
-                          : null,
-                    ),
+                ),
+              ),
+
+              // Contenido Desglosado en Bloques Limpios
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: FudiSpacing.xl,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Categoría o tipo de comida en Badge minimalista
+                      FudiStaggerItem(
+                        index: 0,
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: FudiColors.primary.withValues(
+                                  alpha: 0.1,
+                                ),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                offer.business.type.toUpperCase(),
+                                style: FudiTypography.labelSmall.copyWith(
+                                  color: FudiColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            if (offer.rating > 0) ...[
+                              const Icon(
+                                Icons.star_rounded,
+                                color: FudiColors.yellow,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                offer.rating.toStringAsFixed(1),
+                                style: FudiTypography.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                ' (${offer.reviewCount})',
+                                style: FudiTypography.bodySmall.copyWith(
+                                  color: FudiColors.mutedForeground,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: FudiSpacing.sm),
+
+                      // Título del Negocio
+                      FudiStaggerItem(
+                        index: 1,
+                        child: Text(
+                          offer.business.name,
+                          style: FudiTypography.headlineMedium.copyWith(
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.8,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: FudiSpacing.md),
+
+                      // Badges Activos Internos (Descuento y Stock Línea de flotación)
+                      FudiStaggerItem(
+                        index: 2,
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: FudiColors.foreground,
+                                borderRadius: BorderRadius.circular(
+                                  FudiRadius.full,
+                                ),
+                              ),
+                              child: Text(
+                                'Ahorras el $savings%',
+                                style: FudiTypography.bodySmall.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            if (offer.stock <= 3 && offer.stock > 0)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: FudiColors.destructiveSurface,
+                                  border: Border.all(
+                                    color: FudiColors.destructiveBorder,
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                    FudiRadius.full,
+                                  ),
+                                ),
+                                child: Text(
+                                  '¡Solo quedan ${offer.stock}!',
+                                  style: FudiTypography.bodySmall.copyWith(
+                                    color: FudiColors.destructiveVibrant,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: FudiSpacing.xl),
+
+                      // ── Timeline Líquido Mejorado con Datos Completos ───────────────────────
+
+                      // Paso 1: Negocio / Perfil
+                      FudiStaggerItem(
+                        index: 3,
+                        child: _buildTimelineStep(
+                          icon: FudiIcons.store,
+                          title: 'Establecimiento',
+                          subtitle: offer.business.name,
+                          trailing: FudiPressableScale(
+                            onTap: () => context.push(
+                              '/business-profile/${offer.businessId}',
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: FudiColors.primary.withValues(
+                                  alpha: 0.1,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'Ver local',
+                                style: FudiTypography.labelSmall.copyWith(
+                                  color: FudiColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      _buildTimelineDivider(),
+
+                      // Paso 2: Ubicación / Distancia
+                      FudiStaggerItem(
+                        index: 4,
+                        child: _buildTimelineStep(
+                          icon: FudiIcons.mapPin,
+                          title: 'Ubicación',
+                          subtitle:
+                              'A una distancia de ${_formatDistance(offer)} de ti.',
+                        ),
+                      ),
+                      _buildTimelineDivider(),
+
+                      // Paso 3: Horario de Recogida
+                      FudiStaggerItem(
+                        index: 5,
+                        child: _buildTimelineStep(
+                          icon: FudiIcons.clock,
+                          title: 'Horario de recogida',
+                          subtitle:
+                              'Pasa por tu pack hoy de ${_formatTime(offer.pickupStart)} a ${_formatTime(offer.pickupEnd)}',
+                        ),
+                      ),
+                      _buildTimelineDivider(),
+
+                      // Paso 4: Unidades Restantes / Disponibilidad
+                      FudiStaggerItem(
+                        index: 6,
+                        child: _buildTimelineStep(
+                          icon: FudiIcons.package_,
+                          title: 'Packs disponibles',
+                          subtitle:
+                              'Quedan libres ${offer.stock} de los ${offer.initialStock} publicados inicialmente.',
+                        ),
+                      ),
+                      _buildTimelineDivider(),
+
+                      // Paso 5: Instrucciones específicas de Recogida
+                      FudiStaggerItem(
+                        index: 7,
+                        child: _buildTimelineStep(
+                          icon: FudiIcons.checkCircle,
+                          title: 'Instrucciones en mostrador',
+                          subtitle:
+                              'Presenta tu código de reserva digital al personal antes del cierre de la ventana de tiempo. Ellos te entregarán el pack listo.',
+                        ),
+                      ),
+                      _buildTimelineDivider(),
+
+                      // Paso 6: Contenido del Pack
+                      FudiStaggerItem(
+                        index: 8,
+                        child: _buildTimelineStep(
+                          icon: Icons.restaurant_menu_rounded,
+                          title: '¿Qué incluye este pack?',
+                          subtitle:
+                              offer.description ??
+                              'Una bolsa sorpresa con excedentes de producción deliciosos y en perfecto estado higiénico del día.',
+                        ),
+                      ),
+
+                      const SizedBox(height: FudiSpacing.xl),
+
+                      // Card Ecológico de Impacto
+                      FudiStaggerItem(
+                        index: 9,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(FudiSpacing.xl),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.02),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              const Icon(
+                                FudiIcons.leaf,
+                                color: FudiColors.success,
+                                size: 28,
+                              ),
+                              const SizedBox(height: FudiSpacing.sm),
+                              Text(
+                                'Héroe del desperdicio',
+                                style: FudiTypography.labelMedium.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Al salvar esta comida evitas que se desperdicien recursos valiosos y disminuyes de inmediato la emisión directa de CO₂.',
+                                textAlign: TextAlign.center,
+                                style: FudiTypography.bodySmall.copyWith(
+                                  color: FudiColors.mutedForeground,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 140),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // ── Barra Flotante Superior (Back & Fav) ───────────────────────────
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 6,
+            left: 16,
+            right: 16,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                FudiCircleButton(
+                  onTap: () => context.pop(),
+                  icon: FudiIcons.chevronLeft,
+                ),
+                FudiHeartButton(
+                  isFavorite: isFavorite,
+                  onTap: () => ref
+                      .read(favoritedOfferIdsProvider.notifier)
+                      .toggleFavorite(offer.id),
+                ),
+              ],
+            ),
+          ),
+
+          // ── Barra de Compra Flotante Inferior ──────────────────────────────
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 16,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
                   ),
                 ],
+              ),
+              child: SafeArea(
+                top: false,
+                child: Row(
+                  children: [
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '\$${offer.originalPrice.toStringAsFixed(2)}',
+                          style: FudiTypography.bodySmall.copyWith(
+                            decoration: TextDecoration.lineThrough,
+                            color: FudiColors.mutedForeground,
+                          ),
+                        ),
+                        Text(
+                          '\$${offer.discountedPrice.toStringAsFixed(2)}',
+                          style: FudiTypography.headlineSmall.copyWith(
+                            color: FudiColors.foreground,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 24),
+                    Expanded(
+                      child: FudiPressableScale(
+                        onTap: offer.isAvailable && !isReserving
+                            ? () => context.push('/checkout/${offer.id}')
+                            : null,
+                        child: Container(
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: !offer.isAvailable
+                                ? FudiColors.mutedForeground.withValues(
+                                    alpha: 0.3,
+                                  )
+                                : FudiColors.primary,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Center(
+                            child: isReserving
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Text(
+                                    offer.isOutOfStock
+                                        ? 'Agotado'
+                                        : 'Salvar Pack',
+                                    style: FudiTypography.labelMedium.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -581,11 +534,61 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
     );
   }
 
-  String _formatTime(DateTime dt) {
-    final hour = dt.hour.toString().padLeft(2, '0');
-    final minute = dt.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
+  // Métodos Helper de UI para el Timeline
+  Widget _buildTimelineStep({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    Widget? trailing,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 18, color: FudiColors.foreground),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: FudiTypography.bodyMedium.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: FudiColors.foreground,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: FudiTypography.bodyMedium.copyWith(
+                  color: FudiColors.mutedForeground,
+                  height: 1.3,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (trailing != null) ...[const SizedBox(width: 12), trailing],
+      ],
+    );
   }
+
+  Widget _buildTimelineDivider() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 19),
+      child: Container(width: 2, height: 24, color: FudiColors.muted),
+    );
+  }
+
+  String _formatTime(DateTime dt) =>
+      '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 
   String _formatDistance(Offer offer) {
     final pos = ref.read(userLocationProvider).asData?.value;
@@ -597,66 +600,3 @@ class _OfferDetailContentState extends ConsumerState<_OfferDetailContent>
     );
   }
 }
-
-// ── Botón reservar ───────────────────────────────────────────────────────────
-
-class _ReserveButton extends StatelessWidget {
-  const _ReserveButton({
-    required this.offer,
-    required this.isReserving,
-    required this.onTap,
-  });
-  final Offer offer;
-  final bool isReserving;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDisabled = onTap == null;
-
-    return FudiPressableScale(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        height: 56,
-        decoration: BoxDecoration(
-          color: isDisabled
-              ? FudiColors.primary.withValues(alpha: 0.4)
-              : FudiColors.primary,
-          borderRadius: BorderRadius.circular(FudiRadius.xl),
-          boxShadow: isDisabled
-              ? []
-              : [
-                  BoxShadow(
-                    color: FudiColors.primary.withValues(alpha: 0.4),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-        ),
-        child: Center(
-          child: isReserving
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-              : Text(
-                  offer.isOutOfStock
-                      ? 'Agotado'
-                      : offer.isExpired
-                      ? 'Ventana de pickup cerrada'
-                      : 'Reservar ahora',
-                  style: FudiTypography.labelMedium.copyWith(
-                    color: Colors.white,
-                  ),
-                ),
-        ),
-      ),
-    );
-  }
-}
-

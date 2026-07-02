@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -41,9 +43,8 @@ class _MapPickerScreenState extends ConsumerState<MapPickerScreen> {
   void initState() {
     super.initState();
     _currentLocation =
-        widget.initialLocation ??
-        const LatLng(-0.22985, -78.52495);
-    _determinePosition();
+        widget.initialLocation ?? const LatLng(-0.22985, -78.52495);
+    unawaited(_determinePosition());
   }
 
   Future<void> _determinePosition() async {
@@ -54,7 +55,7 @@ class _MapPickerScreenState extends ConsumerState<MapPickerScreen> {
     }
 
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         setState(() => _loading = false);
         return;
@@ -84,9 +85,9 @@ class _MapPickerScreenState extends ConsumerState<MapPickerScreen> {
       await _reverseGeocode(_currentLocation);
       if (mounted) setState(() => _loading = false);
 
-      _mapController?.animateCamera(
+      unawaited(_mapController?.animateCamera(
         CameraUpdate.newLatLngZoom(_currentLocation, 16),
-      );
+      ));
     } catch (e) {
       debugPrint('Error obteniendo ubicación: $e');
       setState(() => _loading = false);
@@ -154,9 +155,9 @@ class _MapPickerScreenState extends ConsumerState<MapPickerScreen> {
             ),
 
           if (!_loading)
-            Center(
+            const Center(
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 35),
+                padding: EdgeInsets.only(bottom: 35),
                 child: Icon(
                   Icons.location_on,
                   size: 50,

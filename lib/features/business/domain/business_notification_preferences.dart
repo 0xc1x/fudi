@@ -48,8 +48,12 @@ class BusinessNotificationPreferences {
       reviewsEnabled: reviewsEnabled ?? this.reviewsEnabled,
       lowStockEnabled: lowStockEnabled ?? this.lowStockEnabled,
       dailySummaryEnabled: dailySummaryEnabled ?? this.dailySummaryEnabled,
-      quietHoursFrom: quietHoursFrom == _sentinel ? this.quietHoursFrom : quietHoursFrom as String?,
-      quietHoursTo: quietHoursTo == _sentinel ? this.quietHoursTo : quietHoursTo as String?,
+      quietHoursFrom: quietHoursFrom == _sentinel
+          ? this.quietHoursFrom
+          : quietHoursFrom as String?,
+      quietHoursTo: quietHoursTo == _sentinel
+          ? this.quietHoursTo
+          : quietHoursTo as String?,
     );
   }
 
@@ -65,8 +69,6 @@ class BusinessNotificationPreferences {
     reviewsEnabled: true,
     lowStockEnabled: false,
     dailySummaryEnabled: true,
-    quietHoursFrom: null,
-    quietHoursTo: null,
   );
 
   static const empty = BusinessNotificationPreferences(
@@ -79,7 +81,5 @@ class BusinessNotificationPreferences {
     reviewsEnabled: true,
     lowStockEnabled: false,
     dailySummaryEnabled: true,
-    quietHoursFrom: null,
-    quietHoursTo: null,
   );
 }

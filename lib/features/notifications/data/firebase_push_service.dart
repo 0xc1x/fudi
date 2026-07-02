@@ -7,12 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/di/core_providers.dart';
 import '../../../core/network/push_service.dart';
+import '../domain/device_token_repository.dart';
 import 'device_token_repository.dart';
 
 final pushServiceProvider = Provider<PushService>((ref) {
   final config = ref.watch(appConfigProvider);
   final supabase = ref.watch(supabaseClientProvider);
-  final repo = DeviceTokenRepository(supabaseClient: supabase);
+  final repo = SupabaseDeviceTokenRepository(supabaseClient: supabase);
   final service = FirebasePushService(
     config: config,
     deviceTokenRepo: repo,
@@ -67,12 +68,7 @@ class FirebasePushService implements PushService {
     if (kIsWeb) return true;
 
     final messaging = FirebaseMessaging.instance;
-    final settings = await messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
-    );
+    final settings = await messaging.requestPermission();
     return settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional;
   }
@@ -80,10 +76,9 @@ class FirebasePushService implements PushService {
   @override
   Future<String?> getToken() async {
     try {
-      _currentToken = await FirebaseMessaging.instance.getToken(
+      return _currentToken = await FirebaseMessaging.instance.getToken(
         vapidKey: kIsWeb ? _config.firebaseVapidKey : null,
       );
-      return _currentToken;
     } catch (_) {
       return null;
     }
@@ -98,10 +93,10 @@ class FirebasePushService implements PushService {
 
     await _deviceTokenRepo.upsertToken(userId: userId, token: token);
 
-    _tokenSubscription?.cancel();
-    _tokenSubscription = FirebaseMessaging.instance
-        .onTokenRefresh
-        .listen((newToken) async {
+    unawaited(_tokenSubscription?.cancel());
+    _tokenSubscription = FirebaseMessaging.instance.onTokenRefresh.listen((
+      newToken,
+    ) async {
       _currentToken = newToken;
       if (_currentUserId != null) {
         await _deviceTokenRepo.upsertToken(
@@ -114,7 +109,7 @@ class FirebasePushService implements PushService {
 
   @override
   Future<void> unregisterToken() async {
-    _tokenSubscription?.cancel();
+    unawaited(_tokenSubscription?.cancel());
     _tokenSubscription = null;
 
     if (_currentToken != null) {
@@ -163,11 +158,11 @@ class FirebasePushService implements PushService {
 
   @override
   void dispose() {
-    _tokenSubscription?.cancel();
-    _messageSubscription?.cancel();
-    _openSubscription?.cancel();
-    _messageController.close();
-    _openController.close();
+    unawaited(_tokenSubscription?.cancel());
+    unawaited(_messageSubscription?.cancel());
+    unawaited(_openSubscription?.cancel());
+    unawaited(_messageController.close());
+    unawaited(_openController.close());
   }
 
   PushNotification _fromRemoteMessage(RemoteMessage message) {
@@ -176,10 +171,6 @@ class FirebasePushService implements PushService {
     );
 
     final aps = message.notification;
-    return PushNotification(
-      title: aps?.title,
-      body: aps?.body,
-      data: data,
-    );
+    return PushNotification(title: aps?.title, body: aps?.body, data: data);
   }
 }

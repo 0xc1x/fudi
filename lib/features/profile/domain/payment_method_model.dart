@@ -7,6 +7,16 @@ class PaymentMethodModel {
     required this.expiryYear,
     required this.isDefault,
   });
+  factory PaymentMethodModel.fromJson(Map<String, dynamic> json) {
+    return PaymentMethodModel(
+      id: json['id'] as String,
+      brand: json['brand'] as String,
+      last4: json['last4'] as String,
+      expiryMonth: json['expiryMonth'] as int,
+      expiryYear: json['expiryYear'] as int,
+      isDefault: json['isDefault'] as bool? ?? false,
+    );
+  }
 
   final String id;
   final String brand;
@@ -41,15 +51,4 @@ class PaymentMethodModel {
     'expiryYear': expiryYear,
     'isDefault': isDefault,
   };
-
-  factory PaymentMethodModel.fromJson(Map<String, dynamic> json) {
-    return PaymentMethodModel(
-      id: json['id'] as String,
-      brand: json['brand'] as String,
-      last4: json['last4'] as String,
-      expiryMonth: json['expiryMonth'] as int,
-      expiryYear: json['expiryYear'] as int,
-      isDefault: json['isDefault'] as bool? ?? false,
-    );
-  }
 }

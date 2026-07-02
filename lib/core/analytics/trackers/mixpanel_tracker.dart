@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -53,7 +55,7 @@ class MixpanelTracker implements AnalyticsTracker {
     if (mp == null) return;
 
     try {
-      mp.track(event.name, properties: event.properties);
+      unawaited(mp.track(event.name, properties: event.properties));
     } catch (e) {
       _reportError('track', e);
     }
@@ -66,7 +68,7 @@ class MixpanelTracker implements AnalyticsTracker {
     if (mp == null) return;
 
     try {
-      mp.identify(userId);
+      unawaited(mp.identify(userId));
     } catch (e) {
       _reportError('setUserId', e);
     }
@@ -94,7 +96,7 @@ class MixpanelTracker implements AnalyticsTracker {
     if (mp == null) return;
 
     try {
-      mp.reset();
+      unawaited(mp.reset());
     } catch (e) {
       _reportError('reset', e);
     }
@@ -104,9 +106,11 @@ class MixpanelTracker implements AnalyticsTracker {
 
   /// Reports analytics errors as Sentry messages (NOT crashes).
   void _reportError(String method, Object error) {
-    Sentry.captureMessage(
-      'MixpanelTracker.$method failed: $error',
-      level: SentryLevel.warning,
+    unawaited(
+      Sentry.captureMessage(
+        'MixpanelTracker.$method failed: $error',
+        level: SentryLevel.warning,
+      ),
     );
   }
 }

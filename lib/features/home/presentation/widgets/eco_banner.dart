@@ -29,7 +29,7 @@ class EcoBanner extends StatelessWidget {
                     Container(
                       width: 52,
                       height: 52,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: FudiColors.greenMidDark,
                         shape: BoxShape.circle,
                       ),
@@ -42,12 +42,12 @@ class EcoBanner extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 14),
-                    Expanded(
+                    const Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Cada paquete que rescatas hace la diferencia',
                             style: TextStyle(
                               color: Colors.white,
@@ -56,8 +56,8 @@ class EcoBanner extends StatelessWidget {
                               height: 1.2,
                             ),
                           ),
-                          const SizedBox(height: 6),
-                          const Text(
+                          SizedBox(height: 6),
+                          Text(
                             'Gracias por ayudar al planeta',
                             style: TextStyle(
                               color: Colors.white70,

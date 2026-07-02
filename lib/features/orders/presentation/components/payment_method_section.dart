@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
 import '../../../../core/ui/fudi_typography.dart';
 
 class PaymentMethodSection extends StatelessWidget {
   const PaymentMethodSection({
+    super.key,
     required this.selectedIndex,
     required this.onChanged,
   });
@@ -25,63 +27,79 @@ class PaymentMethodSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Método de pago', style: FudiTypography.labelMedium),
-          const SizedBox(height: FudiSpacing.md),
+          const Text('Método de pago', style: FudiTypography.labelMedium),
+          const SizedBox(height: FudiSpacing.sm),
           ...List.generate(_methods.length, (i) {
             final (icon, name, detail) = _methods[i];
             final selected = selectedIndex == i;
             return Padding(
-              padding: EdgeInsets.only(top: i > 0 ? FudiSpacing.sm : 0),
-              child: GestureDetector(
+              padding: const EdgeInsets.only(top: FudiSpacing.xs),
+              child: FudiPressableScale(
                 onTap: () => onChanged(i),
-                child: Container(
-                  padding: const EdgeInsets.all(FudiSpacing.md),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: FudiSpacing.md,
+                    vertical: FudiSpacing.sm,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: selected
                           ? FudiColors.primary
                           : FudiColors.borderSolid,
-                      width: selected ? 2 : 1,
+                      width: selected ? 1.5 : 1,
                     ),
-                    borderRadius: BorderRadius.circular(FudiRadius.lg),
+                    borderRadius: BorderRadius.circular(12),
                     color: selected
-                        ? FudiColors.primary.withValues(alpha: 0.05)
-                        : null,
+                        ? FudiColors.primary.withValues(alpha: 0.04)
+                        : Colors.transparent,
                   ),
                   child: Row(
                     children: [
-                      Icon(icon, size: 20, color: FudiColors.primary),
+                      Icon(
+                        icon,
+                        size: 18,
+                        color: selected
+                            ? FudiColors.primary
+                            : FudiColors.mutedForeground,
+                      ),
                       const SizedBox(width: FudiSpacing.md),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(name, style: FudiTypography.labelSmall),
+                            Text(
+                              name,
+                              style: FudiTypography.labelSmall.copyWith(
+                                fontWeight: selected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            ),
                             if (detail != null)
-                              Text(detail, style: FudiTypography.bodySmall),
+                              Text(
+                                detail,
+                                style: FudiTypography.bodySmall.copyWith(
+                                  color: FudiColors.mutedForeground,
+                                ),
+                              ),
                           ],
                         ),
                       ),
-                      Container(
-                        width: 20,
-                        height: 20,
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 18,
+                        height: 18,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: selected
                                 ? FudiColors.primary
-                                : FudiColors.mutedForeground,
-                            width: 2,
+                                : FudiColors.borderSolid,
+                            width: selected ? 5 : 1.5,
                           ),
-                          color: selected ? FudiColors.primary : null,
+                          color: Colors.white,
                         ),
-                        child: selected
-                            ? const Icon(
-                                Icons.circle,
-                                size: 8,
-                                color: Colors.white,
-                              )
-                            : null,
                       ),
                     ],
                   ),

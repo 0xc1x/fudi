@@ -1,34 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../../../core/routing/route_names.dart';
+import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
-import '../../../../core/ui/fudi_typography.dart';
-import '../../../../core/ui/atoms/icons/fudi_icons.dart';
-import '../../../../core/routing/route_names.dart';
 
 class QuickActionsGrid extends StatelessWidget {
   const QuickActionsGrid({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final items = const [
+    const items = [
       _QuickActionData(
         icon: FudiIcons.trendingUp,
         title: 'Estadísticas',
-        subtitle: 'Ver análisis',
+        subtitle: 'Análisis de rendimiento',
         path: RouteNames.businessStatisticsPath,
-      ),
-      _QuickActionData(
-        icon: FudiIcons.bell,
-        title: 'Notificaciones',
-        subtitle: 'Configurar',
-        path: RouteNames.businessNotificationsPath,
+        isLarge: true, // Tarjeta destacada de ancho completo
       ),
       _QuickActionData(
         icon: FudiIcons.creditCard,
         title: 'Pagos',
-        subtitle: 'Ver historial',
+        subtitle: 'Historial',
         path: RouteNames.businessPaymentsPath,
       ),
       _QuickActionData(
@@ -38,49 +34,107 @@ class QuickActionsGrid extends StatelessWidget {
         path: RouteNames.businessCouponsPath,
       ),
       _QuickActionData(
+        icon: FudiIcons.bell,
+        title: 'Alertas',
+        subtitle: 'Configurar',
+        path: RouteNames.businessNotificationsPath,
+      ),
+      _QuickActionData(
         icon: FudiIcons.helpCircle,
-        title: 'Ayuda',
-        subtitle: 'Centro de ayuda',
+        title: 'Soporte',
+        subtitle: 'Ayuda',
         path: RouteNames.businessHelpPath,
       ),
     ];
 
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: FudiSpacing.md,
-      mainAxisSpacing: FudiSpacing.md,
-      childAspectRatio: 1.6,
-      children: items.map((item) {
-        return FudiSurfaceCard(
-          padding: const EdgeInsets.all(FudiSpacing.md),
-          child: InkWell(
-            onTap: () => context.push(item.path),
-            borderRadius: BorderRadius.circular(FudiRadius.xl),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(item.icon, color: FudiColors.primary, size: 28),
-                const SizedBox(height: FudiSpacing.sm),
-                Text(
-                  item.title,
-                  style: FudiTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  item.subtitle,
-                  style: FudiTypography.bodySmall.copyWith(
-                    color: FudiColors.mutedForeground,
-                  ),
-                ),
-              ],
-            ),
+    return Column(
+      children: [
+        // Primer bloque: Tarjeta destacada asimétrica
+        _buildTile(context, items[0]),
+        const SizedBox(height: FudiSpacing.sm),
+
+        // Segundo bloque: Grid de 2x2 ultra-compacto y plano
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: items.length - 1,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: FudiSpacing.sm,
+            mainAxisSpacing: FudiSpacing.sm,
+            childAspectRatio: 2.1,
           ),
-        );
-      }).toList(),
+          itemBuilder: (context, index) {
+            // Saltamos el primer elemento que ya renderizamos arriba
+            return _buildTile(context, items[index + 1]);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTile(BuildContext context, _QuickActionData item) {
+    return FudiPressableScale(
+      onTap: () => context.push(item.path),
+      child: FudiSurfaceCard(
+        padding: const EdgeInsets.all(FudiSpacing.md),
+        child: Row(
+          crossAxisAlignment: item.isLarge
+              ? CrossAxisAlignment.center
+              : CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    item.title,
+                    style: TextStyle(
+                      fontSize: item.isLarge ? 15 : 13,
+                      fontWeight: FontWeight.bold,
+                      color: FudiColors.foreground,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    item.subtitle,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: FudiColors.mutedForeground,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: FudiSpacing.xs),
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: item.isLarge
+                    ? FudiColors.primary.withValues(alpha: 0.08)
+                    : FudiColors.background,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: item.isLarge
+                      ? FudiColors.primary.withValues(alpha: 0.1)
+                      : FudiColors.borderSolid,
+                ),
+              ),
+              child: Icon(
+                item.icon,
+                color: item.isLarge
+                    ? FudiColors.primary
+                    : FudiColors.foreground,
+                size: 18,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -91,10 +145,12 @@ class _QuickActionData {
     required this.title,
     required this.subtitle,
     required this.path,
+    this.isLarge = false,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
   final String path;
+  final bool isLarge;
 }

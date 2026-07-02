@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 class FudiStaggerItem extends StatefulWidget {
@@ -48,7 +49,7 @@ class _FudiStaggerItemState extends State<FudiStaggerItem>
         milliseconds: widget.baseDelay + widget.index * widget.staggerDelay,
       ),
       () {
-        if (mounted) _controller.forward();
+        if (mounted) unawaited(_controller.forward());
       },
     );
   }

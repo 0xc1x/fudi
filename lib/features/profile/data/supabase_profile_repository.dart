@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/utils/num_utils.dart';
 import '../domain/profile_models.dart';
 import '../domain/profile_repository.dart';
 
@@ -329,8 +330,8 @@ class SupabaseProfileRepository implements ProfileRepository {
       id: json['id'] as String,
       label: json['label'] as String? ?? '',
       address: json['address'] as String? ?? '',
-      latitude: _toDouble(json['latitude']) ?? 0,
-      longitude: _toDouble(json['longitude']) ?? 0,
+      latitude: parseDouble(json['latitude']) ?? 0,
+      longitude: parseDouble(json['longitude']) ?? 0,
       isDefault: json['is_default'] as bool? ?? false,
       type: _parseAddressType(json['type'] as String?),
       references: json['references'] as String?,
@@ -358,15 +359,6 @@ class SupabaseProfileRepository implements ProfileRepository {
     final trimmed = value?.trim();
     if (trimmed == null || trimmed.isEmpty) return '';
     return trimmed;
-  }
-
-  double? _toDouble(dynamic value) {
-    if (value == null) return null;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is num) return value.toDouble();
-    if (value is String) return double.tryParse(value);
-    return null;
   }
 
   String _paymentMethodsKey(String userId) => 'profile.payment_methods.$userId';

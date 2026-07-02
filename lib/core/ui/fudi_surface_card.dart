@@ -22,10 +22,7 @@ class FudiSurfaceCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: FudiColors.card,
         borderRadius: BorderRadius.circular(FudiRadius.lg),
-        border: Border.all(
-          color: FudiColors.border.withValues(alpha: 0.09),
-          width: 1.0,
-        ),
+        border: Border.all(color: FudiColors.border.withValues(alpha: 0.09)),
         boxShadow: [
           BoxShadow(
             color: FudiColors.primary.withValues(alpha: 0.04),

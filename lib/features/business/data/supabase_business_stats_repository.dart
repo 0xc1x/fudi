@@ -13,30 +13,24 @@ class SupabaseBusinessStatsRepository implements BusinessStatsRepository {
   @override
   Future<BusinessStats> getBusinessStats(
     String businessId, {
-    String period = 'month',
+    required DateTime startDate,
+    required DateTime endDate,
   }) async {
     try {
-      // In a real production app, this would be a Supabase RPC for efficiency.
-      // For Phase 1, we fetch the data and aggregate client-side to avoid hardcoding.
+      final duration = endDate.difference(startDate);
+      final prevStartDate = startDate.subtract(duration);
+      final prevEndDate = startDate;
 
-      final now = DateTime.now();
-      final startDate = _getStartDate(now, period);
-      final prevStartDate = _getStartDate(startDate, period);
-
-      // Fetch current period orders
-      final currentOrders = await _fetchOrders(businessId, startDate, now);
-      // Fetch previous period orders for comparison
+      final currentOrders = await _fetchOrders(businessId, startDate, endDate);
       final previousOrders = await _fetchOrders(
         businessId,
         prevStartDate,
-        startDate,
+        prevEndDate,
       );
 
-      // Aggregate stats
       final currentStats = _calculatePeriodStats(currentOrders);
       final previousStats = _calculatePeriodStats(previousOrders);
 
-      // Calculate changes
       final revenueChange = _calculateChange(
         currentStats.revenue,
         previousStats.revenue,
@@ -46,13 +40,13 @@ class SupabaseBusinessStatsRepository implements BusinessStatsRepository {
         previousStats.count.toDouble(),
       );
 
-      // Top products (from current period)
       final topProducts = _calculateTopProducts(currentOrders);
+      final dailyStats = _calculateDailyStats(
+        currentOrders,
+        startDate,
+        endDate,
+      );
 
-      // Daily stats (last 7 days or based on period)
-      final dailyStats = _calculateDailyStats(currentOrders);
-
-      // Get business rating
       final businessResponse = await _supabaseClient
           .from('businesses')
           .select('rating')
@@ -64,7 +58,7 @@ class SupabaseBusinessStatsRepository implements BusinessStatsRepository {
       return BusinessStats(
         revenue: currentStats.revenue,
         ordersCount: currentStats.count,
-        rescuedCount: currentStats.count, // In Fudi, 1 order = 1 rescued meal
+        rescuedCount: currentStats.count,
         avgRating: rating,
         revenueChange: revenueChange,
         ordersChange: ordersChange,
@@ -73,19 +67,9 @@ class SupabaseBusinessStatsRepository implements BusinessStatsRepository {
         dailyStats: dailyStats,
       );
     } catch (e) {
-      throw UnknownDataException(message: 'Error al calcular estadísticas');
-    }
-  }
-
-  DateTime _getStartDate(DateTime end, String period) {
-    switch (period) {
-      case 'week':
-        return end.subtract(const Duration(days: 7));
-      case 'year':
-        return DateTime(end.year - 1, end.month, end.day);
-      case 'month':
-      default:
-        return DateTime(end.year, end.month - 1, end.day);
+      throw const UnknownDataException(
+        message: 'Error al calcular estadísticas',
+      );
     }
   }
 
@@ -151,25 +135,114 @@ class SupabaseBusinessStatsRepository implements BusinessStatsRepository {
     return stats.take(5).toList();
   }
 
-  List<DailyStat> _calculateDailyStats(List<Map<String, dynamic>> orders) {
-    final dailyMap = <String, ({int count, double revenue})>{};
-    final dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+  static const _monthAbbr = [
+    'ene',
+    'feb',
+    'mar',
+    'abr',
+    'may',
+    'jun',
+    'jul',
+    'ago',
+    'sep',
+    'oct',
+    'nov',
+    'dic',
+  ];
 
-    // Initialize last 7 days
-    final now = DateTime.now();
-    for (int i = 6; i >= 0; i--) {
-      final date = now.subtract(Duration(days: i));
-      final dayName = dayNames[date.weekday % 7];
-      dailyMap[dayName] = (count: 0, revenue: 0.0);
+  static const _fullMonths = [
+    'Enero',
+    'Febrero',
+    'Marzo',
+    'Abril',
+    'Mayo',
+    'Junio',
+    'Julio',
+    'Agosto',
+    'Septiembre',
+    'Octubre',
+    'Noviembre',
+    'Diciembre',
+  ];
+
+  static _Aggregation _resolveAggregation(int totalDays) {
+    if (totalDays <= 14) return _Aggregation.day;
+    if (totalDays <= 60) return _Aggregation.week;
+    return _Aggregation.month;
+  }
+
+  static String _bucketKey(DateTime d, _Aggregation agg) {
+    return switch (agg) {
+      _Aggregation.day => '${d.year}-${d.month}-${d.day}',
+      _Aggregation.week => _weekKey(d),
+      _Aggregation.month => '${d.year}-${d.month}',
+    };
+  }
+
+  /// Monday-based week key: "2026-W27"
+  static String _weekKey(DateTime d) {
+    final monday = d.subtract(Duration(days: d.weekday - 1));
+    final jan1 = DateTime(monday.year);
+    final weekNum = (monday.difference(jan1).inDays ~/ 7) + 1;
+    return '${monday.year}-W$weekNum';
+  }
+
+  static String _formatBucketLabel(String key, _Aggregation agg) {
+    return switch (agg) {
+      _Aggregation.day => () {
+        final parts = key.split('-');
+        final date = DateTime(
+          int.parse(parts[0]),
+          int.parse(parts[1]),
+          int.parse(parts[2]),
+        );
+        const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        return dayNames[date.weekday % 7];
+      }(),
+      _Aggregation.week => () {
+        final parts = key.split('-W');
+        final y = int.parse(parts[0]);
+        final weekNum = int.parse(parts[1]);
+        final jan1 = DateTime(y);
+        final monday = jan1.add(Duration(days: (weekNum - 1) * 7));
+        final saturday = monday.add(const Duration(days: 6));
+        if (monday.year != y) return 'Sem $weekNum';
+        if (monday.month == saturday.month) {
+          return '${monday.day}–${saturday.day} ${_monthAbbr[monday.month - 1]}';
+        }
+        return '${monday.day} ${_monthAbbr[monday.month - 1]} – ${saturday.day} ${_monthAbbr[saturday.month - 1]}';
+      }(),
+      _Aggregation.month => () {
+        final parts = key.split('-');
+        return _fullMonths[int.parse(parts[1]) - 1];
+      }(),
+    };
+  }
+
+  static List<DailyStat> _calculateDailyStats(
+    List<Map<String, dynamic>> orders,
+    DateTime startDate,
+    DateTime endDate,
+  ) {
+    final totalDays = endDate.difference(startDate).inDays;
+    final agg = _resolveAggregation(totalDays);
+    final dataMap = <String, ({int count, double revenue})>{};
+
+    final seen = <String>{};
+    for (int i = 0; i <= totalDays; i++) {
+      final date = startDate.add(Duration(days: i));
+      final key = _bucketKey(date, agg);
+      if (seen.add(key)) {
+        dataMap[key] = (count: 0, revenue: 0.0);
+      }
     }
 
     for (final order in orders) {
       final date = DateTime.parse(order['created_at'] as String);
-      final dayName = dayNames[date.weekday % 7];
-
-      if (dailyMap.containsKey(dayName)) {
-        final current = dailyMap[dayName]!;
-        dailyMap[dayName] = (
+      final key = _bucketKey(date, agg);
+      if (dataMap.containsKey(key)) {
+        final current = dataMap[key]!;
+        dataMap[key] = (
           count: current.count + 1,
           revenue:
               current.revenue + ((order['price'] as num?)?.toDouble() ?? 0.0),
@@ -177,10 +250,10 @@ class SupabaseBusinessStatsRepository implements BusinessStatsRepository {
       }
     }
 
-    return dailyMap.entries
+    return dataMap.entries
         .map(
           (e) => DailyStat(
-            day: e.key,
+            day: _formatBucketLabel(e.key, agg),
             orders: e.value.count,
             revenue: e.value.revenue,
           ),
@@ -188,3 +261,5 @@ class SupabaseBusinessStatsRepository implements BusinessStatsRepository {
         .toList();
   }
 }
+
+enum _Aggregation { day, week, month }

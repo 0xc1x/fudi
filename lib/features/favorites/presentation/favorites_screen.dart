@@ -1,20 +1,18 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/error/user_friendly_message.dart';
 import '../../../core/routing/route_names.dart';
+import '../../../core/ui/cards/deal_card.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_info_banner.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_sticky_page_header.dart';
-import '../../../core/ui/fudi_surface_card.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../auth/presentation/auth_state_provider.dart';
-import '../domain/favorite_offer.dart';
 import 'favorites_providers.dart';
 
 class FavoritesScreen extends ConsumerWidget {
@@ -28,7 +26,7 @@ class FavoritesScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: FudiColors.muted,
+      backgroundColor: FudiColors.background,
       appBar: const FudiStickyPageHeader(title: 'Favoritos'),
       body: favoritesAsync.when(
         loading: () => const _FavoritesLoadingState(),
@@ -48,23 +46,35 @@ class FavoritesScreen extends ConsumerWidget {
 
           return RefreshIndicator(
             onRefresh: () async => ref.refresh(favoriteOffersProvider.future),
+            color: FudiColors.primary,
             child: ListView(
-              padding: const EdgeInsets.all(FudiSpacing.lg),
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
+              ),
+              padding: const EdgeInsets.all(FudiSpacing.xl),
               children: [
                 FudiInfoBanner(
                   icon: FudiIcons.heart,
                   message:
                       'Has identificado \$${totalSaved.toStringAsFixed(0)} de ahorro potencial en tus favoritos.',
                 ),
-                const SizedBox(height: FudiSpacing.lg),
+                const SizedBox(height: FudiSpacing.xl),
                 ...favorites.map(
                   (favorite) => Padding(
                     padding: const EdgeInsets.only(bottom: FudiSpacing.md),
-                    child: _FavoriteCard(
-                      favorite: favorite,
-                      onOpen: () =>
-                          context.push('/product/${favorite.offerId}'),
-                      onRemove: userId == null
+                    child: DealCard(
+                      imageUrl: favorite.imageUrl ?? '',
+                      offerTitle: favorite.title,
+                      businessName: favorite.businessName,
+                      originalPrice: favorite.originalPrice,
+                      discountedPrice: favorite.discountedPrice,
+                      rating: favorite.rating,
+                      distance: favorite.address,
+                      availableQuantity: 1,
+                      pickupUntil: const TimeOfDay(hour: 23, minute: 59),
+                      isFavorite: true,
+                      onTap: () => context.push('/product/${favorite.offerId}'),
+                      onFavoriteToggle: userId == null
                           ? null
                           : () async {
                               await ref
@@ -83,205 +93,7 @@ class FavoritesScreen extends ConsumerWidget {
   }
 }
 
-class _FavoriteCard extends StatelessWidget {
-  const _FavoriteCard({
-    required this.favorite,
-    required this.onOpen,
-    required this.onRemove,
-  });
-
-  final FavoriteOffer favorite;
-  final VoidCallback onOpen;
-  final Future<void> Function()? onRemove;
-
-  @override
-  Widget build(BuildContext context) {
-    return FudiSurfaceCard(
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _FavoriteImage(imageUrl: favorite.imageUrl),
-              const SizedBox(width: FudiSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            favorite.businessName,
-                            style: FudiTypography.labelSmall,
-                          ),
-                        ),
-                        FudiPressableScale(
-                          onTap: onRemove == null
-                              ? null
-                              : () async => onRemove!.call(),
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: const BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
-                            child: const Icon(
-                              Icons.delete_outline_rounded,
-                              color: FudiColors.destructive,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      favorite.title,
-                      style: FudiTypography.bodySmall.copyWith(
-                        color: FudiColors.foreground,
-                      ),
-                    ),
-                    const SizedBox(height: FudiSpacing.xs),
-                    Text(
-                      favorite.category?.dbValue ?? 'Oferta destacada',
-                      style: FudiTypography.bodySmall.copyWith(
-                        color: FudiColors.mutedForeground,
-                      ),
-                    ),
-                    const SizedBox(height: FudiSpacing.sm),
-                    Row(
-                      children: [
-                        if (favorite.rating > 0) ...[
-                          const Icon(
-                            FudiIcons.star,
-                            size: 16,
-                            color: Color(0xFFFACC15),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            favorite.rating.toStringAsFixed(1),
-                            style: FudiTypography.bodySmall,
-                          ),
-                          const SizedBox(width: FudiSpacing.sm),
-                        ],
-                        const Icon(
-                          FudiIcons.mapPin,
-                          size: 16,
-                          color: FudiColors.mutedForeground,
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            favorite.address,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: FudiTypography.bodySmall.copyWith(
-                              color: FudiColors.mutedForeground,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: FudiSpacing.md),
-          Row(
-            children: [
-              Expanded(
-                child: _MetricBlock(
-                  label: 'Precio actual',
-                  value: '\$${favorite.discountedPrice.toStringAsFixed(0)}',
-                  color: FudiColors.primary,
-                ),
-              ),
-              Expanded(
-                child: _MetricBlock(
-                  label: 'Ahorro',
-                  value: '\$${favorite.totalSaved.toStringAsFixed(0)}',
-                  color: const Color(0xFF15803D),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: FudiSpacing.md),
-          SizedBox(
-            width: double.infinity,
-            child: FudiPressableScale(
-              onTap: onOpen,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                decoration: BoxDecoration(
-                  color: FudiColors.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(FudiRadius.lg),
-                ),
-                child: const Center(child: Text('Ver oferta', style: TextStyle(color: FudiColors.primary))),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FavoriteImage extends StatelessWidget {
-  const _FavoriteImage({required this.imageUrl});
-
-  final String? imageUrl;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 88,
-      height: 88,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(FudiRadius.lg),
-        gradient: LinearGradient(
-          colors: [
-            FudiColors.primary.withValues(alpha: 0.16),
-            const Color(0xFFFFE7D1),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: imageUrl != null && imageUrl!.isNotEmpty
-          ? CachedNetworkImage(imageUrl: imageUrl!, fit: BoxFit.cover)
-          : const Icon(FudiIcons.heart, size: 32, color: FudiColors.primary),
-    );
-  }
-}
-
-class _MetricBlock extends StatelessWidget {
-  const _MetricBlock({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: FudiTypography.bodySmall.copyWith(
-            color: FudiColors.mutedForeground,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(value, style: FudiTypography.labelSmall.copyWith(color: color)),
-      ],
-    );
-  }
-}
+// ─── Empty State Estilizado ─────────────────────────────────────────
 
 class _FavoritesEmptyState extends StatelessWidget {
   const _FavoritesEmptyState({required this.onExplore});
@@ -292,35 +104,55 @@ class _FavoritesEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(FudiSpacing.xl),
+        padding: const EdgeInsets.all(FudiSpacing.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              FudiIcons.heartOutline,
-              size: 56,
-              color: FudiColors.mutedForeground,
-            ),
-            const SizedBox(height: FudiSpacing.md),
-            Text('No tienes favoritos', style: FudiTypography.h2),
-            const SizedBox(height: FudiSpacing.sm),
-            Text(
-              'Marca tus ofertas preferidas para volver a ellas rápidamente.',
-              textAlign: TextAlign.center,
-              style: FudiTypography.bodyMedium.copyWith(
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: FudiColors.inputBackground.withValues(alpha: 0.5),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                FudiIcons.heartOutline,
+                size: 48,
                 color: FudiColors.mutedForeground,
               ),
             ),
-            const SizedBox(height: FudiSpacing.lg),
+            const SizedBox(height: FudiSpacing.xl),
+            Text(
+              'No tienes favoritos',
+              style: FudiTypography.h3.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: FudiSpacing.xs),
+            Text(
+              'Guarda tus ofertas preferidas aquí para poder rescatarlas en cualquier momento.',
+              textAlign: TextAlign.center,
+              style: FudiTypography.bodyMedium.copyWith(
+                color: FudiColors.mutedForeground,
+                height: 1.3,
+              ),
+            ),
+            const SizedBox(height: FudiSpacing.xxl),
             FudiPressableScale(
               onTap: onExplore,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 decoration: BoxDecoration(
-                  color: FudiColors.primary,
-                  borderRadius: BorderRadius.circular(12),
+                  color: FudiColors.foreground,
+                  borderRadius: BorderRadius.circular(FudiRadius.lg),
                 ),
-                child: const Text('Explorar ofertas', style: TextStyle(color: Colors.white)),
+                child: Center(
+                  child: Text(
+                    'Explorar ofertas cerca',
+                    style: FudiTypography.labelSmall.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
@@ -330,30 +162,25 @@ class _FavoritesEmptyState extends StatelessWidget {
   }
 }
 
+// ─── Loading Skeleton Realista ──────────────────────────────────────
+
 class _FavoritesLoadingState extends StatelessWidget {
   const _FavoritesLoadingState();
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.all(FudiSpacing.lg),
+      padding: const EdgeInsets.all(FudiSpacing.xl),
       itemCount: 3,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: FudiSpacing.md),
-          child: Container(
-            height: 180,
-            decoration: BoxDecoration(
-              color: FudiColors.background,
-              borderRadius: BorderRadius.circular(FudiRadius.xl),
-              border: Border.all(color: FudiColors.borderSolid),
-            ),
-          ),
-        );
-      },
+      itemBuilder: (context, index) => const Padding(
+        padding: EdgeInsets.only(bottom: FudiSpacing.md),
+        child: DealCardSkeleton(),
+      ),
     );
   }
 }
+
+// ─── Error State ────────────────────────────────────────────────────
 
 class _FavoritesErrorState extends StatelessWidget {
   const _FavoritesErrorState({required this.message});
@@ -370,11 +197,14 @@ class _FavoritesErrorState extends StatelessWidget {
           children: [
             const Icon(
               FudiIcons.error,
-              size: 48,
-              color: FudiColors.destructive,
+              size: 40,
+              color: FudiColors.destructiveVibrant,
             ),
             const SizedBox(height: FudiSpacing.sm),
-            Text('Error al cargar favoritos', style: FudiTypography.h2),
+            Text(
+              'Algo salió mal',
+              style: FudiTypography.h3.copyWith(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: FudiSpacing.xs),
             Text(
               message,

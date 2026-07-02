@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,7 +29,11 @@ class ProfileSignOutButton extends ConsumerWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(FudiIcons.logOut, size: 20, color: FudiColors.destructive),
+            const Icon(
+              FudiIcons.logOut,
+              size: 20,
+              color: FudiColors.destructive,
+            ),
             const SizedBox(width: FudiSpacing.sm),
             Text(
               'Cerrar sesión',
@@ -42,7 +48,7 @@ class ProfileSignOutButton extends ConsumerWidget {
   }
 
   void _showSignOutDialog(BuildContext context, AuthController authController) {
-    showDialog(
+    unawaited(showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Cerrar sesión'),
@@ -55,7 +61,7 @@ class ProfileSignOutButton extends ConsumerWidget {
           FilledButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              authController.signOut();
+              unawaited(authController.signOut());
             },
             style: FilledButton.styleFrom(
               backgroundColor: FudiColors.destructive,
@@ -64,6 +70,6 @@ class ProfileSignOutButton extends ConsumerWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }

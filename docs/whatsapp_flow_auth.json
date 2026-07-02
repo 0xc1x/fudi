@@ -1,0 +1,226 @@
+{
+  "version": "7.3",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "SIGN_IN": [
+      "SIGN_UP",
+      "FORGOT_PASSWORD"
+    ],
+    "SIGN_UP": [
+      "TERMS_AND_CONDITIONS"
+    ],
+    "FORGOT_PASSWORD": [],
+    "TERMS_AND_CONDITIONS": []
+  },
+  "screens": [
+    {
+      "id": "SIGN_IN",
+      "title": "Iniciar sesión",
+      "terminal": true,
+      "success": true,
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "sign_in_form",
+            "children": [
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Correo electrónico",
+                "name": "email",
+                "input-type": "email"
+              },
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Contraseña",
+                "name": "password",
+                "input-type": "password"
+              },
+              {
+                "type": "EmbeddedLink",
+                "text": "¿Olvidaste tu contraseña?",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "FORGOT_PASSWORD"
+                  },
+                  "payload": {}
+                }
+              },
+              {
+                "type": "EmbeddedLink",
+                "text": "¿No tienes una cuenta? Regístrate gratis",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "SIGN_UP"
+                  },
+                  "payload": {}
+                }
+              },
+              {
+                "type": "Footer",
+                "label": "Iniciar sesión",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "email": "${form.email}",
+                    "password": "${form.password}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "SIGN_UP",
+      "title": "Crear cuenta",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "sign_up_form",
+            "children": [
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Nombre completo",
+                "name": "full_name",
+                "input-type": "text"
+              },
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Correo electrónico",
+                "name": "email",
+                "input-type": "email"
+              },
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Contraseña",
+                "name": "password",
+                "input-type": "password"
+              },
+              {
+                "type": "TextBody",
+                "text": "La contraseña debe tener al menos 8 caracteres"
+              },
+              {
+                "type": "OptIn",
+                "required": true,
+                "label": "Acepto los Términos y Condiciones y la Política de Privacidad de Fudi",
+                "name": "terms_accepted",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "TERMS_AND_CONDITIONS"
+                  },
+                  "payload": {}
+                }
+              },
+              {
+                "type": "Footer",
+                "label": "Crear cuenta",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "full_name": "${form.full_name}",
+                    "email": "${form.email}",
+                    "password": "${form.password}",
+                    "terms_accepted": "${form.terms_accepted}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "FORGOT_PASSWORD",
+      "title": "Recuperar contraseña",
+      "terminal": true,
+      "success": true,
+      "data": {
+        "body": {
+          "type": "string",
+          "__example__": "Te enviaremos un enlace para restablecer tu contraseña."
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "forgot_password_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "${data.body}"
+              },
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Correo electrónico",
+                "name": "email",
+                "input-type": "email"
+              },
+              {
+                "type": "Footer",
+                "label": "Enviar enlace",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "email": "${form.email}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "TERMS_AND_CONDITIONS",
+      "title": "Términos y condiciones",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Nuestros Términos"
+          },
+          {
+            "type": "TextSubheading",
+            "text": "Términos y Condiciones"
+          },
+          {
+            "type": "TextBody",
+            "text": "Al crear una cuenta en Fudi aceptas nuestros términos de servicio. Fudi es una plataforma que conecta a usuarios con negocios locales para rescatar excedentes de comida a precios reducidos. Los pedidos son solo para recoger en tienda (pickup). No ofrecemos servicio de entrega a domicilio. Los pagos se procesan a través de Mercado Pago. Los precios y disponibilidad pueden variar según el negocio. Fudi no se hace responsable por la calidad de los productos una vez entregados."
+          },
+          {
+            "type": "TextSubheading",
+            "text": "Política de Privacidad"
+          },
+          {
+            "type": "TextBody",
+            "text": "Tu privacidad es importante para nosotros. Recopilamos la información necesaria para procesar tus pedidos, como nombre, correo electrónico y ubicación. Usamos analytics para mejorar la experiencia. Tus datos no serán compartidos con terceros sin tu consentimiento explícito. Puedes solicitar la eliminación de tu cuenta y datos en cualquier momento enviando un correo a soporte@fudi.app."
+          }
+        ]
+      }
+    }
+  ]
+}

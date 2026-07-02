@@ -9,17 +9,6 @@ import 'package:meta/meta.dart';
 /// See `docs/ai/ANALYTICS.md` → User Properties for the canonical list.
 @immutable
 class UserProperties {
-  final String? userId;
-  final String? role;
-  final String? city;
-  final DateTime? signupDate;
-  final int? totalOrders;
-  final double? totalSaved;
-  final List<String>? favoriteCategories;
-  final int? notificationRadiusKm;
-  final bool? isBusiness;
-  final String? businessId;
-
   const UserProperties({
     this.userId,
     this.role,
@@ -32,6 +21,16 @@ class UserProperties {
     this.isBusiness,
     this.businessId,
   });
+  final String? userId;
+  final String? role;
+  final String? city;
+  final DateTime? signupDate;
+  final int? totalOrders;
+  final double? totalSaved;
+  final List<String>? favoriteCategories;
+  final int? notificationRadiusKm;
+  final bool? isBusiness;
+  final String? businessId;
 
   /// Converts to a flat map suitable for Firebase Analytics `setUserProperty`
   /// and Mixpanel `getPeople().set()`.
@@ -40,20 +39,20 @@ class UserProperties {
   Map<String, dynamic> toMap() {
     final map = <String, dynamic>{};
 
-    if (userId != null) map['user_id'] = userId!;
-    if (role != null) map['role'] = role!;
-    if (city != null) map['city'] = city!;
+    if (userId != null) map['user_id'] = userId;
+    if (role != null) map['role'] = role;
+    if (city != null) map['city'] = city;
     if (signupDate != null) map['signup_date'] = signupDate!.toIso8601String();
-    if (totalOrders != null) map['total_orders'] = totalOrders!;
-    if (totalSaved != null) map['total_saved'] = totalSaved!;
+    if (totalOrders != null) map['total_orders'] = totalOrders;
+    if (totalSaved != null) map['total_saved'] = totalSaved;
     if (favoriteCategories != null) {
-      map['favorite_categories'] = favoriteCategories!;
+      map['favorite_categories'] = favoriteCategories;
     }
     if (notificationRadiusKm != null) {
-      map['notification_radius_km'] = notificationRadiusKm!;
+      map['notification_radius_km'] = notificationRadiusKm;
     }
-    if (isBusiness != null) map['is_business'] = isBusiness!;
-    if (businessId != null) map['business_id'] = businessId!;
+    if (isBusiness != null) map['is_business'] = isBusiness;
+    if (businessId != null) map['business_id'] = businessId;
 
     return map;
   }

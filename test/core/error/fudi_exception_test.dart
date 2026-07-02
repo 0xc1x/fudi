@@ -110,43 +110,52 @@ void main() {
 
   group('FudiExceptionL10n', () {
     test('userMessage returns localized strings for all types', () {
-      expect(ConnectionException().userMessage(), contains('conexión'));
-      expect(TimeoutException().userMessage(), contains('tardó'));
-      expect(ServerException().userMessage(), contains('problema temporal'));
-      expect(UnauthorizedException().userMessage(), contains('sesión'));
-      expect(PaymentRejectedException().userMessage(), contains('rechazado'));
+      expect(const ConnectionException().userMessage(), contains('conexión'));
+      expect(const TimeoutException().userMessage(), contains('tardó'));
       expect(
-        OfferUnavailableException().userMessage(),
+        const ServerException().userMessage(),
+        contains('problema temporal'),
+      );
+      expect(const UnauthorizedException().userMessage(), contains('sesión'));
+      expect(
+        const PaymentRejectedException().userMessage(),
+        contains('rechazado'),
+      );
+      expect(
+        const OfferUnavailableException().userMessage(),
         contains('no está disponible'),
       );
-      expect(ValidationException().userMessage(), contains('datos'));
-      expect(NotFoundException().userMessage(), contains('encontramos'));
+      expect(const ValidationException().userMessage(), contains('datos'));
+      expect(const NotFoundException().userMessage(), contains('encontramos'));
     });
 
     test('recovery returns actionable suggestions', () {
-      expect(ConnectionException().recovery(), 'retry');
-      expect(UnauthorizedException().recovery(), 'login');
-      expect(PaymentRejectedException().recovery(), 'change_payment_method');
-      expect(NotFoundException().recovery(), 'go_home');
+      expect(const ConnectionException().recovery(), 'retry');
+      expect(const UnauthorizedException().recovery(), 'login');
+      expect(
+        const PaymentRejectedException().recovery(),
+        'change_payment_method',
+      );
+      expect(const NotFoundException().recovery(), 'go_home');
     });
 
     test('isRetryable returns true for transient errors', () {
-      expect(ConnectionException().isRetryable, true);
-      expect(TimeoutException().isRetryable, true);
-      expect(ServerException().isRetryable, true);
-      expect(RateLimitException().isRetryable, true);
-      expect(PaymentTimeoutException().isRetryable, true);
-      expect(PaymentGatewayUnavailableException().isRetryable, true);
+      expect(const ConnectionException().isRetryable, true);
+      expect(const TimeoutException().isRetryable, true);
+      expect(const ServerException().isRetryable, true);
+      expect(const RateLimitException().isRetryable, true);
+      expect(const PaymentTimeoutException().isRetryable, true);
+      expect(const PaymentGatewayUnavailableException().isRetryable, true);
     });
 
     test('isRetryable returns false for non-transient errors', () {
-      expect(UnauthorizedException().isRetryable, false);
+      expect(const UnauthorizedException().isRetryable, false);
       expect(ForbiddenException().isRetryable, false);
-      expect(PaymentRejectedException().isRetryable, false);
-      expect(RefundFailedException().isRetryable, false);
-      expect(OfferUnavailableException().isRetryable, false);
-      expect(ValidationException().isRetryable, false);
-      expect(NotFoundException().isRetryable, false);
+      expect(const PaymentRejectedException().isRetryable, false);
+      expect(const RefundFailedException().isRetryable, false);
+      expect(const OfferUnavailableException().isRetryable, false);
+      expect(const ValidationException().isRetryable, false);
+      expect(const NotFoundException().isRetryable, false);
     });
 
     test('UnknownDataException is retryable', () {

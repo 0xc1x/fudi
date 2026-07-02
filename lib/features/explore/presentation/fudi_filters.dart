@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -93,9 +95,11 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
   void initState() {
     super.initState();
     _filters = widget.currentFilters;
-    ref.read(categoriesProvider.future).then((cats) {
-      if (mounted) setState(() => _categories = cats);
-    });
+    unawaited(
+      ref.read(categoriesProvider.future).then((cats) {
+        if (mounted) setState(() => _categories = cats);
+      }),
+    );
   }
 
   @override
@@ -125,12 +129,15 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Filtros', style: FudiTypography.h2),
+              const Text('Filtros', style: FudiTypography.h2),
               if (_filters.hasActiveFilters)
                 FudiPressableScale(
                   onTap: _clearAll,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     child: Text(
                       'Limpiar todo',
                       style: FudiTypography.bodySmall.copyWith(
@@ -143,7 +150,7 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
             ],
           ),
           const SizedBox(height: FudiSpacing.lg),
-          Text('Categoría', style: FudiTypography.labelMedium),
+          const Text('Categoría', style: FudiTypography.labelMedium),
           const SizedBox(height: FudiSpacing.sm),
           if (_categories.isEmpty)
             Text(
@@ -170,12 +177,12 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
                   },
                   selectedColor: FudiColors.secondary,
                   checkmarkColor: FudiColors.primary,
-                  side: BorderSide(color: FudiColors.borderSolid),
+                  side: const BorderSide(color: FudiColors.borderSolid),
                 );
               }).toList(),
             ),
           const SizedBox(height: FudiSpacing.lg),
-          Text('Distancia máxima', style: FudiTypography.labelMedium),
+          const Text('Distancia máxima', style: FudiTypography.labelMedium),
           const SizedBox(height: FudiSpacing.sm),
           Wrap(
             spacing: FudiSpacing.sm,
@@ -194,12 +201,12 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
                 },
                 selectedColor: FudiColors.secondary,
                 checkmarkColor: FudiColors.primary,
-                side: BorderSide(color: FudiColors.borderSolid),
+                side: const BorderSide(color: FudiColors.borderSolid),
               );
             }).toList(),
           ),
           const SizedBox(height: FudiSpacing.lg),
-          Text('Precio máximo', style: FudiTypography.labelMedium),
+          const Text('Precio máximo', style: FudiTypography.labelMedium),
           const SizedBox(height: FudiSpacing.sm),
           Wrap(
             spacing: FudiSpacing.sm,
@@ -218,7 +225,7 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
                 },
                 selectedColor: FudiColors.secondary,
                 checkmarkColor: FudiColors.primary,
-                side: BorderSide(color: FudiColors.borderSolid),
+                side: const BorderSide(color: FudiColors.borderSolid),
               );
             }).toList(),
           ),
@@ -238,7 +245,9 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
               child: Center(
                 child: Text(
                   'Aplicar filtros',
-                  style: FudiTypography.labelMedium.copyWith(color: Colors.white),
+                  style: FudiTypography.labelMedium.copyWith(
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),

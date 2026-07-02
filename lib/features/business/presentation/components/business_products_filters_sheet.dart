@@ -66,7 +66,7 @@ class _BusinessProductsFiltersSheetState
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Categoría', style: FudiTypography.h2),
+              const Text('Categoría', style: FudiTypography.h2),
               if (_selectedCategory != null)
                 FudiPressableScale(
                   onTap: () => setState(() => _selectedCategory = null),
@@ -102,16 +102,16 @@ class _BusinessProductsFiltersSheetState
                 },
                 selectedColor: FudiColors.secondary,
                 checkmarkColor: FudiColors.primary,
-                side: BorderSide(color: FudiColors.borderSolid),
+                side: const BorderSide(color: FudiColors.borderSolid),
               );
             }).toList(),
           ),
           const SizedBox(height: FudiSpacing.xl),
           FudiPressableScale(
             onTap: () {
-              ref.read(productsCategoryFilterProvider.notifier).select(
-                _selectedCategory,
-              );
+              ref
+                  .read(productsCategoryFilterProvider.notifier)
+                  .select(_selectedCategory);
               Navigator.of(context).pop();
             },
             child: Container(

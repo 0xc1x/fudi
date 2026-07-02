@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/utils/num_utils.dart';
 import '../domain/profile_order_repository.dart';
 import '../domain/user_order.dart';
 
@@ -22,8 +23,8 @@ class SupabaseProfileOrderRepository implements ProfileOrderRepository {
     final orders = response.toList();
     double totalSaved = 0;
     for (final row in orders) {
-      final original = _toDouble(row['original_price']) ?? 0;
-      final paid = _toDouble(row['price']) ?? 0;
+      final original = parseDouble(row['original_price']) ?? 0;
+      final paid = parseDouble(row['price']) ?? 0;
       totalSaved += original - paid;
     }
 
@@ -59,8 +60,8 @@ class SupabaseProfileOrderRepository implements ProfileOrderRepository {
       orderNumber: json['order_number'] as String,
       businessName: businessJson?['name'] as String? ?? '',
       status: OrderStatus.fromString(json['status'] as String?),
-      price: _toDouble(json['price']) ?? 0,
-      originalPrice: _toDouble(json['original_price']) ?? 0,
+      price: parseDouble(json['price']) ?? 0,
+      originalPrice: parseDouble(json['original_price']) ?? 0,
       pickupTime: json['pickup_time'] != null
           ? DateTime.parse(json['pickup_time'] as String)
           : null,
@@ -69,11 +70,4 @@ class SupabaseProfileOrderRepository implements ProfileOrderRepository {
     );
   }
 
-  double? _toDouble(dynamic value) {
-    if (value == null) return null;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is num) return value.toDouble();
-    return null;
-  }
 }

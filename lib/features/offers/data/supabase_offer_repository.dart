@@ -6,6 +6,7 @@ import '../../../core/error/business_exceptions.dart';
 import '../../../core/error/data_exceptions.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/postgrest_exception_mapper.dart';
+import '../../../core/utils/num_utils.dart';
 import '../domain/offer.dart';
 import '../domain/offer_category.dart';
 import '../domain/offer_repository.dart';
@@ -51,7 +52,9 @@ class SupabaseOfferRepository implements OfferRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al cargar ofertas populares');
+      throw const UnknownDataException(
+        message: 'Error al cargar ofertas populares',
+      );
     }
   }
 
@@ -82,7 +85,9 @@ class SupabaseOfferRepository implements OfferRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al cargar ofertas populares');
+      throw const UnknownDataException(
+        message: 'Error al cargar ofertas populares',
+      );
     }
   }
 
@@ -132,7 +137,9 @@ class SupabaseOfferRepository implements OfferRepository {
       rethrow;
     } catch (e) {
       if (e is DataException || e is BusinessRuleException) rethrow;
-      throw UnknownDataException(message: 'Error al cargar ofertas cercanas');
+      throw const UnknownDataException(
+        message: 'Error al cargar ofertas cercanas',
+      );
     }
   }
 
@@ -200,7 +207,7 @@ class SupabaseOfferRepository implements OfferRepository {
       rethrow;
     } catch (e) {
       if (e is DataException || e is BusinessRuleException) rethrow;
-      throw UnknownDataException(message: 'Error al filtrar ofertas');
+      throw const UnknownDataException(message: 'Error al filtrar ofertas');
     }
   }
 
@@ -225,7 +232,7 @@ class SupabaseOfferRepository implements OfferRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al cargar la oferta');
+      throw const UnknownDataException(message: 'Error al cargar la oferta');
     }
   }
 
@@ -376,7 +383,7 @@ class SupabaseOfferRepository implements OfferRepository {
       rethrow;
     } catch (e) {
       if (e is DataException || e is BusinessRuleException) rethrow;
-      throw UnknownDataException(
+      throw const UnknownDataException(
         message: 'Error al cargar ofertas por expirar',
       );
     }
@@ -422,7 +429,9 @@ class SupabaseOfferRepository implements OfferRepository {
       rethrow;
     } catch (e) {
       if (e is DataException || e is BusinessRuleException) rethrow;
-      throw UnknownDataException(message: 'Error al cargar ofertas recientes');
+      throw const UnknownDataException(
+        message: 'Error al cargar ofertas recientes',
+      );
     }
   }
 
@@ -492,7 +501,9 @@ class SupabaseOfferRepository implements OfferRepository {
       rethrow;
     } catch (e) {
       if (e is DataException || e is BusinessRuleException) rethrow;
-      throw UnknownDataException(message: 'Error al cargar negocios cercanos');
+      throw const UnknownDataException(
+        message: 'Error al cargar negocios cercanos',
+      );
     }
   }
 
@@ -506,7 +517,7 @@ class SupabaseOfferRepository implements OfferRepository {
       rethrow;
     } catch (e) {
       if (e is DataException || e is BusinessRuleException) rethrow;
-      throw UnknownDataException(message: 'Error al cargar ofertas');
+      throw const UnknownDataException(message: 'Error al cargar ofertas');
     }
   }
 
@@ -586,7 +597,7 @@ class SupabaseOfferRepository implements OfferRepository {
       rethrow;
     } catch (e) {
       if (e is DataException || e is BusinessRuleException) rethrow;
-      throw UnknownDataException(message: 'Error al cargar negocios');
+      throw const UnknownDataException(message: 'Error al cargar negocios');
     }
   }
 
@@ -605,37 +616,29 @@ class SupabaseOfferRepository implements OfferRepository {
         imageUrl: businessJson['image'] as String?,
         address: locationJson?['address'] as String? ?? '',
         businessLocationId: locationJson?['id'] as String?,
-        latitude: _toDouble(locationJson?['latitude']),
-        longitude: _toDouble(locationJson?['longitude']),
+        latitude: parseDouble(locationJson?['latitude']),
+        longitude: parseDouble(locationJson?['longitude']),
         zone: locationJson?['zone'] as String?,
-        rating: _toDouble(businessJson['rating']) ?? 0.0,
+        rating: parseDouble(businessJson['rating']) ?? 0.0,
         reviewCount: businessJson['review_count'] as int? ?? 0,
       ),
       title: json['title'] as String,
       description: json['description'] as String?,
       imageUrl: json['image'] as String?,
       category: OfferCategory.fromDb(json['category'] as String?),
-      originalPrice: _toDouble(json['original_price']) ?? 0.0,
-      discountedPrice: _toDouble(json['discounted_price']) ?? 0.0,
+      originalPrice: parseDouble(json['original_price']) ?? 0.0,
+      discountedPrice: parseDouble(json['discounted_price']) ?? 0.0,
       stock: json['stock'] as int? ?? 0,
       initialStock: json['initial_stock'] as int? ?? 0,
       pickupStart: DateTime.parse(json['pickup_start'] as String),
       pickupEnd: DateTime.parse(json['pickup_end'] as String),
       isActive: json['is_active'] as bool? ?? false,
-      rating: _toDouble(json['rating']) ?? 0.0,
+      rating: parseDouble(json['rating']) ?? 0.0,
       reviewCount: json['review_count'] as int? ?? 0,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'] as String)
           : null,
     );
-  }
-
-  double? _toDouble(dynamic value) {
-    if (value == null) return null;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is num) return value.toDouble();
-    return null;
   }
 
   double _haversineKm(double lat1, double lng1, double lat2, double lng2) {

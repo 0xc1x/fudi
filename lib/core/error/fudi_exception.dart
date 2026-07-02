@@ -25,12 +25,6 @@ enum ErrorSeverity {
 /// - Actionable: Via the `userMessage` extension and `recovery` extension.
 @immutable
 abstract class FudiException implements Exception {
-  final String message;
-  final String? code;
-  final Map<String, dynamic> context;
-  final ErrorSeverity severity;
-  final String feature;
-
   const FudiException({
     required this.message,
     this.code,
@@ -38,6 +32,11 @@ abstract class FudiException implements Exception {
     this.severity = ErrorSeverity.medium,
     this.feature = 'core',
   });
+  final String message;
+  final String? code;
+  final Map<String, dynamic> context;
+  final ErrorSeverity severity;
+  final String feature;
 
   @override
   String toString() =>

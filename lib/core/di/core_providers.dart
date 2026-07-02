@@ -15,7 +15,7 @@ import '../routing/app_router.dart';
 /// Defaults to [AppEnvironment.dev]. Override in main.dart after
 /// loading dotenv if you need to resolve environment from env vars.
 final appEnvironmentProvider = Provider<AppEnvironment>((ref) {
-  final envStr = const String.fromEnvironment('APP_ENV', defaultValue: 'dev');
+  const envStr = String.fromEnvironment('APP_ENV', defaultValue: 'dev');
   return AppEnvironment.fromString(envStr);
 });
 

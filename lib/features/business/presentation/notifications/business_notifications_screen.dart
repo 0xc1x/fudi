@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +9,7 @@ import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../../notifications/presentation/push_permission_helper.dart';
 import '../../domain/business_notification_preferences.dart';
 import '../business_providers.dart';
 
@@ -24,12 +27,12 @@ class BusinessNotificationsScreen extends ConsumerWidget {
           child: InkWell(
             onTap: () => context.pop(),
             borderRadius: BorderRadius.circular(FudiRadius.full),
-            child: Container(
+            child: const DecoratedBox(
               decoration: BoxDecoration(
                 color: FudiColors.muted,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(FudiIcons.chevronLeft, size: 20),
+              child: Icon(FudiIcons.chevronLeft, size: 20),
             ),
           ),
         ),
@@ -89,12 +92,13 @@ class _Content extends ConsumerWidget {
 
   void _toggle(
     WidgetRef ref,
-    BusinessNotificationPreferences Function(BusinessNotificationPreferences) update,
+    BusinessNotificationPreferences Function(BusinessNotificationPreferences)
+    update,
   ) {
     final updated = update(prefs);
-    ref
+    unawaited(ref
         .read(businessNotificationRepositoryProvider)
-        .updatePreferences(businessId, updated);
+        .updatePreferences(businessId, updated));
     ref.invalidate(businessNotificationPreferencesProvider(businessId));
   }
 
@@ -109,7 +113,7 @@ class _Content extends ConsumerWidget {
           const SizedBox(height: FudiSpacing.md),
           _buildEventTypes(ref),
           const SizedBox(height: FudiSpacing.md),
-          _buildChannels(ref),
+          _buildChannels(context, ref),
           const SizedBox(height: FudiSpacing.md),
           _buildQuietHours(ref),
           const SizedBox(height: 80),
@@ -186,54 +190,53 @@ class _Content extends ConsumerWidget {
             padding: EdgeInsets.all(FudiSpacing.md),
             child: Text('Tipos de notificaciones', style: FudiTypography.h4),
           ),
-          const Divider(height: 1),
+          const Divider(height: 1, color: FudiColors.border),
           _EventTypeTile(
             icon: FudiIcons.shoppingBag,
             title: 'Nuevos pedidos',
             description: 'Notificación cuando recibes un nuevo pedido',
             value: prefs.newOrdersEnabled,
-            onChanged: (v) => _toggle(ref, (p) => p.copyWith(newOrdersEnabled: v)),
+            onChanged: (v) =>
+                _toggle(ref, (p) => p.copyWith(newOrdersEnabled: v)),
           ),
           _EventTypeTile(
             icon: FudiIcons.bell,
             title: 'Hora de recogida',
             description: 'Recordatorio 30 minutos antes de la hora de recogida',
             value: prefs.pickupReadyEnabled,
-            onChanged: (v) => _toggle(
-              ref,
-              (p) => p.copyWith(pickupReadyEnabled: v),
-            ),
+            onChanged: (v) =>
+                _toggle(ref, (p) => p.copyWith(pickupReadyEnabled: v)),
           ),
           _EventTypeTile(
             icon: FudiIcons.messageSquare,
             title: 'Nuevas reseñas',
             description: 'Cuando un cliente deja una reseña',
             value: prefs.reviewsEnabled,
-            onChanged: (v) => _toggle(ref, (p) => p.copyWith(reviewsEnabled: v)),
+            onChanged: (v) =>
+                _toggle(ref, (p) => p.copyWith(reviewsEnabled: v)),
           ),
           _EventTypeTile(
             icon: FudiIcons.alertCircle,
             title: 'Stock bajo',
             description: 'Alerta cuando un producto tiene pocas unidades',
             value: prefs.lowStockEnabled,
-            onChanged: (v) => _toggle(ref, (p) => p.copyWith(lowStockEnabled: v)),
+            onChanged: (v) =>
+                _toggle(ref, (p) => p.copyWith(lowStockEnabled: v)),
           ),
           _EventTypeTile(
             icon: FudiIcons.trendingUp,
             title: 'Resumen diario',
             description: 'Estadísticas del día al final de la jornada',
             value: prefs.dailySummaryEnabled,
-            onChanged: (v) => _toggle(
-              ref,
-              (p) => p.copyWith(dailySummaryEnabled: v),
-            ),
+            onChanged: (v) =>
+                _toggle(ref, (p) => p.copyWith(dailySummaryEnabled: v)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildChannels(WidgetRef ref) {
+  Widget _buildChannels(BuildContext context, WidgetRef ref) {
     return FudiSurfaceCard(
       padding: const EdgeInsets.all(FudiSpacing.md),
       child: Column(
@@ -243,9 +246,20 @@ class _Content extends ConsumerWidget {
           const SizedBox(height: FudiSpacing.sm),
           _ChannelTile(
             title: 'Notificaciones push',
-            subtitle: 'En la aplicación',
+            subtitle: isPushSupported
+                ? 'En la aplicación'
+                : 'No disponible en este navegador',
             value: prefs.pushEnabled,
-            onChanged: (v) => _toggle(ref, (p) => p.copyWith(pushEnabled: v)),
+            onChanged: isPushSupported
+                ? (v) async {
+                    if (v) {
+                      final granted =
+                          await ensurePushPermission(context, ref);
+                      if (!context.mounted || !granted) return;
+                    }
+                    _toggle(ref, (p) => p.copyWith(pushEnabled: v));
+                  }
+                : null,
           ),
           _ChannelTile(
             title: 'Email',
@@ -296,9 +310,9 @@ class _Content extends ConsumerWidget {
                   value: from,
                   onPicked: (t) {
                     final updated = prefs.copyWith(quietHoursFrom: t);
-                    ref
+                    unawaited(ref
                         .read(businessNotificationRepositoryProvider)
-                        .updatePreferences(businessId, updated);
+                        .updatePreferences(businessId, updated));
                     ref.invalidate(
                       businessNotificationPreferencesProvider(businessId),
                     );
@@ -306,16 +320,12 @@ class _Content extends ConsumerWidget {
                   onClear: from == null
                       ? null
                       : () {
-                          final updated = prefs.copyWith(
-                            quietHoursFrom: null,
-                          );
-                          ref
+                          final updated = prefs.copyWith(quietHoursFrom: null);
+                          unawaited(ref
                               .read(businessNotificationRepositoryProvider)
-                              .updatePreferences(businessId, updated);
+                              .updatePreferences(businessId, updated));
                           ref.invalidate(
-                            businessNotificationPreferencesProvider(
-                              businessId,
-                            ),
+                            businessNotificationPreferencesProvider(businessId),
                           );
                         },
                 ),
@@ -327,9 +337,9 @@ class _Content extends ConsumerWidget {
                   value: to,
                   onPicked: (t) {
                     final updated = prefs.copyWith(quietHoursTo: t);
-                    ref
+                    unawaited(ref
                         .read(businessNotificationRepositoryProvider)
-                        .updatePreferences(businessId, updated);
+                        .updatePreferences(businessId, updated));
                     ref.invalidate(
                       businessNotificationPreferencesProvider(businessId),
                     );
@@ -338,13 +348,11 @@ class _Content extends ConsumerWidget {
                       ? null
                       : () {
                           final updated = prefs.copyWith(quietHoursTo: null);
-                          ref
+                          unawaited(ref
                               .read(businessNotificationRepositoryProvider)
-                              .updatePreferences(businessId, updated);
+                              .updatePreferences(businessId, updated));
                           ref.invalidate(
-                            businessNotificationPreferencesProvider(
-                              businessId,
-                            ),
+                            businessNotificationPreferencesProvider(businessId),
                           );
                         },
                 ),
@@ -548,7 +556,7 @@ class _TimeField extends StatelessWidget {
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: onClear,
-                    child: Icon(
+                    child: const Icon(
                       Icons.close,
                       size: 16,
                       color: FudiColors.mutedForeground,

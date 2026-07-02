@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
@@ -84,15 +85,15 @@ class _DealCardState extends State<DealCard>
         onTap: widget.onTap,
         onTapDown: (_) {
           setState(() => _isPressed = true);
-          _pressController.forward();
+          unawaited(_pressController.forward());
         },
         onTapUp: (_) {
           setState(() => _isPressed = false);
-          _pressController.reverse();
+          unawaited(_pressController.reverse());
         },
         onTapCancel: () {
           setState(() => _isPressed = false);
-          _pressController.reverse();
+          unawaited(_pressController.reverse());
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
@@ -215,7 +216,7 @@ class _DealCardState extends State<DealCard>
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       FudiIcons.mapPin,
                       size: 12,
                       color: FudiColors.mutedForeground,
@@ -250,9 +251,8 @@ class _DealCardState extends State<DealCard>
 
           // ── Columna derecha: 1/5 — precio ────────────────────────────
           Expanded(
-            flex: 1,
+            flex: 2,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(

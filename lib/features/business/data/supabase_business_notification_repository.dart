@@ -33,7 +33,7 @@ class SupabaseBusinessNotificationRepository
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(
+      throw const UnknownDataException(
         message: 'Error al cargar preferencias de notificación',
       );
     }
@@ -64,7 +64,7 @@ class SupabaseBusinessNotificationRepository
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(
+      throw const UnknownDataException(
         message: 'Error al guardar preferencias de notificación',
       );
     }

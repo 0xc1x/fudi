@@ -1,0 +1,339 @@
+{
+  "version": "7.3",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "PAYMENT_ERROR": [
+      "RETRY_PAYMENT",
+      "CHANGE_METHOD",
+      "CONTACT_SUPPORT"
+    ],
+    "RETRY_PAYMENT": [
+      "SUCCESS",
+      "PAYMENT_ERROR"
+    ],
+    "CHANGE_METHOD": [
+      "ADD_CARD",
+      "SUCCESS",
+      "PAYMENT_ERROR"
+    ],
+    "ADD_CARD": [
+      "SUCCESS",
+      "PAYMENT_ERROR"
+    ],
+    "CONTACT_SUPPORT": [],
+    "SUCCESS": []
+  },
+  "screens": [
+    {
+      "id": "PAYMENT_ERROR",
+      "title": "Pago fallido",
+      "data": {
+        "order_number": {
+          "type": "string",
+          "__example__": "FUD-1234"
+        },
+        "amount": {
+          "type": "string",
+          "__example__": "$3.50"
+        },
+        "error_reason": {
+          "type": "string",
+          "__example__": "Tarjeta rechazada"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "No pudimos procesar tu pago"
+          },
+          {
+            "type": "TextBody",
+            "text": "Pedido: ${data.order_number}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Monto: ${data.amount}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Motivo: ${data.error_reason}"
+          },
+          {
+            "type": "List",
+            "children": [
+              {
+                "type": "ListItem",
+                "title": "Intentar de nuevo",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "RETRY_PAYMENT"
+                  },
+                  "payload": {
+                    "order_number": "${data.order_number}",
+                    "amount": "${data.amount}"
+                  }
+                }
+              },
+              {
+                "type": "ListItem",
+                "title": "Usar otro método de pago",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "CHANGE_METHOD"
+                  },
+                  "payload": {
+                    "order_number": "${data.order_number}",
+                    "amount": "${data.amount}"
+                  }
+                }
+              },
+              {
+                "type": "ListItem",
+                "title": "Contactar a soporte",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "CONTACT_SUPPORT"
+                  },
+                  "payload": {
+                    "order_number": "${data.order_number}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "RETRY_PAYMENT",
+      "title": "Reintentar pago",
+      "data": {
+        "order_number": { "type": "string" },
+        "amount": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "retry_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "Vamos a intentar cobrar ${data.amount} nuevamente con el mismo método de pago."
+              },
+              {
+                "type": "SingleSelect",
+                "required": true,
+                "label": "Método de pago",
+                "name": "payment_method",
+                "options": [
+                  {
+                    "id": "saved_card",
+                    "title": "Tarjeta guardada (terminación 4242)"
+                  },
+                  {
+                    "id": "new_card",
+                    "title": "Usar una tarjeta diferente"
+                  }
+                ]
+              },
+              {
+                "type": "TextInput",
+                "required": false,
+                "label": "CVV (si tu banco lo requiere)",
+                "name": "cvv",
+                "input-type": "text"
+              },
+              {
+                "type": "Footer",
+                "label": "Reintentar pago",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "action": "retry_payment",
+                    "order_number": "${data.order_number}",
+                    "payment_method": "${form.payment_method}",
+                    "cvv": "${form.cvv}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHANGE_METHOD",
+      "title": "Cambiar método de pago",
+      "data": {
+        "order_number": { "type": "string" },
+        "amount": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "change_method_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "Selecciona otro método de pago para completar la compra de ${data.amount}."
+              },
+              {
+                "type": "SingleSelect",
+                "required": true,
+                "label": "Nuevo método",
+                "name": "new_method",
+                "options": [
+                  {
+                    "id": "add_card",
+                    "title": "Agregar una tarjeta nueva"
+                  },
+                  {
+                    "id": "mercado_pago",
+                    "title": "Pagar con Mercado Pago"
+                  }
+                ]
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "ADD_CARD"
+                  },
+                  "payload": {
+                    "order_number": "${data.order_number}",
+                    "amount": "${data.amount}",
+                    "method": "${form.new_method}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ADD_CARD",
+      "title": "Agregar tarjeta",
+      "data": {
+        "order_number": { "type": "string" },
+        "amount": { "type": "string" },
+        "method": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "add_card_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "Ingresa los datos de tu tarjeta para completar el pago."
+              },
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Número de tarjeta",
+                "name": "card_number",
+                "input-type": "text"
+              },
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Titular",
+                "name": "cardholder_name",
+                "input-type": "text"
+              },
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Vence (MM/AA)",
+                "name": "expiry",
+                "input-type": "text"
+              },
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "CVV",
+                "name": "cvv",
+                "input-type": "text"
+              },
+              {
+                "type": "Footer",
+                "label": "Pagar",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "action": "pay_with_new_card",
+                    "order_number": "${data.order_number}",
+                    "card_number": "${form.card_number}",
+                    "cardholder_name": "${form.cardholder_name}",
+                    "expiry": "${form.expiry}",
+                    "cvv": "${form.cvv}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CONTACT_SUPPORT",
+      "title": "Contactar soporte",
+      "terminal": true,
+      "success": true,
+      "data": {
+        "order_number": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Te contactaremos"
+          },
+          {
+            "type": "TextBody",
+            "text": "Un agente de soporte revisará el problema de pago del pedido ${data.order_number} y te contactará a la brevedad para ayudarte."
+          }
+        ]
+      }
+    },
+    {
+      "id": "SUCCESS",
+      "title": "Pago exitoso",
+      "terminal": true,
+      "success": true,
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "¡Pago confirmado!"
+          },
+          {
+            "type": "TextBody",
+            "text": "Tu pago fue procesado exitosamente. Recibirás los detalles de tu pedido y el código de recogida en un momento."
+          }
+        ]
+      }
+    }
+  ]
+}

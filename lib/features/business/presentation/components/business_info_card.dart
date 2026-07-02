@@ -69,7 +69,7 @@ class BusinessInfoCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: FudiSpacing.md),
-          const Divider(height: 1, color: FudiColors.mutedForeground),
+          const Divider(height: 1, color: FudiColors.border),
           const SizedBox(height: FudiSpacing.md),
           Row(
             children: [

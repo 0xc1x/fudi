@@ -149,7 +149,7 @@ class FudiCategoriesSection extends StatelessWidget {
             padding: const EdgeInsets.all(FudiSpacing.lg),
             child: Text(title, style: FudiTypography.labelSmall),
           ),
-          Divider(height: 1, color: FudiColors.borderSolid),
+          const Divider(height: 1, color: FudiColors.borderSolid),
           ...categories.map((cat) => _FudiCategoryRow(category: cat)),
         ],
       ),
@@ -196,7 +196,7 @@ class _FudiCategoryRow extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(
+            const Icon(
               FudiIcons.chevronRight,
               size: 20,
               color: FudiColors.mutedForeground,
@@ -232,12 +232,9 @@ class FudiFAQSection extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(FudiSpacing.lg),
-            child: Text(
-              title,
-              style: FudiTypography.labelSmall,
-            ),
+            child: Text(title, style: FudiTypography.labelSmall),
           ),
-          Divider(height: 1, color: FudiColors.borderSolid),
+          const Divider(height: 1, color: FudiColors.borderSolid),
           ...items.map(
             (faq) => _FudiFAQRow(
               faq: faq,
@@ -271,7 +268,11 @@ class _FudiFAQRow extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(FudiIcons.helpCircle, size: 20, color: FudiColors.primary),
+            const Icon(
+              FudiIcons.helpCircle,
+              size: 20,
+              color: FudiColors.primary,
+            ),
             const SizedBox(width: FudiSpacing.sm),
             Expanded(
               child: Column(
@@ -299,7 +300,7 @@ class _FudiFAQRow extends StatelessWidget {
             AnimatedRotation(
               turns: isExpanded ? 0.25 : 0,
               duration: const Duration(milliseconds: 200),
-              child: Icon(
+              child: const Icon(
                 FudiIcons.chevronRight,
                 size: 20,
                 color: FudiColors.mutedForeground,
@@ -385,6 +386,115 @@ class FudiContactSupportCard extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Full-screen detail page for help categories.
+class HelpCategoryDetailPage extends StatelessWidget {
+  const HelpCategoryDetailPage({
+    required this.title,
+    required this.sections,
+    super.key,
+  });
+
+  final String title;
+  final List<HelpSection> sections;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: FudiColors.muted,
+      appBar: AppBar(
+        backgroundColor: FudiColors.background,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 1,
+        shadowColor: Colors.black12,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: FudiSpacing.sm),
+          child: IconButton(
+            icon: const Icon(FudiIcons.chevronLeft, size: 20),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
+        title: Text(title, style: FudiTypography.h4),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(FudiSpacing.lg),
+        children: [
+          for (final section in sections) ...[
+            FudiSurfaceCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(FudiSpacing.lg),
+                    child: Text(
+                      section.title,
+                      style: FudiTypography.bodyMedium.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  if (section.items.isNotEmpty)
+                    const Divider(height: 1, color: FudiColors.borderSolid),
+                  for (final item in section.items)
+                    HelpItemRow(item: item),
+                ],
+              ),
+            ),
+            const SizedBox(height: FudiSpacing.md),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class HelpSection {
+  const HelpSection({required this.title, this.items = const []});
+  final String title;
+  final List<HelpItem> items;
+}
+
+class HelpItem {
+  const HelpItem({required this.title, required this.description});
+  final String title;
+  final String description;
+}
+
+class HelpItemRow extends StatelessWidget {
+  const HelpItemRow({required this.item, super.key});
+  final HelpItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: FudiSpacing.lg,
+        vertical: FudiSpacing.md,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            item.title,
+            style: FudiTypography.bodyMedium.copyWith(
+              fontWeight: FontWeight.w600,
+              color: FudiColors.foreground,
+            ),
+          ),
+          const SizedBox(height: FudiSpacing.xs),
+          Text(
+            item.description,
+            style: FudiTypography.bodySmall.copyWith(
+              color: FudiColors.mutedForeground,
+              height: 1.5,
             ),
           ),
         ],

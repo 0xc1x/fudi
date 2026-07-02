@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -62,7 +64,6 @@ class _OrderDetailScaffold extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     return Scaffold(
       backgroundColor: FudiColors.background,
       appBar: AppBar(
@@ -71,12 +72,12 @@ class _OrderDetailScaffold extends ConsumerWidget {
           child: InkWell(
             onTap: () => context.pop(),
             borderRadius: BorderRadius.circular(FudiRadius.full),
-            child: Container(
+            child: const DecoratedBox(
               decoration: BoxDecoration(
                 color: FudiColors.muted,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(FudiIcons.chevronLeft, size: 20),
+              child: Icon(FudiIcons.chevronLeft, size: 20),
             ),
           ),
         ),
@@ -290,8 +291,6 @@ class _PickupInfoCard extends StatelessWidget {
   }
 }
 
-
-
 class _OrderInfoCard extends StatelessWidget {
   const _OrderInfoCard({required this.order});
 
@@ -368,7 +367,7 @@ class _ActionBottomBar extends ConsumerWidget {
       padding: const EdgeInsets.all(FudiSpacing.md),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: FudiColors.border)),
+        border: const Border(top: BorderSide(color: FudiColors.border)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -435,7 +434,7 @@ class _ActionBottomBar extends ConsumerWidget {
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () => _confirmCancel(context, ref),
-              icon: Icon(
+              icon: const Icon(
                 Icons.cancel_outlined,
                 size: 20,
                 color: FudiColors.destructive,
@@ -460,7 +459,7 @@ class _ActionBottomBar extends ConsumerWidget {
 
   void _showValidateDialog(BuildContext context, WidgetRef ref) {
     final controller = TextEditingController();
-    showDialog(
+    unawaited(showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -581,11 +580,11 @@ class _ActionBottomBar extends ConsumerWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 
   void _confirmCancel(BuildContext context, WidgetRef ref) {
-    showDialog(
+    unawaited(showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -619,8 +618,6 @@ class _ActionBottomBar extends ConsumerWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }
-
-

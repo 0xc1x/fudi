@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/error/data_exceptions.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/postgrest_exception_mapper.dart';
+import '../../../core/utils/num_utils.dart';
 import '../domain/business_profile.dart';
 import '../domain/business_profile_repository.dart';
 
@@ -67,7 +68,7 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(
+      throw const UnknownDataException(
         message: 'Error al cargar el perfil del negocio',
       );
     }
@@ -236,7 +237,7 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al crear el negocio');
+      throw const UnknownDataException(message: 'Error al crear el negocio');
     }
   }
 
@@ -252,13 +253,18 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
         'updated_at': DateTime.now().toUtc().toIso8601String(),
       };
 
-      await _supabaseClient.from('businesses').update(data).eq('id', profile.id);
+      await _supabaseClient
+          .from('businesses')
+          .update(data)
+          .eq('id', profile.id);
     } on PostgrestException catch (e) {
       throw e.toFudiException(feature: 'business_profile');
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al actualizar el negocio');
+      throw const UnknownDataException(
+        message: 'Error al actualizar el negocio',
+      );
     }
   }
 
@@ -306,7 +312,7 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
       name: json['name'] as String,
       type: _mapBusinessType(json['type'] as String?),
       address: locationJson?['address'] as String?,
-      rating: _toDouble(json['rating']) ?? 0.0,
+      rating: parseDouble(json['rating']) ?? 0.0,
       imageUrl: json['image'] as String?,
       coverImageUrl: json['cover_image'] as String?,
       description: json['description'] as String?,
@@ -314,8 +320,8 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
       email: json['email'] as String?,
       website: json['website'] as String?,
       businessLocationId: locationJson?['id'] as String?,
-      latitude: _toDouble(locationJson?['latitude']),
-      longitude: _toDouble(locationJson?['longitude']),
+      latitude: parseDouble(locationJson?['latitude']),
+      longitude: parseDouble(locationJson?['longitude']),
       zone: locationJson?['zone'] as String?,
       reviewCount: json['review_count'] as int? ?? 0,
       totalRescued: totalRescued,
@@ -429,14 +435,6 @@ class SupabaseBusinessProfileRepository implements BusinessProfileRepository {
       'Domingo': 'sunday',
     };
     return mapping[day] ?? day.toLowerCase();
-  }
-
-  double? _toDouble(dynamic value) {
-    if (value == null) return null;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is num) return value.toDouble();
-    return null;
   }
 
   String _formatTime(String time) {

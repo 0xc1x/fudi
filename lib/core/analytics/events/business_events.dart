@@ -6,15 +6,14 @@ import '../models/analytics_event.dart';
 
 /// A business created a new offer.
 class BusinessOfferCreatedEvent extends AnalyticsEvent {
-  final String businessId;
-  final String offerId;
-  final double price;
-
   BusinessOfferCreatedEvent({
     required this.businessId,
     required this.offerId,
     required this.price,
   });
+  final String businessId;
+  final String offerId;
+  final double price;
 
   @override
   String get name => 'business_offer_created';
@@ -29,17 +28,16 @@ class BusinessOfferCreatedEvent extends AnalyticsEvent {
 
 /// A business updated an existing offer.
 class BusinessOfferUpdatedEvent extends AnalyticsEvent {
-  final String businessId;
-  final String offerId;
-
-  /// What changed: price, stock, description, etc.
-  final String changeType;
-
   BusinessOfferUpdatedEvent({
     required this.businessId,
     required this.offerId,
     required this.changeType,
   });
+  final String businessId;
+  final String offerId;
+
+  /// What changed: price, stock, description, etc.
+  final String changeType;
 
   @override
   String get name => 'business_offer_updated';
@@ -54,15 +52,14 @@ class BusinessOfferUpdatedEvent extends AnalyticsEvent {
 
 /// A business disabled an offer.
 class BusinessOfferDisabledEvent extends AnalyticsEvent {
-  final String businessId;
-  final String offerId;
-  final String reason;
-
   BusinessOfferDisabledEvent({
     required this.businessId,
     required this.offerId,
     required this.reason,
   });
+  final String businessId;
+  final String offerId;
+  final String reason;
 
   @override
   String get name => 'business_offer_disabled';
@@ -77,17 +74,16 @@ class BusinessOfferDisabledEvent extends AnalyticsEvent {
 
 /// A business performed an action on an order (confirm, reject, etc.).
 class BusinessOrderManagedEvent extends AnalyticsEvent {
-  final String businessId;
-  final String orderId;
-
-  /// The action taken: confirmed, rejected, prepared, etc.
-  final String action;
-
   BusinessOrderManagedEvent({
     required this.businessId,
     required this.orderId,
     required this.action,
   });
+  final String businessId;
+  final String orderId;
+
+  /// The action taken: confirmed, rejected, prepared, etc.
+  final String action;
 
   @override
   String get name => 'business_order_managed';
@@ -102,9 +98,8 @@ class BusinessOrderManagedEvent extends AnalyticsEvent {
 
 /// A business viewed their dashboard.
 class BusinessDashboardViewedEvent extends AnalyticsEvent {
-  final String businessId;
-
   BusinessDashboardViewedEvent({required this.businessId});
+  final String businessId;
 
   @override
   String get name => 'business_dashboard_viewed';
@@ -115,13 +110,12 @@ class BusinessDashboardViewedEvent extends AnalyticsEvent {
 
 /// A business requested a payout.
 class BusinessPayoutRequestedEvent extends AnalyticsEvent {
-  final String businessId;
-  final double amount;
-
   BusinessPayoutRequestedEvent({
     required this.businessId,
     required this.amount,
   });
+  final String businessId;
+  final double amount;
 
   @override
   String get name => 'business_payout_requested';

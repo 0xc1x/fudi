@@ -27,10 +27,7 @@ class GuestWelcomeView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: FudiSpacing.xl),
-                const FudiLogo(
-                  variant: FudiLogoVariant.wordmark,
-                  size: FudiLogoSize.xxxl,
-                ),
+                const FudiLogo(size: FudiLogoSize.xxxl),
                 const SizedBox(height: FudiSpacing.sm),
                 Text(
                   'Buena comida, mejores decisiones',
@@ -40,21 +37,21 @@ class GuestWelcomeView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: FudiSpacing.xxl * 1.5),
-                BenefitCard(
+                const BenefitCard(
                   icon: FudiIcons.leaf,
                   title: 'Evita el desperdicio de comida',
                   description:
                       'Rescata paquetes de comida en perfecto estado de tus comercios locales favoritos.',
                 ),
                 const SizedBox(height: FudiSpacing.md),
-                BenefitCard(
+                const BenefitCard(
                   icon: FudiIcons.award,
                   title: 'Ahorra en cada compra',
                   description:
                       'Disfruta de excelentes platos y productos de calidad con descuentos de hasta el 70%.',
                 ),
                 const SizedBox(height: FudiSpacing.md),
-                BenefitCard(
+                const BenefitCard(
                   icon: FudiIcons.mapPin,
                   title: 'Apoya a negocios locales',
                   description:

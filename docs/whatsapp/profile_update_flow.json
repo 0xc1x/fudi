@@ -1,0 +1,229 @@
+{
+  "version": "7.3",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "CURRENT_PROFILE": [
+      "EDIT_NAME",
+      "EDIT_PHONE",
+      "EDIT_CITY"
+    ],
+    "EDIT_NAME": [
+      "CURRENT_PROFILE"
+    ],
+    "EDIT_PHONE": [
+      "CURRENT_PROFILE"
+    ],
+    "EDIT_CITY": [
+      "CURRENT_PROFILE"
+    ]
+  },
+  "screens": [
+    {
+      "id": "CURRENT_PROFILE",
+      "title": "Tu perfil",
+      "terminal": true,
+      "success": true,
+      "data": {
+        "full_name": {
+          "type": "string",
+          "__example__": "Juan Pérez"
+        },
+        "phone": {
+          "type": "string",
+          "__example__": "+5491123456789"
+        },
+        "city": {
+          "type": "string",
+          "__example__": "Buenos Aires"
+        },
+        "email": {
+          "type": "string",
+          "__example__": "juan@email.com"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Tu información"
+          },
+          {
+            "type": "TextBody",
+            "text": "Nombre: ${data.full_name}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Teléfono: ${data.phone}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Ciudad: ${data.city}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Email: ${data.email}"
+          },
+          {
+            "type": "List",
+            "children": [
+              {
+                "type": "ListItem",
+                "title": "Editar nombre",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "EDIT_NAME"
+                  },
+                  "payload": {
+                    "full_name": "${data.full_name}"
+                  }
+                }
+              },
+              {
+                "type": "ListItem",
+                "title": "Editar teléfono",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "EDIT_PHONE"
+                  },
+                  "payload": {
+                    "phone": "${data.phone}"
+                  }
+                }
+              },
+              {
+                "type": "ListItem",
+                "title": "Editar ciudad",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "EDIT_CITY"
+                  },
+                  "payload": {
+                    "city": "${data.city}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "EDIT_NAME",
+      "title": "Editar nombre",
+      "data": {
+        "full_name": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "edit_name_form",
+            "children": [
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Nombre completo",
+                "name": "full_name",
+                "input-type": "text",
+                "value": "${data.full_name}"
+              },
+              {
+                "type": "Footer",
+                "label": "Guardar",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "field": "full_name",
+                    "value": "${form.full_name}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "EDIT_PHONE",
+      "title": "Editar teléfono",
+      "data": {
+        "phone": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "edit_phone_form",
+            "children": [
+              {
+                "type": "TextInput",
+                "required": false,
+                "label": "Teléfono",
+                "name": "phone",
+                "input-type": "phone",
+                "value": "${data.phone}"
+              },
+              {
+                "type": "Footer",
+                "label": "Guardar",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "field": "phone",
+                    "value": "${form.phone}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "EDIT_CITY",
+      "title": "Editar ciudad",
+      "data": {
+        "city": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "edit_city_form",
+            "children": [
+              {
+                "type": "TextInput",
+                "required": false,
+                "label": "Ciudad",
+                "name": "city",
+                "input-type": "text",
+                "value": "${data.city}"
+              },
+              {
+                "type": "Footer",
+                "label": "Guardar",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "field": "city",
+                    "value": "${form.city}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

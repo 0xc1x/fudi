@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/ui/fudi_colors.dart';
@@ -22,16 +24,16 @@ class PaymentMethodsScreen extends ConsumerWidget {
       body: paymentsAsync.when(
         data: (methods) {
           if (methods.isEmpty) {
-            return Center(
+            return const Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     FudiIcons.creditCard,
                     size: 64,
                     color: FudiColors.mutedForeground,
                   ),
-                  const SizedBox(height: FudiSpacing.md),
+                  SizedBox(height: FudiSpacing.md),
                   Text(
                     'No tienes tarjetas guardadas',
                     style: FudiTypography.bodyLarge,
@@ -91,7 +93,10 @@ class PaymentMethodsScreen extends ConsumerWidget {
                     child: Container(
                       width: 40,
                       height: 40,
-                      decoration: const BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
+                      decoration: const BoxDecoration(
+                        color: Colors.transparent,
+                        shape: BoxShape.circle,
+                      ),
                       child: const Icon(
                         Icons.delete_outline,
                         color: FudiColors.destructive,
@@ -117,7 +122,12 @@ class PaymentMethodsScreen extends ConsumerWidget {
               color: FudiColors.primary,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Center(child: Text('Agregar tarjeta', style: TextStyle(color: Colors.white))),
+            child: const Center(
+              child: Text(
+                'Agregar tarjeta',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
           ),
         ),
       ),
@@ -131,12 +141,12 @@ class PaymentMethodsScreen extends ConsumerWidget {
   }
 
   void _deleteMethod(WidgetRef ref, String id) {
-    ref.read(consumerProfileRepositoryProvider).deletePaymentMethod(id);
+    unawaited(ref.read(consumerProfileRepositoryProvider).deletePaymentMethod(id));
     ref.invalidate(paymentMethodsProvider);
   }
 
   void _setDefault(WidgetRef ref, String id) {
-    ref.read(consumerProfileRepositoryProvider).setDefaultPaymentMethod(id);
+    unawaited(ref.read(consumerProfileRepositoryProvider).setDefaultPaymentMethod(id));
     ref.invalidate(paymentMethodsProvider);
   }
 

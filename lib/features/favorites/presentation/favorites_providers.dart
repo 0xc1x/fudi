@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/presentation/auth_state_provider.dart';
 import '../data/supabase_favorites_repository.dart';
@@ -33,7 +35,7 @@ class FavoritedOfferIdsNotifier extends Notifier<Set<String>> {
       authSessionNotifierProvider.select((state) => state.profile?.id),
     );
     if (userId != null) {
-      _loadFavorites(userId);
+      unawaited(_loadFavorites(userId));
     }
     return const {};
   }

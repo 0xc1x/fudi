@@ -9,6 +9,7 @@ import '../../domain/coupon.dart';
 
 class PriceBreakdownCard extends StatelessWidget {
   const PriceBreakdownCard({
+    super.key,
     required this.offer,
     required this.coupon,
     required this.couponDiscount,
@@ -28,89 +29,73 @@ class PriceBreakdownCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Desglose de precio', style: FudiTypography.labelMedium),
+          const Text('Resumen de costos', style: FudiTypography.labelMedium),
           const SizedBox(height: FudiSpacing.md),
-          _row('Producto', '\$${offer.discountedPrice.toStringAsFixed(2)}'),
-          const SizedBox(height: FudiSpacing.sm),
-          _row('Tarifa de servicio', '\$${serviceFee.toStringAsFixed(2)}'),
+          _buildRow(
+            'Precio original de rescate',
+            '\$${offer.discountedPrice.toStringAsFixed(2)}',
+          ),
+          const SizedBox(height: FudiSpacing.xs),
+          _buildRow(
+            'Tarifa tecnológica de servicio',
+            '\$${serviceFee.toStringAsFixed(2)}',
+          ),
           if (coupon != null && couponDiscount > 0) ...[
-            const SizedBox(height: FudiSpacing.sm),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.sell, size: 12, color: Color(0xFF16A34A)),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Descuento (${coupon!.code})',
-                      style: FudiTypography.bodyMedium.copyWith(
-                        color: const Color(0xFF16A34A),
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  '-\$${couponDiscount.toStringAsFixed(2)}',
-                  style: FudiTypography.bodyMedium.copyWith(
-                    color: const Color(0xFF16A34A),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+            const SizedBox(height: FudiSpacing.xs),
+            _buildRow(
+              'Descuento aplicado (${coupon!.code})',
+              '-\$${couponDiscount.toStringAsFixed(2)}',
+              isDiscount: true,
             ),
           ],
-          const SizedBox(height: FudiSpacing.md),
-          const Divider(),
-          const SizedBox(height: FudiSpacing.sm),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: FudiSpacing.sm),
+            child: Divider(color: FudiColors.borderSolid, height: 1),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Total', style: FudiTypography.labelMedium),
+              Text(
+                'Total a debitar',
+                style: FudiTypography.labelMedium.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               Text(
                 '\$${total > 0 ? total.toStringAsFixed(2) : '0.00'}',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
+                style: FudiTypography.h3.copyWith(
+                  fontWeight: FontWeight.bold,
                   color: FudiColors.primary,
                 ),
               ),
             ],
           ),
-          if (coupon != null && couponDiscount > 0) ...[
-            const SizedBox(height: FudiSpacing.sm),
-            Container(
-              padding: const EdgeInsets.all(FudiSpacing.sm),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
-                borderRadius: BorderRadius.circular(FudiRadius.md),
-              ),
-              child: Center(
-                child: Text(
-                  '¡Ahorraste \$${couponDiscount.toStringAsFixed(2)} con tu cupón!',
-                  style: FudiTypography.bodySmall.copyWith(
-                    color: const Color(0xFF15803D),
-                  ),
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );
   }
 
-  Widget _row(String label, String value) {
+  Widget _buildRow(String label, String value, {bool isDiscount = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
           style: FudiTypography.bodyMedium.copyWith(
-            color: FudiColors.mutedForeground,
+            color: isDiscount
+                ? const Color(0xFF16A34A)
+                : FudiColors.mutedForeground,
+            fontSize: 13,
           ),
         ),
-        Text(value, style: FudiTypography.bodyMedium),
+        Text(
+          value,
+          style: FudiTypography.bodyMedium.copyWith(
+            fontWeight: isDiscount ? FontWeight.bold : FontWeight.normal,
+            color: isDiscount ? const Color(0xFF16A34A) : null,
+            fontSize: 13,
+          ),
+        ),
       ],
     );
   }

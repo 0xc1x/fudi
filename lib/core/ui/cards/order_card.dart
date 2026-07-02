@@ -33,7 +33,7 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: FudiColors.background,
         borderRadius: BorderRadius.circular(FudiRadius.lg),
@@ -109,5 +109,3 @@ class OrderCard extends StatelessWidget {
     );
   }
 }
-
-

@@ -8,78 +8,112 @@ import '../../../../core/ui/fudi_typography.dart';
 import '../../../offers/domain/offer.dart';
 
 class ProductSummaryCard extends StatelessWidget {
-  const ProductSummaryCard({required this.offer});
+  const ProductSummaryCard({super.key, required this.offer});
 
   final Offer offer;
 
   @override
   Widget build(BuildContext context) {
+    final discountPercent =
+        (((offer.originalPrice - offer.discountedPrice) / offer.originalPrice) *
+                100)
+            .toStringAsFixed(0);
+
     return FudiSurfaceCard(
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Resumen del pedido', style: FudiTypography.labelMedium),
-          const SizedBox(height: FudiSpacing.md),
-          Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(FudiRadius.md),
-                child: offer.imageUrl != null
-                    ? CachedNetworkImage(
-                        imageUrl: offer.imageUrl!,
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                        errorWidget: (_, _, _) => Container(
-                          width: 80,
-                          height: 80,
-                          color: FudiColors.muted,
-                          child: const Icon(Icons.restaurant),
-                        ),
-                      )
-                    : Container(
-                        width: 80,
-                        height: 80,
-                        color: FudiColors.muted,
-                        child: const Icon(Icons.restaurant),
-                      ),
-              ),
-              const SizedBox(width: FudiSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      offer.business.name,
-                      style: FudiTypography.labelMedium,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: SizedBox(
+              width: 72,
+              height: 72,
+              child: offer.imageUrl != null
+                  ? CachedNetworkImage(
+                      imageUrl: offer.imageUrl!,
+                      fit: BoxFit.cover,
+                      errorWidget: (_, _, _) => const _FallbackImage(),
+                    )
+                  : const _FallbackImage(),
+            ),
+          ),
+          const SizedBox(width: FudiSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  offer.business.name,
+                  style: FudiTypography.labelSmall.copyWith(
+                    color: FudiColors.mutedForeground,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  offer.title,
+                  style: FudiTypography.bodyMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: FudiSpacing.xs),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: FudiColors.primary,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    'Salvaste -$discountPercent%',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 2),
-                    Text(offer.business.type, style: FudiTypography.bodySmall),
-                    const SizedBox(height: 4),
-                    Text(offer.title, style: FudiTypography.bodyMedium),
-                  ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: FudiSpacing.xs),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '\$${offer.discountedPrice.toStringAsFixed(2)}',
+                style: FudiTypography.labelMedium.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: FudiColors.primary,
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '\$${offer.discountedPrice.toStringAsFixed(2)}',
-                    style: FudiTypography.labelMedium.copyWith(
-                      color: FudiColors.primary,
-                    ),
-                  ),
-                  Text(
-                    '\$${offer.originalPrice.toStringAsFixed(2)}',
-                    style: FudiTypography.bodySmall.copyWith(
-                      decoration: TextDecoration.lineThrough,
-                    ),
-                  ),
-                ],
+              Text(
+                '\$${offer.originalPrice.toStringAsFixed(2)}',
+                style: FudiTypography.bodySmall.copyWith(
+                  decoration: TextDecoration.lineThrough,
+                  color: FudiColors.mutedForeground,
+                ),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _FallbackImage extends StatelessWidget {
+  const _FallbackImage();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: FudiColors.muted,
+      child: const Icon(
+        Icons.restaurant_rounded,
+        size: 20,
+        color: FudiColors.mutedForeground,
       ),
     );
   }

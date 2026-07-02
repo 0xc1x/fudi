@@ -26,7 +26,7 @@ class SupabaseBusinessCouponRepository implements BusinessCouponRepository {
     } on FudiException {
       rethrow;
     } catch (_) {
-      throw UnknownDataException(message: 'Error al cargar cupones');
+      throw const UnknownDataException(message: 'Error al cargar cupones');
     }
   }
 
@@ -44,7 +44,7 @@ class SupabaseBusinessCouponRepository implements BusinessCouponRepository {
     } on FudiException {
       rethrow;
     } catch (_) {
-      throw UnknownDataException(message: 'Error al cargar cupón');
+      throw const UnknownDataException(message: 'Error al cargar cupón');
     }
   }
 
@@ -74,7 +74,7 @@ class SupabaseBusinessCouponRepository implements BusinessCouponRepository {
     } on FudiException {
       rethrow;
     } catch (_) {
-      throw UnknownDataException(message: 'Error al guardar cupón');
+      throw const UnknownDataException(message: 'Error al guardar cupón');
     }
   }
 
@@ -90,7 +90,9 @@ class SupabaseBusinessCouponRepository implements BusinessCouponRepository {
     } on FudiException {
       rethrow;
     } catch (_) {
-      throw UnknownDataException(message: 'Error al cambiar estado del cupón');
+      throw const UnknownDataException(
+        message: 'Error al cambiar estado del cupón',
+      );
     }
   }
 
@@ -103,7 +105,7 @@ class SupabaseBusinessCouponRepository implements BusinessCouponRepository {
     } on FudiException {
       rethrow;
     } catch (_) {
-      throw UnknownDataException(message: 'Error al eliminar cupón');
+      throw const UnknownDataException(message: 'Error al eliminar cupón');
     }
   }
 }

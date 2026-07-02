@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,6 +9,7 @@ import '../../../core/ui/fudi_logo.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_typography.dart';
+import '../../auth/presentation/business_signup_screen.dart';
 
 class ForBusinessScreen extends StatelessWidget {
   const ForBusinessScreen({super.key});
@@ -27,23 +30,25 @@ class ForBusinessScreen extends StatelessWidget {
               child: Container(
                 width: 40,
                 height: 40,
-                decoration: const BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
-                child: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
+                decoration: const BoxDecoration(
+                  color: Colors.transparent,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.arrow_back,
+                  color: Colors.black,
+                  size: 20,
+                ),
               ),
             ),
           ),
         ),
-        title: const FudiLogo(size: FudiLogoSize.md),
+        title: const FudiLogo(),
         centerTitle: false,
       ),
-      body: SingleChildScrollView(
+      body: const SingleChildScrollView(
         child: Column(
-          children: [
-            const _Hero(),
-            const _Benefits(),
-            const _HowItWorksForBusiness(),
-            const _CTA(),
-          ],
+          children: [_Hero(), _Benefits(), _HowItWorksForBusiness(), _CTA()],
         ),
       ),
     );
@@ -90,14 +95,29 @@ class _Hero extends StatelessWidget {
           ),
           const SizedBox(height: 48),
           FudiPressableScale(
-            onTap: () => context.go(RouteNames.signupPath),
+            onTap: () {
+              unawaited(
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const BusinessSignupScreen(),
+                  ),
+                ),
+              );
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
               decoration: BoxDecoration(
                 color: FudiColors.primary,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text('Registrar mi negocio', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Registrar mi negocio',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ],
@@ -234,13 +254,13 @@ class _HowItWorksForBusiness extends StatelessWidget {
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 800),
-          child: Column(
+          child: const Column(
             children: [
-              const Text(
+              Text(
                 'Cómo funciona para tu negocio',
                 style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 64),
+              SizedBox(height: 64),
               _BusinessStep(
                 number: '1',
                 title: 'Regístrate gratis',
@@ -368,14 +388,29 @@ class _CTA extends StatelessWidget {
           ),
           const SizedBox(height: 48),
           FudiPressableScale(
-            onTap: () => context.go(RouteNames.signupPath),
+            onTap: () {
+              unawaited(
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const BusinessSignupScreen(),
+                  ),
+                ),
+              );
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text('Registrar mi negocio', style: TextStyle(color: FudiColors.primary, fontSize: 18, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Registrar mi negocio',
+                style: TextStyle(
+                  color: FudiColors.primary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ],

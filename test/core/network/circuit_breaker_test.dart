@@ -145,10 +145,7 @@ void main() {
 
     group('custom configuration', () {
       test('respects custom failure threshold', () async {
-        final cb = CircuitBreaker(
-          failureThreshold: 5,
-          resetTimeout: const Duration(seconds: 30),
-        );
+        final cb = CircuitBreaker();
         for (var i = 0; i < 4; i++) {
           try {
             await cb.execute(() => Future.error(const ConnectionException()));

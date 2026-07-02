@@ -12,24 +12,19 @@ import '../error/payment_exceptions.dart';
 /// - Exponential backoff: 1s → 2s → 4s (capped at maxDelay)
 /// - Jitter to avoid thundering herd on shared services
 class RetryPolicy {
-  final int maxAttempts;
-  final Duration initialDelay;
-  final double backoffMultiplier;
-  final Duration maxDelay;
-
   const RetryPolicy({
     this.maxAttempts = 3,
     this.initialDelay = const Duration(seconds: 1),
     this.backoffMultiplier = 2.0,
     this.maxDelay = const Duration(seconds: 30),
   });
+  final int maxAttempts;
+  final Duration initialDelay;
+  final double backoffMultiplier;
+  final Duration maxDelay;
 
   /// Standard network retry policy — 3 attempts, 1s initial, 2x backoff.
-  static const network = RetryPolicy(
-    maxAttempts: 3,
-    initialDelay: Duration(seconds: 1),
-    backoffMultiplier: 2.0,
-  );
+  static const network = RetryPolicy();
 
   /// Payment retry policy — more conservative, 2 attempts, 2s initial.
   static const payment = RetryPolicy(

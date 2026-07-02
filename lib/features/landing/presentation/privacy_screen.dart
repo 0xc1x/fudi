@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/routing/route_names.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
@@ -18,7 +17,7 @@ class PrivacyScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: FudiPressableScale(
-          onTap: () => context.go(RouteNames.landingPath),
+          onTap: () => context.pop(),
           child: Container(
             width: 40,
             height: 40,

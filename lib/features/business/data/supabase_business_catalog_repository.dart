@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/error/data_exceptions.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/postgrest_exception_mapper.dart';
+import '../../../core/utils/num_utils.dart';
 import '../../offers/domain/offer.dart';
 import '../../offers/domain/offer_category.dart';
 import '../domain/business_catalog_repository.dart';
@@ -41,7 +42,7 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al cargar el catálogo');
+      throw const UnknownDataException(message: 'Error al cargar el catálogo');
     }
   }
 
@@ -74,7 +75,7 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al crear la oferta');
+      throw const UnknownDataException(message: 'Error al crear la oferta');
     }
   }
 
@@ -108,7 +109,9 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al actualizar la oferta');
+      throw const UnknownDataException(
+        message: 'Error al actualizar la oferta',
+      );
     }
   }
 
@@ -144,7 +147,7 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al eliminar la oferta');
+      throw const UnknownDataException(message: 'Error al eliminar la oferta');
     }
   }
 
@@ -160,7 +163,7 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(
+      throw const UnknownDataException(
         message: 'Error al cambiar el estado de la oferta',
       );
     }
@@ -168,8 +171,7 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
 
   Offer _mapOfferFromJson(Map<String, dynamic> json) {
     final businessJson = json['businesses'] as Map<String, dynamic>;
-    final locationJson = json['business_locations']
-        as Map<String, dynamic>?;
+    final locationJson = json['business_locations'] as Map<String, dynamic>?;
 
     return Offer(
       id: json['id'] as String,
@@ -182,10 +184,10 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
         imageUrl: businessJson['image'] as String?,
         address: locationJson?['address'] as String? ?? '',
         businessLocationId: locationJson?['id'] as String?,
-        latitude: _toDouble(locationJson?['latitude']),
-        longitude: _toDouble(locationJson?['longitude']),
+        latitude: parseDouble(locationJson?['latitude']),
+        longitude: parseDouble(locationJson?['longitude']),
         zone: locationJson?['zone'] as String?,
-        rating: _toDouble(businessJson['rating']) ?? 0.0,
+        rating: parseDouble(businessJson['rating']) ?? 0.0,
         reviewCount: businessJson['review_count'] as int? ?? 0,
       ),
       title: json['title'] as String,
@@ -194,14 +196,14 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
       category: OfferCategory.fromDb(json['category'] as String?),
       includes: json['includes'] as String?,
       allergens: json['allergens'] as String?,
-      originalPrice: _toDouble(json['original_price']) ?? 0.0,
-      discountedPrice: _toDouble(json['discounted_price']) ?? 0.0,
+      originalPrice: parseDouble(json['original_price']) ?? 0.0,
+      discountedPrice: parseDouble(json['discounted_price']) ?? 0.0,
       stock: json['stock'] as int? ?? 0,
       initialStock: json['initial_stock'] as int? ?? 0,
       pickupStart: DateTime.parse(json['pickup_start'] as String),
       pickupEnd: DateTime.parse(json['pickup_end'] as String),
       isActive: json['is_active'] as bool? ?? false,
-      rating: _toDouble(json['rating']) ?? 0.0,
+      rating: parseDouble(json['rating']) ?? 0.0,
       reviewCount: json['review_count'] as int? ?? 0,
     );
   }
@@ -223,13 +225,5 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
       'pickup_end': offer.pickupEnd.toIso8601String(),
       'is_active': offer.isActive,
     };
-  }
-
-  double? _toDouble(dynamic value) {
-    if (value == null) return null;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is num) return value.toDouble();
-    return null;
   }
 }

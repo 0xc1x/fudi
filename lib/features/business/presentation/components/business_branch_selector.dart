@@ -86,13 +86,13 @@ class _BusinessBranchSelectorState
 
     overlay.insert(_overlayEntry!);
     setState(() => _isOpen = true);
-    _chevronController.forward();
+    unawaited(_chevronController.forward());
   }
 
   void _closeDropdown() async {
     if (mounted && _isOpen) {
       setState(() => _isOpen = false);
-      _chevronController.reverse();
+      unawaited(_chevronController.reverse());
       await Future.delayed(const Duration(milliseconds: 50));
       _removeOverlay();
     }
@@ -219,7 +219,7 @@ class _BranchDropdownOverlayState
     _scale = Tween<double>(begin: 0.96, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
     );
-    _controller.forward();
+    unawaited(_controller.forward());
   }
 
   Future<void> _animateClose() async {
@@ -376,9 +376,9 @@ class _BranchItemState extends State<_BranchItem>
     ).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
     );
-    Future.delayed(Duration.zero, () {
-      if (mounted) _controller.forward();
-    });
+    unawaited(Future.delayed(Duration.zero, () {
+      if (mounted) unawaited(_controller.forward());
+    }));
   }
 
   @override

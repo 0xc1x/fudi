@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -92,7 +94,7 @@ class SelectedAddressNotifier extends Notifier<SavedAddressModel?> {
     final addresses = addressesAsync.asData?.value;
     if (addresses == null || addresses.isEmpty) return null;
 
-    _restoreSavedSelection(addresses);
+    unawaited(_restoreSavedSelection(addresses));
 
     return addresses.firstWhere(
       (a) => a.isDefault,

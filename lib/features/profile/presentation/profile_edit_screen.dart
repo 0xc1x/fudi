@@ -77,26 +77,29 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
               ),
               const SizedBox(height: FudiSpacing.sm),
               Center(
-              child: FudiPressableScale(
-                onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'Cambiar foto',
-                    style: FudiTypography.bodySmall.copyWith(
-                      color: FudiColors.primary,
-                      fontWeight: FontWeight.w600,
+                child: FudiPressableScale(
+                  onTap: () {},
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Cambiar foto',
+                      style: FudiTypography.bodySmall.copyWith(
+                        color: FudiColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
               ),
-              ),
               const SizedBox(height: FudiSpacing.xl),
-              Text('Nombre completo', style: FudiTypography.labelMedium),
+              const Text('Nombre completo', style: FudiTypography.labelMedium),
               const SizedBox(height: FudiSpacing.xs),
               TextFormField(
                 controller: _nameController,
@@ -114,7 +117,10 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                 ),
               ),
               const SizedBox(height: FudiSpacing.lg),
-              Text('Correo electrónico', style: FudiTypography.labelMedium),
+              const Text(
+                'Correo electrónico',
+                style: FudiTypography.labelMedium,
+              ),
               const SizedBox(height: FudiSpacing.xs),
               TextFormField(
                 controller: _emailController,
@@ -139,7 +145,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                 ),
               ),
               const SizedBox(height: FudiSpacing.lg),
-              Text('Teléfono', style: FudiTypography.labelMedium),
+              const Text('Teléfono', style: FudiTypography.labelMedium),
               const SizedBox(height: FudiSpacing.xs),
               TextFormField(
                 controller: _phoneController,
@@ -156,7 +162,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                 ),
               ),
               const SizedBox(height: FudiSpacing.lg),
-              Text('Ciudad', style: FudiTypography.labelMedium),
+              const Text('Ciudad', style: FudiTypography.labelMedium),
               const SizedBox(height: FudiSpacing.xs),
               TextFormField(
                 controller: _cityController,
@@ -233,16 +239,19 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
       final newEmail = _emailController.text.trim();
 
-      await supabase.from('profiles').update({
-        'full_name': _nameController.text.trim(),
-        'email': newEmail,
-        'phone': _phoneController.text.trim().isEmpty
-            ? null
-            : _phoneController.text.trim(),
-        'city': _cityController.text.trim().isEmpty
-            ? null
-            : _cityController.text.trim(),
-      }).eq('id', userId);
+      await supabase
+          .from('profiles')
+          .update({
+            'full_name': _nameController.text.trim(),
+            'email': newEmail,
+            'phone': _phoneController.text.trim().isEmpty
+                ? null
+                : _phoneController.text.trim(),
+            'city': _cityController.text.trim().isEmpty
+                ? null
+                : _cityController.text.trim(),
+          })
+          .eq('id', userId);
 
       if (newEmail != _originalEmail) {
         await supabase.auth.updateUser(UserAttributes(email: newEmail));
@@ -254,9 +263,9 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         final message = newEmail != _originalEmail
             ? 'Perfil actualizado. Revisa tu nuevo correo para confirmar el cambio.'
             : 'Perfil actualizado';
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(message),
-        ));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
         Navigator.of(context).pop();
       }
     } catch (e) {

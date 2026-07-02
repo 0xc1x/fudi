@@ -99,10 +99,12 @@ class _PromoSliderState extends State<PromoSlider> {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (!_isPaused && _items.length > 1) {
-        _pageController.animateToPage(
-          _currentPage + 1,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeInOut,
+        unawaited(
+          _pageController.animateToPage(
+            _currentPage + 1,
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOut,
+          ),
         );
       }
     });
@@ -168,10 +170,9 @@ class _PromoCard extends StatelessWidget {
         final bannerHeight = (bannerWidth * 9 / 16).clamp(0.0, 220.0);
         final halfWidth = bannerWidth / 2;
 
-        return Container(
+        return SizedBox(
           width: double.infinity,
           height: bannerHeight,
-          clipBehavior: Clip.none,
           child: Stack(
             children: [
               Positioned.fill(
@@ -197,11 +198,10 @@ class _PromoCard extends StatelessWidget {
               Positioned.fill(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(FudiRadius.md),
-                  child: Container(
+                  child: DecoratedBox(
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: Colors.white.withValues(alpha: 0.08),
-                        width: 1,
                       ),
                       color: const Color(0xFF140D0D),
                     ),
@@ -226,8 +226,6 @@ class _PromoCard extends StatelessWidget {
                             child: Container(
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
                                   colors: [
                                     Colors.black.withValues(alpha: 0.5),
                                     Colors.transparent,
@@ -276,7 +274,7 @@ class _PromoCard extends StatelessWidget {
                                   ],
                                 ),
                                 // ── Botón con animación ───────────────────
-                                _PromoButton(),
+                                const _PromoButton(),
                               ],
                             ),
                           ),
@@ -362,15 +360,15 @@ class _PromoButtonState extends State<_PromoButton>
     return GestureDetector(
       onTapDown: (_) {
         setState(() => _isPressed = true);
-        _controller.forward();
+        unawaited(_controller.forward());
       },
       onTapUp: (_) {
         setState(() => _isPressed = false);
-        _controller.reverse();
+        unawaited(_controller.reverse());
       },
       onTapCancel: () {
         setState(() => _isPressed = false);
-        _controller.reverse();
+        unawaited(_controller.reverse());
       },
       child: AnimatedBuilder(
         animation: _scale,

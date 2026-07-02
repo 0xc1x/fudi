@@ -9,6 +9,8 @@ bool _isSafari() {
 
 bool isSafari() => _isSafari();
 
+bool isStandalone() => _isStandalone();
+
 bool isiOS() {
   final ua = web.window.navigator.userAgent.toLowerCase();
   return ua.contains('iphone') || ua.contains('ipad') || ua.contains('ipod');
@@ -32,25 +34,33 @@ void showWebNotification(String title, String body) {
   }
 
   if (web.Notification.permission == 'default') {
-    web.Notification.requestPermission().toDart.then((permission) {
+    unawaited(web.Notification.requestPermission().toDart.then((permission) {
       if (permission.toDart == 'granted') {
         web.Notification(
           title,
           web.NotificationOptions(body: body, icon: '/icons/Icon-192.png'),
         );
       }
-    });
+    }));
   }
 }
 
 String getWebNotificationPermission() => web.Notification.permission;
 
-bool get supportsWebNotifications => _isSafari() && isiOS() ? false : true;
+bool get supportsWebNotifications {
+  if (!_isSafari()) return true;
+  if (!isiOS()) return true;
+  return _isStandalone();
+}
+
+bool _isStandalone() {
+  return web.window.matchMedia('(display-mode: standalone)').matches;
+}
 
 Future<bool> requestWebNotificationPermission() {
   final completer = Completer<bool>();
-  web.Notification.requestPermission().toDart.then((permission) {
+  unawaited(web.Notification.requestPermission().toDart.then((permission) {
     completer.complete(permission.toDart == 'granted');
-  });
+  }));
   return completer.future;
 }

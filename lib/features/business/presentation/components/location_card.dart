@@ -59,7 +59,7 @@ class LocationCard extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
+                          const Icon(
                             FudiIcons.mapPin,
                             size: 14,
                             color: FudiColors.mutedForeground,
@@ -79,7 +79,7 @@ class LocationCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               FudiIcons.phone,
                               size: 14,
                               color: FudiColors.mutedForeground,
@@ -100,18 +100,20 @@ class LocationCard extends StatelessWidget {
               ],
             ),
           ),
-          Container(
+          DecoratedBox(
             decoration: BoxDecoration(
               color: FudiColors.muted.withValues(alpha: 0.3),
-              border: Border(top: BorderSide(color: FudiColors.borderSolid)),
-              borderRadius: BorderRadius.only(
+              border: const Border(
+                top: BorderSide(color: FudiColors.borderSolid),
+              ),
+              borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(FudiRadius.xl),
                 bottomRight: Radius.circular(FudiRadius.xl),
               ),
             ),
             child: InkWell(
               onTap: () => context.push('/business/locations/${location.id}'),
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(FudiRadius.xl),
                 bottomRight: Radius.circular(FudiRadius.xl),
               ),

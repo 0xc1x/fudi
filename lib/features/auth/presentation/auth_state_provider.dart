@@ -44,9 +44,8 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
 
   Timer? _refreshTimer;
   int _refreshRetryCount = 0;
-  bool _initialRefreshAttempted = false;
   static const int _maxRefreshRetries = 3;
-  static const Duration _refreshInterval = Duration(minutes: 30);
+  static const Duration _refreshInterval = Duration(minutes: 10);
   static const Duration _refreshRetryDelay = Duration(seconds: 5);
 
   @override
@@ -89,11 +88,11 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
 
     if (initialState.isAuthenticated) {
       _startRefreshTimer();
-      _refreshSession(session: initialState.session);
+      unawaited(_refreshSession(session: initialState.session));
     }
 
     ref.onDispose(() {
-      _subscription?.cancel();
+      unawaited(_subscription?.cancel());
       _stopRefreshTimer();
       _refreshListenable.dispose();
     });
@@ -123,7 +122,7 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     final expiresAt = currentSession.expiresAt;
 
-    if (expiresAt != null && now >= expiresAt - 300) {
+    if (expiresAt != null && now >= expiresAt - 900) {
       await _performRefreshWithRetry(repository);
     }
   }
@@ -133,9 +132,6 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
       final newSession = await repository.refreshSession();
       if (newSession != null) {
         _refreshRetryCount = 0;
-        if (!_initialRefreshAttempted) {
-          _initialRefreshAttempted = true;
-        }
         _refreshListenable._notify();
       } else {
         _handleRefreshFailure();
@@ -143,11 +139,6 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
     } catch (error) {
       _refreshRetryCount++;
       if (_refreshRetryCount >= _maxRefreshRetries) {
-        if (!_initialRefreshAttempted) {
-          _initialRefreshAttempted = true;
-          _refreshRetryCount = 0;
-          return;
-        }
         _handleRefreshFailure();
       } else {
         await Future.delayed(_refreshRetryDelay * _refreshRetryCount);
@@ -161,7 +152,7 @@ class AuthSessionNotifier extends Notifier<AuthSessionState> {
     _stopRefreshTimer();
     _pendingNotice = 'Tu sesión expiró. Inicia sesión de nuevo para continuar.';
     final notifier = ref.read(authControllerProvider.notifier);
-    notifier.signOut();
+    unawaited(notifier.signOut());
   }
 
   AuthFlowEvent get lastEvent => _lastEvent;
@@ -246,12 +237,12 @@ class AuthController extends Notifier<AsyncValue<void>> {
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
       _sessionNotifier.markAuthError();
-      _analytics.track(
+      unawaited(_analytics.track(
         AuthLoginFailedEvent(
           method: AuthMethod.email,
           errorType: error.runtimeType.toString(),
         ),
-      );
+      ));
     }
   }
 

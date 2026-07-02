@@ -1,0 +1,199 @@
+{
+  "version": "7.3",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "REMINDER": [
+      "CONFIRM_ON_MY_WAY",
+      "CANCEL_ORDER"
+    ],
+    "CONFIRM_ON_MY_WAY": [],
+    "CANCEL_ORDER": [
+      "CANCEL_CONFIRMED"
+    ],
+    "CANCEL_CONFIRMED": []
+  },
+  "screens": [
+    {
+      "id": "REMINDER",
+      "title": "Recordatorio de recogida",
+      "terminal": true,
+      "success": true,
+      "data": {
+        "order_number": {
+          "type": "string",
+          "__example__": "FUD-1234"
+        },
+        "business_name": {
+          "type": "string",
+          "__example__": "Panadería El Trigo"
+        },
+        "business_address": {
+          "type": "string",
+          "__example__": "Av. Siempre Viva 123"
+        },
+        "offer_title": {
+          "type": "string",
+          "__example__": "Sorpresa de panadería"
+        },
+        "pickup_window": {
+          "type": "string",
+          "__example__": "18:00 - 19:00"
+        },
+        "pickup_code": {
+          "type": "string",
+          "__example__": "A1B2C3"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "⏰ ¡Hora de recoger tu pedido!"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.offer_title} en ${data.business_name}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.business_address}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Ventana de recogida: ${data.pickup_window}"
+          },
+          {
+            "type": "TextSubheading",
+            "text": "Código: ${data.pickup_code}"
+          },
+          {
+            "type": "List",
+            "children": [
+              {
+                "type": "ListItem",
+                "title": "Voy para allá",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "CONFIRM_ON_MY_WAY"
+                  },
+                  "payload": {
+                    "order_id": "${data.order_number}",
+                    "business_name": "${data.business_name}"
+                  }
+                }
+              },
+              {
+                "type": "ListItem",
+                "title": "Cancelar pedido",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "CANCEL_ORDER"
+                  },
+                  "payload": {
+                    "order_number": "${data.order_number}",
+                    "offer_title": "${data.offer_title}",
+                    "business_name": "${data.business_name}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CONFIRM_ON_MY_WAY",
+      "title": "Voy para allá",
+      "terminal": true,
+      "success": true,
+      "data": {
+        "order_id": { "type": "string" },
+        "business_name": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "¡Buen provecho!"
+          },
+          {
+            "type": "TextBody",
+            "text": "Le avisaremos a ${data.business_name} que vas en camino. No olvides mostrar tu código de recogida al llegar."
+          },
+          {
+            "type": "Footer",
+            "label": "Listo",
+            "on-click-action": {
+              "name": "data_exchange",
+              "payload": {
+                "action": "on_my_way",
+                "order_id": "${data.order_id}"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "CANCEL_ORDER",
+      "title": "Cancelar pedido",
+      "data": {
+        "order_number": { "type": "string" },
+        "offer_title": { "type": "string" },
+        "business_name": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "¿Cancelar pedido?"
+          },
+          {
+            "type": "TextBody",
+            "text": "Estás por cancelar ${data.offer_title} en ${data.business_name}. Esta acción no se puede deshacer."
+          },
+          {
+            "type": "Footer",
+            "label": "Sí, cancelar pedido",
+            "on-click-action": {
+              "name": "data_exchange",
+              "payload": {
+                "action": "cancel_order",
+                "order_number": "${data.order_number}",
+                "offer_title": "${data.offer_title}",
+                "business_name": "${data.business_name}"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "CANCEL_CONFIRMED",
+      "title": "Pedido cancelado",
+      "terminal": true,
+      "success": true,
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Pedido cancelado"
+          },
+          {
+            "type": "TextBody",
+            "text": "Tu pedido ha sido cancelado. Si pagaste, el reembolso se procesará en los próximos días según la política del negocio. Esperamos verte de nuevo pronto."
+          }
+        ]
+      }
+    }
+  ]
+}

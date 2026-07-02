@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'fudi_colors.dart';
 import 'fudi_pressable_scale.dart';
@@ -207,9 +208,11 @@ class _SelectableChipState extends State<_SelectableChip>
   void didUpdateWidget(_SelectableChip oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.isSelected != widget.isSelected) {
-      _controller.forward(from: 0).then((_) {
-        if (mounted) _controller.reverse();
-      });
+      unawaited(
+        _controller.forward(from: 0).then((_) {
+          if (mounted) unawaited(_controller.reverse());
+        }),
+      );
     }
   }
 
@@ -247,7 +250,6 @@ class _SelectableChipState extends State<_SelectableChip>
             borderRadius: BorderRadius.circular(widget.borderRadius),
             border: Border.all(
               color: widget.isSelected ? widget.activeColor : finalBorderColor,
-              width: 1,
             ),
             // Sombra sutil que aparece al seleccionar
             boxShadow: widget.isSelected
@@ -265,7 +267,14 @@ class _SelectableChipState extends State<_SelectableChip>
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (widget.icon != null) ...[
-                  widget.icon!,
+                  IconTheme(
+                    data: IconThemeData(
+                      color: widget.isSelected
+                          ? widget.activeTextColor
+                          : finalInactiveTextColor,
+                    ),
+                    child: widget.icon!,
+                  ),
                   const SizedBox(width: 4),
                 ],
                 AnimatedDefaultTextStyle(

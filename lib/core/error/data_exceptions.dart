@@ -11,12 +11,11 @@ sealed class DataException extends FudiException {
 }
 
 class ValidationException extends DataException {
-  final Map<String, String>? fieldErrors;
-
   const ValidationException({
     super.message = 'Datos inválidos',
     this.fieldErrors,
   }) : super(code: 'DATA_001', severity: ErrorSeverity.low);
+  final Map<String, String>? fieldErrors;
 }
 
 class ConflictException extends DataException {

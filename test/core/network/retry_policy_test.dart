@@ -131,12 +131,7 @@ void main() {
       });
 
       test('delay is capped at maxDelay', () {
-        final policy = RetryPolicy(
-          maxAttempts: 20,
-          initialDelay: const Duration(seconds: 1),
-          backoffMultiplier: 10.0,
-          maxDelay: const Duration(seconds: 30),
-        );
+        const policy = RetryPolicy(maxAttempts: 20, backoffMultiplier: 10.0);
         final delay = policy.delayForAttempt(10);
         expect(delay.inMilliseconds, lessThanOrEqualTo(30500));
       });

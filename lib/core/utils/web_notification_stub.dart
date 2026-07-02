@@ -8,6 +8,8 @@ bool isSafari() => false;
 
 bool isiOS() => false;
 
+bool isStandalone() => false;
+
 String getBrowserName() => 'Chrome';
 
 bool get supportsWebNotifications => true;

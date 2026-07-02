@@ -6,15 +6,14 @@ import '../models/analytics_event.dart';
 
 /// The user entered the checkout flow.
 class CheckoutStartedEvent extends AnalyticsEvent {
-  final String offerId;
-  final String businessId;
-  final double amount;
-
   CheckoutStartedEvent({
     required this.offerId,
     required this.businessId,
     required this.amount,
   });
+  final String offerId;
+  final String businessId;
+  final double amount;
 
   @override
   String get name => 'checkout_started';
@@ -29,17 +28,16 @@ class CheckoutStartedEvent extends AnalyticsEvent {
 
 /// Payment completed successfully (alias-level event for the payment funnel).
 class PaymentCompletedEvent extends AnalyticsEvent {
-  final String orderId;
-  final double amount;
-  final String gateway;
-  final String paymentMethod;
-
   PaymentCompletedEvent({
     required this.orderId,
     required this.amount,
     required this.gateway,
     required this.paymentMethod,
   });
+  final String orderId;
+  final double amount;
+  final String gateway;
+  final String paymentMethod;
 
   @override
   String get name => 'payment_completed';
@@ -55,15 +53,14 @@ class PaymentCompletedEvent extends AnalyticsEvent {
 
 /// Payment failed at the gateway level.
 class PaymentFailedEvent extends AnalyticsEvent {
-  final String orderId;
-  final String errorType;
-  final String gateway;
-
   PaymentFailedEvent({
     required this.orderId,
     required this.errorType,
     required this.gateway,
   });
+  final String orderId;
+  final String errorType;
+  final String gateway;
 
   @override
   String get name => 'payment_failed';
@@ -78,10 +75,9 @@ class PaymentFailedEvent extends AnalyticsEvent {
 
 /// User requested a refund.
 class RefundRequestedEvent extends AnalyticsEvent {
+  RefundRequestedEvent({required this.orderId, required this.reason});
   final String orderId;
   final String reason;
-
-  RefundRequestedEvent({required this.orderId, required this.reason});
 
   @override
   String get name => 'refund_requested';

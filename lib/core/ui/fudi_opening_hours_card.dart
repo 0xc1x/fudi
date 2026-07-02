@@ -61,7 +61,7 @@ class _HoursRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: FudiSpacing.sm),
       child: DecoratedBox(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           border: Border(bottom: BorderSide(color: FudiColors.borderSolid)),
         ),
         child: Padding(

@@ -1,0 +1,230 @@
+{
+  "version": "7.3",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "ORDER_STATUS": [
+      "CONFIRM_PICKUP",
+      "REPORT_ISSUE"
+    ],
+    "CONFIRM_PICKUP": [],
+    "REPORT_ISSUE": [
+      "ISSUE_CONFIRMED"
+    ],
+    "ISSUE_CONFIRMED": []
+  },
+  "screens": [
+    {
+      "id": "ORDER_STATUS",
+      "title": "Tu pedido",
+      "terminal": true,
+      "success": true,
+      "data": {
+        "order_number": {
+          "type": "string",
+          "__example__": "FUD-1234"
+        },
+        "status": {
+          "type": "string",
+          "__example__": "ready_for_pickup"
+        },
+        "business_name": {
+          "type": "string",
+          "__example__": "Panadería El Trigo"
+        },
+        "business_address": {
+          "type": "string",
+          "__example__": "Av. Siempre Viva 123"
+        },
+        "pickup_code": {
+          "type": "string",
+          "__example__": "A1B2C3"
+        },
+        "offer_title": {
+          "type": "string",
+          "__example__": "Sorpresa de panadería"
+        },
+        "pickup_time": {
+          "type": "string",
+          "__example__": "18:00 - 19:00"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Pedido ${data.order_number}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.offer_title} en ${data.business_name}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Dirección: ${data.business_address}"
+          },
+          {
+            "type": "TextSubheading",
+            "text": "Código de recogida: ${data.pickup_code}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Ventana de recogida: ${data.pickup_time}"
+          },
+          {
+            "type": "Footer",
+            "label": "Ya recogí mi pedido",
+            "on-click-action": {
+              "name": "navigate",
+              "next": {
+                "type": "screen",
+                "name": "CONFIRM_PICKUP"
+              },
+              "payload": {
+                "order_id": "${data.order_number}",
+                "pickup_code": "${data.pickup_code}"
+              }
+            }
+          },
+          {
+            "type": "EmbeddedLink",
+            "text": "Reportar un problema",
+            "on-click-action": {
+              "name": "navigate",
+              "next": {
+                "type": "screen",
+                "name": "REPORT_ISSUE"
+              },
+              "payload": {}
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "CONFIRM_PICKUP",
+      "title": "Confirmar recogida",
+      "terminal": true,
+      "success": true,
+      "data": {
+        "order_id": {
+          "type": "string"
+        },
+        "pickup_code": {
+          "type": "string"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "¿Confirmas que recogiste el pedido?"
+          },
+          {
+            "type": "TextBody",
+            "text": "Al confirmar, el pedido se marcará como recogido y el negocio recibirá la notificación."
+          },
+          {
+            "type": "Footer",
+            "label": "Sí, confirmar recogida",
+            "on-click-action": {
+              "name": "data_exchange",
+              "payload": {
+                "action": "confirm_pickup",
+                "order_id": "${data.order_id}",
+                "pickup_code": "${data.pickup_code}"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "REPORT_ISSUE",
+      "title": "Reportar problema",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "issue_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "Cuéntanos qué pasó con tu pedido para ayudarte."
+              },
+              {
+                "type": "SingleSelect",
+                "required": true,
+                "label": "Tipo de problema",
+                "name": "issue_type",
+                "options": [
+                  {
+                    "id": "not_found",
+                    "title": "El negocio no estaba abierto"
+                  },
+                  {
+                    "id": "product_unavailable",
+                    "title": "El producto no estaba disponible"
+                  },
+                  {
+                    "id": "wrong_product",
+                    "title": "El producto no correspondía"
+                  },
+                  {
+                    "id": "quality",
+                    "title": "Problema de calidad"
+                  },
+                  {
+                    "id": "other",
+                    "title": "Otro"
+                  }
+                ]
+              },
+              {
+                "type": "TextInput",
+                "required": false,
+                "label": "Cuéntanos más detalles",
+                "name": "description",
+                "input-type": "text"
+              },
+              {
+                "type": "Footer",
+                "label": "Enviar reporte",
+                "on-click-action": {
+                  "name": "data_exchange",
+                  "payload": {
+                    "issue_type": "${form.issue_type}",
+                    "description": "${form.description}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ISSUE_CONFIRMED",
+      "title": "Reporte enviado",
+      "terminal": true,
+      "success": true,
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Recibimos tu reporte"
+          },
+          {
+            "type": "TextBody",
+            "text": "Nuestro equipo de soporte revisará tu caso y te contactará pronto. Gracias por ayudarnos a mejorar."
+          }
+        ]
+      }
+    }
+  ]
+}

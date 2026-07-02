@@ -6,6 +6,8 @@ import '../models/analytics_event.dart';
 
 /// A screen was viewed. Track this at every route transition.
 class ScreenViewedEvent extends AnalyticsEvent {
+  ScreenViewedEvent({required this.screenName, this.source, this.role});
+
   /// Logical screen name (e.g. 'offer_detail', 'checkout', 'business_dashboard').
   final String screenName;
 
@@ -14,8 +16,6 @@ class ScreenViewedEvent extends AnalyticsEvent {
 
   /// Active role when the screen was viewed: user, business, admin, guest.
   final String? role;
-
-  ScreenViewedEvent({required this.screenName, this.source, this.role});
 
   @override
   String get name => 'screen_viewed';
@@ -30,10 +30,9 @@ class ScreenViewedEvent extends AnalyticsEvent {
 
 /// A bottom navigation tab was tapped.
 class BottomNavTappedEvent extends AnalyticsEvent {
+  BottomNavTappedEvent({required this.tabIndex, required this.tabName});
   final int tabIndex;
   final String tabName;
-
-  BottomNavTappedEvent({required this.tabIndex, required this.tabName});
 
   @override
   String get name => 'bottom_nav_tapped';

@@ -20,12 +20,12 @@ class UiGalleryScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(FudiSpacing.lg),
         children: [
-          _Section(
+          const _Section(
             title: 'Logo',
-            child: const FudiLogo(size: FudiLogoSize.lg),
+            child: FudiLogo(size: FudiLogoSize.lg),
           ),
 
-          _Section(
+          const _Section(
             title: 'Typography',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,21 +34,21 @@ class UiGalleryScreen extends StatelessWidget {
                 Text('H2 Heading', style: FudiTypography.h2),
                 Text('H3 Heading', style: FudiTypography.h3),
                 Text('H4 Heading', style: FudiTypography.h4),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text('Body Large', style: FudiTypography.bodyLarge),
                 Text('Body Medium', style: FudiTypography.bodyMedium),
                 Text('Body Small', style: FudiTypography.bodySmall),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text('Label Medium', style: FudiTypography.labelMedium),
                 Text('Label Small', style: FudiTypography.labelSmall),
               ],
             ),
           ),
 
-          _Section(
+          const _Section(
             title: 'Star Rating',
             child: Column(
-              children: const [
+              children: [
                 FudiStarRating(rating: 4.5, showText: true, size: 24),
                 SizedBox(height: 8),
                 FudiStarRating(rating: 3.2, showText: true),

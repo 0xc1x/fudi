@@ -30,7 +30,7 @@ class ExploreTipSection extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(
+                DecoratedBox(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     boxShadow: [

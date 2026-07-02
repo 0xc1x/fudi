@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/error/data_exceptions.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/postgrest_exception_mapper.dart';
+import '../../../core/utils/num_utils.dart';
 import '../domain/business_location.dart';
 import '../domain/business_location_repository.dart';
 
@@ -29,7 +30,7 @@ class SupabaseBusinessLocationRepository implements BusinessLocationRepository {
     } on FudiException {
       rethrow;
     } catch (_) {
-      throw UnknownDataException(message: 'Error al cargar locales');
+      throw const UnknownDataException(message: 'Error al cargar locales');
     }
   }
 
@@ -47,7 +48,7 @@ class SupabaseBusinessLocationRepository implements BusinessLocationRepository {
     } on FudiException {
       rethrow;
     } catch (_) {
-      throw UnknownDataException(message: 'Error al cargar el local');
+      throw const UnknownDataException(message: 'Error al cargar el local');
     }
   }
 
@@ -78,7 +79,7 @@ class SupabaseBusinessLocationRepository implements BusinessLocationRepository {
     } on FudiException {
       rethrow;
     } catch (_) {
-      throw UnknownDataException(message: 'Error al guardar el local');
+      throw const UnknownDataException(message: 'Error al guardar el local');
     }
   }
 
@@ -94,7 +95,9 @@ class SupabaseBusinessLocationRepository implements BusinessLocationRepository {
     } on FudiException {
       rethrow;
     } catch (_) {
-      throw UnknownDataException(message: 'Error al cambiar estado del local');
+      throw const UnknownDataException(
+        message: 'Error al cambiar estado del local',
+      );
     }
   }
 
@@ -105,8 +108,8 @@ class SupabaseBusinessLocationRepository implements BusinessLocationRepository {
       name: json['name'] as String? ?? '',
       address: json['address'] as String? ?? '',
       phone: json['phone'] as String?,
-      latitude: _toDouble(json['latitude']),
-      longitude: _toDouble(json['longitude']),
+      latitude: parseDouble(json['latitude']),
+      longitude: parseDouble(json['longitude']),
       zone: json['zone'] as String?,
       isHeadquarter: json['is_headquarter'] as bool? ?? false,
       isActive: json['is_active'] as bool? ?? true,
@@ -114,11 +117,5 @@ class SupabaseBusinessLocationRepository implements BusinessLocationRepository {
           ? DateTime.parse(json['created_at'] as String)
           : null,
     );
-  }
-
-  double? _toDouble(dynamic value) {
-    if (value == null) return null;
-    if (value is num) return value.toDouble();
-    return null;
   }
 }

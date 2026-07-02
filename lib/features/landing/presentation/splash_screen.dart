@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_logo.dart';
@@ -24,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 1000),
     );
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    _controller.forward();
+    unawaited(_controller.forward());
   }
 
   @override
@@ -47,7 +49,6 @@ class _SplashScreenState extends State<SplashScreen>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   FudiLogo(
-                    variant: FudiLogoVariant.wordmark,
                     width: MediaQuery.sizeOf(context).width * 0.8,
                     color: FudiColors.accentForeground.withValues(alpha: 0.8),
                   ),
@@ -116,13 +117,6 @@ class _PositionedPattern extends StatelessWidget {
 }
 
 class _PatternData {
-  final double? top;
-  final double? left;
-  final double? right;
-  final double? bottom;
-  final double size;
-  final double rotation;
-
   _PatternData({
     this.top,
     this.left,
@@ -131,4 +125,10 @@ class _PatternData {
     required this.size,
     required this.rotation,
   });
+  final double? top;
+  final double? left;
+  final double? right;
+  final double? bottom;
+  final double size;
+  final double rotation;
 }

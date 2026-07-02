@@ -19,17 +19,16 @@ import '../error/network_exceptions.dart';
 /// - 5 failures → open for 30s → half-open
 /// - Throws ServiceUnavailableException when open
 class CircuitBreaker {
+  CircuitBreaker({
+    this.failureThreshold = 5,
+    this.resetTimeout = const Duration(seconds: 30),
+  });
   final int failureThreshold;
   final Duration resetTimeout;
 
   CircuitState _state = CircuitState.closed;
   int _failureCount = 0;
   DateTime? _lastFailureTime;
-
-  CircuitBreaker({
-    this.failureThreshold = 5,
-    this.resetTimeout = const Duration(seconds: 30),
-  });
 
   /// Current state of the circuit. Exposed for observability / testing.
   CircuitState get state => _state;

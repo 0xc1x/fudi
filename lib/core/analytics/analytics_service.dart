@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'events/navigation_events.dart';
@@ -26,11 +28,10 @@ import 'trackers/analytics_tracker.dart';
 /// await analytics.setUserId('user-123');
 /// ```
 class AnalyticsService {
-  final List<AnalyticsTracker> _trackers;
-  bool _consentGranted = false;
-
   AnalyticsService({required List<AnalyticsTracker> trackers})
     : _trackers = trackers;
+  final List<AnalyticsTracker> _trackers;
+  bool _consentGranted = false;
 
   /// Whether the user has granted analytics consent.
   bool get consentGranted => _consentGranted;
@@ -138,9 +139,11 @@ class AnalyticsService {
   /// crash the app or appear to the user. They're operational signals
   /// for the engineering team.
   void _reportTrackerError(String trackerName, String method, Object error) {
-    Sentry.captureMessage(
-      'AnalyticsService: $trackerName.$method failed: $error',
-      level: SentryLevel.warning,
+    unawaited(
+      Sentry.captureMessage(
+        'AnalyticsService: $trackerName.$method failed: $error',
+        level: SentryLevel.warning,
+      ),
     );
   }
 }

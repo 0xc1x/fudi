@@ -35,11 +35,16 @@ class FudiScaffold extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: showAppBar ? _buildAppBar(context) : null,
-      body: Column(
-        children: [
-          const _OfflineBanner(),
-          Expanded(child: body),
-        ],
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            children: [
+              const _OfflineBanner(),
+              Expanded(child: body),
+            ],
+          ),
+        ),
       ),
       bottomNavigationBar: showBottomNav ? const FudiBottomNav() : null,
       floatingActionButton: floatingActionButton,
@@ -50,10 +55,7 @@ class FudiScaffold extends ConsumerWidget {
     return AppBar(
       title: title != null
           ? Text(title!)
-          : const FudiLogo(
-              variant: FudiLogoVariant.wordmark,
-              size: FudiLogoSize.xl,
-            ),
+          : const FudiLogo(size: FudiLogoSize.xl),
       actions: actions,
     );
   }
@@ -83,7 +85,7 @@ class _OfflineBannerState extends State<_OfflineBanner> {
 
   @override
   void dispose() {
-    _subscription.cancel();
+    unawaited(_subscription.cancel());
     super.dispose();
   }
 

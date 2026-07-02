@@ -19,7 +19,9 @@ class FudiOrderTimeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entries = isBusiness ? _buildBusinessEntries() : _buildConsumerEntries();
+    final entries = isBusiness
+        ? _buildBusinessEntries()
+        : _buildConsumerEntries();
 
     return FudiSurfaceCard(
       padding: const EdgeInsets.all(FudiSpacing.md),
@@ -152,7 +154,6 @@ class FudiOrderTimeline extends StatelessWidget {
           icon: c.icon,
           title: 'Confirmado',
           note: 'Pedido confirmado por el negocio',
-          timestamp: null,
           color: c.iconColor,
           bgColor: c.backgroundColor,
         ),
@@ -171,7 +172,6 @@ class FudiOrderTimeline extends StatelessWidget {
           icon: c.icon,
           title: 'Listo para recoger',
           note: 'Pedido preparado y listo para recoger',
-          timestamp: null,
           color: c.iconColor,
           bgColor: c.backgroundColor,
         ),
@@ -185,7 +185,6 @@ class FudiOrderTimeline extends StatelessWidget {
           icon: c.icon,
           title: 'Completado',
           note: 'Pedido entregado al cliente',
-          timestamp: null,
           color: c.iconColor,
           bgColor: c.backgroundColor,
         ),
@@ -199,7 +198,6 @@ class FudiOrderTimeline extends StatelessWidget {
           icon: c.icon,
           title: 'Cancelado',
           note: 'Pedido cancelado',
-          timestamp: null,
           color: c.iconColor,
           bgColor: c.backgroundColor,
         ),
@@ -213,7 +211,6 @@ class FudiOrderTimeline extends StatelessWidget {
           icon: c.icon,
           title: 'Expirado',
           note: 'El tiempo de recogida expiró',
-          timestamp: null,
           color: c.iconColor,
           bgColor: c.backgroundColor,
         ),
@@ -302,10 +299,7 @@ class _FudiTimelineEntryData {
 }
 
 class _FudiTimelineEntryWidget extends StatelessWidget {
-  const _FudiTimelineEntryWidget({
-    required this.entry,
-    required this.isLast,
-  });
+  const _FudiTimelineEntryWidget({required this.entry, required this.isLast});
 
   final _FudiTimelineEntryData entry;
   final bool isLast;
@@ -335,11 +329,7 @@ class _FudiTimelineEntryWidget extends StatelessWidget {
                 child: Icon(entry.icon, size: 20, color: entry.color),
               ),
               if (!isLast)
-                Container(
-                  width: 2,
-                  height: 32,
-                  color: FudiColors.borderSolid,
-                ),
+                Container(width: 2, height: 32, color: FudiColors.borderSolid),
             ],
           ),
           const SizedBox(width: FudiSpacing.md),

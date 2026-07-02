@@ -4,6 +4,7 @@ import '../../../core/error/business_exceptions.dart';
 import '../../../core/error/data_exceptions.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/postgrest_exception_mapper.dart';
+import '../../../core/utils/num_utils.dart';
 import '../domain/order_model.dart';
 import '../domain/order_repository.dart';
 import '../domain/order_status.dart';
@@ -44,9 +45,9 @@ class SupabaseOrderRepository implements OrderRepository {
           orderId: result['order_id'] as String,
           orderNumber: result['order_number'] as String,
           pickupCode: result['pickup_code'] as String,
-          price: _toDouble(result['price']) ?? 0.0,
-          originalPrice: _toDouble(result['original_price']) ?? 0.0,
-          discount: _toDouble(result['discount']) ?? 0.0,
+          price: parseDouble(result['price']) ?? 0.0,
+          originalPrice: parseDouble(result['original_price']) ?? 0.0,
+          discount: parseDouble(result['discount']) ?? 0.0,
         );
       }
 
@@ -95,7 +96,7 @@ class SupabaseOrderRepository implements OrderRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al cargar pedidos');
+      throw const UnknownDataException(message: 'Error al cargar pedidos');
     }
   }
 
@@ -129,7 +130,7 @@ class SupabaseOrderRepository implements OrderRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al cargar el pedido');
+      throw const UnknownDataException(message: 'Error al cargar el pedido');
     }
   }
 
@@ -194,7 +195,7 @@ class SupabaseOrderRepository implements OrderRepository {
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(message: 'Error al cancelar el pedido');
+      throw const UnknownDataException(message: 'Error al cancelar el pedido');
     }
   }
 
@@ -211,8 +212,8 @@ class SupabaseOrderRepository implements OrderRepository {
       businessId: json['business_id'] as String,
       orderNumber: json['order_number'] as String,
       status: OrderStatus.fromString(json['status'] as String?),
-      price: _toDouble(json['price']) ?? 0.0,
-      originalPrice: _toDouble(json['original_price']) ?? 0.0,
+      price: parseDouble(json['price']) ?? 0.0,
+      originalPrice: parseDouble(json['original_price']) ?? 0.0,
       pickupCode: json['pickup_code'] as String? ?? '',
       pickupTime: json['pickup_time'] != null
           ? DateTime.parse(json['pickup_time'] as String)
@@ -225,13 +226,5 @@ class SupabaseOrderRepository implements OrderRepository {
       businessAddress: locationJson?['address'] as String?,
       businessPhone: businessJson?['phone'] as String?,
     );
-  }
-
-  double? _toDouble(dynamic value) {
-    if (value == null) return null;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is num) return value.toDouble();
-    return null;
   }
 }

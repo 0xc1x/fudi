@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// Wrapper for adding structured breadcrumbs to Sentry.
@@ -10,12 +12,14 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 class SentryBreadcrumb {
   /// Navigation breadcrumb — record route transitions.
   static void navigation(String from, String to, {String? role}) {
-    Sentry.addBreadcrumb(
-      Breadcrumb(
-        category: 'navigation',
-        message: '$from -> $to',
-        level: SentryLevel.info,
-        data: {'from': from, 'to': to, 'role': ?role},
+    unawaited(
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          category: 'navigation',
+          message: '$from -> $to',
+          level: SentryLevel.info,
+          data: {'from': from, 'to': to, 'role': ?role},
+        ),
       ),
     );
   }
@@ -26,12 +30,14 @@ class SentryBreadcrumb {
     String target, {
     Map<String, dynamic>? extra,
   }) {
-    Sentry.addBreadcrumb(
-      Breadcrumb(
-        category: 'user.action',
-        message: '$action on $target',
-        level: SentryLevel.info,
-        data: {'action': action, 'target': target, ...?extra},
+    unawaited(
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          category: 'user.action',
+          message: '$action on $target',
+          level: SentryLevel.info,
+          data: {'action': action, 'target': target, ...?extra},
+        ),
       ),
     );
   }
@@ -43,19 +49,21 @@ class SentryBreadcrumb {
     int? statusCode,
     Duration? duration,
   }) {
-    Sentry.addBreadcrumb(
-      Breadcrumb(
-        category: 'http',
-        message: '$method $endpoint',
-        level: statusCode != null && statusCode >= 400
-            ? SentryLevel.error
-            : SentryLevel.info,
-        data: {
-          'method': method,
-          'endpoint': endpoint,
-          'status_code': ?statusCode,
-          if (duration != null) 'duration_ms': duration.inMilliseconds,
-        },
+    unawaited(
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          category: 'http',
+          message: '$method $endpoint',
+          level: statusCode != null && statusCode >= 400
+              ? SentryLevel.error
+              : SentryLevel.info,
+          data: {
+            'method': method,
+            'endpoint': endpoint,
+            'status_code': ?statusCode,
+            if (duration != null) 'duration_ms': duration.inMilliseconds,
+          },
+        ),
       ),
     );
   }
@@ -67,17 +75,19 @@ class SentryBreadcrumb {
     String? gateway,
     String? status,
   }) {
-    Sentry.addBreadcrumb(
-      Breadcrumb(
-        category: 'payment',
-        message: '$action for order $orderId',
-        level: SentryLevel.info,
-        data: {
-          'action': action,
-          'order_id': orderId,
-          'gateway': ?gateway,
-          'status': ?status,
-        },
+    unawaited(
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          category: 'payment',
+          message: '$action for order $orderId',
+          level: SentryLevel.info,
+          data: {
+            'action': action,
+            'order_id': orderId,
+            'gateway': ?gateway,
+            'status': ?status,
+          },
+        ),
       ),
     );
   }

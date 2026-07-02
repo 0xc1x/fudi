@@ -23,23 +23,28 @@ class HowItWorksScreen extends StatelessWidget {
           child: CircleAvatar(
             backgroundColor: FudiColors.muted.withValues(alpha: 0.5),
             child: FudiPressableScale(
-              onTap: () => context.go(RouteNames.landingPath),
+              onTap: () => context.pop(),
               child: Container(
                 width: 40,
                 height: 40,
-                decoration: const BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
-                child: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
+                decoration: const BoxDecoration(
+                  color: Colors.transparent,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.arrow_back,
+                  color: Colors.black,
+                  size: 20,
+                ),
               ),
             ),
           ),
         ),
-        title: const FudiLogo(size: FudiLogoSize.md),
+        title: const FudiLogo(),
         centerTitle: false,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [const _Hero(), const _Steps(), const _FAQ(), const _CTA()],
-        ),
+      body: const SingleChildScrollView(
+        child: Column(children: [_Hero(), _Steps(), _FAQ(), _CTA()]),
       ),
     );
   }
@@ -102,14 +107,14 @@ class _Steps extends StatelessWidget {
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1000),
-          child: Column(
+          child: const Column(
             children: [
               _StepRow(
                 number: '1',
                 title: 'Explora ofertas',
                 description:
                     'Busca restaurantes, panaderías y supermercados cerca de ti que tengan bolsas sorpresa disponibles. Filtra por categoría, distancia y horario de recogida.',
-                details: const [
+                details: [
                   'Usa el mapa para ver ofertas cercanas',
                   'Filtra por tipo de comida y precio',
                   'Lee las reseñas de otros usuarios',
@@ -118,13 +123,13 @@ class _Steps extends StatelessWidget {
                 emoji: '🔍',
                 isReversed: false,
               ),
-              const SizedBox(height: 100),
+              SizedBox(height: 100),
               _StepRow(
                 number: '2',
                 title: 'Reserva y paga',
                 description:
                     'Selecciona la bolsa sorpresa que más te guste y paga de forma segura desde la app. Tu reserva quedará confirmada al instante.',
-                details: const [
+                details: [
                   'Pago seguro con tarjeta o PayPal',
                   'Confirmación instantánea',
                   'Recibe un código QR para la recogida',
@@ -133,13 +138,13 @@ class _Steps extends StatelessWidget {
                 emoji: '💳',
                 isReversed: true,
               ),
-              const SizedBox(height: 100),
+              SizedBox(height: 100),
               _StepRow(
                 number: '3',
                 title: 'Recoge y disfruta',
                 description:
                     'Ve al comercio en el horario indicado, muestra tu código QR y recoge tu bolsa sorpresa. ¡Así de fácil!',
-                details: const [
+                details: [
                   'Muestra tu código QR en el comercio',
                   'Recoge tu pedido en minutos',
                   'Descubre qué sorpresas hay dentro',
@@ -279,13 +284,13 @@ class _FAQ extends StatelessWidget {
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 800),
-          child: Column(
+          child: const Column(
             children: [
-              const Text(
+              Text(
                 'Preguntas comunes',
                 style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 48),
+              SizedBox(height: 48),
               _FAQCard(
                 title: '¿Qué es una bolsa sorpresa?',
                 content:
@@ -385,7 +390,14 @@ class _CTA extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text('Crear cuenta gratis', style: TextStyle(color: FudiColors.primary, fontSize: 18, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Crear cuenta gratis',
+                style: TextStyle(
+                  color: FudiColors.primary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ],

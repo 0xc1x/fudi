@@ -108,6 +108,33 @@ class FudiColors {
   /// Input Background
   static const Color inputBackground = Color(0xFFFFFFFF);
 
+  /// Soft red background for destructive/delete actions — #FEE2E2
+  static const Color destructiveSurface = Color(0xFFFEE2E2);
+
+  /// Bright red for destructive icons and text — #EF4444
+  static const Color destructiveVibrant = Color(0xFFEF4444);
+
+  /// Muted slate surface for cancel buttons, badges — #F1F5F9
+  static const Color surfaceMuted = Color(0xFFF1F5F9);
+
+  /// Light slate page/appbar background — #F8FAFC
+  static const Color surfaceBackground = Color(0xFFF8FAFC);
+
+  /// Light green surface for success/stats cards — #DCFCE7
+  static const Color surfaceSuccess = Color(0xFFDCFCE7);
+
+  /// Border for success surfaces — #BBF7D0
+  static const Color surfaceSuccessBorder = Color(0xFFBBF7D0);
+
+  /// Dark green foreground for success surfaces — #15803D
+  static const Color successDark = Color(0xFF15803D);
+
+  /// Light yellow surface for warning/rating badges — #FEF9C3
+  static const Color surfaceWarning = Color(0xFFFEF9C3);
+
+  /// Soft red border for low stock / destructive states — #FCA5A5
+  static const Color destructiveBorder = Color(0xFFFCA5A5);
+
   // ─── Chart / Statistics Palette ───────────────────────────────
 
   static const Color chart1 = Color(0xFFbf1c19);

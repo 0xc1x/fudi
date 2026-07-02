@@ -1,0 +1,186 @@
+{
+  "version": "7.3",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "SELECT_BUSINESS": [
+      "SELECT_PRODUCT"
+    ],
+    "SELECT_PRODUCT": [
+      "CONFIRM_ALERT"
+    ],
+    "CONFIRM_ALERT": [],
+    "SUCCESS": []
+  },
+  "screens": [
+    {
+      "id": "SELECT_BUSINESS",
+      "title": "Seleccionar negocio",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "select_business_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "¿A qué negocio quieres seguirle la pista? Te avisaremos cuando tengan nuevas ofertas."
+              },
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Nombre del negocio",
+                "name": "business_name",
+                "input-type": "text"
+              },
+              {
+                "type": "SingleSelect",
+                "required": true,
+                "label": "Categoría",
+                "name": "category",
+                "options": [
+                  { "id": "all", "title": "Todas las categorías" },
+                  { "id": "bakery", "title": "Panadería" },
+                  { "id": "restaurant", "title": "Restaurante" },
+                  { "id": "cafe", "title": "Café" },
+                  { "id": "grocery", "title": "Mercado" },
+                  { "id": "pastry", "title": "Pastelería" }
+                ]
+              },
+              {
+                "type": "Footer",
+                "label": "Buscar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "SELECT_PRODUCT"
+                  },
+                  "payload": {
+                    "business_name": "${form.business_name}",
+                    "category": "${form.category}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "SELECT_PRODUCT",
+      "title": "Seleccionar producto",
+      "data": {
+        "business_name": { "type": "string" },
+        "category": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "select_product_form",
+            "children": [
+              {
+                "type": "TextBody",
+                "text": "¿Quieres recibir alertas para todos los productos de ${data.business_name} o solo para uno en específico?"
+              },
+              {
+                "type": "SingleSelect",
+                "required": true,
+                "label": "Tipo de alerta",
+                "name": "alert_scope",
+                "options": [
+                  { "id": "all_offers", "title": "Todos los productos" },
+                  { "id": "specific_product", "title": "Un producto específico" }
+                ]
+              },
+              {
+                "type": "TextInput",
+                "required": false,
+                "label": "Nombre del producto (si aplica)",
+                "name": "product_name",
+                "input-type": "text"
+              },
+              {
+                "type": "Footer",
+                "label": "Confirmar alerta",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "CONFIRM_ALERT"
+                  },
+                  "payload": {
+                    "business_name": "${data.business_name}",
+                    "category": "${data.category}",
+                    "alert_scope": "${form.alert_scope}",
+                    "product_name": "${form.product_name}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CONFIRM_ALERT",
+      "title": "Confirmar alerta",
+      "data": {
+        "business_name": { "type": "string" },
+        "category": { "type": "string" },
+        "alert_scope": { "type": "string" },
+        "product_name": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextBody",
+            "text": "Te avisaremos por WhatsApp cuando haya novedades de ${data.business_name}."
+          },
+          {
+            "type": "TextBody",
+            "text": "Tipo de alerta: ${data.alert_scope == 'all_offers' ? 'Todos los productos' : data.product_name}"
+          },
+          {
+            "type": "Footer",
+            "label": "Activar alerta",
+            "on-click-action": {
+              "name": "data_exchange",
+              "payload": {
+                "action": "subscribe_alert",
+                "business_name": "${data.business_name}",
+                "category": "${data.category}",
+                "alert_scope": "${data.alert_scope}",
+                "product_name": "${data.product_name}"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "SUCCESS",
+      "title": "Alerta activada",
+      "terminal": true,
+      "success": true,
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "¡Alerta activada!"
+          },
+          {
+            "type": "TextBody",
+            "text": "Te notificaremos cuando haya nuevas ofertas disponibles. Puedes desactivar esta alerta en cualquier momento desde tus preferencias."
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,438 @@
+{
+  "version": "7.3",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "WELCOME": [
+      "BUSINESS_NAME"
+    ],
+    "BUSINESS_NAME": [
+      "BUSINESS_TYPE"
+    ],
+    "BUSINESS_TYPE": [
+      "BUSINESS_ADDRESS"
+    ],
+    "BUSINESS_ADDRESS": [
+      "BUSINESS_PHONE"
+    ],
+    "BUSINESS_PHONE": [
+      "BUSINESS_HOURS"
+    ],
+    "BUSINESS_HOURS": [
+      "CONFIRM"
+    ],
+    "CONFIRM": [],
+    "SUCCESS": []
+  },
+  "screens": [
+    {
+      "id": "WELCOME",
+      "title": "Registrar negocio",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Bienvenido a Fudi"
+          },
+          {
+            "type": "TextBody",
+            "text": "Vamos a registrar tu negocio en Fudi para que empieces a vender tus excedentes de comida. Necesitaremos algunos datos básicos. Te tomará solo unos minutos."
+          },
+          {
+            "type": "Footer",
+            "label": "Comenzar",
+            "on-click-action": {
+              "name": "navigate",
+              "next": {
+                "type": "screen",
+                "name": "BUSINESS_NAME"
+              },
+              "payload": {}
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "BUSINESS_NAME",
+      "title": "Nombre del negocio",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "business_name_form",
+            "children": [
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Nombre del negocio",
+                "name": "name",
+                "input-type": "text"
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "BUSINESS_TYPE"
+                  },
+                  "payload": {
+                    "name": "${form.name}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "BUSINESS_TYPE",
+      "title": "Tipo de negocio",
+      "data": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "business_type_form",
+            "children": [
+              {
+                "type": "SingleSelect",
+                "required": true,
+                "label": "Categoría",
+                "name": "type",
+                "options": [
+                  {
+                    "id": "restaurant",
+                    "title": "Restaurante"
+                  },
+                  {
+                    "id": "cafe",
+                    "title": "Café"
+                  },
+                  {
+                    "id": "bakery",
+                    "title": "Panadería"
+                  },
+                  {
+                    "id": "pastry",
+                    "title": "Pastelería"
+                  },
+                  {
+                    "id": "grocery",
+                    "title": "Mercado"
+                  },
+                  {
+                    "id": "prepared_food",
+                    "title": "Comida Preparada"
+                  },
+                  {
+                    "id": "other",
+                    "title": "Otro"
+                  }
+                ]
+              },
+              {
+                "type": "TextInput",
+                "required": false,
+                "label": "Descripción del negocio",
+                "name": "description",
+                "input-type": "text"
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "BUSINESS_ADDRESS"
+                  },
+                  "payload": {
+                    "name": "${data.name}",
+                    "type": "${form.type}",
+                    "description": "${form.description}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "BUSINESS_ADDRESS",
+      "title": "Dirección",
+      "data": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "address_form",
+            "children": [
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Dirección",
+                "name": "address",
+                "input-type": "text"
+              },
+              {
+                "type": "TextInput",
+                "required": false,
+                "label": "Zona o barrio",
+                "name": "zone",
+                "input-type": "text"
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "BUSINESS_PHONE"
+                  },
+                  "payload": {
+                    "name": "${data.name}",
+                    "type": "${data.type}",
+                    "description": "${data.description}",
+                    "address": "${form.address}",
+                    "zone": "${form.zone}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "BUSINESS_PHONE",
+      "title": "Teléfono de contacto",
+      "data": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "description": { "type": "string" },
+        "address": { "type": "string" },
+        "zone": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "phone_form",
+            "children": [
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Teléfono",
+                "name": "phone",
+                "input-type": "phone"
+              },
+              {
+                "type": "TextInput",
+                "required": false,
+                "label": "Correo electrónico",
+                "name": "email",
+                "input-type": "email"
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "BUSINESS_HOURS"
+                  },
+                  "payload": {
+                    "name": "${data.name}",
+                    "type": "${data.type}",
+                    "description": "${data.description}",
+                    "address": "${data.address}",
+                    "zone": "${data.zone}",
+                    "phone": "${form.phone}",
+                    "email": "${form.email}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "BUSINESS_HOURS",
+      "title": "Horarios",
+      "data": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "description": { "type": "string" },
+        "address": { "type": "string" },
+        "zone": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextBody",
+            "text": "Configura tus horarios de atención para que los clientes sepan cuándo pueden recoger."
+          },
+          {
+            "type": "Form",
+            "name": "hours_form",
+            "children": [
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Horario entre semana (ej: 9:00 - 18:00)",
+                "name": "weekday_hours",
+                "input-type": "text"
+              },
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Horario sábado (ej: 10:00 - 14:00)",
+                "name": "saturday_hours",
+                "input-type": "text"
+              },
+              {
+                "type": "TextInput",
+                "required": true,
+                "label": "Horario domingo (ej: Cerrado)",
+                "name": "sunday_hours",
+                "input-type": "text"
+              },
+              {
+                "type": "Footer",
+                "label": "Revisar datos",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "CONFIRM"
+                  },
+                  "payload": {
+                    "name": "${data.name}",
+                    "type": "${data.type}",
+                    "description": "${data.description}",
+                    "address": "${data.address}",
+                    "zone": "${data.zone}",
+                    "phone": "${data.phone}",
+                    "email": "${data.email}",
+                    "weekday_hours": "${form.weekday_hours}",
+                    "saturday_hours": "${form.saturday_hours}",
+                    "sunday_hours": "${form.sunday_hours}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CONFIRM",
+      "title": "Confirmar datos",
+      "data": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "description": { "type": "string" },
+        "address": { "type": "string" },
+        "zone": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "weekday_hours": { "type": "string" },
+        "saturday_hours": { "type": "string" },
+        "sunday_hours": { "type": "string" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Revisa tus datos"
+          },
+          {
+            "type": "TextBody",
+            "text": "Nombre: ${data.name}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Tipo: ${data.type}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Dirección: ${data.address}, ${data.zone}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Teléfono: ${data.phone}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Horario: Lun-Vie ${data.weekday_hours}, Sáb ${data.saturday_hours}, Dom ${data.sunday_hours}"
+          },
+          {
+            "type": "Footer",
+            "label": "Confirmar y enviar",
+            "on-click-action": {
+              "name": "data_exchange",
+              "payload": {
+                "name": "${data.name}",
+                "type": "${data.type}",
+                "description": "${data.description}",
+                "address": "${data.address}",
+                "zone": "${data.zone}",
+                "phone": "${data.phone}",
+                "email": "${data.email}",
+                "weekday_hours": "${data.weekday_hours}",
+                "saturday_hours": "${data.saturday_hours}",
+                "sunday_hours": "${data.sunday_hours}"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "SUCCESS",
+      "title": "Registro completado",
+      "terminal": true,
+      "success": true,
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "¡Registro exitoso!"
+          },
+          {
+            "type": "TextBody",
+            "text": "Tu negocio ha sido registrado en Fudi. Nuestro equipo revisará la información y activará tu cuenta pronto. Recibirás una notificación cuando esté lista para publicar tus primeros productos."
+          }
+        ]
+      }
+    }
+  ]
+}

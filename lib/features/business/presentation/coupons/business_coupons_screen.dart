@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,14 +7,13 @@ import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
-import '../../../../core/ui/fudi_surface_card.dart';
 import '../../../../core/ui/fudi_typography.dart';
-import '../../../../core/ui/atoms/fudi_status_badge.dart';
 import '../../../../core/ui/atoms/fudi_stat_card.dart';
-import '../../../../core/ui/fudi_tips_card.dart';
 import '../../../orders/domain/coupon.dart';
+import '../../../../core/ui/fudi_tips_card.dart';
 import '../business_providers.dart';
 import '../components/no_business_prompt.dart';
+import 'coupon_components.dart';
 
 class BusinessCouponsScreen extends ConsumerWidget {
   const BusinessCouponsScreen({super.key});
@@ -23,8 +21,9 @@ class BusinessCouponsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final businessAsync = ref.watch(currentBusinessProvider);
+
     return Scaffold(
-      backgroundColor: FudiColors.muted,
+      backgroundColor: FudiColors.muted.withValues(alpha: 0.4),
       appBar: _AppBar(
         onCreate: () => context.push(RouteNames.businessCouponCreatePath),
       ),
@@ -33,88 +32,115 @@ class BusinessCouponsScreen extends ConsumerWidget {
           if (business == null) return const NoBusinessPrompt();
           final couponsAsync = ref.watch(businessCouponsProvider(business.id));
           return couponsAsync.when(
-            data: (coupons) => _Content(coupons: coupons),
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('$e')),
+            data: (coupons) => RefreshIndicator(
+              color: FudiColors.primary,
+              backgroundColor: Colors.white,
+              onRefresh: () async {
+                ref.invalidate(businessCouponsProvider(business.id));
+              },
+              child: _Content(coupons: coupons, businessId: business.id),
+            ),
+            loading: () => const CouponsLoadingSkeleton(),
+            error: (e, _) => BusinessCouponErrorState(
+              message: 'No pudimos cargar tus cupones de promoción.',
+              onRetry: () =>
+                  ref.invalidate(businessCouponsProvider(business.id)),
+            ),
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
+        loading: () => const CouponsLoadingSkeleton(),
+        error: (e, _) => BusinessCouponErrorState(
+          message: 'No pudimos verificar la identidad de tu negocio.',
+          onRetry: () => ref.invalidate(currentBusinessProvider),
+        ),
       ),
     );
   }
 }
+
+// ─── AppBar ──────────────────────────────────────────────────────────
 
 class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   const _AppBar({required this.onCreate});
   final VoidCallback onCreate;
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 8);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      leading: Padding(
-        padding: const EdgeInsets.only(left: FudiSpacing.sm),
-        child: FudiPressableScale(
-          onTap: () => context.pop(),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: FudiColors.muted,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(FudiIcons.chevronLeft, size: 20),
-          ),
-        ),
-      ),
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      centerTitle: false,
+      leadingWidth: 56,
+      leading: const BusinessCouponBackButton(),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Cupones de descuento', style: FudiTypography.h4),
-          Text('Gestiona tus promociones', style: FudiTypography.bodySmall),
+          Text(
+            'Cupones',
+            style: FudiTypography.h3.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 1),
+          Text(
+            'Gestiona tus ofertas y códigos',
+            style: FudiTypography.bodySmall.copyWith(
+              color: FudiColors.mutedForeground,
+            ),
+          ),
         ],
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(right: FudiSpacing.lg),
-          child: FudiPressableScale(
-            onTap: onCreate,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: FudiSpacing.lg,
-                vertical: FudiSpacing.sm,
-              ),
-              decoration: BoxDecoration(
-                color: FudiColors.primary,
-                borderRadius: BorderRadius.circular(FudiRadius.md),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(FudiIcons.plus, size: 16, color: Colors.white),
-                  SizedBox(width: FudiSpacing.xs),
-                  Text('Crear', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-                ],
+          padding: const EdgeInsets.only(right: FudiSpacing.xl),
+          child: Center(
+            child: Semantics(
+              label: 'Crear nuevo cupón',
+              button: true,
+              child: FudiPressableScale(
+                onTap: onCreate,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: FudiSpacing.lg,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: FudiColors.foreground,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(FudiIcons.plus, size: 14, color: Colors.white),
+                      const SizedBox(width: FudiSpacing.xs),
+                      Text(
+                        'Nuevo',
+                        style: FudiTypography.bodyMedium.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
         ),
       ],
-      backgroundColor: FudiColors.background,
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      scrolledUnderElevation: 1,
-      shadowColor: Colors.black12,
     );
   }
 }
 
+// ─── Content ─────────────────────────────────────────────────────────
+
 class _Content extends StatelessWidget {
-  const _Content({required this.coupons});
+  const _Content({required this.coupons, required this.businessId});
   final List<Coupon> coupons;
+  final String businessId;
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +148,11 @@ class _Content extends StatelessWidget {
     final totalUses = coupons.fold<int>(0, (s, c) => s + c.usedCount);
 
     return ListView(
-      padding: const EdgeInsets.all(FudiSpacing.lg),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(
+        horizontal: FudiSpacing.xl,
+        vertical: FudiSpacing.lg,
+      ),
       children: [
         Row(
           children: [
@@ -130,403 +160,58 @@ class _Content extends StatelessWidget {
               child: FudiStatCard(
                 label: 'Activos',
                 value: '$activeCount',
-                valueColor: FudiColors.primary,
-                backgroundColor: FudiColors.background,
-                border: Border.all(color: FudiColors.borderSolid),
-              ),
-            ),
-            const SizedBox(width: FudiSpacing.md),
-            Expanded(
-              child: FudiStatCard(
-                label: 'Usos totales',
-                value: '$totalUses',
-                valueColor: const Color(0xFF16A34A),
-                backgroundColor: FudiColors.background,
-                border: Border.all(color: FudiColors.borderSolid),
-              ),
-            ),
-            const SizedBox(width: FudiSpacing.md),
-            Expanded(
-              child: FudiStatCard(
-                label: 'Total',
-                value: '${coupons.length}',
-                valueColor: const Color(0xFFEA580C),
-                backgroundColor: FudiColors.background,
-                border: Border.all(color: FudiColors.borderSolid),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: FudiSpacing.lg),
-        if (coupons.isEmpty)
-          _EmptyCoupons(
-            onCreate: () => context.push(RouteNames.businessCouponCreatePath),
-          )
-        else
-          ...coupons.map((c) => _CouponCard(coupon: c)),
-        const SizedBox(height: FudiSpacing.lg),
-        FudiTipsCard(
-          title: 'Consejos para cupones',
-          tips: const [
-            'Usa códigos memorables y fáciles de compartir',
-            'Define límites de uso para controlar el presupuesto',
-            'Establece compras mínimas para mantener rentabilidad',
-            'Revisa regularmente los cupones expirados',
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _CouponCard extends ConsumerWidget {
-  const _CouponCard({required this.coupon});
-  final Coupon coupon;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: FudiSpacing.md),
-      child: FudiSurfaceCard(
-        padding: const EdgeInsets.all(FudiSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _CouponHeader(coupon: coupon)),
-                _CouponMenu(coupon: coupon),
-              ],
-            ),
-            const SizedBox(height: FudiSpacing.md),
-            _CouponDetails(coupon: coupon),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CouponHeader extends StatelessWidget {
-  const _CouponHeader({required this.coupon});
-  final Coupon coupon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: FudiSpacing.md,
-                vertical: FudiSpacing.xs,
-              ),
-              decoration: BoxDecoration(
-                color: FudiColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(FudiRadius.md),
-              ),
-              child: Text(
-                coupon.code,
-                style: FudiTypography.h3.copyWith(
-                  color: FudiColors.primary,
-                  letterSpacing: 1.5,
-                ),
+                valueColor: const Color(0xFF15803D),
+                backgroundColor: Colors.white,
               ),
             ),
             const SizedBox(width: FudiSpacing.sm),
-            _CouponStatusBadge(coupon: coupon),
+            Expanded(
+              child: FudiStatCard(
+                label: 'Usos Totales',
+                value: '$totalUses',
+                valueColor: FudiColors.primary,
+                backgroundColor: Colors.white,
+              ),
+            ),
+            const SizedBox(width: FudiSpacing.sm),
+            Expanded(
+              child: FudiStatCard(
+                label: 'Creados',
+                value: '${coupons.length}',
+                valueColor: FudiColors.foreground,
+                backgroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: FudiSpacing.xl),
+
+        if (coupons.isEmpty)
+          EmptyCouponsView(
+            onCreate: () => context.push(RouteNames.businessCouponCreatePath),
+          )
+        else ...[
+          Text(
+            'Historial de promociones',
+            style: FudiTypography.labelSmall.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: FudiSpacing.md),
+          ...coupons.map((c) => CouponCard(coupon: c)),
+        ],
+
+        const SizedBox(height: FudiSpacing.lg),
+        const FudiTipsCard(
+          title: 'Optimiza tus campañas',
+          tips: [
+            'Crea códigos cortos y directos (ej. "PROMOFUDI").',
+            'Configura un monto mínimo de compra para proteger tu margen neto.',
+            'Establece un límite de usos máximos para controlar presupuestos diarios.',
+            'Monitorea el rendimiento de tus cupones activos desde esta sección.',
           ],
         ),
       ],
     );
   }
 }
-
-(String, Color, Color) _couponBadgeConfig(Coupon c) {
-  if (c.isValid) {
-    return ('Activo', const Color(0xFFDCFCE7), const Color(0xFF15803D));
-  }
-  if (c.isExpired) {
-    return ('Expirado', const Color(0xFFFEE2E2), FudiColors.destructive);
-  }
-  if (c.isExhausted) {
-    return (
-      'Límite alcanzado',
-      const Color(0xFFFFEDD5),
-      const Color(0xFFC2410C),
-    );
-  }
-  return ('Inactivo', FudiColors.muted, FudiColors.mutedForeground);
-}
-
-class _CouponStatusBadge extends StatelessWidget {
-  const _CouponStatusBadge({required this.coupon});
-  final Coupon coupon;
-
-  @override
-  Widget build(BuildContext context) {
-    final (label, bg, fg) = _couponBadgeConfig(coupon);
-    return FudiStatusBadge(
-      label: label,
-      color: fg,
-      backgroundColor: bg,
-      size: FudiStatusBadgeSize.sm,
-    );
-  }
-}
-
-class _CouponDetails extends StatelessWidget {
-  const _CouponDetails({required this.coupon});
-  final Coupon coupon;
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 4,
-      mainAxisSpacing: FudiSpacing.sm,
-      children: [
-        _DetailRow(
-          icon: coupon.type == 'percentage'
-              ? Icons.percent_rounded
-              : Icons.attach_money_rounded,
-          text: coupon.type == 'percentage'
-              ? '${coupon.value.toStringAsFixed(0)}% descuento'
-              : '\$${coupon.value.toStringAsFixed(2)} descuento',
-        ),
-        if (coupon.minOrderAmount > 0)
-          _DetailRow(
-            icon: FudiIcons.tag,
-            text: 'Mín. \$${coupon.minOrderAmount.toStringAsFixed(0)}',
-          )
-        else
-          const SizedBox.shrink(),
-        _DetailRow(
-          icon: Icons.calendar_today,
-          text: coupon.expiresAt != null
-              ? _formatDate(coupon.expiresAt!)
-              : 'Sin expiración',
-        ),
-        _DetailRow(
-          icon: Icons.group_rounded,
-          text:
-              '${coupon.usedCount}${coupon.maxUses != null ? ' / ${coupon.maxUses}' : ''} usos',
-        ),
-      ],
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    const months = [
-      '',
-      'ene',
-      'feb',
-      'mar',
-      'abr',
-      'may',
-      'jun',
-      'jul',
-      'ago',
-      'sep',
-      'oct',
-      'nov',
-      'dic',
-    ];
-    return '${date.day} ${months[date.month]} ${date.year}';
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  const _DetailRow({required this.icon, required this.text});
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: FudiColors.primary),
-        const SizedBox(width: FudiSpacing.xs),
-        Expanded(
-          child: Text(
-            text,
-            style: FudiTypography.bodySmall,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _CouponMenu extends ConsumerWidget {
-  const _CouponMenu({required this.coupon});
-  final Coupon coupon;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return PopupMenuButton<String>(
-      onSelected: (value) async {
-        switch (value) {
-          case 'copy':
-            await Clipboard.setData(ClipboardData(text: coupon.code));
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Código "${coupon.code}" copiado'),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            }
-          case 'edit':
-            if (context.mounted) {
-              context.push('/business/coupons/edit/${coupon.id}');
-            }
-          case 'toggle':
-            await ref
-                .read(businessCouponRepositoryProvider)
-                .toggleCouponStatus(coupon.id, !coupon.isActive);
-            ref.invalidate(businessCouponsProvider(coupon.businessId));
-          case 'delete':
-            final confirmed = await showDialog<bool>(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                title: const Text('Eliminar cupón'),
-                content: Text(
-                  '¿Estás seguro de que deseas eliminar el cupón "${coupon.code}"?',
-                ),
-                actions: [
-                  FudiPressableScale(
-                    onTap: () => Navigator.of(ctx).pop(false),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      child: Text('Cancelar'),
-                    ),
-                  ),
-                  FudiPressableScale(
-                    onTap: () => Navigator.of(ctx).pop(true),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      child: Text(
-                        'Eliminar',
-                        style: TextStyle(color: FudiColors.destructive),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-            if (confirmed == true) {
-              await ref
-                  .read(businessCouponRepositoryProvider)
-                  .deleteCoupon(coupon.id);
-              ref.invalidate(businessCouponsProvider(coupon.businessId));
-            }
-        }
-      },
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(FudiRadius.lg),
-      ),
-      itemBuilder: (_) => [
-        PopupMenuItem(
-          value: 'edit',
-          child: Row(
-            children: [
-              Icon(Icons.edit_rounded, size: 18, color: FudiColors.primary),
-              const SizedBox(width: FudiSpacing.sm),
-              const Text('Editar'),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'copy',
-          child: Row(
-            children: [
-              Icon(Icons.copy_rounded, size: 18, color: FudiColors.primary),
-              const SizedBox(width: FudiSpacing.sm),
-              const Text('Copiar código'),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'toggle',
-          child: Row(
-            children: [
-              Icon(
-                coupon.isActive
-                    ? Icons.pause_circle_outline_rounded
-                    : Icons.play_circle_outline_rounded,
-                size: 18,
-                color: FudiColors.primary,
-              ),
-              const SizedBox(width: FudiSpacing.sm),
-              Text(coupon.isActive ? 'Desactivar' : 'Activar'),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'delete',
-          child: Row(
-            children: [
-              Icon(
-                Icons.delete_outline_rounded,
-                size: 18,
-                color: FudiColors.destructive,
-              ),
-              const SizedBox(width: FudiSpacing.sm),
-              Text('Eliminar', style: TextStyle(color: FudiColors.destructive)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _EmptyCoupons extends StatelessWidget {
-  const _EmptyCoupons({required this.onCreate});
-  final VoidCallback onCreate;
-
-  @override
-  Widget build(BuildContext context) {
-    return FudiSurfaceCard(
-      padding: const EdgeInsets.symmetric(
-        vertical: FudiSpacing.xxl * 2,
-        horizontal: FudiSpacing.xl,
-      ),
-      child: Column(
-        children: [
-          Icon(FudiIcons.tag, size: 48, color: FudiColors.mutedForeground),
-          const SizedBox(height: FudiSpacing.md),
-          Text(
-            'No hay cupones creados',
-            style: FudiTypography.bodyMedium.copyWith(
-              color: FudiColors.mutedForeground,
-            ),
-          ),
-          const SizedBox(height: FudiSpacing.lg),
-          FudiPressableScale(
-            onTap: onCreate,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: FudiSpacing.xl,
-                vertical: FudiSpacing.md,
-              ),
-              decoration: BoxDecoration(
-                color: FudiColors.primary,
-                borderRadius: BorderRadius.circular(FudiRadius.xl),
-              ),
-              child: const Text('Crear primer cupón', style: TextStyle(color: Colors.white)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-

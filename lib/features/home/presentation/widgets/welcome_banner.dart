@@ -11,7 +11,7 @@ import '../../../auth/domain/user_profile.dart';
 import '../../../auth/presentation/auth_state_provider.dart';
 import '../../../profile/domain/user_order.dart';
 import '../../../profile/presentation/profile_providers.dart';
-import '../welcome_message.dart';
+import '../../domain/welcome_data.dart';
 
 class WelcomeBanner extends ConsumerStatefulWidget {
   const WelcomeBanner({super.key});
@@ -50,7 +50,6 @@ class _WelcomeBannerState extends ConsumerState<WelcomeBanner> {
       ),
       height: bannerHeight,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             flex: 3,
@@ -125,11 +124,7 @@ class _StatCircle extends StatelessWidget {
                   color: FudiColors.secondary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  FudiIcons.leaf,
-                  size: 16,
-                  color: FudiColors.secondary,
-                ),
+                child: Icon(stat.icon, size: 16, color: FudiColors.secondary),
               ),
               const SizedBox(height: 2),
               Text(
@@ -183,12 +178,12 @@ class _StatCircle extends StatelessWidget {
 }
 
 class _StatInfo {
-  final IconData icon;
-  final String value;
-  final String label;
   const _StatInfo({
     required this.icon,
     required this.value,
     required this.label,
   });
+  final IconData icon;
+  final String value;
+  final String label;
 }

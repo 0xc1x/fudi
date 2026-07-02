@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -66,17 +67,19 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
   void initState() {
     super.initState();
     ref.listenManual(filteredOffersProvider, (_, next) {
-      next.whenOrNull(data: (offers) {
-        _lastOffers = offers;
-        if (_mapReady) {
-          _markersDirty = true;
-          _syncMarkers();
-          if (!_mapIdleFitted && offers.isNotEmpty) {
-            _mapIdleFitted = true;
-            _fitCameraToOffers(offers);
+      next.whenOrNull(
+        data: (offers) {
+          _lastOffers = offers;
+          if (_mapReady) {
+            _markersDirty = true;
+            _syncMarkers();
+            if (!_mapIdleFitted && offers.isNotEmpty) {
+              _mapIdleFitted = true;
+              _fitCameraToOffers(offers);
+            }
           }
-        }
-      });
+        },
+      );
     });
   }
 
@@ -103,7 +106,6 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
           icon:
               _markerCache['${offer.id}_$isSelected'] ??
               BitmapDescriptor.defaultMarker,
-          anchor: const Offset(0.5, 1.0),
           infoWindow: InfoWindow(
             title: offer.title,
             snippet: offer.business.name,
@@ -112,13 +114,14 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
       );
     }
     setState(() => _markers = newMarkers);
-    _generateMarkerIcons(offers);
+    unawaited(_generateMarkerIcons(offers));
   }
 
   @override
   Widget build(BuildContext context) {
     final offersAsync = ref.watch(filteredOffersProvider);
-    final hasOffers = offersAsync.whenOrNull(data: (o) => o.isNotEmpty) ?? false;
+    final hasOffers =
+        offersAsync.whenOrNull(data: (o) => o.isNotEmpty) ?? false;
 
     return Scaffold(
       body: Stack(
@@ -148,7 +151,7 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
             top: MediaQuery.of(context).padding.top + FudiSpacing.sm,
             left: FudiSpacing.lg,
             right: FudiSpacing.lg,
-            child:                 _MapHeader(
+            child: _MapHeader(
               filters: widget.filters,
               onBack: () {
                 if (widget.onBack != null) {
@@ -162,14 +165,16 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
                 currentFilters: widget.filters,
                 onApply: (f) {
                   widget.onFiltersChanged?.call(f);
-                  ref
-                      .read(filteredOffersProvider.notifier)
-                      .applyFilters(
-                        category: f.category,
-                        maxPrice: f.maxPrice,
-                        maxDistanceKm: f.maxDistanceKm,
-                        searchQuery: f.searchQuery,
-                      );
+                  unawaited(
+                    ref
+                        .read(filteredOffersProvider.notifier)
+                        .applyFilters(
+                          category: f.category,
+                          maxPrice: f.maxPrice,
+                          maxDistanceKm: f.maxDistanceKm,
+                          searchQuery: f.searchQuery,
+                        ),
+                  );
                 },
               ),
             ),
@@ -187,7 +192,6 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
             child: FudiCircleButton(
               onTap: _goToMyLocation,
               icon: Icons.my_location,
-              size: 40,
               iconSize: 24,
               backgroundColor: FudiColors.background,
               iconColor: FudiColors.primary,
@@ -297,9 +301,7 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
       northeast: LatLng(maxLat, maxLng!),
     );
 
-    _mapController!.animateCamera(
-      CameraUpdate.newLatLngBounds(bounds, 60),
-    );
+    unawaited(_mapController!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60)));
   }
 
   Future<void> _generateMarkerIcons(List<Offer> offers) async {
@@ -343,7 +345,6 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
           position: LatLng(offer.business.latitude!, offer.business.longitude!),
           onTap: () => _onMarkerTap(offer),
           icon: _markerCache[key] ?? BitmapDescriptor.defaultMarker,
-          anchor: const Offset(0.5, 1.0),
           infoWindow: InfoWindow(
             title: offer.title,
             snippet: offer.business.name,
@@ -373,9 +374,9 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
 
     final textWidth = textPainter.width;
     final pillWidth = textWidth + 20;
-    final pillHeight = 28.0;
-    final arrowHeight = 10.0;
-    final totalHeight = pillHeight + arrowHeight;
+    const pillHeight = 28.0;
+    const arrowHeight = 10.0;
+    const totalHeight = pillHeight + arrowHeight;
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
@@ -399,7 +400,7 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
     }
 
     final arrowPath = Path();
-    final arrowBaseY = pillHeight - 1;
+    const arrowBaseY = pillHeight - 1;
     arrowPath.moveTo(pillWidth / 2 - 6, arrowBaseY);
     arrowPath.lineTo(pillWidth / 2, arrowBaseY + arrowHeight);
     arrowPath.lineTo(pillWidth / 2 + 6, arrowBaseY);
@@ -442,22 +443,26 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
   }
 
   void _zoomIn() {
-    _mapController?.animateCamera(CameraUpdate.zoomIn());
+    unawaited(_mapController?.animateCamera(CameraUpdate.zoomIn()));
   }
 
   void _zoomOut() {
-    _mapController?.animateCamera(CameraUpdate.zoomOut());
+    unawaited(_mapController?.animateCamera(CameraUpdate.zoomOut()));
   }
 
   Future<void> _goToMyLocation() async {
     if (_mapController == null) return;
 
-    final cached = ref.read(userLocationProvider).whenOrNull(data: (pos) => pos);
+    final cached = ref
+        .read(userLocationProvider)
+        .whenOrNull(data: (pos) => pos);
     if (cached != null) {
-      _mapController!.animateCamera(
-        CameraUpdate.newLatLngZoom(
-          LatLng(cached.latitude, cached.longitude),
-          15,
+      unawaited(
+        _mapController!.animateCamera(
+          CameraUpdate.newLatLngZoom(
+            LatLng(cached.latitude, cached.longitude),
+            15,
+          ),
         ),
       );
       return;
@@ -471,10 +476,12 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
         ),
       );
       if (!mounted) return;
-      _mapController!.animateCamera(
-        CameraUpdate.newLatLngZoom(
-          LatLng(position.latitude, position.longitude),
-          15,
+      unawaited(
+        _mapController!.animateCamera(
+          CameraUpdate.newLatLngZoom(
+            LatLng(position.latitude, position.longitude),
+            15,
+          ),
         ),
       );
     } catch (_) {
@@ -530,7 +537,7 @@ class _MapHeader extends StatelessWidget {
             child: Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: FudiColors.muted,
                 shape: BoxShape.circle,
               ),
@@ -543,7 +550,10 @@ class _MapHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Mapa de ofertas', style: FudiTypography.labelMedium),
+                const Text(
+                  'Mapa de ofertas',
+                  style: FudiTypography.labelMedium,
+                ),
                 if (subtitle.isNotEmpty)
                   Text(
                     subtitle.join(' · '),
@@ -594,7 +604,7 @@ class _MapZoomControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: FudiColors.background,
         borderRadius: BorderRadius.circular(FudiRadius.lg),
@@ -609,7 +619,7 @@ class _MapZoomControls extends StatelessWidget {
       child: Column(
         children: [
           _ZoomButton(icon: FudiIcons.zoomIn, onTap: onZoomIn),
-          Divider(height: 1, color: FudiColors.borderSolid),
+          const Divider(height: 1, color: FudiColors.borderSolid),
           _ZoomButton(icon: FudiIcons.zoomOut, onTap: onZoomOut),
         ],
       ),
@@ -635,7 +645,6 @@ class _ZoomButton extends StatelessWidget {
     );
   }
 }
-
 
 class _SelectedOfferCard extends StatelessWidget {
   const _SelectedOfferCard({
@@ -761,10 +770,7 @@ class _SelectedOfferCard extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: const Icon(
-                            FudiIcons.x,
-                            size: 16,
-                          ),
+                          child: const Icon(FudiIcons.x, size: 16),
                         ),
                       ),
                     ),
@@ -816,7 +822,7 @@ class _SelectedOfferCard extends StatelessWidget {
                   // Business name + rating
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         FudiIcons.store,
                         size: 14,
                         color: FudiColors.mutedForeground,
@@ -834,7 +840,7 @@ class _SelectedOfferCard extends StatelessWidget {
                       ),
                       if (offer.rating > 0) ...[
                         const SizedBox(width: FudiSpacing.sm),
-                        Icon(
+                        const Icon(
                           FudiIcons.star,
                           size: 14,
                           color: FudiColors.warning,
@@ -855,7 +861,7 @@ class _SelectedOfferCard extends StatelessWidget {
                   // Pickup window
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         FudiIcons.clock,
                         size: 14,
                         color: FudiColors.accent,
@@ -968,7 +974,7 @@ class _MapLegend extends StatelessWidget {
             ),
           ),
           const SizedBox(width: FudiSpacing.sm),
-          Text('Ofertas disponibles', style: FudiTypography.bodySmall),
+          const Text('Ofertas disponibles', style: FudiTypography.bodySmall),
         ],
       ),
     );

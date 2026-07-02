@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../error/fudi_exception.dart';
@@ -16,16 +18,18 @@ class FudiErrorReporter {
     StackTrace? stackTrace,
     Map<String, dynamic>? extraContext,
   }) async {
-    Sentry.captureException(
-      exception,
-      stackTrace: stackTrace,
-      hint: Hint.withMap({'level': level}),
+    unawaited(
+      Sentry.captureException(
+        exception,
+        stackTrace: stackTrace,
+        hint: Hint.withMap({'level': level}),
+      ),
     );
 
     // Tag with the error code for searchability in Sentry
     if (exception.code != null) {
       Sentry.configureScope((scope) {
-        scope.setTag('error_code', exception.code!);
+        unawaited(scope.setTag('error_code', exception.code!));
       });
     }
   }
@@ -36,6 +40,6 @@ class FudiErrorReporter {
     SentryLevel level = SentryLevel.warning,
     String? category,
   }) async {
-    Sentry.captureMessage(message, level: level);
+    unawaited(Sentry.captureMessage(message, level: level));
   }
 }

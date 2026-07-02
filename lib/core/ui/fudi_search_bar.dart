@@ -52,7 +52,7 @@ class FudiSearchBar extends StatelessWidget {
                   child: Container(
                     width: 36,
                     height: 36,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: FudiColors.muted,
                       shape: BoxShape.circle,
                     ),

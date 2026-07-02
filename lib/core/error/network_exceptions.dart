@@ -1,9 +1,6 @@
 import 'fudi_exception.dart';
 
 sealed class NetworkException extends FudiException {
-  final int? statusCode;
-  final String? endpoint;
-
   const NetworkException({
     required super.message,
     super.code,
@@ -13,6 +10,8 @@ sealed class NetworkException extends FudiException {
     this.statusCode,
     this.endpoint,
   });
+  final int? statusCode;
+  final String? endpoint;
 }
 
 class ConnectionException extends NetworkException {

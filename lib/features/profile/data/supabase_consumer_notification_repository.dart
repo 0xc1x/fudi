@@ -34,7 +34,7 @@ class SupabaseConsumerNotificationRepository
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(
+      throw const UnknownDataException(
         message: 'Error al cargar preferencias de notificación',
       );
     }
@@ -66,7 +66,7 @@ class SupabaseConsumerNotificationRepository
     } on FudiException {
       rethrow;
     } catch (e) {
-      throw UnknownDataException(
+      throw const UnknownDataException(
         message: 'Error al guardar preferencias de notificación',
       );
     }
@@ -79,8 +79,7 @@ class SupabaseConsumerNotificationRepository
       smsEnabled: json['sms_enabled'] as bool? ?? false,
       whatsappEnabled: json['whatsapp_enabled'] as bool? ?? false,
       favoriteAlertsEnabled: json['favorite_alerts_enabled'] as bool? ?? true,
-      pickupRemindersEnabled:
-          json['pickup_reminders_enabled'] as bool? ?? true,
+      pickupRemindersEnabled: json['pickup_reminders_enabled'] as bool? ?? true,
       lastMinuteDealsEnabled:
           json['last_minute_deals_enabled'] as bool? ?? false,
       weeklySummaryEnabled: json['weekly_summary_enabled'] as bool? ?? true,

@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/ui/atoms/fudi_info_row.dart';
 import '../../../core/ui/atoms/fudi_status_badge.dart';
 import '../../../core/ui/atoms/pickup_code_qr.dart';
-import '../../../core/ui/atoms/fudi_info_row.dart';
-import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_bottom_action_bar.dart';
+import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_info_banner.dart';
 import '../../../core/ui/fudi_order_timeline.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_sticky_page_header.dart';
 import '../../../core/ui/fudi_surface_card.dart';
-import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../domain/order_model.dart';
 import '../domain/order_status.dart';
@@ -29,37 +29,86 @@ class OrderDetailScreen extends ConsumerWidget {
 
     return orderAsync.when(
       data: (order) => _OrderDetailContent(order: order),
-      loading: () =>
-          const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (error, _) => Scaffold(
-        appBar: AppBar(),
+      loading: () => const Scaffold(
+        backgroundColor: Colors.white,
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.error_outline,
-                size: 48,
-                color: FudiColors.destructive,
-              ),
-              const SizedBox(height: FudiSpacing.md),
-              Text(
-                'Error al cargar el pedido',
-                style: FudiTypography.bodyMedium,
-              ),
-              const SizedBox(height: FudiSpacing.md),
-              FudiPressableScale(
-                onTap: () => ref.invalidate(orderDetailProvider(id)),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          child: CircularProgressIndicator(
+            color: FudiColors.primary,
+            strokeWidth: 3,
+          ),
+        ),
+      ),
+      error: (error, _) => Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: FudiColors.foreground,
+              size: 20,
+            ),
+            onPressed: () => context.pop(),
+          ),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(FudiSpacing.xl),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(FudiSpacing.md),
                   decoration: BoxDecoration(
-                    color: FudiColors.primary,
-                    borderRadius: BorderRadius.circular(12),
+                    color: FudiColors.destructive.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
-                  child: const Text('Reintentar', style: TextStyle(color: Colors.white)),
+                  child: const Icon(
+                    Icons.error_outline_rounded,
+                    size: 40,
+                    color: FudiColors.destructive,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: FudiSpacing.lg),
+                Text(
+                  'No pudimos cargar los detalles',
+                  style: FudiTypography.h3.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: FudiSpacing.xs),
+                Text(
+                  'Por favor verifica tu conexión de red e inténtalo de nuevo.',
+                  style: FudiTypography.bodyMedium.copyWith(
+                    color: FudiColors.mutedForeground,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: FudiSpacing.xl),
+                FudiPressableScale(
+                  onTap: () => ref.invalidate(orderDetailProvider(id)),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: FudiColors.foreground,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Reintentar',
+                      style: FudiTypography.labelSmall.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -84,40 +133,48 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
     final isUpcoming = order.status.isActive;
 
     return Scaffold(
+      backgroundColor: FudiColors.background,
       appBar: FudiStickyPageHeader(
         title: 'Detalle del pedido',
         subtitle: order.orderNumber,
         actions: [FudiStatusBadge.fromOrderStatus(order.status)],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(FudiSpacing.lg),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(FudiSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (isUpcoming) ...[
               _PickupCodeCard(orderId: order.id, code: order.pickupCode),
-              const SizedBox(height: FudiSpacing.lg),
+              const SizedBox(height: FudiSpacing.md),
             ],
             _BusinessInfoCard(order: order),
-            const SizedBox(height: FudiSpacing.lg),
+            const SizedBox(height: FudiSpacing.md),
             _OrderItemsCard(order: order),
-            const SizedBox(height: FudiSpacing.lg),
+            const SizedBox(height: FudiSpacing.md),
             _PriceDetailsCard(order: order),
-            const SizedBox(height: FudiSpacing.lg),
-             _InstructionsCard(order: order),
-            const SizedBox(height: FudiSpacing.lg),
-            FudiOrderTimeline(order: order),
-            const SizedBox(height: FudiSpacing.lg),
+            const SizedBox(height: FudiSpacing.md),
+            _InstructionsCard(order: order),
+            const SizedBox(height: FudiSpacing.md),
+
+            FudiSurfaceCard(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: FudiSpacing.xs),
+                child: FudiOrderTimeline(order: order),
+              ),
+            ),
 
             if (order.status == OrderStatus.completed) ...[
+              const SizedBox(height: FudiSpacing.md),
               const FudiInfoBanner(
-                title: 'Tu opinión importa',
+                title: '¿Qué tal estuvo todo?',
                 message:
-                    'Cuéntanos cómo estuvo el producto y la experiencia con el negocio para ayudar a otros usuarios.',
-                icon: Icons.rate_review_outlined,
+                    'Tu opinión ayuda a la comunidad a rescatar deliciosa comida y apoya a locales cercanos.',
+                icon: Icons.chat_bubble_outline_rounded,
               ),
             ],
-            const SizedBox(height: FudiSpacing.xxl),
+            const SizedBox(height: 140),
           ],
         ),
       ),
@@ -130,16 +187,17 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
                     onTap: () {},
                     child: Container(
                       width: double.infinity,
-                      height: 56,
+                      height: 52,
                       decoration: BoxDecoration(
                         color: FudiColors.primary,
-                        borderRadius: BorderRadius.circular(FudiRadius.lg),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
                         child: Text(
                           'Volver a pedir',
                           style: FudiTypography.labelMedium.copyWith(
                             color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -150,15 +208,19 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
                     onTap: () => context.push('/review-order/${order.id}'),
                     child: Container(
                       width: double.infinity,
-                      height: 56,
+                      height: 52,
                       decoration: BoxDecoration(
-                        border: Border.all(color: FudiColors.primary),
-                        borderRadius: BorderRadius.circular(FudiRadius.lg),
+                        border: Border.all(color: FudiColors.border),
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.white,
                       ),
                       child: Center(
                         child: Text(
                           'Dejar reseña',
-                          style: FudiTypography.labelMedium.copyWith(color: FudiColors.primary),
+                          style: FudiTypography.labelMedium.copyWith(
+                            color: FudiColors.foreground,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -183,51 +245,66 @@ class _PickupCodeCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(FudiSpacing.lg),
+      padding: const EdgeInsets.all(FudiSpacing.xl),
       decoration: BoxDecoration(
-        color: FudiColors.background,
-        border: Border.all(color: FudiColors.primary, width: 2),
-        borderRadius: BorderRadius.circular(FudiRadius.xxl),
-        boxShadow: const [
+        color: Colors.white,
+        border: Border.all(
+          color: FudiColors.primary.withValues(alpha: 0.3),
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x0D000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
+            color: FudiColors.primary.withValues(alpha: 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         children: [
           Text(
-            'Código de recogida',
+            'CÓDIGO DE RECOGIDA',
             style: FudiTypography.labelSmall.copyWith(
               color: FudiColors.mutedForeground,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: FudiSpacing.md),
-          Container(
-            padding: const EdgeInsets.all(FudiSpacing.xl),
-            decoration: BoxDecoration(
-              color: FudiColors.muted,
-              borderRadius: BorderRadius.circular(FudiRadius.lg),
-            ),
-            child: PickupCodeQr(orderId: orderId, pickupCode: code),
-          ),
-          const SizedBox(height: FudiSpacing.md),
-          Text(
-            code,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 6,
-              color: FudiColors.primary,
+              letterSpacing: 1.2,
+              fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: FudiSpacing.xs),
           Text(
-            'Muestra este código al recoger tu pedido',
-            style: FudiTypography.bodySmall.copyWith(fontSize: 10),
+            code,
+            style: const TextStyle(
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 6,
+              color: FudiColors.primary,
+            ),
+          ),
+          const SizedBox(height: FudiSpacing.lg),
+          Container(
+            padding: const EdgeInsets.all(FudiSpacing.md),
+            decoration: BoxDecoration(
+              color: FudiColors.background,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: FudiColors.border, width: 0.5),
+            ),
+            child: SizedBox(
+              width: 250,
+              height: 250,
+              child: PickupCodeQr(
+                orderId: orderId,
+                pickupCode: code,
+                size: 250,
+              ),
+            ),
+          ),
+          const SizedBox(height: FudiSpacing.md),
+          Text(
+            'Presenta este código QR o el identificador de texto en el mostrador para retirar tu pack.',
+            style: FudiTypography.bodySmall.copyWith(
+              color: FudiColors.mutedForeground,
+              height: 1.4,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -247,27 +324,30 @@ class _BusinessInfoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(order.businessName, style: FudiTypography.h3),
-          const SizedBox(height: FudiSpacing.lg),
+          Text(
+            order.businessName,
+            style: FudiTypography.h4.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: FudiSpacing.md),
           if (order.businessAddress != null)
             FudiInfoRow(
-              icon: Icons.location_on,
+              icon: Icons.location_on_outlined,
               label: 'Dirección',
               text: order.businessAddress!,
             ),
           if (order.businessPhone != null) ...[
-            const SizedBox(height: FudiSpacing.md),
+            const SizedBox(height: FudiSpacing.sm),
             FudiInfoRow(
-              icon: Icons.phone,
+              icon: Icons.phone_outlined,
               label: 'Teléfono',
               text: order.businessPhone!,
             ),
           ],
           if (order.pickupTime != null) ...[
-            const SizedBox(height: FudiSpacing.md),
+            const SizedBox(height: FudiSpacing.sm),
             FudiInfoRow(
-              icon: Icons.schedule,
-              label: 'Horario de recogida',
+              icon: Icons.schedule_rounded,
+              label: 'Horario de entrega',
               text: _formatPickupTime(order.pickupTime!),
             ),
           ],
@@ -279,21 +359,26 @@ class _BusinessInfoCard extends StatelessWidget {
                   onTap: () =>
                       context.push('/business-profile/${order.businessId}'),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: FudiSpacing.md,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
-                      color: FudiColors.primary,
-                      borderRadius: BorderRadius.circular(FudiRadius.lg),
+                      color: FudiColors.foreground,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.store, size: 18, color: Colors.white),
-                        SizedBox(width: 6),
+                        const Icon(
+                          Icons.storefront_rounded,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 6),
                         Text(
-                          'Ver negocio',
-                          style: TextStyle(color: Colors.white),
+                          'Ver comercio',
+                          style: FudiTypography.bodyMedium.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -306,19 +391,28 @@ class _BusinessInfoCard extends StatelessWidget {
                   child: FudiPressableScale(
                     onTap: () {},
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: FudiSpacing.md,
-                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 11),
                       decoration: BoxDecoration(
-                        border: Border.all(color: FudiColors.primary),
-                        borderRadius: BorderRadius.circular(FudiRadius.lg),
+                        border: Border.all(color: FudiColors.border),
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.white,
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.directions, size: 18),
-                          SizedBox(width: 6),
-                          Text('Cómo llegar'),
+                          const Icon(
+                            Icons.near_me_outlined,
+                            size: 16,
+                            color: FudiColors.foreground,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Cómo llegar',
+                            style: FudiTypography.bodyMedium.copyWith(
+                              color: FudiColors.foreground,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -335,7 +429,7 @@ class _BusinessInfoCard extends StatelessWidget {
   String _formatPickupTime(DateTime dt) {
     final h = dt.hour.toString().padLeft(2, '0');
     final m = dt.minute.toString().padLeft(2, '0');
-    return '$h:$m';
+    return '$h:$m hs';
   }
 }
 
@@ -350,35 +444,43 @@ class _OrderItemsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.inventory_2_outlined,
-                size: 20,
-                color: FudiColors.primary,
-              ),
-              const SizedBox(width: FudiSpacing.sm),
-              Text('Contenido del pedido', style: FudiTypography.labelMedium),
-            ],
+          Text(
+            'Productos contratados',
+            style: FudiTypography.labelSmall.copyWith(
+              fontWeight: FontWeight.bold,
+              color: FudiColors.mutedForeground,
+            ),
           ),
-          const SizedBox(height: FudiSpacing.md),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '•',
-                style: TextStyle(color: FudiColors.primary, fontSize: 14),
-              ),
-              const SizedBox(width: FudiSpacing.sm),
-              Expanded(
-                child: Text(
-                  order.offerTitle,
+          const SizedBox(height: FudiSpacing.sm),
+          Container(
+            padding: const EdgeInsets.all(FudiSpacing.md),
+            decoration: BoxDecoration(
+              color: FudiColors.background,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: FudiColors.border, width: 0.5),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '1x',
                   style: FudiTypography.bodyMedium.copyWith(
-                    color: FudiColors.mutedForeground,
+                    fontWeight: FontWeight.bold,
+                    color: FudiColors.primary,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: FudiSpacing.md),
+                Expanded(
+                  child: Text(
+                    order.offerTitle,
+                    style: FudiTypography.bodyMedium.copyWith(
+                      color: FudiColors.foreground,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -393,17 +495,24 @@ class _PriceDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const ecoGreen = Color(0xFF16A34A);
     return FudiSurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Detalles del precio', style: FudiTypography.labelMedium),
-          const SizedBox(height: FudiSpacing.lg),
+          Text(
+            'Resumen económico',
+            style: FudiTypography.labelSmall.copyWith(
+              fontWeight: FontWeight.bold,
+              color: FudiColors.mutedForeground,
+            ),
+          ),
+          const SizedBox(height: FudiSpacing.md),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Precio original',
+                'Precio original establecido',
                 style: FudiTypography.bodyMedium.copyWith(
                   color: FudiColors.mutedForeground,
                 ),
@@ -422,33 +531,34 @@ class _PriceDetailsCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Descuento',
-                style: FudiTypography.bodyMedium.copyWith(
-                  color: const Color(0xFF16A34A),
-                  fontWeight: FontWeight.w500,
-                ),
+                'Descuento circular aplicado',
+                style: FudiTypography.bodyMedium.copyWith(color: ecoGreen),
               ),
               Text(
                 '-\$${order.discount.toStringAsFixed(2)}',
                 style: FudiTypography.bodyMedium.copyWith(
-                  color: const Color(0xFF16A34A),
-                  fontWeight: FontWeight.w500,
+                  color: ecoGreen,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: FudiSpacing.md),
-          const Divider(),
           const SizedBox(height: FudiSpacing.sm),
+          const Divider(color: FudiColors.border, thickness: 0.5),
+          const SizedBox(height: FudiSpacing.xs),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Total pagado', style: FudiTypography.labelMedium),
+              Text(
+                'Monto total abonado',
+                style: FudiTypography.bodyMedium.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               Text(
                 '\$${order.price.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
+                style: FudiTypography.h3.copyWith(
+                  fontWeight: FontWeight.bold,
                   color: FudiColors.primary,
                 ),
               ),
@@ -459,16 +569,24 @@ class _PriceDetailsCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(FudiSpacing.md),
             decoration: BoxDecoration(
-              color: const Color(0xFFF0FDF4),
-              border: Border.all(color: const Color(0xFFBBF7D0)),
-              borderRadius: BorderRadius.circular(FudiRadius.lg),
+              color: ecoGreen.withValues(alpha: 0.05),
+              border: Border.all(color: ecoGreen.withValues(alpha: 0.15)),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(
-              'Has ahorrado \$${order.discount.toStringAsFixed(2)} y evitado el desperdicio de alimentos',
-              style: FudiTypography.bodySmall.copyWith(
-                color: const Color(0xFF166534),
-              ),
-              textAlign: TextAlign.center,
+            child: Row(
+              children: [
+                const Icon(Icons.eco_rounded, size: 18, color: ecoGreen),
+                const SizedBox(width: FudiSpacing.sm),
+                Expanded(
+                  child: Text(
+                    'Evitaste el desperdicio de alimentos y ahorraste \$${order.discount.toStringAsFixed(2)}.',
+                    style: FudiTypography.bodySmall.copyWith(
+                      color: ecoGreen,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -484,29 +602,42 @@ class _InstructionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCompleted = order.status == OrderStatus.completed;
+    const ecoGreen = Color(0xFF16A34A);
+
     return FudiSurfaceCard(
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.chat_bubble_outline,
-                size: 20,
-                color: FudiColors.primary,
-              ),
-              const SizedBox(width: FudiSpacing.sm),
-              Text('Instrucciones', style: FudiTypography.labelMedium),
-            ],
+          Icon(
+            isCompleted
+                ? Icons.check_circle_outline_rounded
+                : Icons.info_outline_rounded,
+            size: 20,
+            color: isCompleted ? ecoGreen : FudiColors.primary,
           ),
-          const SizedBox(height: FudiSpacing.md),
-          Text(
-            order.status == OrderStatus.completed
-                ? 'Recogida completada exitosamente'
-                : 'Por favor, preséntate con tu código de reserva. El pedido estará listo en el mostrador principal.',
-            style: FudiTypography.bodyMedium.copyWith(
-              color: FudiColors.mutedForeground,
-              height: 1.5,
+          const SizedBox(width: FudiSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isCompleted ? 'Entrega completada' : 'Pasos para retirar',
+                  style: FudiTypography.bodyMedium.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  isCompleted
+                      ? 'Este bolso de comida fue entregado y validado de manera exitosa.'
+                      : 'Acércate al local comercial dentro del rango horario indicado. Menciona que vienes de parte de Fudi y presenta tu pantalla.',
+                  style: FudiTypography.bodyMedium.copyWith(
+                    color: FudiColors.mutedForeground,
+                    height: 1.4,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -514,5 +645,3 @@ class _InstructionsCard extends StatelessWidget {
     );
   }
 }
-
-

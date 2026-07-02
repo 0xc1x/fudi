@@ -29,7 +29,7 @@ class FudiSettingsItem extends StatelessWidget {
             Icon(icon, size: 20, color: FudiColors.mutedForeground),
             const SizedBox(width: FudiSpacing.md),
             Expanded(child: Text(label, style: FudiTypography.labelSmall)),
-            Icon(
+            const Icon(
               FudiIcons.chevronRight,
               size: 20,
               color: FudiColors.mutedForeground,
