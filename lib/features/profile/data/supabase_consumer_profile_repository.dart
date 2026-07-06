@@ -228,7 +228,7 @@ class SupabaseConsumerProfileRepository {
     return ConsumerPreferences(
       notificationRadiusKm: response?['notification_radius_km'] as int? ?? 5,
       language: response?['language'] as String? ?? 'es',
-      darkMode: response?['dark_mode'] as bool? ?? false,
+      themeMode: response?['theme_mode'] as String? ?? 'system',
       favoriteCategories:
           (response?['favorite_categories'] as List<dynamic>? ?? [])
               .map((item) => item.toString())
@@ -244,7 +244,7 @@ class SupabaseConsumerProfileRepository {
       'user_id': userId,
       'notification_radius_km': preferences.notificationRadiusKm,
       'language': preferences.language,
-      'dark_mode': preferences.darkMode,
+      'theme_mode': preferences.themeMode,
       'favorite_categories': preferences.favoriteCategories,
     }, onConflict: 'user_id');
   }

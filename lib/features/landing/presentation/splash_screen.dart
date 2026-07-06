@@ -108,7 +108,7 @@ class _PositionedPattern extends StatelessWidget {
           child: FudiLogo(
             variant: FudiLogoVariant.icon,
             width: data.size,
-            color: Colors.white,
+            color: FudiColors.primaryForeground,
           ),
         ),
       ),

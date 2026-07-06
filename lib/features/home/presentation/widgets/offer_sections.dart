@@ -53,18 +53,20 @@ class DealCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mutedColor = isDark ? const Color(0xFF2D4142) : FudiColors.muted;
     return Shimmer.fromColors(
-      baseColor: FudiColors.muted,
-      highlightColor: Colors.white,
+      baseColor: mutedColor,
+      highlightColor: isDark ? const Color(0xFF4A4A4A) : Colors.white,
       child: Material(
-        color: FudiColors.muted,
+        color: mutedColor,
         borderRadius: BorderRadius.circular(FudiRadius.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(height: 200, color: FudiColors.muted),
-            const Padding(
-              padding: EdgeInsets.all(FudiSpacing.md),
+            Container(height: 200, color: mutedColor),
+            Padding(
+              padding: const EdgeInsets.all(FudiSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -72,33 +74,33 @@ class DealCardSkeleton extends StatelessWidget {
                     height: 14,
                     width: 160,
                     child: DecoratedBox(
-                      decoration: BoxDecoration(color: FudiColors.muted),
+                      decoration: BoxDecoration(color: mutedColor),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   SizedBox(
                     height: 10,
                     width: 100,
                     child: DecoratedBox(
-                      decoration: BoxDecoration(color: FudiColors.muted),
+                      decoration: BoxDecoration(color: mutedColor),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   SizedBox(
                     height: 10,
                     width: 200,
                     child: DecoratedBox(
-                      decoration: BoxDecoration(color: FudiColors.muted),
+                      decoration: BoxDecoration(color: mutedColor),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   SizedBox(
                     height: 1,
                     child: DecoratedBox(
-                      decoration: BoxDecoration(color: FudiColors.muted),
+                      decoration: BoxDecoration(color: mutedColor),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -106,14 +108,14 @@ class DealCardSkeleton extends StatelessWidget {
                         height: 14,
                         width: 80,
                         child: DecoratedBox(
-                          decoration: BoxDecoration(color: FudiColors.muted),
+                          decoration: BoxDecoration(color: mutedColor),
                         ),
                       ),
                       SizedBox(
                         height: 32,
                         width: 90,
                         child: DecoratedBox(
-                          decoration: BoxDecoration(color: FudiColors.muted),
+                          decoration: BoxDecoration(color: mutedColor),
                         ),
                       ),
                     ],

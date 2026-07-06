@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../features/auth/presentation/auth_state_provider.dart';
@@ -63,4 +64,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 /// FlutterSecureStorage for cache storage.
 final offlineAwareRepositoryProvider = Provider<OfflineAwareRepository>((ref) {
   return OfflineAwareRepository(connectivity: InternetConnection());
+});
+
+/// Provider for SharedPreferences. Must be overridden in main.dart.
+final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  throw UnimplementedError();
 });

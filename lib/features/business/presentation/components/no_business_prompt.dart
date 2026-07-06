@@ -54,7 +54,7 @@ class NoBusinessPrompt extends ConsumerWidget {
                     context.pushNamed(RouteNames.businessLocationCreate),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: FudiColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: FudiColors.primaryForeground,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -93,7 +93,7 @@ class NoBusinessPrompt extends ConsumerWidget {
                             color: FudiColors.destructive,
                             borderRadius: BorderRadius.circular(100),
                           ),
-                          child: const Text('Cerrar sesión', style: TextStyle(color: Colors.white)),
+                          child: const Text('Cerrar sesión', style: TextStyle(color: FudiColors.primaryForeground)),
                         ),
                       ),
                     ],

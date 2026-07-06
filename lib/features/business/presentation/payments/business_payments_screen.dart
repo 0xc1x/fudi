@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
@@ -29,8 +30,11 @@ class _BusinessPaymentsScreenState
   @override
   Widget build(BuildContext context) {
     final businessAsync = ref.watch(currentBusinessProvider);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: FudiColors.background,
+      backgroundColor: colorScheme.surface,
       appBar: const _AppBar(),
       body: businessAsync.when(
         data: (business) {
@@ -74,21 +78,22 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return AppBar(
       leading: Padding(
         padding: const EdgeInsets.only(left: FudiSpacing.sm),
         child: FudiPressableScale(
           onTap: () => context.pop(),
-          child: const Center(
+          child: Center(
             child: Icon(
               FudiIcons.chevronLeft,
               size: 20,
-              color: FudiColors.foreground,
+              color: colorScheme.onSurface,
             ),
           ),
         ),
       ),
-      title: const Column(
+      title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -96,20 +101,20 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: FudiColors.foreground,
+              color: colorScheme.onSurface,
             ),
           ),
           Text(
             'Historial financiero del comercio',
-            style: TextStyle(fontSize: 11, color: FudiColors.mutedForeground),
+            style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
           ),
         ],
       ),
-      backgroundColor: FudiColors.background,
+      backgroundColor: colorScheme.surface,
       elevation: 0,
       scrolledUnderElevation: 0,
-      shape: const Border(
-        bottom: BorderSide(color: FudiColors.borderSolid),
+      shape: Border(
+        bottom: BorderSide(color: colorScheme.outlineVariant),
       ),
     );
   }
@@ -164,8 +169,8 @@ class _Content extends StatelessWidget {
                 label: 'Total cobrado',
                 value: paid,
                 subtitle: '$paidCount transferencias',
-                color: const Color(0xFFF0FDF4),
-                textColor: const Color(0xFF15803D),
+                color: FudiColors.surfaceSuccess,
+                textColor: FudiColors.successDark,
               ),
             ),
             const SizedBox(width: FudiSpacing.sm),
@@ -174,8 +179,8 @@ class _Content extends StatelessWidget {
                 label: 'Por procesar',
                 value: pending,
                 subtitle: 'Corte automático en 3d',
-                color: const Color(0xFFEFF6FF),
-                textColor: const Color(0xFF1D4ED8),
+                color: FudiColors.infoSurface,
+                textColor: FudiColors.infoForeground,
               ),
             ),
           ],
@@ -268,6 +273,7 @@ class _PaymentMethodCard extends StatelessWidget {
   const _PaymentMethodCard();
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return FudiSurfaceCard(
       child: Row(
         children: [
@@ -275,14 +281,14 @@ class _PaymentMethodCard extends StatelessWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: FudiColors.foreground,
+              color: colorScheme.onSurface,
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Center(
               child: Text(
                 'BP',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: FudiColors.primaryForeground,
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
                 ),
@@ -290,11 +296,11 @@ class _PaymentMethodCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: FudiSpacing.md),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Banco del Pacífico',
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                 ),
@@ -302,7 +308,7 @@ class _PaymentMethodCard extends StatelessWidget {
                   'Cuenta corriente •••• 4532',
                   style: TextStyle(
                     fontSize: 11,
-                    color: FudiColors.mutedForeground,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -331,30 +337,39 @@ class _FilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       children: [
         _buildChip(
           'Todos',
           filter == _PayoutFilter.all,
           () => onSelected(_PayoutFilter.all),
+          colorScheme,
         ),
         const SizedBox(width: FudiSpacing.xs),
         _buildChip(
           'Completados',
           filter == _PayoutFilter.completed,
           () => onSelected(_PayoutFilter.completed),
+          colorScheme,
         ),
         const SizedBox(width: FudiSpacing.xs),
         _buildChip(
           'En proceso',
           filter == _PayoutFilter.processing,
           () => onSelected(_PayoutFilter.processing),
+          colorScheme,
         ),
       ],
     );
   }
 
-  Widget _buildChip(String label, bool isSelected, VoidCallback onTap) {
+  Widget _buildChip(
+    String label,
+    bool isSelected,
+    VoidCallback onTap,
+    ColorScheme colorScheme,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -364,10 +379,10 @@ class _FilterBar extends StatelessWidget {
           vertical: 6,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? FudiColors.foreground : Colors.transparent,
+          color: isSelected ? colorScheme.onSurface : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? FudiColors.foreground : FudiColors.borderSolid,
+            color: isSelected ? colorScheme.onSurface : colorScheme.outlineVariant,
           ),
         ),
         child: Text(
@@ -375,7 +390,7 @@ class _FilterBar extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            color: isSelected ? Colors.white : FudiColors.mutedForeground,
+            color: isSelected ? FudiColors.primaryForeground : colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -389,6 +404,7 @@ class _PayoutCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: FudiSpacing.xs),
       child: FudiSurfaceCard(
@@ -420,18 +436,18 @@ class _PayoutCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       _periodLabel(payout),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
-                        color: FudiColors.mutedForeground,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(
+              Icon(
                 FudiIcons.chevronRight,
                 size: 16,
-                color: FudiColors.mutedForeground,
+                color: colorScheme.onSurfaceVariant,
               ),
             ],
           ),
@@ -466,27 +482,30 @@ class _CycleInfoCard extends StatelessWidget {
   const _CycleInfoCard();
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final themeExt = Theme.of(context).extension<FudiThemeExtension>();
+    final mutedBg = themeExt?.mutedBackground ?? FudiColors.muted;
     return Container(
       padding: const EdgeInsets.all(FudiSpacing.md),
       decoration: BoxDecoration(
-        color: FudiColors.muted.withValues(alpha: 0.4),
+        color: mutedBg.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
             Icons.info_outline_rounded,
             size: 16,
-            color: FudiColors.mutedForeground,
+            color: colorScheme.onSurfaceVariant,
           ),
-          SizedBox(width: FudiSpacing.sm),
+          const SizedBox(width: FudiSpacing.sm),
           Expanded(
             child: Text(
               'Ciclo automático: Transferencias directas quincenales (días 5 y 20). Los depósitos toman de 48 a 72 horas hábiles.',
               style: TextStyle(
                 fontSize: 11,
-                color: FudiColors.mutedForeground,
+                color: colorScheme.onSurfaceVariant,
                 height: 1.3,
               ),
             ),

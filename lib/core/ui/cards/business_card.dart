@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_theme.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
@@ -72,6 +73,9 @@ class _BusinessCardState extends State<BusinessCard>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
+
     return AnimatedBuilder(
       animation: _pressScale,
       builder: (context, child) =>
@@ -83,17 +87,11 @@ class _BusinessCardState extends State<BusinessCard>
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
-            color: FudiColors.card,
+            color: themeExt?.cardBg ?? theme.cardTheme.color ?? theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(FudiRadius.sm),
-            // border: Border.all(
-            //   color: FudiColors.foreground.withValues(
-            //     alpha: _isPressed ? 0.32 : 0.24,
-            //   ),
-            //   width: 1,
-            // ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: _isPressed ? 0.04 : 0.08),
+                color: themeExt?.surfaceShadow ?? FudiColors.foreground.withValues(alpha: 0.08),
                 blurRadius: _isPressed ? 4 : 16,
                 spreadRadius: _isPressed ? 0 : -2,
                 offset: Offset(0, _isPressed ? 1 : 6),
@@ -114,6 +112,10 @@ class _BusinessCardState extends State<BusinessCard>
   }
 
   Widget _buildImage() {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
+    final resolvedMutedBg = themeExt?.mutedBackground ?? theme.colorScheme.surfaceContainerLow;
+
     return Stack(
       children: [
         CachedNetworkImage(
@@ -122,17 +124,17 @@ class _BusinessCardState extends State<BusinessCard>
           width: double.infinity,
           fit: BoxFit.cover,
           placeholder: (context, url) => Shimmer.fromColors(
-            baseColor: FudiColors.muted,
-            highlightColor: Colors.white.withValues(alpha: 0.6),
-            child: Container(height: 140, color: FudiColors.muted),
+            baseColor: resolvedMutedBg,
+            highlightColor: theme.colorScheme.surface.withValues(alpha: 0.6),
+            child: Container(height: 140, color: resolvedMutedBg),
           ),
           errorWidget: (context, url, error) => Container(
             height: 140,
-            color: FudiColors.muted,
-            child: const Center(
+            color: resolvedMutedBg,
+            child: Center(
               child: Icon(
                 FudiIcons.imageOff,
-                color: FudiColors.mutedForeground,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ),
@@ -157,6 +159,7 @@ class _BusinessCardState extends State<BusinessCard>
   }
 
   Widget _buildContent() {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -177,7 +180,7 @@ class _BusinessCardState extends State<BusinessCard>
           Text(
             widget.type.toUpperCase(),
             style: FudiTypography.bodySmall.copyWith(
-              color: FudiColors.mutedForeground,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               fontSize: 12,
               fontWeight: FontWeight.w500,
               letterSpacing: 0.5,
@@ -198,14 +201,15 @@ class _RatingBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return _Pill(
       children: [
         const Icon(Icons.star_rounded, color: FudiColors.green, size: 14),
         const SizedBox(width: 3),
         Text(
           rating.toStringAsFixed(1),
-          style: const TextStyle(
-            color: FudiColors.foreground,
+          style: TextStyle(
+            color: theme.colorScheme.onSurface,
             fontSize: 12,
             fontWeight: FontWeight.w700,
           ),
@@ -222,18 +226,19 @@ class _DistanceBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return _Pill(
       children: [
         Icon(
           FudiIcons.mapPin,
           size: 12,
-          color: FudiColors.foreground.withValues(alpha: 0.7),
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
         ),
         const SizedBox(width: 3),
         Text(
           distance,
           style: TextStyle(
-            color: FudiColors.foreground.withValues(alpha: 0.8),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
@@ -250,14 +255,16 @@ class _Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.92),
+        color: theme.colorScheme.surface.withValues(alpha: 0.92),
         borderRadius: BorderRadius.circular(FudiRadius.sm),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: themeExt?.surfaceShadow ?? FudiColors.foreground.withValues(alpha: 0.08),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
@@ -275,12 +282,16 @@ class BusinessCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
+    final resolvedMutedBg = themeExt?.mutedBackground ?? theme.colorScheme.surfaceContainerLow;
+
     return Shimmer.fromColors(
-      baseColor: FudiColors.muted,
-      highlightColor: Colors.white,
+      baseColor: resolvedMutedBg,
+      highlightColor: theme.colorScheme.surface,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: FudiColors.muted,
+          color: resolvedMutedBg,
           borderRadius: BorderRadius.circular(FudiRadius.sm),
         ),
         child: Column(
@@ -291,7 +302,7 @@ class BusinessCardSkeleton extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(FudiRadius.sm),
               ),
-              child: Container(height: 140, color: FudiColors.muted),
+              child: Container(height: 140, color: resolvedMutedBg),
             ),
             Padding(
               padding: const EdgeInsets.all(12),
@@ -299,9 +310,9 @@ class BusinessCardSkeleton extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(height: 16, width: 140, color: FudiColors.muted),
+                  Container(height: 16, width: 140, color: resolvedMutedBg),
                   const SizedBox(height: 8),
-                  Container(height: 10, width: 80, color: FudiColors.muted),
+                  Container(height: 10, width: 80, color: resolvedMutedBg),
                 ],
               ),
             ),

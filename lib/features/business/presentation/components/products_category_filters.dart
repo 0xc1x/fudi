@@ -54,6 +54,7 @@ class _CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -63,17 +64,17 @@ class _CategoryChip extends StatelessWidget {
           vertical: 8,
         ),
         decoration: BoxDecoration(
-          color: selected ? FudiColors.primary : FudiColors.background,
+          color: selected ? FudiColors.primary : colorScheme.surface,
           borderRadius: BorderRadius.circular(FudiRadius.xl),
           border: Border.all(
-            color: selected ? FudiColors.primary : FudiColors.borderSolid,
+            color: selected ? FudiColors.primary : colorScheme.outlineVariant,
           ),
         ),
         child: Text(
           label,
           style: FudiTypography.bodySmall.copyWith(
             fontWeight: FontWeight.w500,
-            color: selected ? Colors.white : FudiColors.foreground,
+            color: selected ? FudiColors.primaryForeground : colorScheme.onSurface,
           ),
         ),
       ),

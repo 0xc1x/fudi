@@ -37,9 +37,10 @@ class FudiStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedValueColor = valueColor ?? FudiColors.primary;
+    final theme = Theme.of(context);
+    final resolvedValueColor = valueColor ?? theme.colorScheme.primary;
     final resolvedLabelColor =
-        labelColor ?? FudiColors.primary.withValues(alpha: 0.6);
+        labelColor ?? theme.colorScheme.primary.withValues(alpha: 0.6);
 
     final child = Column(
       mainAxisSize: MainAxisSize.min,
@@ -77,10 +78,14 @@ class FudiStatCard extends StatelessWidget {
       );
     }
 
+    final defaultBgColor = theme.brightness == Brightness.dark
+        ? theme.colorScheme.onSurface.withValues(alpha: 0.1)
+        : FudiColors.primaryForeground.withValues(alpha: 0.2);
+
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: backgroundColor ?? Colors.white.withValues(alpha: 0.2),
+        color: backgroundColor ?? defaultBgColor,
         borderRadius: BorderRadius.circular(borderRadius ?? FudiRadius.xl),
         border: border,
       ),

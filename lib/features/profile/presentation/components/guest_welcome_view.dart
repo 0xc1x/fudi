@@ -71,9 +71,9 @@ class GuestWelcomeView extends StatelessWidget {
                       child: Text(
                         'Iniciar sesión',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        color: FudiColors.primaryForeground,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -133,7 +133,7 @@ class BenefitCard extends StatelessWidget {
         border: Border.all(color: FudiColors.borderSolid),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: FudiColors.foreground.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

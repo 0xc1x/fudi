@@ -22,7 +22,7 @@ class ProfileSignOutButton extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.all(FudiSpacing.md),
         decoration: BoxDecoration(
-          color: FudiColors.background,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(FudiRadius.xl),
           border: Border.all(color: FudiColors.borderSolid),
         ),

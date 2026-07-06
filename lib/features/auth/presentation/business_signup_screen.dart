@@ -7,6 +7,7 @@ import '../../../core/routing/route_names.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/fudi_exception_l10n.dart';
 import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_theme.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_logo.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
@@ -93,43 +94,55 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
     required Widget prefixIcon,
     Widget? suffixIcon,
   }) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
+
     return InputDecoration(
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
       hintText: hintText,
-      hintStyle: const TextStyle(
-        color: FudiColors.mutedForeground,
+      hintStyle: TextStyle(
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
         fontSize: 14,
       ),
       filled: true,
-      fillColor: FudiColors.background,
+      fillColor: themeExt?.mutedBackground ?? theme.colorScheme.surfaceContainerLow,
       contentPadding: const EdgeInsets.symmetric(vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: FudiColors.borderSolid),
+        borderSide: BorderSide(
+          color: themeExt?.borderSolid ?? theme.colorScheme.outline.withValues(alpha: 0.15),
+        ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: FudiColors.borderSolid),
+        borderSide: BorderSide(
+          color: themeExt?.borderSolid ?? theme.colorScheme.outline.withValues(alpha: 0.15),
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: FudiColors.primary, width: 2),
+        borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.redAccent),
+        borderSide: BorderSide(color: theme.colorScheme.error),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
     final authState = ref.watch(authControllerProvider);
     final isLoading = authState.isLoading;
+    final resolvedMutedForeground = theme.colorScheme.onSurface.withValues(alpha: 0.6);
+    final resolvedBorderColor = themeExt?.borderSolid ?? theme.colorScheme.outline.withValues(alpha: 0.15);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: FudiColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -142,28 +155,28 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                     child: Container(
                       width: 40,
                       height: 40,
-                      decoration: const BoxDecoration(
-                        color: FudiColors.muted,
+                      decoration: BoxDecoration(
+                        color: themeExt?.mutedBackground ?? theme.colorScheme.surfaceContainerLow,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         FudiIcons.chevronLeft,
                         size: 20,
-                        color: FudiColors.foreground,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Text(
                     'Registro de negocio',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
             ),
-            const Divider(color: FudiColors.borderSolid, height: 1),
+            Divider(color: resolvedBorderColor, height: 1),
             Expanded(
               child: Center(
                 child: ConstrainedBox(
@@ -184,22 +197,22 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                           const SizedBox(height: 16),
                           Text(
                             'Registra tu negocio',
-                            style: Theme.of(context).textTheme.headlineSmall
+                            style: theme.textTheme.headlineSmall
                                 ?.copyWith(fontWeight: FontWeight.bold),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 6),
                           Text(
                             'Vende tu excedente de comida y llega a nuevos clientes',
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: FudiColors.mutedForeground),
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(color: resolvedMutedForeground),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 32),
 
                           Text(
                             'Nombre del representante o local',
-                            style: Theme.of(context).textTheme.bodySmall
+                            style: theme.textTheme.bodySmall
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
@@ -208,10 +221,10 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                             textInputAction: TextInputAction.next,
                             decoration: _inputDecoration(
                               hintText: 'Tu nombre o razón comercial',
-                              prefixIcon: const Icon(
+                              prefixIcon: Icon(
                                 FudiIcons.userCircle,
                                 size: 20,
-                                color: FudiColors.mutedForeground,
+                                color: resolvedMutedForeground,
                               ),
                             ),
                             validator: (value) =>
@@ -223,7 +236,7 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
 
                           Text(
                             'Correo electrónico corporativo',
-                            style: Theme.of(context).textTheme.bodySmall
+                            style: theme.textTheme.bodySmall
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
@@ -233,10 +246,10 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                             textInputAction: TextInputAction.next,
                             decoration: _inputDecoration(
                               hintText: 'negocio@email.com',
-                              prefixIcon: const Icon(
+                              prefixIcon: Icon(
                                 FudiIcons.mail,
                                 size: 20,
-                                color: FudiColors.mutedForeground,
+                                color: resolvedMutedForeground,
                               ),
                             ),
                             validator: (value) {
@@ -253,7 +266,7 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
 
                           Text(
                             'Contraseña de acceso',
-                            style: Theme.of(context).textTheme.bodySmall
+                            style: theme.textTheme.bodySmall
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
@@ -263,10 +276,10 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                             textInputAction: TextInputAction.done,
                             decoration: _inputDecoration(
                               hintText: 'Mínimo 8 caracteres',
-                              prefixIcon: const Icon(
+                              prefixIcon: Icon(
                                 FudiIcons.lock,
                                 size: 20,
-                                color: FudiColors.mutedForeground,
+                                color: resolvedMutedForeground,
                               ),
                               suffixIcon: FudiPressableScale(
                                 onTap: () => setState(
@@ -277,7 +290,7 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                                       ? FudiIcons.eye
                                       : FudiIcons.eyeOff,
                                   size: 20,
-                                  color: FudiColors.mutedForeground,
+                                  color: resolvedMutedForeground,
                                 ),
                               ),
                             ),
@@ -306,7 +319,7 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                                       : (value) => setState(
                                           () => _acceptedTerms = value ?? false,
                                         ),
-                                  activeColor: FudiColors.primary,
+                                  activeColor: theme.colorScheme.primary,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(4),
                                   ),
@@ -316,9 +329,9 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                               Expanded(
                                 child: Text.rich(
                                   TextSpan(
-                                    style: Theme.of(context).textTheme.bodySmall
+                                    style: theme.textTheme.bodySmall
                                         ?.copyWith(
-                                          color: FudiColors.mutedForeground,
+                                          color: resolvedMutedForeground,
                                           height: 1.4,
                                         ),
                                     children: [
@@ -326,8 +339,8 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                                       TextSpan(
                                         text:
                                             'Términos y Condiciones para Comercios',
-                                        style: const TextStyle(
-                                          color: FudiColors.primary,
+                                        style: TextStyle(
+                                          color: theme.colorScheme.primary,
                                           fontWeight: FontWeight.bold,
                                         ),
                                         recognizer: TapGestureRecognizer()
@@ -337,8 +350,8 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                                       const TextSpan(text: ' y la '),
                                       TextSpan(
                                         text: 'Política de Privacidad',
-                                        style: const TextStyle(
-                                          color: FudiColors.primary,
+                                        style: TextStyle(
+                                          color: theme.colorScheme.primary,
                                           fontWeight: FontWeight.bold,
                                         ),
                                         recognizer: TapGestureRecognizer()
@@ -362,24 +375,26 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                               height: 54,
                               decoration: BoxDecoration(
                                 color: _acceptedTerms
-                                    ? FudiColors.primary
-                                    : FudiColors.muted,
+                                    ? theme.colorScheme.primary
+                                    : theme.colorScheme.onSurface.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Center(
                                 child: isLoading
-                                    ? const SizedBox(
+                                    ? SizedBox(
                                         width: 24,
                                         height: 24,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2.5,
-                                          color: FudiColors.primaryForeground,
+                                          color: theme.colorScheme.onPrimary,
                                         ),
                                       )
-                                    : const Text(
+                                    : Text(
                                         'Registrar negocio',
                                         style: TextStyle(
-                                          color: Colors.white,
+                                          color: _acceptedTerms
+                                              ? theme.colorScheme.onPrimary
+                                              : resolvedMutedForeground,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
                                         ),
@@ -392,8 +407,8 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                           Text.rich(
                             TextSpan(
                               text: '¿Ya administras una tienda? ',
-                              style: const TextStyle(
-                                color: FudiColors.mutedForeground,
+                              style: TextStyle(
+                                color: resolvedMutedForeground,
                               ),
                               children: [
                                 WidgetSpan(
@@ -402,10 +417,10 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                                   child: GestureDetector(
                                     onTap: () =>
                                         context.go(RouteNames.loginPath),
-                                    child: const Text(
+                                    child: Text(
                                       'Inicia sesión',
                                       style: TextStyle(
-                                        color: FudiColors.primary,
+                                        color: theme.colorScheme.primary,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -420,12 +435,14 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                           // Business Benefits Info Box
                           Container(
                             decoration: BoxDecoration(
-                              color: const Color(
-                                0xFFEFF6FF,
-                              ).withValues(alpha: 0.6),
+                              color: isDark
+                                  ? FudiColors.info.withValues(alpha: 0.08)
+                                  : FudiColors.infoSurface.withValues(alpha: 0.6),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: const Color(0xFFDBEAFE),
+                                color: isDark
+                                    ? FudiColors.info.withValues(alpha: 0.15)
+                                    : FudiColors.infoSurfaceBorder,
                               ),
                             ),
                             padding: const EdgeInsets.all(20),
@@ -434,10 +451,12 @@ class _BusinessSignupScreenState extends ConsumerState<BusinessSignupScreen> {
                               children: [
                                 Text(
                                   'Beneficios para tu negocio',
-                                  style: Theme.of(context).textTheme.titleSmall
+                                  style: theme.textTheme.titleSmall
                                       ?.copyWith(
                                         fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF1E40AF),
+                                        color: isDark
+                                            ? FudiColors.infoForeground
+                                            : FudiColors.infoTitle,
                                       ),
                                 ),
                                 const SizedBox(height: 12),
@@ -480,18 +499,25 @@ class _BusinessBenefitItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.check_rounded, size: 18, color: Color(0xFF1E40AF)),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: const Color(0xFF1E40AF),
+            Icon(
+              Icons.check_rounded,
+              size: 18,
+              color: isDark ? FudiColors.infoForeground : FudiColors.infoTitle,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                text,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: isDark ? FudiColors.infoForeground : FudiColors.infoTitle,
                 height: 1.3,
               ),
             ),

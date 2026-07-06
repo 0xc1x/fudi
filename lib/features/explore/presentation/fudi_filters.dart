@@ -246,7 +246,7 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
                 child: Text(
                   'Aplicar filtros',
                   style: FudiTypography.labelMedium.copyWith(
-                    color: Colors.white,
+                    color: FudiColors.primaryForeground,
                   ),
                 ),
               ),

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/atoms/fudi_status_badge.dart';
@@ -15,6 +16,9 @@ class LocationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final themeExt = theme.extension<FudiThemeExtension>();
     return FudiSurfaceCard(
       padding: EdgeInsets.zero,
       child: Column(
@@ -59,17 +63,17 @@ class LocationCard extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(
+                          Icon(
                             FudiIcons.mapPin,
                             size: 14,
-                            color: FudiColors.mutedForeground,
+                            color: colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               location.address,
                               style: FudiTypography.bodySmall.copyWith(
-                                color: FudiColors.mutedForeground,
+                                color: colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ),
@@ -79,16 +83,16 @@ class LocationCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               FudiIcons.phone,
                               size: 14,
-                              color: FudiColors.mutedForeground,
+                              color: colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               location.phone!,
                               style: FudiTypography.bodySmall.copyWith(
-                                color: FudiColors.mutedForeground,
+                                color: colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -102,9 +106,9 @@ class LocationCard extends StatelessWidget {
           ),
           DecoratedBox(
             decoration: BoxDecoration(
-              color: FudiColors.muted.withValues(alpha: 0.3),
-              border: const Border(
-                top: BorderSide(color: FudiColors.borderSolid),
+              color: (themeExt?.mutedBackground ?? FudiColors.muted).withValues(alpha: 0.3),
+              border: Border(
+                top: BorderSide(color: themeExt?.borderSolid ?? FudiColors.borderSolid),
               ),
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(FudiRadius.xl),

@@ -53,7 +53,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final businessesAsync = ref.watch(nearbyBusinessesProvider);
 
     return Scaffold(
-      backgroundColor: FudiColors.background,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: _HomeAppBar(),
@@ -197,7 +196,6 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: FudiColors.background,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -243,7 +241,7 @@ class _CategoryChips extends StatelessWidget {
     );
 
     return Container(
-      color: FudiColors.background,
+      color: Theme.of(context).scaffoldBackgroundColor,
       padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),
       child: FudiSelectableChipsBar<CategoryStat>(
         items: allStats,

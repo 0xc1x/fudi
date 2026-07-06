@@ -4,6 +4,7 @@ import '../../../../core/ui/fudi_logo.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_search_bar.dart';
 import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 
@@ -29,8 +30,12 @@ class ExploreHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
-      color: FudiColors.primary,
+      color: isDark ? theme.colorScheme.surface : FudiColors.primary,
       padding: const EdgeInsets.fromLTRB(
         FudiSpacing.lg,
         FudiSpacing.lg + 8,
@@ -50,7 +55,7 @@ class ExploreHeader extends StatelessWidget {
             Text(
               'Explorar',
               style: FudiTypography.h1.copyWith(
-                color: FudiColors.primaryForeground,
+                color: isDark ? theme.colorScheme.onSurface : FudiColors.primaryForeground,
               ),
             ),
             const SizedBox(height: FudiSpacing.md),
@@ -59,7 +64,9 @@ class ExploreHeader extends StatelessWidget {
               hintText: 'Buscar restaurantes, productos...',
               onChanged: onSearchChanged,
               onSubmitted: onSubmitSearch,
-              fillColor: FudiColors.background,
+              fillColor: isDark
+                  ? (themeExt?.mutedBackground ?? theme.colorScheme.surfaceContainerLow)
+                  : FudiColors.background,
               borderSide: BorderSide.none,
             ),
             const SizedBox(height: FudiSpacing.md),
@@ -103,6 +110,9 @@ class ExploreHeaderPillButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return FudiPressableScale(
       onTap: onTap,
       child: Container(
@@ -111,7 +121,9 @@ class ExploreHeaderPillButton extends StatelessWidget {
           vertical: FudiSpacing.sm,
         ),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.2),
+          color: isDark
+              ? theme.colorScheme.onSurface.withValues(alpha: 0.08)
+              : FudiColors.card.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(FudiRadius.md),
         ),
         child: Row(
@@ -120,13 +132,13 @@ class ExploreHeaderPillButton extends StatelessWidget {
             Icon(
               icon,
               size: 16,
-              color: FudiColors.primaryForeground,
+              color: isDark ? theme.colorScheme.onSurface : FudiColors.primaryForeground,
             ),
             const SizedBox(width: FudiSpacing.xs),
             Text(
               label,
               style: FudiTypography.bodySmall.copyWith(
-                color: FudiColors.primaryForeground,
+                color: isDark ? theme.colorScheme.onSurface : FudiColors.primaryForeground,
               ),
             ),
             if (hasIndicator) ...[
@@ -134,8 +146,8 @@ class ExploreHeaderPillButton extends StatelessWidget {
               Container(
                 width: 6,
                 height: 6,
-                decoration: const BoxDecoration(
-                  color: FudiColors.ring,
+                decoration: BoxDecoration(
+                  color: isDark ? theme.colorScheme.primary : FudiColors.ring,
                   shape: BoxShape.circle,
                 ),
               ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/ui/fudi_colors.dart';
 
 import '../business_providers.dart';
 import '../components/no_business_prompt.dart';
@@ -15,7 +14,6 @@ class BusinessProductsScreen extends ConsumerWidget {
     final businessAsync = ref.watch(currentBusinessProvider);
 
     return Scaffold(
-      backgroundColor: FudiColors.muted,
       body: businessAsync.when(
         data: (business) {
           if (business == null) return const NoBusinessPrompt();
@@ -25,7 +23,6 @@ class BusinessProductsScreen extends ConsumerWidget {
           final allBusinesses = allBusinessesAsync.asData?.value ?? [business];
 
           return Scaffold(
-            backgroundColor: FudiColors.muted,
             appBar: PreferredSize(
               preferredSize: const Size.fromHeight(kToolbarHeight + 20),
               child: BusinessAppBar(

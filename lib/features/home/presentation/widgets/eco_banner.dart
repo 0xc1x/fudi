@@ -83,7 +83,7 @@ class EcoBanner extends StatelessWidget {
                     width: 75,
                     height: 75,
                     decoration: const BoxDecoration(
-                      color: Colors.blue,
+                      color: FudiColors.ecoGreen,
                       shape: BoxShape.circle,
                     ),
                     child: const Center(

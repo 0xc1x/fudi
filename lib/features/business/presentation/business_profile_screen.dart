@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
+import '../../../core/ui/fudi_theme.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/atoms/fudi_heart_button.dart';
 import '../../../core/ui/atoms/fudi_circle_button.dart';
@@ -30,8 +31,9 @@ class BusinessProfileScreen extends ConsumerWidget {
 
   final String businessId;
 
-  @override
+@override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
     final profileAsync = ref.watch(businessProfileProvider(businessId));
 
     return profileAsync.when(
@@ -46,10 +48,10 @@ class BusinessProfileScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   FudiIcons.mapPin,
                   size: 64,
-                  color: FudiColors.mutedForeground,
+                  color: colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(height: FudiSpacing.md),
                 const Text(
@@ -61,7 +63,7 @@ class BusinessProfileScreen extends ConsumerWidget {
                   'No pudimos encontrar este establecimiento en este momento.',
                   textAlign: TextAlign.center,
                   style: FudiTypography.bodyMedium.copyWith(
-                    color: FudiColors.mutedForeground,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: FudiSpacing.xl),
@@ -73,12 +75,16 @@ class BusinessProfileScreen extends ConsumerWidget {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: FudiColors.foreground,
+                      color: colorScheme.onSurface,
                       borderRadius: BorderRadius.circular(100),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Volver al inicio',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFF1A1A1A)
+                            : Colors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -107,20 +113,20 @@ class _BusinessProfileContentState
   @override
   Widget build(BuildContext context) {
     final profile = widget.profile;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: FudiColors.surfaceBackground,
+      backgroundColor: colorScheme.surface,
       body: Stack(
         children: [
           CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // ── AppBar Cinematográfico Inmersivo ───────────────────────────
               SliverAppBar(
                 expandedHeight: 240,
                 pinned: true,
                 elevation: 0,
-                backgroundColor: FudiColors.surfaceBackground,
+                backgroundColor: colorScheme.surface,
                 automaticallyImplyLeading: false,
                 flexibleSpace: FlexibleSpaceBar(
                   background: Stack(
@@ -132,7 +138,7 @@ class _BusinessProfileContentState
                               fit: BoxFit.cover,
                             )
                           : Container(color: FudiColors.primary),
-                      const Positioned.fill(
+                      Positioned.fill(
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
@@ -141,9 +147,9 @@ class _BusinessProfileContentState
                               colors: [
                                 Colors.black38,
                                 Colors.transparent,
-                                FudiColors.surfaceBackground,
+                                colorScheme.surface,
                               ],
-                              stops: [0.0, 0.4, 1.0],
+                              stops: const [0.0, 0.4, 1.0],
                             ),
                           ),
                         ),
@@ -196,9 +202,9 @@ class _BusinessProfileContentState
                                       )
                                     : Container(
                                         color: FudiColors.muted,
-                                        child: const Icon(
+                                        child: Icon(
                                           Icons.store,
-                                          color: FudiColors.mutedForeground,
+                                          color: colorScheme.onSurfaceVariant,
                                         ),
                                       ),
                               ),
@@ -268,7 +274,7 @@ class _BusinessProfileContentState
                           Text(
                             '(${profile.reviewCount} valoraciones de la comunidad)',
                             style: FudiTypography.bodySmall.copyWith(
-                              color: FudiColors.mutedForeground,
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -406,13 +412,14 @@ class _AboutCard extends StatelessWidget {
   const _AboutCard({required this.description});
   final String description;
 
-  @override
+@override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(FudiSpacing.xl),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(FudiRadius.xxl),
         boxShadow: [
           BoxShadow(
@@ -435,7 +442,7 @@ class _AboutCard extends StatelessWidget {
           Text(
             description,
             style: FudiTypography.bodyMedium.copyWith(
-              color: FudiColors.mutedForeground,
+              color: colorScheme.onSurfaceVariant,
               height: 1.5,
             ),
           ),
@@ -534,12 +541,13 @@ class _ReviewsCard extends StatelessWidget {
   const _ReviewsCard({required this.profile});
   final BusinessProfile profile;
 
-  @override
+@override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(FudiSpacing.xl),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(FudiRadius.xxl),
         boxShadow: [
           BoxShadow(
@@ -595,7 +603,7 @@ class _ReviewsCard extends StatelessWidget {
                 child: Text(
                   'Este negocio aún no tiene opiniones.',
                   style: FudiTypography.bodyMedium.copyWith(
-                    color: FudiColors.mutedForeground,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -630,10 +638,13 @@ class _ReviewItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final themeExt = theme.extension<FudiThemeExtension>();
     return Container(
       padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: FudiColors.surfaceMuted)),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: themeExt?.mutedBackground ?? FudiColors.surfaceMuted)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -641,14 +652,14 @@ class _ReviewItem extends StatelessWidget {
           Container(
             width: 36,
             height: 36,
-            decoration: const BoxDecoration(
-              color: FudiColors.surfaceMuted,
+            decoration: BoxDecoration(
+              color: themeExt?.mutedBackground ?? FudiColors.surfaceMuted,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               FudiIcons.user,
               size: 16,
-              color: FudiColors.mutedForeground,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(width: FudiSpacing.sm),
@@ -668,7 +679,7 @@ class _ReviewItem extends StatelessWidget {
                     Text(
                       '${review.date.day}/${review.date.month}',
                       style: FudiTypography.bodySmall.copyWith(
-                        color: FudiColors.mutedForeground,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -704,7 +715,7 @@ class _ReviewItem extends StatelessWidget {
                   Text(
                     review.comment!,
                     style: FudiTypography.bodyMedium.copyWith(
-                      color: FudiColors.mutedForeground,
+                      color: colorScheme.onSurfaceVariant,
                       height: 1.4,
                     ),
                   ),
@@ -724,12 +735,14 @@ class _LocationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final hasCoords = profile.latitude != null && profile.longitude != null;
 
     return Container(
       padding: const EdgeInsets.all(FudiSpacing.xl),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -752,7 +765,7 @@ class _LocationCard extends StatelessWidget {
           Text(
             profile.address ?? '',
             style: FudiTypography.bodyMedium.copyWith(
-              color: FudiColors.mutedForeground,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           if (hasCoords) ...[
@@ -795,10 +808,10 @@ class _LocationCard extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                decoration: BoxDecoration(
-                  color: FudiColors.foreground,
-                  borderRadius: BorderRadius.circular(16),
-                ),
+decoration: BoxDecoration(
+              color: colorScheme.onSurface,
+              borderRadius: BorderRadius.circular(16),
+            ),
                 child: Text(
                   'Trazar ruta en Maps',
                   textAlign: TextAlign.center,

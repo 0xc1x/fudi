@@ -34,7 +34,7 @@ class ConfirmationView extends StatelessWidget {
                 child: Icon(
                   Icons.check_circle_rounded,
                   size: 54,
-                  color: Color(0xFF16A34A),
+                  color: FudiColors.ecoGreen,
                 ),
               ),
               const SizedBox(height: FudiSpacing.sm),
@@ -55,7 +55,7 @@ class ConfirmationView extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(FudiSpacing.xl),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: FudiColors.borderSolid, width: 1.5),
                 ),
@@ -154,7 +154,7 @@ class ConfirmationView extends StatelessWidget {
                     child: Text(
                       'Ver mis pedidos',
                       style: FudiTypography.labelSmall.copyWith(
-                        color: Colors.white,
+                        color: FudiColors.primaryForeground,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

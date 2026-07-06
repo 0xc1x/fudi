@@ -178,7 +178,7 @@ class _BusinessCouponEditScreenState
           SnackBar(
             content: Text(
               'No se pudo guardar el cupón. Intenta de nuevo.',
-              style: FudiTypography.bodyMedium.copyWith(color: Colors.white),
+              style: FudiTypography.bodyMedium.copyWith(color: FudiColors.primaryForeground),
             ),
             backgroundColor: FudiColors.destructive,
             behavior: SnackBarBehavior.floating,
@@ -212,7 +212,7 @@ class _BusinessCouponEditScreenState
       // Si aún está cargando y no se ha hidratado localmente, mostramos esqueleto
       if (couponAsync.isLoading && !_loaded) {
         return const Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.transparent,
           appBar: _AppBar(isEdit: true),
           body: CouponEditFormSkeleton(),
         );
@@ -221,7 +221,7 @@ class _BusinessCouponEditScreenState
       // Si arroja un error persistente y no hay datos previos cargados
       if (couponAsync.hasError && !_loaded) {
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.transparent,
           appBar: const _AppBar(isEdit: true),
           body: BusinessCouponErrorState(
             message: 'No pudimos cargar este cupón.',
@@ -272,7 +272,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       centerTitle: false,
@@ -593,7 +593,7 @@ class _TypeOption extends StatelessWidget {
             ),
             color: selected
                 ? FudiColors.primary.withValues(alpha: 0.05)
-                : Colors.white,
+                : Theme.of(context).colorScheme.surface,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -858,9 +858,9 @@ class _StatusSection extends StatelessWidget {
             toggled: isActive,
             child: Switch(
               value: isActive,
-              activeThumbColor: Colors.white,
+              activeThumbColor: FudiColors.primaryForeground,
               activeTrackColor: FudiColors.primary,
-              inactiveThumbColor: Colors.white,
+              inactiveThumbColor: FudiColors.primaryForeground,
               inactiveTrackColor: FudiColors.borderSolid,
               trackOutlineColor: const WidgetStatePropertyAll(
                 Colors.transparent,
@@ -893,9 +893,9 @@ class _BottomBar extends StatelessWidget {
     final enabled = canSave && !saving;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: FudiColors.borderSolid)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: const Border(top: BorderSide(color: FudiColors.borderSolid)),
       ),
       padding: const EdgeInsets.all(FudiSpacing.lg),
       child: SafeArea(
@@ -919,7 +919,7 @@ class _BottomBar extends StatelessWidget {
                 isEdit ? 'Guardar cambios' : 'Publicar cupón',
                 textAlign: TextAlign.center,
                 style: FudiTypography.bodyMedium.copyWith(
-                  color: enabled ? Colors.white : FudiColors.mutedForeground,
+                  color: enabled ? FudiColors.primaryForeground : FudiColors.mutedForeground,
                   fontWeight: FontWeight.bold,
                 ),
               ),

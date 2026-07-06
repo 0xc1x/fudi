@@ -6,6 +6,7 @@ import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../domain/business_profile.dart';
@@ -17,6 +18,8 @@ class BusinessInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
     return FudiSurfaceCard(
       padding: const EdgeInsets.all(FudiSpacing.md),
       child: Column(
@@ -69,7 +72,7 @@ class BusinessInfoCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: FudiSpacing.md),
-          const Divider(height: 1, color: FudiColors.border),
+          Divider(height: 1, color: themeExt?.border ?? FudiColors.border),
           const SizedBox(height: FudiSpacing.md),
           Row(
             children: [
@@ -84,14 +87,14 @@ class BusinessInfoCard extends StatelessWidget {
                 child: _StatItem(
                   value: business.rating.toStringAsFixed(1),
                   label: 'Rating',
-                  color: Colors.orange,
+                  color: FudiColors.warning,
                 ),
               ),
               Expanded(
                 child: _StatItem(
                   value: '${business.reviewCount}',
                   label: 'Reseñas',
-                  color: Colors.green,
+                  color: FudiColors.success,
                 ),
               ),
             ],
@@ -115,6 +118,7 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
         Text(
@@ -129,7 +133,7 @@ class _StatItem extends StatelessWidget {
         Text(
           label,
           style: FudiTypography.bodySmall.copyWith(
-            color: FudiColors.mutedForeground,
+            color: colorScheme.onSurfaceVariant,
           ),
           textAlign: TextAlign.center,
         ),

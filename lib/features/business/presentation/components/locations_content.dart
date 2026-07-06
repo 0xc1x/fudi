@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/routing/route_names.dart';
-import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/fudi_empty_state.dart';
@@ -28,12 +27,14 @@ class LocationsContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return CustomScrollView(
       slivers: [
-        const SliverAppBar(
+        SliverAppBar(
           pinned: true,
-          backgroundColor: FudiColors.background,
-          title: Text('Gestión', style: FudiTypography.h2),
+          backgroundColor: colorScheme.surface,
+          title: const Text('Gestión', style: FudiTypography.h2),
         ),
         SliverPadding(
           padding: const EdgeInsets.all(FudiSpacing.md),

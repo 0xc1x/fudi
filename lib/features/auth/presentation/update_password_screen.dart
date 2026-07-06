@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/fudi_exception_l10n.dart';
 import '../../../core/routing/route_names.dart';
-import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
 import 'auth_state_provider.dart';
 
@@ -138,7 +137,7 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
-                          color: FudiColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -146,7 +145,9 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
                             isLoading
                                 ? 'Actualizando...'
                                 : 'Guardar nueva contraseña',
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
                           ),
                         ),
                       ),
@@ -156,14 +157,16 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
                       onTap: isLoading
                           ? null
                           : () => context.go(RouteNames.loginPath),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 4,
                         ),
                         child: Text(
                           'Volver al login',
-                          style: TextStyle(color: FudiColors.primary),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                         ),
                       ),
                     ),

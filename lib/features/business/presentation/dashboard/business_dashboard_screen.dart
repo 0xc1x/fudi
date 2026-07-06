@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
@@ -71,8 +72,11 @@ class BusinessDashboardScreen extends ConsumerWidget {
     final businessAsync = ref.watch(currentBusinessProvider);
     final allBusinessesAsync = ref.watch(userBusinessesProvider);
 
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: FudiColors.background,
+      backgroundColor: colorScheme.surface,
       body: businessAsync.when(
         data: (business) {
           if (business == null) {
@@ -138,12 +142,17 @@ class _DashboardContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final themeExt = theme.extension<FudiThemeExtension>();
+    final mutedBg = themeExt?.mutedBackground ?? FudiColors.muted;
+
     return CustomScrollView(
       slivers: [
         SliverAppBar(
           pinned: true,
           elevation: 0,
-          backgroundColor: FudiColors.background,
+          backgroundColor: colorScheme.surface,
           leading: Padding(
             padding: const EdgeInsets.all(FudiSpacing.sm),
             child: Semantics(
@@ -152,12 +161,12 @@ class _DashboardContent extends ConsumerWidget {
               child: InkWell(
                 onTap: () => context.pop(),
                 borderRadius: BorderRadius.circular(FudiSpacing.md),
-                child: const DecoratedBox(
+                child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: FudiColors.muted,
+                    color: mutedBg,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(FudiIcons.arrowLeft, size: 20),
+                  child: const Icon(FudiIcons.arrowLeft, size: 20),
                 ),
               ),
             ),
@@ -169,7 +178,7 @@ class _DashboardContent extends ConsumerWidget {
               Text(
                 'Análisis de rendimiento',
                 style: FudiTypography.bodySmall.copyWith(
-                  color: FudiColors.mutedForeground,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -227,6 +236,8 @@ class _PeriodSelector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     const options = [
       DashboardPeriod.week,
       DashboardPeriod.month,
@@ -254,13 +265,13 @@ class _PeriodSelector extends ConsumerWidget {
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 180),
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(
-                          color: isActive ? FudiColors.primary : Colors.white,
-                          borderRadius: BorderRadius.circular(FudiSpacing.md),
-                          border: Border.all(
-                            color: isActive
-                                ? FudiColors.primary
-                                : FudiColors.border,
+decoration: BoxDecoration(
+                            color: isActive ? FudiColors.primary : colorScheme.surface,
+                            borderRadius: BorderRadius.circular(FudiSpacing.md),
+                            border: Border.all(
+                              color: isActive
+                                  ? FudiColors.primary
+                                  : colorScheme.outlineVariant,
                           ),
                         ),
                         child: Text(
@@ -268,8 +279,8 @@ class _PeriodSelector extends ConsumerWidget {
                           textAlign: TextAlign.center,
                           style: FudiTypography.labelSmall.copyWith(
                             color: isActive
-                                ? Colors.white
-                                : FudiColors.foreground,
+                                ? FudiColors.primaryForeground
+                                : colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -286,23 +297,23 @@ class _PeriodSelector extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(FudiSpacing.md),
                 child: Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: period == DashboardPeriod.custom
-                        ? FudiColors.primary
-                        : Colors.white,
-                    borderRadius: BorderRadius.circular(FudiSpacing.md),
-                    border: Border.all(
-                      color: period == DashboardPeriod.custom
-                          ? FudiColors.primary
-                          : FudiColors.border,
+decoration: BoxDecoration(
+                        color: period == DashboardPeriod.custom
+                            ? FudiColors.primary
+                            : colorScheme.surface,
+                          borderRadius: BorderRadius.circular(FudiSpacing.md),
+                        border: Border.all(
+                          color: period == DashboardPeriod.custom
+                              ? FudiColors.primary
+                              : colorScheme.outlineVariant,
                     ),
                   ),
                   child: Icon(
                     Icons.calendar_month_rounded,
                     size: 18,
                     color: period == DashboardPeriod.custom
-                        ? Colors.white
-                        : FudiColors.foreground,
+                        ? FudiColors.primaryForeground
+                        : colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -312,16 +323,16 @@ class _PeriodSelector extends ConsumerWidget {
         const SizedBox(height: FudiSpacing.sm),
         Row(
           children: [
-            const Icon(
+            Icon(
               Icons.schedule_rounded,
               size: 14,
-              color: FudiColors.mutedForeground,
+              color: colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: 4),
             Text(
               _rangeLabel(period, customRange),
               style: FudiTypography.bodySmall.copyWith(
-                color: FudiColors.mutedForeground,
+                color: colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -426,6 +437,7 @@ class _KPIWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final isPositive = change >= 0;
     final trendColor = isPositive ? FudiColors.success : FudiColors.destructive;
 
@@ -480,7 +492,7 @@ class _KPIWidget extends StatelessWidget {
                 child: Text(
                   'vs anterior',
                   style: FudiTypography.bodySmall.copyWith(
-                    color: FudiColors.mutedForeground,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -502,6 +514,9 @@ class _DailyRevenueChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final themeExt = Theme.of(context).extension<FudiThemeExtension>();
+    final mutedBg = themeExt?.mutedBackground ?? FudiColors.muted;
     if (dailyStats.isEmpty) {
       return FudiSurfaceCard(
         child: Column(
@@ -509,13 +524,13 @@ class _DailyRevenueChart extends StatelessWidget {
             Icon(
               Icons.bar_chart_rounded,
               size: 40,
-              color: FudiColors.mutedForeground.withValues(alpha: 0.5),
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             const SizedBox(height: FudiSpacing.sm),
             Text(
               'Sin datos de ventas en este período',
               style: FudiTypography.bodySmall.copyWith(
-                color: FudiColors.mutedForeground,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -589,7 +604,7 @@ class _DailyRevenueChart extends StatelessWidget {
                       ),
                       builder: (context, value, _) => LinearProgressIndicator(
                         value: value,
-                        backgroundColor: FudiColors.muted,
+                        backgroundColor: mutedBg,
                         valueColor: const AlwaysStoppedAnimation(
                           FudiColors.primary,
                         ),
@@ -616,6 +631,7 @@ class _TopProducts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return FudiSurfaceCard(
       padding: const EdgeInsets.all(FudiSpacing.md),
       child: Column(
@@ -631,13 +647,13 @@ class _TopProducts extends StatelessWidget {
                   Icon(
                     FudiIcons.package_,
                     size: 32,
-                    color: FudiColors.mutedForeground.withValues(alpha: 0.5),
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: FudiSpacing.xs),
                   Text(
                     'Aún no hay ventas en este período',
                     style: FudiTypography.bodySmall.copyWith(
-                      color: FudiColors.mutedForeground,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -748,14 +764,14 @@ class _PeriodSummary extends StatelessWidget {
               'Resumen del período',
               style: FudiTypography.bodyMedium.copyWith(
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: FudiColors.primaryForeground,
               ),
             ),
             const SizedBox(height: FudiSpacing.sm),
             Text(
               'Tus ventas han ${stats.revenueChange >= 0 ? 'crecido' : 'decaído'} un ${stats.revenueChange.abs().toStringAsFixed(1)}% comparado con el período anterior. Has rescatado ${stats.rescuedCount} comidas, evitando el desperdicio de alimentos.',
               style: FudiTypography.bodySmall.copyWith(
-                color: Colors.white.withValues(alpha: 0.9),
+                color: FudiColors.primaryForeground.withValues(alpha: 0.9),
               ),
             ),
             const SizedBox(height: FudiSpacing.md),
@@ -768,13 +784,13 @@ class _PeriodSummary extends StatelessWidget {
                       Text(
                         'Promedio diario',
                         style: FudiTypography.bodySmall.copyWith(
-                          color: Colors.white.withValues(alpha: 0.75),
+                          color: FudiColors.primaryForeground.withValues(alpha: 0.75),
                         ),
                       ),
                       Text(
                         '\$$dailyAvg',
                         style: FudiTypography.h2.copyWith(
-                          color: Colors.white,
+                          color: FudiColors.primaryForeground,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -788,13 +804,13 @@ class _PeriodSummary extends StatelessWidget {
                       Text(
                         'Ticket promedio',
                         style: FudiTypography.bodySmall.copyWith(
-                          color: Colors.white.withValues(alpha: 0.75),
+                          color: FudiColors.primaryForeground.withValues(alpha: 0.75),
                         ),
                       ),
                       Text(
                         '\$$ticketAvg',
                         style: FudiTypography.h2.copyWith(
-                          color: Colors.white,
+                          color: FudiColors.primaryForeground,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -819,7 +835,7 @@ class _DashboardSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: FudiColors.muted,
-      highlightColor: Colors.white,
+      highlightColor: FudiColors.surfaceBackground,
       child: SingleChildScrollView(
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.all(FudiSpacing.md),
@@ -885,23 +901,24 @@ class _DashboardError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(FudiSpacing.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               FudiIcons.alertTriangle,
               size: 56,
-              color: FudiColors.mutedForeground,
+              color: colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: FudiSpacing.md),
             Text(
               message,
               textAlign: TextAlign.center,
               style: FudiTypography.bodyMedium.copyWith(
-                color: FudiColors.mutedForeground,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: FudiSpacing.lg),

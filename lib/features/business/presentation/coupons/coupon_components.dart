@@ -95,7 +95,7 @@ class BusinessCouponErrorState extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border.all(color: FudiColors.borderSolid),
                   borderRadius: BorderRadius.circular(FudiRadius.md),
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -272,9 +272,9 @@ class _CouponHeader extends StatelessWidget {
 
 (String, Color) couponBadgeConfig(Coupon c) {
   if (!c.isActive) return ('Pausado', FudiColors.mutedForeground);
-  if (c.isValid) return ('Activo', const Color(0xFF15803D));
+  if (c.isValid) return ('Activo', FudiColors.successDark);
   if (c.isExpired) return ('Expirado', FudiColors.destructive);
-  if (c.isExhausted) return ('Agotado', const Color(0xFFB45309));
+  if (c.isExhausted) return ('Agotado', FudiColors.warningOrange);
   return ('Inactivo', FudiColors.mutedForeground);
 }
 
@@ -405,7 +405,7 @@ class _CouponMenuState extends ConsumerState<_CouponMenu> {
         content: Text(
           msg,
           style: FudiTypography.bodyMedium.copyWith(
-            color: Colors.white,
+            color: FudiColors.primaryForeground,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -452,7 +452,7 @@ class _CouponMenuState extends ConsumerState<_CouponMenu> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FudiRadius.lg),
@@ -550,7 +550,7 @@ class _CouponMenuState extends ConsumerState<_CouponMenu> {
               break;
           }
         },
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FudiRadius.lg),
         ),
@@ -687,7 +687,7 @@ class EmptyCouponsView extends StatelessWidget {
               child: Text(
                 'Crear primer cupón',
                 style: FudiTypography.bodyMedium.copyWith(
-                  color: Colors.white,
+                  color: FudiColors.primaryForeground,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -722,7 +722,7 @@ class CouponsLoadingSkeleton extends StatelessWidget {
                   child: Container(
                     height: 64,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(FudiRadius.md),
                     ),
                   ),
@@ -738,7 +738,7 @@ class CouponsLoadingSkeleton extends StatelessWidget {
               child: Container(
                 height: 128,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(FudiRadius.lg),
                 ),
               ),
@@ -770,7 +770,7 @@ class CouponEditFormSkeleton extends StatelessWidget {
             child: Container(
               height: 120,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(FudiRadius.lg),
               ),
             ),

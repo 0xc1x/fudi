@@ -148,7 +148,7 @@ class _FavoritesEmptyState extends StatelessWidget {
                   child: Text(
                     'Explorar ofertas cerca',
                     style: FudiTypography.labelSmall.copyWith(
-                      color: Colors.white,
+                      color: FudiColors.primaryForeground,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

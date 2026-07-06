@@ -24,7 +24,7 @@ class FudiSettingsGroup extends StatelessWidget {
         const SizedBox(height: FudiSpacing.md),
         DecoratedBox(
           decoration: BoxDecoration(
-            color: FudiColors.background,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(FudiRadius.xl),
             border: Border.all(color: FudiColors.borderSolid),
           ),

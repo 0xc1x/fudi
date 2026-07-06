@@ -23,7 +23,7 @@ void showAddAddressSheet(BuildContext context, WidgetRef ref) {
     isScrollControlled: true,
     // CRUCIAL: Transparente aquí para que se vea el radio del Container hijo
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withValues(alpha: 0.5),
+    barrierColor: FudiColors.foreground.withValues(alpha: 0.5),
     builder: (_) => const AddAddressSheet(),
   ));
 }
@@ -141,7 +141,7 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
         content: Text(
           message,
           style: const TextStyle(
-            color: Colors.white,
+            color: FudiColors.primaryForeground,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -189,9 +189,9 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
       padding: EdgeInsets.only(bottom: bottomInset),
       child: DecoratedBox(
         // DISEÑO NUEVO: Contenedor con curvas garantizadas y fondo sólido limpio
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         ),
         child: SafeArea(
           top: false,
@@ -339,7 +339,7 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
                                       ? Icons.pin_drop
                                       : Icons.map_outlined,
                                   color: _pickedLocation != null
-                                      ? Colors.white
+                                      ? FudiColors.primaryForeground
                                       : FudiColors.foreground,
                                   size: 20,
                                 ),
@@ -422,7 +422,7 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
                         padding: EdgeInsets.zero,
                         horizontalChipPadding: FudiSpacing.md,
                         activeColor: FudiColors.foreground,
-                        activeTextColor: Colors.white,
+                        activeTextColor: FudiColors.primaryForeground,
                         inactiveColor: FudiColors.inputBackground.withValues(
                           alpha: 0.5,
                         ),
@@ -517,12 +517,12 @@ class SegmentedTypeButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
+          color: isSelected ? Theme.of(context).colorScheme.surface : Colors.transparent,
           borderRadius: BorderRadius.circular(18),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: FudiColors.foreground.withValues(alpha: 0.05),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),

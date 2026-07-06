@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 
 class StatsRow extends StatelessWidget {
@@ -23,17 +24,18 @@ class StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.all(FudiSpacing.lg),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFF3F4F6), width: 1.5),
+          border: Border.all(color: colorScheme.outlineVariant, width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: colorScheme.shadow.withValues(alpha: 0.03),
               blurRadius: 15,
               offset: const Offset(0, 4),
             ),
@@ -46,41 +48,44 @@ class StatsRow extends StatelessWidget {
               Expanded(
                 child: _buildStatItem(
                   icon: Icons.shopping_bag_outlined,
-                  iconColor: const Color(0xFFEF4444),
-                  bgColor: const Color(0xFFFFF1F2),
+                  iconColor: FudiColors.destructiveVibrant,
+                  bgColor: FudiColors.destructiveSurface,
                   value: '$activeCount',
                   label: 'Activos',
                   actionLabel: 'Ver productos',
+                  colorScheme: colorScheme,
                   onTap: onTapActive,
                 ),
               ),
 
-              _buildDivider(),
+              _buildDivider(context),
 
               // 2. Vendidos Hoy
               Expanded(
                 child: _buildStatItem(
                   icon: Icons.trending_up_rounded,
-                  iconColor: const Color(0xFF22C55E),
-                  bgColor: const Color(0xFFF0FDF4),
+                  iconColor: FudiColors.success,
+                  bgColor: FudiColors.surfaceSuccess,
                   value: '$soldToday',
                   label: 'Total vendidos hoy',
                   actionLabel: 'Ver ventas',
+                  colorScheme: colorScheme,
                   onTap: onTapSold,
                 ),
               ),
 
-              _buildDivider(),
+              _buildDivider(context),
 
               // 3. Disponibles
               Expanded(
                 child: _buildStatItem(
                   icon: Icons.inventory_2_outlined,
-                  iconColor: const Color(0xFFF97316),
-                  bgColor: const Color(0xFFFFF7ED),
+                  iconColor: FudiColors.warningOrange,
+                  bgColor: FudiColors.surfaceWarning,
                   value: '$availableCount',
                   label: 'Disponibles',
                   actionLabel: 'Ver inventario',
+                  colorScheme: colorScheme,
                   onTap: onTapAvailable,
                 ),
               ),
@@ -98,6 +103,7 @@ class StatsRow extends StatelessWidget {
     required String value,
     required String label,
     required String actionLabel,
+    required ColorScheme colorScheme,
     VoidCallback? onTap,
   }) {
     return Column(
@@ -136,10 +142,10 @@ class StatsRow extends StatelessWidget {
         // Etiqueta del medio
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
-            color: Color(0xFF6B7280),
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 10),
@@ -158,19 +164,19 @@ class StatsRow extends StatelessWidget {
                     fit: BoxFit.scaleDown,
                     child: Text(
                       actionLabel,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF4B5563),
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 2),
-                const Icon(
+                Icon(
                   Icons.chevron_right_rounded,
                   size: 14,
-                  color: Color(0xFF9CA3AF),
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ],
             ),
@@ -180,9 +186,9 @@ class StatsRow extends StatelessWidget {
     );
   }
 
-  Widget _buildDivider() {
+  Widget _buildDivider(BuildContext context) {
     return VerticalDivider(
-      color: Colors.grey.shade100,
+      color: Theme.of(context).colorScheme.outlineVariant,
       thickness: 1,
       width: 8,
       indent: 8,

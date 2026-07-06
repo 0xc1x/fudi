@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'fudi_colors.dart';
 import 'fudi_spacing.dart';
+import 'fudi_theme.dart';
 
 class FudiSurfaceCard extends StatelessWidget {
   const FudiSurfaceCard({
@@ -17,20 +18,27 @@ class FudiSurfaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
+
     return Container(
       margin: margin,
       decoration: BoxDecoration(
-        color: FudiColors.card,
+        color: themeExt?.cardBg ?? theme.cardTheme.color ?? FudiColors.card,
         borderRadius: BorderRadius.circular(FudiRadius.lg),
-        border: Border.all(color: FudiColors.border.withValues(alpha: 0.09)),
-        boxShadow: [
-          BoxShadow(
-            color: FudiColors.primary.withValues(alpha: 0.04),
-            blurRadius: 16,
-            spreadRadius: -2,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(
+          color: themeExt?.border ?? FudiColors.border.withValues(alpha: 0.09),
+        ),
+        boxShadow: themeExt?.surfaceShadow != null && themeExt!.surfaceShadow != Colors.transparent
+            ? [
+                BoxShadow(
+                  color: themeExt.surfaceShadow,
+                  blurRadius: 16,
+                  spreadRadius: -2,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : null,
       ),
       child: Material(
         type: MaterialType.transparency,

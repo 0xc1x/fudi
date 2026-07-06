@@ -48,10 +48,10 @@ class PickupDetailsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(FudiSpacing.sm),
       decoration: BoxDecoration(
-        color: highlight ? const Color(0xFFFEF2F2) : FudiColors.background,
+        color: highlight ? FudiColors.destructiveSurface : FudiColors.background,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: highlight ? const Color(0xFFFEE2E2) : FudiColors.borderSolid,
+          color: highlight ? FudiColors.destructiveSurface : FudiColors.borderSolid,
         ),
       ),
       child: Row(

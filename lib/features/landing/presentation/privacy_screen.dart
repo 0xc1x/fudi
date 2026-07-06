@@ -12,9 +12,9 @@ class PrivacyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: FudiPressableScale(
           onTap: () => context.pop(),
@@ -22,13 +22,13 @@ class PrivacyScreen extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: const BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
-            child: const Icon(Icons.chevron_left, color: Colors.black),
+            child: const Icon(Icons.chevron_left, color: FudiColors.foreground),
           ),
         ),
         title: const Text(
           'Política de Privacidad',
           style: TextStyle(
-            color: Colors.black,
+            color: FudiColors.foreground,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -39,7 +39,7 @@ class PrivacyScreen extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(FudiSpacing.xl),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: FudiColors.muted.withValues(alpha: 0.5)),
           ),

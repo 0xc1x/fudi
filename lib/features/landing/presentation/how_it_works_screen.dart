@@ -14,9 +14,7 @@ class HowItWorksScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -223,9 +221,9 @@ class _StepRow extends StatelessWidget {
                       color: FudiColors.primary,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.check,
-                      color: Colors.white,
+                      color: FudiColors.primaryForeground,
                       size: 12,
                     ),
                   ),
@@ -325,7 +323,7 @@ class _FAQCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: FudiColors.muted.withValues(alpha: 0.5)),
       ),

@@ -172,12 +172,12 @@ class _MapPickerScreenState extends ConsumerState<MapPickerScreen> {
             right: 0,
             child: Container(
               padding: const EdgeInsets.all(FudiSpacing.md),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                boxShadow: [
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                boxShadow: const [
                   BoxShadow(
-                    color: Colors.black12,
+                    color: FudiColors.shadow,
                     blurRadius: 10,
                     offset: Offset(0, -2),
                   ),
@@ -228,7 +228,7 @@ class _MapPickerScreenState extends ConsumerState<MapPickerScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: FudiColors.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: FudiColors.primaryForeground,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -250,7 +250,7 @@ class _MapPickerScreenState extends ConsumerState<MapPickerScreen> {
             right: FudiSpacing.md,
             child: FloatingActionButton.small(
               onPressed: _determinePosition,
-              backgroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.surface,
               child: const Icon(Icons.my_location, color: FudiColors.primary),
             ),
           ),

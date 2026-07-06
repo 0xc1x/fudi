@@ -52,7 +52,7 @@ class ProfileOrderCard extends StatelessWidget {
         child: Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: FudiColors.card,
+            color: Theme.of(context).colorScheme.surface,
             border: Border.all(
               color: FudiColors.border.withValues(alpha: 0.04),
             ),
@@ -67,10 +67,10 @@ class ProfileOrderCard extends StatelessWidget {
                     offerImageUrl ?? '',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
-                      color: FudiColors.muted,
-                      child: const Icon(
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
+                      child: Icon(
                         Icons.storefront,
-                        color: Colors.white24,
+                        color: FudiColors.foreground.withValues(alpha: 0.24),
                         size: 28,
                       ),
                     ),

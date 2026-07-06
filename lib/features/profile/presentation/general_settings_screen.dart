@@ -8,6 +8,8 @@ import '../../../core/ui/fudi_typography.dart';
 import '../../../core/ui/fudi_sticky_page_header.dart';
 import '../../../core/ui/fudi_surface_card.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
+import '../../../core/ui/fudi_theme.dart';
+import '../../../core/ui/theme_notifier.dart';
 import '../domain/consumer_preferences.dart';
 import 'profile_providers.dart';
 
@@ -19,18 +21,18 @@ class GeneralSettingsScreen extends ConsumerWidget {
     final prefsAsync = ref.watch(consumerPreferencesProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const FudiStickyPageHeader(title: 'Configuración'),
       body: prefsAsync.when(
         data: (prefs) => _buildContent(context, ref, prefs),
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: FudiColors.primary),
+        loading: () => Center(
+          child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
         ),
         error: (error, _) => Center(
           child: Text(
             'Error al cargar configuración: $error',
             style: FudiTypography.bodyMedium.copyWith(
-              color: FudiColors.destructive,
+              color: Theme.of(context).colorScheme.error,
             ),
           ),
         ),
@@ -43,6 +45,11 @@ class GeneralSettingsScreen extends ConsumerWidget {
     WidgetRef ref,
     ConsumerPreferences prefs,
   ) {
+    final themeState = ref.watch(themeNotifierProvider);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final themeExt = theme.extension<FudiThemeExtension>();
+
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(
@@ -60,41 +67,35 @@ class GeneralSettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: FudiSpacing.md),
-          FudiSurfaceCard(
-            padding: const EdgeInsets.symmetric(
-              horizontal: FudiSpacing.md,
-              vertical: FudiSpacing.xs,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Modo Oscuro',
-                        style: FudiTypography.bodyMedium.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        'Cambiar el tema visual de la aplicación',
-                        style: FudiTypography.bodySmall.copyWith(
-                          color: FudiColors.mutedForeground,
-                        ),
-                      ),
-                    ],
-                  ),
+          Row(
+            children: [
+              Expanded(
+                child: _ThemeOptionCard(
+                  title: 'Claro',
+                  icon: Icons.light_mode_rounded,
+                  isSelected: themeState == AppThemeMode.light,
+                  onTap: () => ref.read(themeNotifierProvider.notifier).setThemeMode(AppThemeMode.light),
                 ),
-                Switch.adaptive(
-                  value: prefs.darkMode,
-                  activeThumbColor: FudiColors.primary,
-                  activeTrackColor: FudiColors.primary.withValues(alpha: 0.2),
-                  onChanged: (v) => _update(ref, prefs.copyWith(darkMode: v)),
+              ),
+              const SizedBox(width: FudiSpacing.sm),
+              Expanded(
+                child: _ThemeOptionCard(
+                  title: 'Oscuro',
+                  icon: Icons.dark_mode_rounded,
+                  isSelected: themeState == AppThemeMode.dark,
+                  onTap: () => ref.read(themeNotifierProvider.notifier).setThemeMode(AppThemeMode.dark),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: FudiSpacing.sm),
+              Expanded(
+                child: _ThemeOptionCard(
+                  title: 'Sistema',
+                  icon: Icons.brightness_auto_rounded,
+                  isSelected: themeState == AppThemeMode.system,
+                  onTap: () => ref.read(themeNotifierProvider.notifier).setThemeMode(AppThemeMode.system),
+                ),
+              ),
+            ],
           ),
 
           const SizedBox(height: FudiSpacing.xl),
@@ -126,13 +127,13 @@ class GeneralSettingsScreen extends ConsumerWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: FudiColors.primary.withValues(alpha: 0.08),
+                        color: theme.colorScheme.primary.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         '${prefs.notificationRadiusKm} km',
                         style: FudiTypography.labelSmall.copyWith(
-                          color: FudiColors.primary,
+                          color: theme.colorScheme.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -142,10 +143,10 @@ class GeneralSettingsScreen extends ConsumerWidget {
                 const SizedBox(height: FudiSpacing.sm),
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: FudiColors.primary,
-                    inactiveTrackColor: FudiColors.inputBackground,
-                    thumbColor: FudiColors.primary,
-                    overlayColor: FudiColors.primary.withValues(alpha: 0.12),
+                    activeTrackColor: theme.colorScheme.primary,
+                    inactiveTrackColor: themeExt?.mutedBackground ?? (isDark ? FudiColorsDark.muted : FudiColors.muted),
+                    thumbColor: theme.colorScheme.primary,
+                    overlayColor: theme.colorScheme.primary.withValues(alpha: 0.12),
                     trackHeight: 4,
                   ),
                   child: Slider(
@@ -162,7 +163,7 @@ class GeneralSettingsScreen extends ConsumerWidget {
                 Text(
                   'Te mostraremos ofertas gastronómicas y comerciales dentro de este radio de cobertura.',
                   style: FudiTypography.bodySmall.copyWith(
-                    color: FudiColors.mutedForeground,
+                    color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                     height: 1.3,
                   ),
                 ),
@@ -199,15 +200,15 @@ class GeneralSettingsScreen extends ConsumerWidget {
                       Text(
                         prefs.language == 'es' ? 'Español' : 'Inglés (English)',
                         style: FudiTypography.bodySmall.copyWith(
-                          color: FudiColors.primary,
+                          color: theme.colorScheme.primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
-                  const Icon(
+                  Icon(
                     Icons.keyboard_arrow_right_rounded,
-                    color: FudiColors.mutedForeground,
+                    color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                   ),
                 ],
               ),
@@ -220,9 +221,6 @@ class GeneralSettingsScreen extends ConsumerWidget {
 
   // Actualización optimizada con feedback instantáneo en UI
   void _update(WidgetRef ref, ConsumerPreferences prefs) async {
-    // 1. Alternativa recomendada: Si usas un StateNotifier o AsyncNotifier en tu provider,
-    // actualiza primero el estado en memoria para que la respuesta de sliders/switches sea inmediata.
-    // Aquí invocamos directamente al repositorio y refrescamos:
     await ref.read(consumerProfileRepositoryProvider).updatePreferences(prefs);
     ref.invalidate(consumerPreferencesProvider);
   }
@@ -233,9 +231,13 @@ class GeneralSettingsScreen extends ConsumerWidget {
     WidgetRef ref,
     ConsumerPreferences prefs,
   ) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final themeExt = theme.extension<FudiThemeExtension>();
+
     unawaited(showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -252,7 +254,7 @@ class GeneralSettingsScreen extends ConsumerWidget {
                     width: 38,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: FudiColors.inputBackground,
+                      color: themeExt?.mutedBackground ?? (isDark ? FudiColorsDark.muted : FudiColors.muted),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -291,6 +293,63 @@ class GeneralSettingsScreen extends ConsumerWidget {
   }
 }
 
+// Sub-componente privado para las tarjetas de selección de tema
+class _ThemeOptionCard extends StatelessWidget {
+  const _ThemeOptionCard({
+    required this.title,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String title;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final themeExt = theme.extension<FudiThemeExtension>();
+
+    return FudiPressableScale(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? theme.colorScheme.primary.withValues(alpha: isDark ? 0.15 : 0.05)
+              : (themeExt?.cardBg ?? (isDark ? FudiColorsDark.muted : FudiColors.card)),
+          borderRadius: BorderRadius.circular(FudiRadius.md),
+          border: Border.all(
+            color: isSelected
+                ? theme.colorScheme.primary
+                : (themeExt?.border ?? (isDark ? FudiColorsDark.border : FudiColors.borderSolid)),
+            width: isSelected ? 1.5 : 1.0,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+            const SizedBox(height: FudiSpacing.xs),
+            Text(
+              title,
+              style: FudiTypography.bodySmall.copyWith(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // Sub-componente privado para las opciones del selector de idioma
 class _LanguageOption extends StatelessWidget {
   const _LanguageOption({
@@ -305,6 +364,9 @@ class _LanguageOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
+
     return FudiPressableScale(
       onTap: onTap,
       child: Container(
@@ -312,13 +374,13 @@ class _LanguageOption extends StatelessWidget {
         padding: const EdgeInsets.all(FudiSpacing.lg),
         decoration: BoxDecoration(
           color: isSelected
-              ? FudiColors.primary.withValues(alpha: 0.05)
+              ? theme.colorScheme.primary.withValues(alpha: 0.05)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
-                ? FudiColors.primary.withValues(alpha: 0.3)
-                : FudiColors.borderSolid,
+                ? theme.colorScheme.primary.withValues(alpha: 0.3)
+                : (themeExt?.borderSolid ?? FudiColors.borderSolid),
           ),
         ),
         child: Row(
@@ -328,13 +390,13 @@ class _LanguageOption extends StatelessWidget {
               label,
               style: FudiTypography.bodyMedium.copyWith(
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w400,
-                color: isSelected ? FudiColors.primary : FudiColors.foreground,
+                color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
               ),
             ),
             if (isSelected)
-              const Icon(
+              Icon(
                 Icons.check_circle_rounded,
-                color: FudiColors.primary,
+                color: theme.colorScheme.primary,
                 size: 20,
               ),
           ],

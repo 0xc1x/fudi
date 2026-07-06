@@ -55,7 +55,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     }
 
     return Scaffold(
-      backgroundColor: FudiColors.muted,
       body: Column(
         children: [
           _ProfileHeader(profile: profile),
@@ -181,7 +180,7 @@ class _ProfileHeader extends ConsumerWidget {
                       child: Container(
                         height: 80,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(FudiRadius.xl),
                         ),
                       ),
@@ -248,7 +247,7 @@ class _ProfileTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: FudiColors.background,
+      color: Theme.of(context).colorScheme.surface,
       child: TabBar(
         controller: tabController,
         labelColor: FudiColors.primary,
@@ -358,7 +357,7 @@ class _OrdersTab extends ConsumerWidget {
               child: Container(
                 height: 120,
                 decoration: BoxDecoration(
-                  color: FudiColors.muted,
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(FudiRadius.xl),
                 ),
               ),

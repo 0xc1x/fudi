@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
@@ -27,7 +28,6 @@ class BusinessOrderDetailScreen extends ConsumerWidget {
     final businessAsync = ref.watch(currentBusinessProvider);
 
     return Scaffold(
-      backgroundColor: FudiColors.background,
       body: businessAsync.when(
         data: (business) {
           if (business == null) {
@@ -64,20 +64,20 @@ class _OrderDetailScaffold extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final themeExt = Theme.of(context).extension<FudiThemeExtension>();
     return Scaffold(
-      backgroundColor: FudiColors.background,
       appBar: AppBar(
         leading: Padding(
           padding: const EdgeInsets.all(FudiSpacing.sm),
           child: InkWell(
             onTap: () => context.pop(),
             borderRadius: BorderRadius.circular(FudiRadius.full),
-            child: const DecoratedBox(
+            child: DecoratedBox(
               decoration: BoxDecoration(
-                color: FudiColors.muted,
+                color: themeExt?.mutedBackground ?? FudiColors.muted,
                 shape: BoxShape.circle,
               ),
-              child: Icon(FudiIcons.chevronLeft, size: 20),
+              child: const Icon(FudiIcons.chevronLeft, size: 20),
             ),
           ),
         ),
@@ -88,7 +88,7 @@ class _OrderDetailScaffold extends ConsumerWidget {
             Text(
               '#${order.id.substring(0, 8)}',
               style: FudiTypography.bodySmall.copyWith(
-                color: FudiColors.mutedForeground,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -152,6 +152,7 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeExt = Theme.of(context).extension<FudiThemeExtension>();
     return FudiSurfaceCard(
       padding: const EdgeInsets.all(FudiSpacing.md),
       child: Column(
@@ -166,7 +167,7 @@ class _ProductCard extends StatelessWidget {
                 height: 80,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  color: FudiColors.muted,
+                  color: themeExt?.mutedBackground ?? FudiColors.muted,
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
@@ -298,12 +299,15 @@ class _OrderInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeExt = Theme.of(context).extension<FudiThemeExtension>();
+    final colorScheme = Theme.of(context).colorScheme;
+    final mutedBg = themeExt?.mutedBackground ?? FudiColors.muted;
     return Container(
       padding: const EdgeInsets.all(FudiSpacing.md),
       decoration: BoxDecoration(
-        color: FudiColors.muted.withValues(alpha: 0.5),
+        color: mutedBg.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: FudiColors.border),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Row(
         children: [
@@ -314,7 +318,7 @@ class _OrderInfoCard extends StatelessWidget {
                 Text(
                   'Número de pedido',
                   style: FudiTypography.bodySmall.copyWith(
-                    color: FudiColors.mutedForeground,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 Text(
@@ -333,7 +337,7 @@ class _OrderInfoCard extends StatelessWidget {
                 Text(
                   'Fecha de creación',
                   style: FudiTypography.bodySmall.copyWith(
-                    color: FudiColors.mutedForeground,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 Text(
@@ -366,11 +370,11 @@ class _ActionBottomBar extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(FudiSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: const Border(top: BorderSide(color: FudiColors.border)),
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -401,7 +405,7 @@ class _ActionBottomBar extends ConsumerWidget {
                 label: const Text('Marcar como listo'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: FudiColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: FudiColors.primaryForeground,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -419,8 +423,8 @@ class _ActionBottomBar extends ConsumerWidget {
                 icon: const Icon(FudiIcons.package_, size: 20),
                 label: const Text('Validar entrega'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade600,
-                  foregroundColor: Colors.white,
+                  backgroundColor: FudiColors.success,
+                  foregroundColor: FudiColors.primaryForeground,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -497,29 +501,29 @@ class _ActionBottomBar extends ConsumerWidget {
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
               child: Row(
                 children: [
-                  Expanded(child: Divider()),
+                  const Expanded(child: Divider()),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Text(
                       'o ingresa manualmente',
                       style: TextStyle(
-                        color: FudiColors.mutedForeground,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 12,
                       ),
                     ),
                   ),
-                  Expanded(child: Divider()),
+                  const Expanded(child: Divider()),
                 ],
               ),
             ),
             Text(
               'Código de 6 dígitos del cliente',
               style: FudiTypography.bodySmall.copyWith(
-                color: FudiColors.mutedForeground,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: FudiSpacing.md),
@@ -573,8 +577,8 @@ class _ActionBottomBar extends ConsumerWidget {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green.shade600,
-              foregroundColor: Colors.white,
+              backgroundColor: FudiColors.success,
+              foregroundColor: FudiColors.primaryForeground,
             ),
             child: const Text('Confirmar'),
           ),
@@ -612,7 +616,7 @@ class _ActionBottomBar extends ConsumerWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: FudiColors.destructive,
-              foregroundColor: Colors.white,
+              foregroundColor: FudiColors.primaryForeground,
             ),
             child: const Text('Sí, cancelar'),
           ),

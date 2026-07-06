@@ -38,15 +38,14 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mis Pedidos', style: FudiTypography.headlineMedium),
-        backgroundColor: FudiColors.background,
         surfaceTintColor: Colors.transparent,
         leading: FudiPressableScale(
           onTap: () => context.pop(),
           child: Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
-              color: FudiColors.muted,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
               shape: BoxShape.circle,
             ),
             child: const Icon(FudiIcons.chevronLeft, size: 24),
@@ -78,8 +77,8 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
                         child: Container(
                           width: 36,
                           height: 36,
-                          decoration: const BoxDecoration(
-                            color: FudiColors.muted,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surfaceContainerLow,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.clear, size: 18),
@@ -87,7 +86,7 @@ class _OrderHistoryScreenState extends ConsumerState<OrderHistoryScreen> {
                       )
                     : null,
                 filled: true,
-                fillColor: FudiColors.muted,
+                fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: FudiSpacing.md,
                   vertical: FudiSpacing.sm,

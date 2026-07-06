@@ -4,6 +4,7 @@ import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_search_bar.dart';
 import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/fudi_empty_state.dart';
 import '../../../../core/ui/atoms/fudi_filter_chip.dart';
@@ -237,6 +238,9 @@ class _OrdersFilterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final themeExt = theme.extension<FudiThemeExtension>();
     return FudiPressableScale(
       onTap: onTap,
       child: Container(
@@ -247,12 +251,12 @@ class _OrdersFilterButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: hasActiveFilter
               ? FudiColors.primary
-              : FudiColors.background,
+              : colorScheme.surface,
           borderRadius: BorderRadius.circular(FudiRadius.xl),
           border: Border.all(
             color: hasActiveFilter
                 ? FudiColors.primary
-                : FudiColors.borderSolid,
+                : themeExt?.borderSolid ?? FudiColors.borderSolid,
           ),
         ),
         child: Row(
@@ -261,14 +265,14 @@ class _OrdersFilterButton extends StatelessWidget {
             Icon(
               Icons.filter_list_rounded,
               size: 18,
-              color: hasActiveFilter ? Colors.white : FudiColors.foreground,
+              color: hasActiveFilter ? FudiColors.primaryForeground : colorScheme.onSurface,
             ),
             const SizedBox(width: 4),
             Text(
               'Filtrar',
               style: FudiTypography.bodyMedium.copyWith(
                 fontWeight: FontWeight.w500,
-                color: hasActiveFilter ? Colors.white : FudiColors.foreground,
+                color: hasActiveFilter ? FudiColors.primaryForeground : colorScheme.onSurface,
               ),
             ),
           ],

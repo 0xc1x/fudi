@@ -17,9 +17,9 @@ class ForBusinessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -36,7 +36,7 @@ class ForBusinessScreen extends StatelessWidget {
                 ),
                 child: const Icon(
                   Icons.arrow_back,
-                  color: Colors.black,
+                  color: FudiColors.foreground,
                   size: 20,
                 ),
               ),
@@ -113,7 +113,7 @@ class _Hero extends StatelessWidget {
               child: const Text(
                 'Registrar mi negocio',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: FudiColors.primaryForeground,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -205,7 +205,7 @@ class _BenefitCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: FudiColors.muted.withValues(alpha: 0.5)),
       ),
@@ -246,7 +246,7 @@ class _HowItWorksForBusiness extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF8F9FA),
+      color: Theme.of(context).colorScheme.surface,
       padding: const EdgeInsets.symmetric(
         vertical: 100,
         horizontal: FudiSpacing.xl,
@@ -320,7 +320,7 @@ class _BusinessStep extends StatelessWidget {
               child: Text(
                 number,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: FudiColors.primaryForeground,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -364,7 +364,7 @@ class _CTA extends StatelessWidget {
       width: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [FudiColors.primary, Color(0xFF2E7D32)],
+          colors: [FudiColors.primary, FudiColors.greenMidDark],
         ),
       ),
       padding: const EdgeInsets.symmetric(
@@ -376,15 +376,18 @@ class _CTA extends StatelessWidget {
           const Text(
             '¿Listo para unirte?',
             style: TextStyle(
-              color: Colors.white,
+              color: FudiColors.primaryForeground,
               fontSize: 40,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'Únete a Fudi y empieza a reducir el desperdicio hoy mismo',
-            style: TextStyle(color: Colors.white70, fontSize: 20),
+            style: TextStyle(
+              color: FudiColors.primaryForeground.withValues(alpha: 0.7),
+              fontSize: 20,
+            ),
           ),
           const SizedBox(height: 48),
           FudiPressableScale(
@@ -400,7 +403,7 @@ class _CTA extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(

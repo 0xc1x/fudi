@@ -98,7 +98,7 @@ class PaymentMethodSection extends StatelessWidget {
                                 : FudiColors.borderSolid,
                             width: selected ? 5 : 1.5,
                           ),
-                          color: Colors.white,
+                          color: FudiColors.background,
                         ),
                       ),
                     ],

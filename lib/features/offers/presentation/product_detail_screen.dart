@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_theme.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/atoms/fudi_heart_button.dart';
@@ -24,6 +25,7 @@ class ProductDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final offerAsync = ref.watch(offerDetailProvider(id));
 
     return offerAsync.when(
@@ -38,10 +40,10 @@ class ProductDetailScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   FudiIcons.alertTriangle,
                   size: 64,
-                  color: FudiColors.mutedForeground,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
                 const SizedBox(height: FudiSpacing.md),
                 const Text(
@@ -57,12 +59,12 @@ class ProductDetailScreen extends ConsumerWidget {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: FudiColors.foreground,
+                      color: theme.colorScheme.onSurface,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Volver al inicio',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: theme.colorScheme.surface),
                     ),
                   ),
                 ),
@@ -97,8 +99,13 @@ class _OfferDetailContentMinimalState
     final savings = ((1 - offer.discountedPrice / offer.originalPrice) * 100)
         .round();
 
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
+    final resolvedMutedBg = themeExt?.mutedBackground ?? theme.colorScheme.surfaceContainerLow;
+    final resolvedMutedForeground = theme.colorScheme.onSurface.withValues(alpha: 0.6);
+
     return Scaffold(
-      backgroundColor: FudiColors.surfaceBackground,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
           // ── Cuerpo de Scroll Principal ─────────────────────────────────────
@@ -110,7 +117,7 @@ class _OfferDetailContentMinimalState
                 expandedHeight: 320,
                 pinned: true,
                 elevation: 0,
-                backgroundColor: FudiColors.surfaceBackground,
+                backgroundColor: theme.scaffoldBackgroundColor,
                 automaticallyImplyLeading: false,
                 flexibleSpace: FlexibleSpaceBar(
                   background: Stack(
@@ -121,8 +128,8 @@ class _OfferDetailContentMinimalState
                               imageUrl: offer.imageUrl!,
                               fit: BoxFit.cover,
                             )
-                          : Container(color: FudiColors.muted),
-                      const Positioned.fill(
+                          : Container(color: resolvedMutedBg),
+                      Positioned.fill(
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
@@ -131,9 +138,9 @@ class _OfferDetailContentMinimalState
                               colors: [
                                 Colors.black45,
                                 Colors.transparent,
-                                FudiColors.surfaceBackground,
+                                theme.scaffoldBackgroundColor,
                               ],
-                              stops: [0.0, 0.5, 1.0],
+                              stops: const [0.0, 0.5, 1.0],
                             ),
                           ),
                         ),
@@ -163,7 +170,7 @@ class _OfferDetailContentMinimalState
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: FudiColors.primary.withValues(
+                                color: theme.colorScheme.primary.withValues(
                                   alpha: 0.1,
                                 ),
                                 borderRadius: BorderRadius.circular(6),
@@ -171,7 +178,7 @@ class _OfferDetailContentMinimalState
                               child: Text(
                                 offer.business.type.toUpperCase(),
                                 style: FudiTypography.labelSmall.copyWith(
-                                  color: FudiColors.primary,
+                                  color: theme.colorScheme.primary,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 1.0,
                                 ),
@@ -194,7 +201,7 @@ class _OfferDetailContentMinimalState
                               Text(
                                 ' (${offer.reviewCount})',
                                 style: FudiTypography.bodySmall.copyWith(
-                                  color: FudiColors.mutedForeground,
+                                  color: resolvedMutedForeground,
                                 ),
                               ),
                             ],
@@ -229,7 +236,7 @@ class _OfferDetailContentMinimalState
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: FudiColors.foreground,
+                                color: theme.colorScheme.onSurface,
                                 borderRadius: BorderRadius.circular(
                                   FudiRadius.full,
                                 ),
@@ -237,7 +244,7 @@ class _OfferDetailContentMinimalState
                               child: Text(
                                 'Ahorras el $savings%',
                                 style: FudiTypography.bodySmall.copyWith(
-                                  color: Colors.white,
+                                  color: theme.colorScheme.surface,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -249,9 +256,9 @@ class _OfferDetailContentMinimalState
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: FudiColors.destructiveSurface,
+                                  color: theme.colorScheme.error.withValues(alpha: 0.12),
                                   border: Border.all(
-                                    color: FudiColors.destructiveBorder,
+                                    color: theme.colorScheme.error.withValues(alpha: 0.3),
                                   ),
                                   borderRadius: BorderRadius.circular(
                                     FudiRadius.full,
@@ -260,7 +267,7 @@ class _OfferDetailContentMinimalState
                                 child: Text(
                                   '¡Solo quedan ${offer.stock}!',
                                   style: FudiTypography.bodySmall.copyWith(
-                                    color: FudiColors.destructiveVibrant,
+                                    color: theme.colorScheme.error,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -289,7 +296,7 @@ class _OfferDetailContentMinimalState
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: FudiColors.primary.withValues(
+                                color: theme.colorScheme.primary.withValues(
                                   alpha: 0.1,
                                 ),
                                 borderRadius: BorderRadius.circular(8),
@@ -297,7 +304,7 @@ class _OfferDetailContentMinimalState
                               child: Text(
                                 'Ver local',
                                 style: FudiTypography.labelSmall.copyWith(
-                                  color: FudiColors.primary,
+                                  color: theme.colorScheme.primary,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -305,7 +312,7 @@ class _OfferDetailContentMinimalState
                           ),
                         ),
                       ),
-                      _buildTimelineDivider(),
+                      _buildTimelineDivider(theme, themeExt),
 
                       // Paso 2: Ubicación / Distancia
                       FudiStaggerItem(
@@ -317,7 +324,7 @@ class _OfferDetailContentMinimalState
                               'A una distancia de ${_formatDistance(offer)} de ti.',
                         ),
                       ),
-                      _buildTimelineDivider(),
+                      _buildTimelineDivider(theme, themeExt),
 
                       // Paso 3: Horario de Recogida
                       FudiStaggerItem(
@@ -329,7 +336,7 @@ class _OfferDetailContentMinimalState
                               'Pasa por tu pack hoy de ${_formatTime(offer.pickupStart)} a ${_formatTime(offer.pickupEnd)}',
                         ),
                       ),
-                      _buildTimelineDivider(),
+                      _buildTimelineDivider(theme, themeExt),
 
                       // Paso 4: Unidades Restantes / Disponibilidad
                       FudiStaggerItem(
@@ -341,7 +348,7 @@ class _OfferDetailContentMinimalState
                               'Quedan libres ${offer.stock} de los ${offer.initialStock} publicados inicialmente.',
                         ),
                       ),
-                      _buildTimelineDivider(),
+                      _buildTimelineDivider(theme, themeExt),
 
                       // Paso 5: Instrucciones específicas de Recogida
                       FudiStaggerItem(
@@ -353,7 +360,7 @@ class _OfferDetailContentMinimalState
                               'Presenta tu código de reserva digital al personal antes del cierre de la ventana de tiempo. Ellos te entregarán el pack listo.',
                         ),
                       ),
-                      _buildTimelineDivider(),
+                      _buildTimelineDivider(theme, themeExt),
 
                       // Paso 6: Contenido del Pack
                       FudiStaggerItem(
@@ -376,11 +383,11 @@ class _OfferDetailContentMinimalState
                           width: double.infinity,
                           padding: const EdgeInsets.all(FudiSpacing.xl),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: themeExt?.cardBg ?? theme.cardTheme.color ?? theme.colorScheme.surface,
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.02),
+                                color: themeExt?.surfaceShadow ?? Colors.black.withValues(alpha: 0.02),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
@@ -405,7 +412,7 @@ class _OfferDetailContentMinimalState
                                 'Al salvar esta comida evitas que se desperdicien recursos valiosos y disminuyes de inmediato la emisión directa de CO₂.',
                                 textAlign: TextAlign.center,
                                 style: FudiTypography.bodySmall.copyWith(
-                                  color: FudiColors.mutedForeground,
+                                  color: resolvedMutedForeground,
                                   height: 1.4,
                                 ),
                               ),
@@ -451,11 +458,11 @@ class _OfferDetailContentMinimalState
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: themeExt?.cardBg ?? theme.cardTheme.color ?? theme.colorScheme.surface,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
+                    color: themeExt?.surfaceShadow ?? Colors.black.withValues(alpha: 0.08),
                     blurRadius: 24,
                     offset: const Offset(0, 8),
                   ),
@@ -473,13 +480,13 @@ class _OfferDetailContentMinimalState
                           '\$${offer.originalPrice.toStringAsFixed(2)}',
                           style: FudiTypography.bodySmall.copyWith(
                             decoration: TextDecoration.lineThrough,
-                            color: FudiColors.mutedForeground,
+                            color: resolvedMutedForeground,
                           ),
                         ),
                         Text(
                           '\$${offer.discountedPrice.toStringAsFixed(2)}',
                           style: FudiTypography.headlineSmall.copyWith(
-                            color: FudiColors.foreground,
+                            color: theme.colorScheme.onSurface,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
@@ -495,19 +502,19 @@ class _OfferDetailContentMinimalState
                           height: 52,
                           decoration: BoxDecoration(
                             color: !offer.isAvailable
-                                ? FudiColors.mutedForeground.withValues(
-                                    alpha: 0.3,
+                                ? theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.15,
                                   )
-                                : FudiColors.primary,
+                                : theme.colorScheme.primary,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Center(
                             child: isReserving
-                                ? const SizedBox(
+                                ? SizedBox(
                                     width: 20,
                                     height: 20,
                                     child: CircularProgressIndicator(
-                                      color: Colors.white,
+                                      color: theme.colorScheme.onPrimary,
                                       strokeWidth: 2,
                                     ),
                                   )
@@ -516,7 +523,7 @@ class _OfferDetailContentMinimalState
                                         ? 'Agotado'
                                         : 'Salvar Pack',
                                     style: FudiTypography.labelMedium.copyWith(
-                                      color: Colors.white,
+                                      color: theme.colorScheme.onPrimary,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -541,16 +548,23 @@ class _OfferDetailContentMinimalState
     required String subtitle,
     Widget? trailing,
   }) {
+    final theme = Theme.of(context);
+    final resolvedMutedForeground = theme.colorScheme.onSurface.withValues(alpha: 0.6);
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: const EdgeInsets.all(10),
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
             shape: BoxShape.circle,
+            border: Border.all(
+              color: theme.extension<FudiThemeExtension>()?.borderSolid ??
+                  theme.colorScheme.outline.withValues(alpha: 0.2),
+            ),
           ),
-          child: Icon(icon, size: 18, color: FudiColors.foreground),
+          child: Icon(icon, size: 18, color: theme.colorScheme.onSurface),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -561,14 +575,14 @@ class _OfferDetailContentMinimalState
                 title,
                 style: FudiTypography.bodyMedium.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: FudiColors.foreground,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 subtitle,
                 style: FudiTypography.bodyMedium.copyWith(
-                  color: FudiColors.mutedForeground,
+                  color: resolvedMutedForeground,
                   height: 1.3,
                 ),
               ),
@@ -580,10 +594,14 @@ class _OfferDetailContentMinimalState
     );
   }
 
-  Widget _buildTimelineDivider() {
+  Widget _buildTimelineDivider(ThemeData theme, FudiThemeExtension? themeExt) {
     return Padding(
       padding: const EdgeInsets.only(left: 19),
-      child: Container(width: 2, height: 24, color: FudiColors.muted),
+      child: Container(
+        width: 2,
+        height: 24,
+        color: themeExt?.borderSolid ?? theme.colorScheme.outline.withValues(alpha: 0.2),
+      ),
     );
   }
 

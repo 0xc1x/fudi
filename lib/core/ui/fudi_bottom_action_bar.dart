@@ -10,13 +10,17 @@ class FudiBottomActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final effectiveBorder = isDark ? FudiColorsDark.border : FudiColors.borderSolid;
+
     return Container(
-      decoration: const BoxDecoration(
-        color: FudiColors.background,
-        border: Border(top: BorderSide(color: FudiColors.borderSolid)),
-        boxShadow: [
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        border: Border(top: BorderSide(color: effectiveBorder)),
+        boxShadow: const [
           BoxShadow(
-            color: Color(0x14000000),
+            color: FudiColors.shadow,
             blurRadius: 16,
             offset: Offset(0, -4),
           ),

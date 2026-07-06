@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
@@ -18,21 +19,24 @@ class BusinessNotificationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final themeExt = theme.extension<FudiThemeExtension>();
     final businessAsync = ref.watch(currentBusinessProvider);
     return Scaffold(
-      backgroundColor: FudiColors.background,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         leading: Padding(
           padding: const EdgeInsets.all(FudiSpacing.sm),
           child: InkWell(
             onTap: () => context.pop(),
             borderRadius: BorderRadius.circular(FudiRadius.full),
-            child: const DecoratedBox(
+            child: DecoratedBox(
               decoration: BoxDecoration(
-                color: FudiColors.muted,
+                color: themeExt?.mutedBackground ?? FudiColors.muted,
                 shape: BoxShape.circle,
               ),
-              child: Icon(FudiIcons.chevronLeft, size: 20),
+              child: const Icon(FudiIcons.chevronLeft, size: 20),
             ),
           ),
         ),
@@ -43,13 +47,13 @@ class BusinessNotificationsScreen extends ConsumerWidget {
             Text(
               'Gestiona tus alertas',
               style: FudiTypography.bodySmall.copyWith(
-                color: FudiColors.mutedForeground,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ],
         ),
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
       ),
       body: businessAsync.when(
         data: (business) {
@@ -115,7 +119,7 @@ class _Content extends ConsumerWidget {
           const SizedBox(height: FudiSpacing.md),
           _buildChannels(context, ref),
           const SizedBox(height: FudiSpacing.md),
-          _buildQuietHours(ref),
+          _buildQuietHours(context, ref),
           const SizedBox(height: 80),
         ],
       ),
@@ -149,10 +153,10 @@ class _Content extends ConsumerWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: FudiColors.primaryForeground.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: const Icon(FudiIcons.bell, size: 24, color: Colors.white),
+            child: const Icon(FudiIcons.bell, size: 24, color: FudiColors.primaryForeground),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -163,13 +167,13 @@ class _Content extends ConsumerWidget {
                   'Mantente informado',
                   style: FudiTypography.bodyMedium.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: FudiColors.primaryForeground,
                   ),
                 ),
                 Text(
                   'No te pierdas ningún pedido importante',
                   style: FudiTypography.bodySmall.copyWith(
-                    color: Colors.white.withValues(alpha: 0.9),
+                    color: FudiColors.primaryForeground.withValues(alpha: 0.9),
                   ),
                 ),
               ],
@@ -284,7 +288,8 @@ class _Content extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuietHours(WidgetRef ref) {
+  Widget _buildQuietHours(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
     final from = prefs.quietHoursFrom;
     final to = prefs.quietHoursTo;
 
@@ -298,7 +303,7 @@ class _Content extends ConsumerWidget {
           Text(
             'No recibirás notificaciones durante estas horas',
             style: FudiTypography.bodySmall.copyWith(
-              color: FudiColors.mutedForeground,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: FudiSpacing.md),
@@ -382,6 +387,9 @@ class _EventTypeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final mutedBg = Theme.of(context).extension<FudiThemeExtension>()?.mutedBackground ?? FudiColors.muted;
+
     return Padding(
       padding: const EdgeInsets.all(FudiSpacing.md),
       child: Row(
@@ -392,13 +400,13 @@ class _EventTypeTile extends StatelessWidget {
             decoration: BoxDecoration(
               color: value
                   ? FudiColors.primary.withValues(alpha: 0.1)
-                  : FudiColors.muted,
+                  : mutedBg,
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
               size: 20,
-              color: value ? FudiColors.primary : FudiColors.mutedForeground,
+              color: value ? FudiColors.primary : colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(width: 12),
@@ -415,7 +423,7 @@ class _EventTypeTile extends StatelessWidget {
                 Text(
                   description,
                   style: FudiTypography.bodySmall.copyWith(
-                    color: FudiColors.mutedForeground,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -447,6 +455,8 @@ class _ChannelTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: FudiSpacing.sm),
       child: Row(
@@ -465,7 +475,7 @@ class _ChannelTile extends StatelessWidget {
                 Text(
                   subtitle,
                   style: FudiTypography.bodySmall.copyWith(
-                    color: FudiColors.mutedForeground,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -497,13 +507,15 @@ class _TimeField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
           style: FudiTypography.bodySmall.copyWith(
-            color: FudiColors.mutedForeground,
+            color: colorScheme.onSurfaceVariant,
             fontSize: 12,
           ),
         ),
@@ -548,18 +560,18 @@ class _TimeField extends StatelessWidget {
                   value != null ? value! : '--:--',
                   style: FudiTypography.bodyMedium.copyWith(
                     color: value != null
-                        ? FudiColors.foreground
-                        : FudiColors.mutedForeground,
+                        ? colorScheme.onSurface
+                        : colorScheme.onSurfaceVariant,
                   ),
                 ),
                 if (onClear != null) ...[
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: onClear,
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
                       size: 16,
-                      color: FudiColors.mutedForeground,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],

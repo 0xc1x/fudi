@@ -10,6 +10,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
+import '../../../core/ui/fudi_theme.dart';
 import '../../../core/ui/atoms/fudi_discount_badge.dart';
 import '../../../core/ui/atoms/fudi_circle_button.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
@@ -186,51 +187,57 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
             child: _MapZoomControls(onZoomIn: _zoomIn, onZoomOut: _zoomOut),
           ),
 
-          Positioned(
-            bottom: _selectedOffer != null ? 360 : 100,
-            right: FudiSpacing.lg,
-            child: FudiCircleButton(
-              onTap: _goToMyLocation,
-              icon: Icons.my_location,
-              iconSize: 24,
-              backgroundColor: FudiColors.background,
-              iconColor: FudiColors.primary,
-            ),
-          ),
+          Builder(builder: (context) {
+            final theme = Theme.of(context);
+            return Positioned(
+              bottom: _selectedOffer != null ? 360 : 100,
+              right: FudiSpacing.lg,
+              child: FudiCircleButton(
+                onTap: _goToMyLocation,
+                icon: Icons.my_location,
+                iconSize: 24,
+                backgroundColor: theme.colorScheme.surface,
+                iconColor: theme.colorScheme.primary,
+              ),
+            );
+          }),
 
           if (!_mapReady) const Center(child: CircularProgressIndicator()),
 
           if (_mapReady && !hasOffers)
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 120,
-              left: FudiSpacing.lg,
-              right: FudiSpacing.lg,
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: FudiSpacing.lg,
-                    vertical: FudiSpacing.md,
-                  ),
-                  decoration: BoxDecoration(
-                    color: FudiColors.background.withValues(alpha: 0.95),
-                    borderRadius: BorderRadius.circular(FudiRadius.lg),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    'No hay ofertas disponibles en esta zona',
-                    style: FudiTypography.bodyMedium.copyWith(
-                      color: FudiColors.mutedForeground,
+            Builder(builder: (context) {
+              final theme = Theme.of(context);
+              return Positioned(
+                top: MediaQuery.of(context).padding.top + 120,
+                left: FudiSpacing.lg,
+                right: FudiSpacing.lg,
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: FudiSpacing.lg,
+                      vertical: FudiSpacing.md,
                     ),
-                    textAlign: TextAlign.center,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface.withValues(alpha: 0.95),
+                      borderRadius: BorderRadius.circular(FudiRadius.lg),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.shadowColor.withValues(alpha: 0.1),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      'No hay ofertas disponibles en esta zona',
+                      style: FudiTypography.bodyMedium.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
-              ),
-            ),
+              );
+            }),
 
           if (_selectedOffer != null)
             Positioned(
@@ -318,6 +325,11 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
 
     if (offersToGenerate.isEmpty) return;
 
+    // Capture theme colors before async gap to avoid BuildContext across async boundaries.
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+    final surfaceColor = theme.colorScheme.surface;
+
     for (final offer in offersToGenerate) {
       final isSelected = _selectedOffer?.id == offer.id;
       final key = '${offer.id}_$isSelected';
@@ -326,6 +338,8 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
       final descriptor = await _createPriceMarkerBitmap(
         price: '\$${offer.discountedPrice.toStringAsFixed(0)}',
         isSelected: isSelected,
+        primaryColor: primaryColor,
+        surfaceColor: surfaceColor,
       );
       _markerCache[key] = descriptor;
     }
@@ -358,13 +372,15 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
   Future<BitmapDescriptor> _createPriceMarkerBitmap({
     required String price,
     required bool isSelected,
+    required Color primaryColor,
+    required Color surfaceColor,
   }) async {
     final dpr = ui.PlatformDispatcher.instance.views.first.devicePixelRatio;
     final textPainter = TextPainter(
       text: TextSpan(
         text: price,
         style: TextStyle(
-          color: isSelected ? Colors.white : FudiColors.primary,
+          color: isSelected ? surfaceColor : primaryColor,
           fontSize: 13,
           fontWeight: FontWeight.w800,
         ),
@@ -387,13 +403,13 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
     );
 
     final bgPaint = Paint()
-      ..color = isSelected ? FudiColors.primary : Colors.white
+      ..color = isSelected ? primaryColor : surfaceColor
       ..style = PaintingStyle.fill;
     canvas.drawRRect(pillRect, bgPaint);
 
     if (!isSelected) {
       final borderPaint = Paint()
-        ..color = FudiColors.primary
+        ..color = primaryColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.0;
       canvas.drawRRect(pillRect, borderPaint);
@@ -407,7 +423,7 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
     arrowPath.close();
     canvas.drawPath(
       arrowPath,
-      Paint()..color = isSelected ? FudiColors.primary : Colors.white,
+      Paint()..color = isSelected ? primaryColor : surfaceColor,
     );
 
     if (!isSelected) {
@@ -417,7 +433,7 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
       canvas.drawPath(
         arrowBorderLeft,
         Paint()
-          ..color = FudiColors.primary
+          ..color = primaryColor
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2.0,
       );
@@ -503,6 +519,10 @@ class _MapHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final mutedBg = theme.colorScheme.surfaceContainerLow;
+    final mutedFg = theme.colorScheme.onSurface.withValues(alpha: 0.6);
+
     final subtitle = <String>[];
     if (filters.category != null) {
       subtitle.add(filters.category!.dbValue);
@@ -516,11 +536,11 @@ class _MapHeader extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: FudiColors.background,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(FudiRadius.lg),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: theme.shadowColor.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -537,8 +557,8 @@ class _MapHeader extends StatelessWidget {
             child: Container(
               width: 40,
               height: 40,
-              decoration: const BoxDecoration(
-                color: FudiColors.muted,
+              decoration: BoxDecoration(
+                color: mutedBg,
                 shape: BoxShape.circle,
               ),
               child: const Icon(FudiIcons.chevronLeft, size: 24),
@@ -558,7 +578,7 @@ class _MapHeader extends StatelessWidget {
                   Text(
                     subtitle.join(' · '),
                     style: FudiTypography.bodySmall.copyWith(
-                      color: FudiColors.mutedForeground,
+                      color: mutedFg,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -574,19 +594,19 @@ class _MapHeader extends StatelessWidget {
               height: 40,
               decoration: BoxDecoration(
                 color: filters.hasActiveFilters
-                    ? FudiColors.primary.withValues(alpha: 0.1)
-                    : FudiColors.muted,
+                    ? theme.colorScheme.primary.withValues(alpha: 0.1)
+                    : mutedBg,
                 shape: BoxShape.circle,
                 border: filters.hasActiveFilters
-                    ? Border.all(color: FudiColors.primary, width: 1.5)
+                    ? Border.all(color: theme.colorScheme.primary, width: 1.5)
                     : null,
               ),
               child: Icon(
                 FudiIcons.slidersHorizontal,
                 size: 20,
                 color: filters.hasActiveFilters
-                    ? FudiColors.primary
-                    : FudiColors.mutedForeground,
+                    ? theme.colorScheme.primary
+                    : mutedFg,
               ),
             ),
           ),
@@ -604,13 +624,16 @@ class _MapZoomControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
+
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: FudiColors.background,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(FudiRadius.lg),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: theme.shadowColor.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -619,7 +642,10 @@ class _MapZoomControls extends StatelessWidget {
       child: Column(
         children: [
           _ZoomButton(icon: FudiIcons.zoomIn, onTap: onZoomIn),
-          const Divider(height: 1, color: FudiColors.borderSolid),
+          Divider(
+            height: 1,
+            color: themeExt?.borderSolid ?? theme.colorScheme.outline.withValues(alpha: 0.15),
+          ),
           _ZoomButton(icon: FudiIcons.zoomOut, onTap: onZoomOut),
         ],
       ),
@@ -661,6 +687,9 @@ class _SelectedOfferCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final mutedBg = theme.colorScheme.surfaceContainerLow;
+    final mutedFg = theme.colorScheme.onSurface.withValues(alpha: 0.6);
     final discountPercent = offer.discountPercentage.round();
 
     return FudiPressableScale(
@@ -668,11 +697,11 @@ class _SelectedOfferCard extends StatelessWidget {
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          color: FudiColors.background,
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(FudiRadius.xl),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
+              color: theme.shadowColor.withValues(alpha: 0.15),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -700,21 +729,21 @@ class _SelectedOfferCard extends StatelessWidget {
                         width: double.infinity,
                         fit: BoxFit.cover,
                         placeholder: (_, _) => Container(
-                          color: FudiColors.muted,
-                          child: const Center(
+                          color: mutedBg,
+                          child: Center(
                             child: Icon(
                               FudiIcons.imageOff,
-                              color: FudiColors.mutedForeground,
+                              color: mutedFg,
                               size: 32,
                             ),
                           ),
                         ),
                         errorWidget: (_, _, _) => Container(
-                          color: FudiColors.muted,
-                          child: const Center(
+                          color: mutedBg,
+                          child: Center(
                             child: Icon(
                               FudiIcons.imageOff,
-                              color: FudiColors.mutedForeground,
+                              color: mutedFg,
                               size: 32,
                             ),
                           ),
@@ -722,12 +751,12 @@ class _SelectedOfferCard extends StatelessWidget {
                       )
                     else
                       Container(
-                        color: FudiColors.primary.withValues(alpha: 0.08),
-                        child: const Center(
+                        color: theme.colorScheme.primary.withValues(alpha: 0.08),
+                        child: Center(
                           child: Icon(
                             FudiIcons.imageOff,
                             size: 40,
-                            color: FudiColors.primary,
+                            color: theme.colorScheme.primary,
                           ),
                         ),
                       ),
@@ -744,7 +773,7 @@ class _SelectedOfferCard extends StatelessWidget {
                             vertical: 4,
                           ),
                           textStyle: const TextStyle(
-                            color: Colors.white,
+                            color: FudiColors.primaryForeground,
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                           ),
@@ -761,11 +790,11 @@ class _SelectedOfferCard extends StatelessWidget {
                           width: 28,
                           height: 28,
                           decoration: BoxDecoration(
-                            color: FudiColors.background,
+                            color: theme.colorScheme.surface,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.15),
+                                color: theme.shadowColor.withValues(alpha: 0.15),
                                 blurRadius: 4,
                               ),
                             ],
@@ -782,13 +811,13 @@ class _SelectedOfferCard extends StatelessWidget {
                       bottom: 0,
                       child: Container(
                         height: 60,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.transparent,
-                              Colors.black.withValues(alpha: 0.4),
+                              Color(0x66000000),
                             ],
                           ),
                         ),
@@ -822,17 +851,17 @@ class _SelectedOfferCard extends StatelessWidget {
                   // Business name + rating
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         FudiIcons.store,
                         size: 14,
-                        color: FudiColors.mutedForeground,
+                        color: mutedFg,
                       ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           offer.business.name,
                           style: FudiTypography.bodySmall.copyWith(
-                            color: FudiColors.mutedForeground,
+                            color: mutedFg,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -861,16 +890,16 @@ class _SelectedOfferCard extends StatelessWidget {
                   // Pickup window
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         FudiIcons.clock,
                         size: 14,
-                        color: FudiColors.accent,
+                        color: theme.colorScheme.tertiary,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         _formatPickupWindow(offer),
                         style: FudiTypography.bodySmall.copyWith(
-                          color: FudiColors.accent,
+                          color: theme.colorScheme.tertiary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -895,8 +924,8 @@ class _SelectedOfferCard extends StatelessWidget {
                         '${offer.stock} disponibles',
                         style: FudiTypography.bodySmall.copyWith(
                           color: offer.stock <= 3
-                              ? FudiColors.destructive
-                              : FudiColors.mutedForeground,
+                              ? theme.colorScheme.error
+                              : mutedFg,
                           fontWeight: offer.stock <= 3
                               ? FontWeight.w700
                               : FontWeight.normal,
@@ -914,14 +943,14 @@ class _SelectedOfferCard extends StatelessWidget {
                       width: double.infinity,
                       height: 46,
                       decoration: BoxDecoration(
-                        color: FudiColors.primary,
+                        color: theme.colorScheme.primary,
                         borderRadius: BorderRadius.circular(FudiRadius.lg),
                       ),
                       child: Center(
                         child: Text(
                           'Ver detalle',
                           style: FudiTypography.labelSmall.copyWith(
-                            color: FudiColors.primaryForeground,
+                            color: theme.colorScheme.onPrimary,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -949,14 +978,16 @@ class _SelectedOfferCard extends StatelessWidget {
 class _MapLegend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       padding: const EdgeInsets.all(FudiSpacing.md),
       decoration: BoxDecoration(
-        color: FudiColors.background.withValues(alpha: 0.95),
+        color: theme.colorScheme.surface.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(FudiRadius.lg),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: theme.shadowColor.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -968,8 +999,8 @@ class _MapLegend extends StatelessWidget {
           Container(
             width: 12,
             height: 12,
-            decoration: const BoxDecoration(
-              color: FudiColors.primary,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary,
               shape: BoxShape.circle,
             ),
           ),

@@ -47,7 +47,7 @@ class _LandingScreenState extends State<LandingScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       drawer: isMobile ? const _MobileDrawer() : null,
       body: Stack(
         children: [
@@ -93,7 +93,7 @@ class _StickyNavbar extends StatelessWidget {
       height: isMobile ? 72 : 90,
       padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.xl),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.95),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
         border: Border(
           bottom: BorderSide(
             color: FudiColors.borderSolid.withValues(
@@ -104,7 +104,7 @@ class _StickyNavbar extends StatelessWidget {
         boxShadow: isScrolled
             ? [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: FudiColors.foreground.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -179,7 +179,7 @@ class _StickyNavbar extends StatelessWidget {
                 child: Text(
                   'Registrarse',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: FudiColors.primaryForeground,
                     fontSize: isMobile ? 14 : null,
                   ),
                 ),
@@ -231,9 +231,9 @@ class _NavLink extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w500,
-              color: isDark
-                  ? FudiColors.foreground
-                  : Colors.white.withValues(alpha: 0.9),
+                  color: isDark
+                      ? FudiColors.foreground
+                      : FudiColors.primaryForeground.withValues(alpha: 0.9),
             ),
           ),
         ),
@@ -298,7 +298,7 @@ class _MobileDrawer extends StatelessWidget {
                       child: const Center(
                         child: Text(
                           'Crear cuenta',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: FudiColors.primaryForeground),
                         ),
                       ),
                     ),
@@ -517,11 +517,11 @@ class _HeroImage extends StatelessWidget {
               child: Container(
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.15),
+                      color: FudiColors.foreground.withValues(alpha: 0.15),
                       blurRadius: 40,
                       offset: const Offset(0, 20),
                     ),
@@ -556,8 +556,8 @@ class _DownloadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = isLight ? Colors.white : Colors.black;
-    final textColor = isLight ? FudiColors.foreground : Colors.white;
+    final bgColor = isLight ? FudiColors.primaryForeground : FudiColors.foreground;
+    final textColor = isLight ? FudiColors.foreground : FudiColors.primaryForeground;
 
     return GestureDetector(
       onTap: onPressed,
@@ -756,12 +756,12 @@ class _FeatureCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(isWide ? 32 : 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: FudiColors.muted.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: FudiColors.foreground.withValues(alpha: 0.02),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -801,7 +801,7 @@ class _SliverHowItWorks extends StatelessWidget {
     final isWide = MediaQuery.of(context).size.width > 600;
     return SliverToBoxAdapter(
       child: Container(
-        color: const Color(0xFFF8F9FA),
+        color: Theme.of(context).colorScheme.surface,
         padding: EdgeInsets.symmetric(
           vertical: isWide ? 100 : 48,
           horizontal: FudiSpacing.xl,
@@ -877,11 +877,11 @@ class _HowItWorksStep extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(isWide ? 40 : 24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: FudiColors.foreground.withValues(alpha: 0.03),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -901,7 +901,7 @@ class _HowItWorksStep extends StatelessWidget {
               child: Text(
                 number,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: FudiColors.primaryForeground,
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                 ),
@@ -1021,12 +1021,12 @@ class _TestimonialCard extends StatelessWidget {
       margin: const EdgeInsets.only(right: 32),
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: FudiColors.muted.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: FudiColors.foreground.withValues(alpha: 0.03),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -1037,11 +1037,11 @@ class _TestimonialCard extends StatelessWidget {
         children: [
           const Row(
             children: [
-              Icon(Icons.star, color: Color(0xFFFFB300), size: 20, fill: 1),
-              Icon(Icons.star, color: Color(0xFFFFB300), size: 20, fill: 1),
-              Icon(Icons.star, color: Color(0xFFFFB300), size: 20, fill: 1),
-              Icon(Icons.star, color: Color(0xFFFFB300), size: 20, fill: 1),
-              Icon(Icons.star, color: Color(0xFFFFB300), size: 20, fill: 1),
+              Icon(Icons.star, color: FudiColors.starGold, size: 20, fill: 1),
+              Icon(Icons.star, color: FudiColors.starGold, size: 20, fill: 1),
+              Icon(Icons.star, color: FudiColors.starGold, size: 20, fill: 1),
+              Icon(Icons.star, color: FudiColors.starGold, size: 20, fill: 1),
+              Icon(Icons.star, color: FudiColors.starGold, size: 20, fill: 1),
             ],
           ),
           const SizedBox(height: 24),
@@ -1094,7 +1094,7 @@ class _SliverFAQ extends StatelessWidget {
     final isWide = MediaQuery.of(context).size.width > 600;
     return SliverToBoxAdapter(
       child: Container(
-        color: const Color(0xFFF8F9FA),
+        color: Theme.of(context).colorScheme.surface,
         padding: EdgeInsets.symmetric(
           vertical: isWide ? 100 : 48,
           horizontal: FudiSpacing.xl,
@@ -1170,7 +1170,7 @@ class _FAQItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: FudiColors.muted.withValues(alpha: 0.5)),
       ),
@@ -1215,7 +1215,7 @@ class _SliverCTA extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: isWide ? 80 : 40, horizontal: isWide ? 40 : 24),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [FudiColors.primary, Color(0xFF2E7D32)],
+              colors: [FudiColors.primary, FudiColors.greenMidDark],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -1234,7 +1234,7 @@ class _SliverCTA extends StatelessWidget {
                 '¿Listo para empezar a ahorrar?',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: FudiColors.primaryForeground,
                   fontSize: isWide ? 48 : 28,
                   fontWeight: FontWeight.w800,
                   height: 1.1,
@@ -1245,7 +1245,7 @@ class _SliverCTA extends StatelessWidget {
                 'Descarga Fudi hoy y únete a miles de usuarios que ya están rescatando comida deliciosa',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: FudiColors.primaryForeground,
                   fontSize: isWide ? 20 : 16,
                   height: 1.5,
                 ),
@@ -1286,7 +1286,7 @@ class _SliverFooter extends StatelessWidget {
     final isWide = MediaQuery.of(context).size.width > 600;
     return SliverToBoxAdapter(
       child: Container(
-        color: const Color(0xFF0F1115),
+        color: FudiColors.greenDark,
         padding: EdgeInsets.symmetric(
           vertical: isWide ? 100 : 48,
           horizontal: FudiSpacing.xl,
@@ -1307,14 +1307,14 @@ class _SliverFooter extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const FudiLogo(
-                                color: Colors.white,
+                                color: FudiColors.primaryForeground,
                                 size: FudiLogoSize.lg,
                               ),
                               const SizedBox(height: 32),
                               Text(
                                 'Rescata comida, ahorra dinero y ayuda al planeta. Juntos podemos hacer la diferencia.',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.5),
+                                  color: FudiColors.primaryForeground.withValues(alpha: 0.5),
                                   fontSize: 16,
                                   height: 1.6,
                                 ),
@@ -1366,14 +1366,14 @@ class _SliverFooter extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const FudiLogo(
-                                color: Colors.white,
+                                color: FudiColors.primaryForeground,
                                 size: FudiLogoSize.lg,
                               ),
                               const SizedBox(height: 32),
                               Text(
                                 'Rescata comida, ahorra dinero y ayuda al planeta. Juntos podemos hacer la diferencia.',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.5),
+                                  color: FudiColors.primaryForeground.withValues(alpha: 0.5),
                                   fontSize: 16,
                                   height: 1.6,
                                 ),
@@ -1416,12 +1416,12 @@ class _SliverFooter extends StatelessWidget {
                       ],
                     ),
                 const SizedBox(height: 80),
-                const Divider(color: Colors.white10),
+                Divider(color: FudiColors.primaryForeground.withValues(alpha: 0.1)),
                 const SizedBox(height: 40),
                 Text(
                   '© 2026 Fudi. Todos los derechos reservados.',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.3),
+                    color: FudiColors.primaryForeground.withValues(alpha: 0.3),
                     fontSize: 14,
                   ),
                 ),
@@ -1445,10 +1445,10 @@ class _SocialButton extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: FudiColors.primaryForeground.withValues(alpha: 0.05),
         shape: BoxShape.circle,
       ),
-      child: Icon(icon, color: Colors.white70, size: 20),
+      child: Icon(icon, color: FudiColors.primaryForeground.withValues(alpha: 0.7), size: 20),
     );
   }
 }
@@ -1466,7 +1466,7 @@ class _FooterColumn extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            color: Colors.white,
+            color: FudiColors.primaryForeground,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -1480,7 +1480,7 @@ class _FooterColumn extends StatelessWidget {
               child: Text(
                 link.key,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: FudiColors.primaryForeground.withValues(alpha: 0.5),
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
                 ),
@@ -1585,7 +1585,7 @@ class _ContactForm extends StatelessWidget {
             child: const Center(
               child: Text(
                 'Enviar mensaje',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: FudiColors.primaryForeground),
               ),
             ),
           ),
@@ -1623,7 +1623,7 @@ class _ContactField extends StatelessWidget {
               color: FudiColors.mutedForeground.withValues(alpha: 0.5),
             ),
             filled: true,
-            fillColor: const Color(0xFFF8F9FA),
+            fillColor: Theme.of(context).colorScheme.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,

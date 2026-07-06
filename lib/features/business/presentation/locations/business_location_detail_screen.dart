@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
@@ -22,11 +23,11 @@ class BusinessLocationDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locationAsync = ref.watch(businessLocationProvider(locationId));
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: FudiColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: Semantics(
@@ -51,14 +52,14 @@ class BusinessLocationDetailScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(FudiIcons.alertTriangle,
-                    size: 48, color: FudiColors.mutedForeground),
+                Icon(FudiIcons.alertTriangle,
+                    size: 48, color: colorScheme.onSurfaceVariant),
                 const SizedBox(height: FudiSpacing.md),
                 Text(
                   'No pudimos cargar esta sucursal',
                   textAlign: TextAlign.center,
                   style: FudiTypography.bodyMedium.copyWith(
-                    color: FudiColors.mutedForeground,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: FudiSpacing.lg),
@@ -77,7 +78,7 @@ class BusinessLocationDetailScreen extends ConsumerWidget {
                     child: Text(
                       'Reintentar',
                       style: FudiTypography.bodyMedium.copyWith(
-                        color: Colors.white,
+                        color: FudiColors.primaryForeground,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -230,18 +231,20 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeExt = Theme.of(context).extension<FudiThemeExtension>();
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: isActive
             ? FudiColors.success.withValues(alpha: 0.15)
-            : FudiColors.muted,
+            : (themeExt?.mutedBackground ?? FudiColors.muted),
         borderRadius: BorderRadius.circular(100),
       ),
       child: Text(
         isActive ? 'Activa' : 'Inactiva',
         style: FudiTypography.bodySmall.copyWith(
-          color: isActive ? FudiColors.success : FudiColors.mutedForeground,
+          color: isActive ? FudiColors.success : colorScheme.onSurfaceVariant,
           fontWeight: FontWeight.w600,
           fontSize: 11,
         ),
@@ -263,10 +266,11 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: FudiColors.mutedForeground),
+        Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
         const SizedBox(width: FudiSpacing.sm),
         Expanded(
           child: Column(
@@ -275,7 +279,7 @@ class _InfoRow extends StatelessWidget {
               Text(
                 label,
                 style: FudiTypography.bodySmall.copyWith(
-                  color: FudiColors.mutedForeground,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 2),
@@ -300,6 +304,7 @@ class _ActionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return FudiSurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -335,8 +340,8 @@ class _ActionsCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  const Icon(Icons.chevron_right_rounded,
-                      color: FudiColors.mutedForeground),
+                  Icon(Icons.chevron_right_rounded,
+                      color: colorScheme.onSurfaceVariant),
                 ],
               ),
             ),
@@ -382,6 +387,7 @@ class _MetaRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -390,7 +396,7 @@ class _MetaRow extends StatelessWidget {
           child: Text(
             label,
             style: FudiTypography.bodySmall.copyWith(
-              color: FudiColors.mutedForeground,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ),

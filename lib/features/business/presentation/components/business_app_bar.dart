@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_logo.dart';
 import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../domain/business_profile.dart';
 import '../business_providers.dart';
@@ -26,10 +27,15 @@ class BusinessAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final cardBg =
+        theme.extension<FudiThemeExtension>()?.cardBg ?? FudiColors.card;
+
     if (allBusinesses.length <= 1) {
       final locationsAsync = ref.watch(businessLocationsProvider(business.id));
       return AppBar(
-        backgroundColor: FudiColors.card,
+        backgroundColor: cardBg,
         elevation: 0,
         scrolledUnderElevation: 0,
         toolbarHeight: kToolbarHeight + 20,
@@ -40,7 +46,7 @@ class BusinessAppBar extends ConsumerWidget implements PreferredSizeWidget {
             Text(
               title,
               style: FudiTypography.h2.copyWith(
-                color: FudiColors.foreground,
+                color: colorScheme.onSurface,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
@@ -63,9 +69,8 @@ class BusinessAppBar extends ConsumerWidget implements PreferredSizeWidget {
       );
     }
 
-    // Multi-business path: show BusinessSelector in the title
     return AppBar(
-      backgroundColor: FudiColors.card,
+      backgroundColor: cardBg,
       elevation: 0,
       scrolledUnderElevation: 0,
       toolbarHeight: kToolbarHeight + 20,
@@ -75,7 +80,7 @@ class BusinessAppBar extends ConsumerWidget implements PreferredSizeWidget {
           Text(
             title,
             style: FudiTypography.h2.copyWith(
-              color: FudiColors.foreground,
+              color: colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../orders/domain/order_status.dart';
 
@@ -47,6 +48,8 @@ class _OrdersFiltersSheetState extends State<OrdersFiltersSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
     return Padding(
       padding: EdgeInsets.fromLTRB(
         FudiSpacing.lg,
@@ -63,7 +66,7 @@ class _OrdersFiltersSheetState extends State<OrdersFiltersSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: FudiColors.borderSolid,
+                color: themeExt?.borderSolid ?? FudiColors.borderSolid,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -108,7 +111,7 @@ class _OrdersFiltersSheetState extends State<OrdersFiltersSheet> {
                 },
                 selectedColor: FudiColors.secondary,
                 checkmarkColor: FudiColors.primary,
-                side: const BorderSide(color: FudiColors.borderSolid),
+                side: BorderSide(color: themeExt?.borderSolid ?? FudiColors.borderSolid),
               );
             }).toList(),
           ),
@@ -128,7 +131,7 @@ class _OrdersFiltersSheetState extends State<OrdersFiltersSheet> {
                 child: Text(
                   'Aplicar filtro',
                   style: FudiTypography.labelMedium.copyWith(
-                    color: Colors.white,
+                    color: FudiColors.primaryForeground,
                   ),
                 ),
               ),

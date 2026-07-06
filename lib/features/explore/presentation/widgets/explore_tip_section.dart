@@ -11,6 +11,9 @@ class ExploreTipSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: FudiSpacing.lg,
@@ -19,10 +22,14 @@ class ExploreTipSection extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(FudiSpacing.lg),
         decoration: BoxDecoration(
-          color: FudiColors.yellowDark.withValues(alpha: 0.1),
+          color: isDark
+              ? theme.colorScheme.secondary.withValues(alpha: 0.1)
+              : FudiColors.yellowDark.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(FudiRadius.xl),
           border: Border.all(
-            color: FudiColors.yellowDark.withValues(alpha: 0.1),
+            color: isDark
+                ? theme.colorScheme.secondary.withValues(alpha: 0.2)
+                : FudiColors.yellowDark.withValues(alpha: 0.1),
           ),
         ),
         child: Column(
@@ -35,15 +42,17 @@ class ExploreTipSection extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: FudiColors.yellow.withValues(alpha: 0.25),
+                        color: isDark
+                            ? theme.colorScheme.secondary.withValues(alpha: 0.2)
+                            : FudiColors.yellow.withValues(alpha: 0.25),
                         blurRadius: 12,
                         spreadRadius: 2,
                       ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.lightbulb_rounded,
-                    color: FudiColors.yellow,
+                    color: isDark ? theme.colorScheme.secondary : FudiColors.yellow,
                     size: 20,
                   ),
                 ),

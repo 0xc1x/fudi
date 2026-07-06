@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../fudi_colors.dart';
 import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
 
@@ -24,13 +23,17 @@ class FudiKeyValueRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeMuted = theme.colorScheme.onSurface.withValues(alpha: 0.6);
+    final themeForeground = theme.colorScheme.onSurface;
+
     return Row(
       children: [
         if (icon != null) ...[
           Icon(
             icon,
             size: iconSize,
-            color: iconColor ?? valueColor ?? FudiColors.mutedForeground,
+            color: iconColor ?? valueColor ?? themeMuted,
           ),
           const SizedBox(width: FudiSpacing.sm),
         ],
@@ -39,7 +42,7 @@ class FudiKeyValueRow extends StatelessWidget {
         Text(
           value,
           style: FudiTypography.labelSmall.copyWith(
-            color: valueColor ?? FudiColors.foreground,
+            color: valueColor ?? themeForeground,
           ),
         ),
       ],

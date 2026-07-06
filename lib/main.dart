@@ -13,6 +13,7 @@ import 'core/ui/fudi_logo.dart';
 import 'core/ui/fudi_spacing.dart';
 import 'core/ui/fudi_theme.dart';
 import 'core/ui/fudi_typography.dart';
+import 'core/ui/theme_notifier.dart';
 import 'features/auth/presentation/auth_state_provider.dart';
 import 'features/notifications/presentation/notification_handler.dart';
 
@@ -60,6 +61,7 @@ class _FudiRootState extends State<_FudiRoot> {
         overrides: [
           appEnvironmentProvider.overrideWithValue(boot.environment),
           appConfigProvider.overrideWithValue(boot.config),
+          sharedPreferencesProvider.overrideWithValue(boot.sharedPreferences),
         ],
         child: const FudiApp(),
       );
@@ -220,11 +222,19 @@ class FudiApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final appThemeMode = ref.watch(themeNotifierProvider);
+    final themeMode = switch (appThemeMode) {
+      AppThemeMode.light => ThemeMode.light,
+      AppThemeMode.dark => ThemeMode.dark,
+      AppThemeMode.system => ThemeMode.system,
+    };
 
     return MaterialApp.router(
       title: 'Fudi',
       debugShowCheckedModeBanner: false,
       theme: FudiTheme.light(),
+      darkTheme: FudiTheme.dark(),
+      themeMode: themeMode,
       locale: const Locale('es'),
       supportedLocales: const [Locale('es')],
       localizationsDelegates: const [

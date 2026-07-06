@@ -90,8 +90,8 @@ class FudiOrderTimeline extends StatelessWidget {
           title: 'Completado',
           note: 'Pedido recogido exitosamente',
           timestamp: order.pickupTime ?? created,
-          color: const Color(0xFF16A34A),
-          bgColor: const Color(0xFFDCFCE7),
+          color: FudiColors.ecoGreen,
+          bgColor: FudiColors.surfaceSuccess,
         ),
       );
     }
@@ -104,7 +104,7 @@ class FudiOrderTimeline extends StatelessWidget {
           note: 'Pedido cancelado',
           timestamp: created,
           color: FudiColors.destructive,
-          bgColor: const Color(0xFFFEE2E2),
+          bgColor: FudiColors.destructiveSurface,
         ),
       );
     }
@@ -117,7 +117,7 @@ class FudiOrderTimeline extends StatelessWidget {
           note: 'El pedido expiró sin ser recogido',
           timestamp: created,
           color: FudiColors.destructive,
-          bgColor: const Color(0xFFFEE2E2),
+          bgColor: FudiColors.destructiveSurface,
         ),
       );
     }
@@ -223,16 +223,16 @@ class FudiOrderTimeline extends StatelessWidget {
   _StatusConfig _statusConfig(OrderStatus status) {
     switch (status) {
       case OrderStatus.pending:
-        return _StatusConfig(
+        return const _StatusConfig(
           icon: FudiIcons.clock,
-          iconColor: Colors.orange.shade700,
-          backgroundColor: Colors.orange.shade100,
+          iconColor: FudiColors.statusPending,
+          backgroundColor: FudiColors.statusPendingBackground,
         );
       case OrderStatus.confirmed:
-        return _StatusConfig(
+        return const _StatusConfig(
           icon: Icons.check_circle_outline,
-          iconColor: FudiColors.primary,
-          backgroundColor: FudiColors.primary.withValues(alpha: 0.1),
+          iconColor: FudiColors.statusConfirmed,
+          backgroundColor: FudiColors.statusConfirmedBackground,
         );
       case OrderStatus.readyForPickup:
         return _StatusConfig(
@@ -241,16 +241,16 @@ class FudiOrderTimeline extends StatelessWidget {
           backgroundColor: FudiColors.primary.withValues(alpha: 0.1),
         );
       case OrderStatus.pickedUp:
-        return _StatusConfig(
+        return const _StatusConfig(
           icon: Icons.shopping_bag_outlined,
-          iconColor: Colors.blue.shade700,
-          backgroundColor: Colors.blue.shade100,
+          iconColor: FudiColors.statusPickedUp,
+          backgroundColor: FudiColors.statusPickedUpBackground,
         );
       case OrderStatus.completed:
         return _StatusConfig(
           icon: Icons.check_circle,
-          iconColor: Colors.green.shade600,
-          backgroundColor: Colors.green.shade100,
+          iconColor: FudiColors.statusCompletedBackground,
+          backgroundColor: FudiColors.statusCompletedBackground.withValues(alpha: 0.15),
         );
       case OrderStatus.cancelled:
         return _StatusConfig(
@@ -259,10 +259,10 @@ class FudiOrderTimeline extends StatelessWidget {
           backgroundColor: FudiColors.destructive.withValues(alpha: 0.1),
         );
       case OrderStatus.expired:
-        return _StatusConfig(
+        return const _StatusConfig(
           icon: Icons.timer_off,
-          iconColor: Colors.grey.shade700,
-          backgroundColor: Colors.grey.shade200,
+          iconColor: FudiColors.statusExpired,
+          backgroundColor: FudiColors.statusExpiredBackground,
         );
     }
   }

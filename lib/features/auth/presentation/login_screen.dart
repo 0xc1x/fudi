@@ -72,7 +72,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         fontSize: 14,
       ),
       filled: true,
-      fillColor: FudiColors.background,
+      fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
       contentPadding: const EdgeInsets.symmetric(vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -106,7 +106,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          backgroundColor: FudiColors.background,
+          backgroundColor: Theme.of(dialogContext).colorScheme.surface,
           title: const Text(
             'Recuperar contraseña',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
@@ -222,7 +222,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isLoading = authState.isLoading;
 
     return Scaffold(
-      backgroundColor: FudiColors.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -235,14 +234,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: Container(
                       width: 40,
                       height: 40,
-                      decoration: const BoxDecoration(
-                        color: FudiColors.muted,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceContainerLow,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         FudiIcons.chevronLeft,
                         size: 20,
-                        color: FudiColors.foreground,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -492,23 +491,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       vertical: 14,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: FudiColors.background,
+                                      color: Theme.of(context).colorScheme.surfaceContainerLow,
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
                                         color: FudiColors.borderSolid,
                                       ),
                                     ),
-                                    child: const Row(
+                                    child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        FudiGoogleIcon(),
-                                        SizedBox(width: 8),
+                                        const FudiGoogleIcon(),
+                                        const SizedBox(width: 8),
                                         Text(
                                           'Google',
                                           style: TextStyle(
                                             fontWeight: FontWeight.w600,
-                                            color: FudiColors.foreground,
+                                            color: Theme.of(context).colorScheme.onSurface,
                                           ),
                                         ),
                                       ],
@@ -525,7 +524,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       vertical: 14,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: FudiColors.background,
+                                      color: Theme.of(context).colorScheme.surfaceContainerLow,
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
                                         color: FudiColors.borderSolid,
@@ -545,11 +544,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                               : Colors.black,
                                         ),
                                         const SizedBox(width: 8),
-                                        const Text(
+                                        Text(
                                           'Apple',
                                           style: TextStyle(
                                             fontWeight: FontWeight.w600,
-                                            color: FudiColors.foreground,
+                                            color: Theme.of(context).colorScheme.onSurface,
                                           ),
                                         ),
                                       ],

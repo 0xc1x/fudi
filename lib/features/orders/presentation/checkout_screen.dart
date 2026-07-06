@@ -208,9 +208,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     message:
                         'Asegúrate de retirar a tiempo. Al rescatar esta comida evitas desperdicios directos de CO₂ en el mercado local.',
                     icon: Icons.eco_rounded,
-                    backgroundColor: Color(0xFFF0FDF4),
-                    borderColor: Color(0xFFBBF7D0),
-                    foregroundColor: Color(0xFF166534),
+                    backgroundColor: FudiColors.surfaceSuccess,
+                    borderColor: FudiColors.surfaceSuccessBorder,
+                    foregroundColor: FudiColors.successDark,
                   ),
                   const SizedBox(height: 160),
                 ]),
@@ -247,14 +247,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                               height: 16,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: FudiColors.primaryForeground,
                               ),
                             ),
                             SizedBox(width: FudiSpacing.md),
                             Text(
                               'Validando transacción...',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: FudiColors.primaryForeground,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -271,7 +271,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                               Text(
                                 'TOTAL A PAGAR',
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.7),
+                                  color: FudiColors.primaryForeground.withValues(alpha: 0.7),
                                   fontSize: 9,
                                   letterSpacing: 1.1,
                                   fontWeight: FontWeight.bold,
@@ -280,7 +280,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                               Text(
                                 '\$${total > 0 ? total.toStringAsFixed(2) : '0.00'}',
                                 style: FudiTypography.h4.copyWith(
-                                  color: Colors.white,
+                                  color: FudiColors.primaryForeground,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -291,14 +291,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                               Text(
                                 'Reservar',
                                 style: FudiTypography.labelMedium.copyWith(
-                                  color: Colors.white,
+                                  color: FudiColors.primaryForeground,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               const SizedBox(width: FudiSpacing.xs),
                               const Icon(
                                 Icons.arrow_forward_ios_rounded,
-                                color: Colors.white,
+                                color: FudiColors.primaryForeground,
                                 size: 14,
                               ),
                             ],

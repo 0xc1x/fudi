@@ -11,6 +11,7 @@ import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_spacing.dart';
+import '../../../core/ui/fudi_theme.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../domain/business_profile.dart';
 import 'business_profile_providers.dart';
@@ -118,7 +119,7 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(userFriendlyMessage(e)),
-            backgroundColor: Colors.redAccent,
+            backgroundColor: FudiColors.destructiveVibrant,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -130,20 +131,23 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final themeExt = theme.extension<FudiThemeExtension>();
     final businessAsync = ref.watch(currentBusinessProvider);
     final business = businessAsync.asData?.value;
     if (business != null) _hydrate(business);
 
     if (business == null && !businessAsync.isLoading) {
       return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
         appBar: _buildAppBar(),
         body: const Center(child: Text('No se encontró el negocio')),
       );
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       appBar: _buildAppBar(),
       body: businessAsync.isLoading && !_loaded
           ? const Center(child: CircularProgressIndicator())
@@ -163,7 +167,7 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
                         'Detalles Básicos',
                         style: FudiTypography.bodyMedium.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: FudiColors.foreground,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: FudiSpacing.md),
@@ -179,7 +183,7 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
                         'Tipo de Establecimiento',
                         style: FudiTypography.bodySmall.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: FudiColors.mutedForeground,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: FudiSpacing.sm),
@@ -189,7 +193,7 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
                         'Información del Negocio',
                         style: FudiTypography.bodyMedium.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: FudiColors.foreground,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: FudiSpacing.md),
@@ -250,16 +254,16 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
           bottom: FudiSpacing.xl,
         ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: colorScheme.onSurface.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, -4),
             )
           ],
-          border: const Border(
-            top: BorderSide(color: FudiColors.border, width: 0.5),
+          border: Border(
+            top: BorderSide(color: themeExt?.border ?? FudiColors.border, width: 0.5),
           ),
         ),
         child: SizedBox(
@@ -269,7 +273,7 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
             child: Container(
               height: 52,
               decoration: BoxDecoration(
-                color: _saving ? FudiColors.muted : FudiColors.primary,
+                color: _saving ? (themeExt?.mutedBackground ?? FudiColors.muted) : FudiColors.primary,
                 borderRadius: BorderRadius.circular(FudiRadius.md),
               ),
               alignment: Alignment.center,
@@ -279,13 +283,13 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
                       width: 22,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        color: Colors.white,
+                        color: FudiColors.primaryForeground,
                       ),
                     )
                   : Text(
                       'Guardar Cambios',
                       style: FudiTypography.bodyMedium.copyWith(
-                        color: Colors.white,
+                        color: FudiColors.primaryForeground,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -297,6 +301,7 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
   }
 
   PreferredSizeWidget _buildAppBar() {
+    final cs = Theme.of(context).colorScheme;
     return AppBar(
       leading: Center(
         child: FudiPressableScale(
@@ -304,14 +309,14 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
           child: Container(
             width: 38,
             height: 38,
-            decoration: const BoxDecoration(
-              color: FudiColors.background,
+            decoration: BoxDecoration(
+              color: cs.surface,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               FudiIcons.chevronLeft,
               size: 18,
-              color: FudiColors.foreground,
+              color: cs.onSurface,
             ),
           ),
         ),
@@ -320,7 +325,7 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
         'Editar negocio',
         style: FudiTypography.h4.copyWith(fontWeight: FontWeight.bold),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: cs.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       centerTitle: false,
@@ -328,6 +333,9 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
   }
 
   Widget _buildBusinessTypeSelector() {
+    final cs = Theme.of(context).colorScheme;
+    final tex = Theme.of(context).extension<FudiThemeExtension>();
+    final borderColor = tex?.border ?? FudiColors.border;
     return SizedBox(
       height: 42,
       child: ListView.builder(
@@ -345,8 +353,8 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
                     type.$3,
                     size: 16,
                     color: isSelected
-                        ? Colors.white
-                        : FudiColors.mutedForeground,
+                        ? FudiColors.primaryForeground
+                        : cs.onSurfaceVariant,
                   ),
                   const SizedBox(width: 6),
                   Text(type.$2),
@@ -359,16 +367,16 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
                 }
               },
               selectedColor: FudiColors.primary,
-              backgroundColor: FudiColors.background,
+              backgroundColor: cs.surface,
               labelStyle: FudiTypography.bodySmall.copyWith(
-                color: isSelected ? Colors.white : FudiColors.foreground,
+                color: isSelected ? FudiColors.primaryForeground : cs.onSurface,
                 fontWeight:
                     isSelected ? FontWeight.bold : FontWeight.normal,
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(FudiRadius.sm),
                 side: BorderSide(
-                  color: isSelected ? FudiColors.primary : FudiColors.border,
+                  color: isSelected ? FudiColors.primary : borderColor,
                 ),
               ),
               showCheckmark: false,
@@ -391,6 +399,9 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
     int maxLines = 1,
     bool isRequired = false,
   }) {
+    final cs = Theme.of(context).colorScheme;
+    final tex = Theme.of(context).extension<FudiThemeExtension>();
+    final borderColor = tex?.border ?? FudiColors.border;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -398,7 +409,7 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
           '$label${isRequired ? ' *' : ''}',
           style: FudiTypography.bodySmall.copyWith(
             fontWeight: FontWeight.w600,
-            color: FudiColors.mutedForeground,
+            color: cs.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 6),
@@ -408,20 +419,20 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
           inputFormatters: inputFormatters,
           maxLines: maxLines,
           style: FudiTypography.bodyMedium.copyWith(
-            color: FudiColors.foreground,
+            color: cs.onSurface,
           ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: FudiTypography.bodyMedium.copyWith(
-              color: FudiColors.mutedForeground.withValues(alpha: 0.7),
+              color: cs.onSurfaceVariant.withValues(alpha: 0.7),
             ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: cs.surface,
             prefixIcon: icon != null
                 ? Icon(
                     icon,
                     size: 18,
-                    color: FudiColors.mutedForeground.withValues(alpha: 0.7),
+                    color: cs.onSurfaceVariant.withValues(alpha: 0.7),
                   )
                 : null,
             contentPadding: const EdgeInsets.symmetric(
@@ -430,23 +441,19 @@ class _BusinessEditScreenState extends ConsumerState<BusinessEditScreen> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(FudiRadius.sm),
-              borderSide:
-                  const BorderSide(color: FudiColors.border),
+              borderSide: BorderSide(color: borderColor),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(FudiRadius.sm),
-              borderSide:
-                  const BorderSide(color: FudiColors.primary, width: 1.5),
+              borderSide: const BorderSide(color: FudiColors.primary, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(FudiRadius.sm),
-              borderSide:
-                  const BorderSide(color: Colors.redAccent),
+              borderSide: const BorderSide(color: FudiColors.destructiveVibrant),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(FudiRadius.sm),
-              borderSide:
-                  const BorderSide(color: Colors.redAccent, width: 1.5),
+              borderSide: const BorderSide(color: FudiColors.destructiveVibrant, width: 1.5),
             ),
           ),
           validator: (value) =>

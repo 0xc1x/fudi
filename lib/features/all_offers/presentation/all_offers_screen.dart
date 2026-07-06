@@ -59,7 +59,6 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
     final offersAsync = ref.watch(allActiveOffersProvider);
 
     return Scaffold(
-      backgroundColor: FudiColors.background,
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -140,7 +139,7 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
       onTap: () => context.push('/product/${offer.id}'),
       child: Container(
         decoration: BoxDecoration(
-          color: FudiColors.card,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(FudiRadius.lg),
         ),
         clipBehavior: Clip.antiAlias,
@@ -164,7 +163,7 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
                         ),
                         borderRadius: FudiRadius.sm,
                         textStyle: const TextStyle(
-                          color: Colors.white,
+                          color: FudiColors.primaryForeground,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                         ),
@@ -187,7 +186,7 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
                         child: Text(
                           'Solo ${offer.stock}!',
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: FudiColors.destructiveForeground,
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                           ),
@@ -214,7 +213,7 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
                     offer.title,
                     style: FudiTypography.bodySmall.copyWith(
                       fontSize: 11,
-                      color: FudiColors.mutedForeground,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -239,10 +238,10 @@ class _AllOffersScreenState extends ConsumerState<AllOffersScreen> {
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           FudiIcons.mapPin,
                           size: 10,
-                          color: FudiColors.mutedForeground,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                         const SizedBox(width: 2),
                         Text(
@@ -352,7 +351,7 @@ class _AllOffersHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: FudiColors.background,
+      color: Theme.of(context).colorScheme.surface,
       padding: const EdgeInsets.fromLTRB(
         FudiSpacing.lg,
         FudiSpacing.lg + 8,
@@ -371,8 +370,8 @@ class _AllOffersHeader extends StatelessWidget {
                   child: Container(
                     width: 40,
                     height: 40,
-                    decoration: const BoxDecoration(
-                      color: FudiColors.muted,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(FudiIcons.chevronLeft, size: 24),
@@ -397,17 +396,17 @@ class _AllOffersHeader extends StatelessWidget {
                   vertical: FudiSpacing.sm,
                 ),
                 decoration: BoxDecoration(
-                  color: FudiColors.card,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(FudiRadius.md),
-                  border: Border.all(color: FudiColors.borderSolid),
+                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       FudiIcons.slidersHorizontal,
                       size: 16,
-                      color: FudiColors.foreground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     const SizedBox(width: FudiSpacing.xs),
                     Text(
@@ -530,9 +529,9 @@ class _OfferImage extends StatelessWidget {
     final url = offer.imageUrl ?? offer.business.imageUrl;
     if (url == null || url.isEmpty) {
       return Container(
-        color: FudiColors.muted,
-        child: const Center(
-          child: Icon(FudiIcons.store, color: FudiColors.mutedForeground),
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        child: Center(
+          child: Icon(FudiIcons.store, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
         ),
       );
     }
@@ -542,8 +541,8 @@ class _OfferImage extends StatelessWidget {
       height: double.infinity,
       fit: BoxFit.cover,
       errorWidget: (_, _, _) => Container(
-        color: FudiColors.muted,
-        child: const Icon(FudiIcons.store, color: FudiColors.mutedForeground),
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        child: Icon(FudiIcons.store, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
       ),
     );
   }
@@ -554,28 +553,30 @@ class _GridCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mutedColor = isDark ? const Color(0xFF2C2C2C) : FudiColors.muted;
     return Shimmer.fromColors(
-      baseColor: FudiColors.muted,
-      highlightColor: Colors.white,
+      baseColor: mutedColor,
+      highlightColor: isDark ? const Color(0xFF4A4A4A) : Colors.white,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: FudiColors.muted,
+          color: mutedColor,
           borderRadius: BorderRadius.circular(FudiRadius.lg),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: Container(color: FudiColors.muted)),
+            Expanded(child: Container(color: mutedColor)),
             Padding(
               padding: const EdgeInsets.all(FudiSpacing.sm),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(height: 10, width: 120, color: FudiColors.muted),
+                  Container(height: 10, width: 120, color: mutedColor),
                   const SizedBox(height: 6),
-                  Container(height: 8, width: 80, color: FudiColors.muted),
+                  Container(height: 8, width: 80, color: mutedColor),
                   const SizedBox(height: 8),
-                  Container(height: 14, width: 60, color: FudiColors.muted),
+                  Container(height: 14, width: 60, color: mutedColor),
                 ],
               ),
             ),

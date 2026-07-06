@@ -83,7 +83,7 @@ class PriceBreakdownCard extends StatelessWidget {
           label,
           style: FudiTypography.bodyMedium.copyWith(
             color: isDiscount
-                ? const Color(0xFF16A34A)
+                ? FudiColors.ecoGreen
                 : FudiColors.mutedForeground,
             fontSize: 13,
           ),
@@ -92,7 +92,7 @@ class PriceBreakdownCard extends StatelessWidget {
           value,
           style: FudiTypography.bodyMedium.copyWith(
             fontWeight: isDiscount ? FontWeight.bold : FontWeight.normal,
-            color: isDiscount ? const Color(0xFF16A34A) : null,
+            color: isDiscount ? FudiColors.ecoGreen : null,
             fontSize: 13,
           ),
         ),

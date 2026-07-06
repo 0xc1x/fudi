@@ -344,7 +344,7 @@ class FudiContactSupportCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(FudiRadius.xxl),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x1A000000),
+            color: FudiColors.shadow,
             blurRadius: 12,
             offset: Offset(0, 4),
           ),
@@ -356,13 +356,13 @@ class FudiContactSupportCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: FudiTypography.labelSmall.copyWith(color: Colors.white),
+            style: FudiTypography.labelSmall.copyWith(color: FudiColors.primaryForeground),
           ),
           const SizedBox(height: FudiSpacing.xs),
           Text(
             subtitle,
             style: FudiTypography.bodySmall.copyWith(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: FudiColors.primaryForeground.withValues(alpha: 0.9),
             ),
           ),
           const SizedBox(height: FudiSpacing.md),
@@ -373,7 +373,7 @@ class FudiContactSupportCard extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: FudiSpacing.sm),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: FudiColors.primaryForeground,
                   borderRadius: BorderRadius.circular(FudiRadius.md),
                 ),
                 child: Center(
@@ -408,13 +408,13 @@ class HelpCategoryDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: FudiColors.muted,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: FudiColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 1,
-        shadowColor: Colors.black12,
+        shadowColor: FudiColors.shadow,
         leading: Padding(
           padding: const EdgeInsets.only(left: FudiSpacing.sm),
           child: IconButton(

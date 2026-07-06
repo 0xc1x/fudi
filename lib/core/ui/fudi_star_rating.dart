@@ -9,7 +9,7 @@ class FudiStarRating extends StatelessWidget {
     required this.rating,
     this.maxRating = 5,
     this.size = 16,
-    this.activeColor = const Color(0xFFFACC15),
+    this.activeColor = FudiColors.starGold,
     this.inactiveColor = FudiColors.mutedForeground,
     this.showText = false,
     this.onTap,

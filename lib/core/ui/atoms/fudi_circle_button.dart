@@ -22,17 +22,23 @@ class FudiCircleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final defaultBgColor = theme.brightness == Brightness.dark
+        ? theme.colorScheme.surface.withValues(alpha: 0.9)
+        : FudiColors.card.withValues(alpha: 0.9);
+    final defaultIconColor = theme.colorScheme.onSurface;
+
     return FudiPressableScale(
       onTap: onTap,
       child: Container(
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: backgroundColor ?? Colors.white.withValues(alpha: 0.9),
+          color: backgroundColor ?? defaultBgColor,
           shape: BoxShape.circle,
           boxShadow: const [
             BoxShadow(
-              color: Colors.black12,
+              color: FudiColors.shadow,
               blurRadius: 8,
               offset: Offset(0, 2),
             ),
@@ -41,7 +47,7 @@ class FudiCircleButton extends StatelessWidget {
         child: Icon(
           icon,
           size: iconSize,
-          color: iconColor ?? FudiColors.foreground,
+          color: iconColor ?? defaultIconColor,
         ),
       ),
     );

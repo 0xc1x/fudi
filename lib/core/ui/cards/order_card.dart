@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../atoms/fudi_status_badge.dart';
 import '../../../features/orders/domain/order_status.dart';
-import '../fudi_colors.dart';
+import '../fudi_theme.dart';
 import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
 import '../atoms/icons/fudi_icons.dart';
@@ -33,11 +33,16 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
+
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: FudiColors.background,
+        color: themeExt?.cardBg ?? theme.cardTheme.color ?? theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(FudiRadius.lg),
-        border: Border.all(color: FudiColors.borderSolid),
+        border: Border.all(
+          color: themeExt?.borderSolid ?? theme.colorScheme.outline,
+        ),
       ),
       child: InkWell(
         onTap: onTap,
@@ -57,13 +62,13 @@ class OrderCard extends StatelessWidget {
                   errorWidget: (context, url, error) => Container(
                     width: 80,
                     height: 80,
-                    color: FudiColors.muted,
+                    color: themeExt?.mutedBackground ?? theme.colorScheme.surfaceContainerLow,
                     child: const Icon(FudiIcons.orders),
                   ),
                 ),
               ),
               const SizedBox(width: FudiSpacing.md),
-
+ 
               // ─── Información ────────────────────────────────────────
               Expanded(
                 child: Column(
@@ -95,7 +100,7 @@ class OrderCard extends StatelessWidget {
                     Text(
                       '\$${totalPrice.toStringAsFixed(2)}',
                       style: FudiTypography.labelSmall.copyWith(
-                        color: FudiColors.primary,
+                        color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w700,
                       ),
                     ),

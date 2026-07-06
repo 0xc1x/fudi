@@ -153,9 +153,9 @@ class _LocationSelectorState extends ConsumerState<LocationSelector>
                   );
                   return Text(
                     selectedAddress?.label ?? 'Seleccionar ubicación',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'DMSans',
-                      color: FudiColors.foreground,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
                     ),
@@ -170,10 +170,10 @@ class _LocationSelectorState extends ConsumerState<LocationSelector>
                     curve: Curves.easeInOutCubic,
                   ),
                 ),
-                child: const Icon(
+                child: Icon(
                   FudiIcons.chevronDown,
                   size: 16,
-                  color: FudiColors.foreground,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -288,11 +288,11 @@ class _LocationDropdownOverlayState
                       color: FudiColors.inputBackground,
                       borderRadius: BorderRadius.circular(FudiRadius.xl),
                       border: Border.all(color: FudiColors.borderSolid),
-                      boxShadow: const [
+                      boxShadow: [
                         BoxShadow(
-                          color: Color(0x1A000000),
+                          color: Theme.of(context).colorScheme.shadow,
                           blurRadius: 20,
-                          offset: Offset(0, 4),
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
@@ -440,7 +440,7 @@ class _AnimatedAddressItemState extends State<_AnimatedAddressItem>
             color: _isPressed
                 ? FudiColors.primary.withValues(alpha: 0.08)
                 : widget.isSelected
-                ? const Color(0x0DFA4743)
+                ? FudiColors.destructiveVibrant.withValues(alpha: 0.05)
                 : Colors.transparent,
             padding: const EdgeInsets.symmetric(
               horizontal: FudiSpacing.lg,
@@ -473,7 +473,7 @@ class _AnimatedAddressItemState extends State<_AnimatedAddressItem>
                           fontWeight: FontWeight.w500,
                           color: widget.isSelected
                               ? FudiColors.primary
-                              : FudiColors.foreground,
+                              : Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       Text(

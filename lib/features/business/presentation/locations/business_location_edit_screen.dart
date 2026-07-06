@@ -11,6 +11,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import '../../../../core/error/user_friendly_message.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
@@ -187,7 +188,7 @@ class _BusinessLocationEditScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor, selecciona la ubicación en el mapa'),
-          backgroundColor: Colors.redAccent,
+          backgroundColor: FudiColors.destructiveVibrant,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -225,7 +226,7 @@ class _BusinessLocationEditScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(userFriendlyMessage(e)),
-            backgroundColor: Colors.redAccent,
+            backgroundColor: FudiColors.destructiveVibrant,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -241,8 +242,12 @@ class _BusinessLocationEditScreenState
     final location = locationAsync.asData?.value;
     if (location != null) _hydrate(location);
 
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final themeExt = theme.extension<FudiThemeExtension>();
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         leading: Center(
           child: FudiPressableScale(
@@ -250,14 +255,14 @@ class _BusinessLocationEditScreenState
             child: Container(
               width: 38,
               height: 38,
-              decoration: const BoxDecoration(
-                color: FudiColors.background,
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 FudiIcons.chevronLeft,
                 size: 18,
-                color: FudiColors.foreground,
+                color: colorScheme.onSurface,
               ),
             ),
           ),
@@ -266,8 +271,8 @@ class _BusinessLocationEditScreenState
           'Editar sucursal',
           style: FudiTypography.h4.copyWith(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
+      backgroundColor: colorScheme.surface,
+      surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
       ),
@@ -280,13 +285,13 @@ class _BusinessLocationEditScreenState
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(FudiIcons.alertTriangle,
-                            size: 48, color: FudiColors.mutedForeground),
+                        Icon(FudiIcons.alertTriangle,
+                            size: 48, color: colorScheme.onSurfaceVariant),
                         const SizedBox(height: FudiSpacing.md),
                         Text(
                           'No pudimos cargar esta sucursal',
                           style: FudiTypography.bodyMedium.copyWith(
-                            color: FudiColors.mutedForeground,
+                            color: colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(height: FudiSpacing.lg),
@@ -306,7 +311,7 @@ class _BusinessLocationEditScreenState
                             child: Text(
                               'Reintentar',
                               style: FudiTypography.bodyMedium.copyWith(
-                                color: Colors.white,
+                                color: FudiColors.primaryForeground,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -332,7 +337,7 @@ class _BusinessLocationEditScreenState
                             'Detalles Básicos',
                             style: FudiTypography.bodyMedium.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: FudiColors.foreground,
+                              color: colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: FudiSpacing.md),
@@ -348,7 +353,7 @@ class _BusinessLocationEditScreenState
                             'Tipo de Establecimiento',
                             style: FudiTypography.bodySmall.copyWith(
                               fontWeight: FontWeight.w600,
-                              color: FudiColors.mutedForeground,
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
                           const SizedBox(height: FudiSpacing.sm),
@@ -361,7 +366,7 @@ class _BusinessLocationEditScreenState
                                 'Ubicación Geográfica',
                                 style: FudiTypography.bodyMedium.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  color: FudiColors.foreground,
+                                  color: colorScheme.onSurface,
                                 ),
                               ),
                               Text(
@@ -380,7 +385,7 @@ class _BusinessLocationEditScreenState
                             'Información de Contacto',
                             style: FudiTypography.bodyMedium.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: FudiColors.foreground,
+                              color: colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: FudiSpacing.md),
@@ -419,16 +424,16 @@ class _BusinessLocationEditScreenState
           bottom: FudiSpacing.xl,
         ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: colorScheme.onSurface.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, -4),
             )
           ],
-          border: const Border(
-            top: BorderSide(color: FudiColors.border, width: 0.5),
+          border: Border(
+            top: BorderSide(color: colorScheme.outlineVariant, width: 0.5),
           ),
         ),
         child: SizedBox(
@@ -438,8 +443,9 @@ class _BusinessLocationEditScreenState
             child: Container(
               height: 52,
               decoration: BoxDecoration(
-                color:
-                    _isSubmitting ? FudiColors.muted : FudiColors.primary,
+                color: _isSubmitting
+                    ? (themeExt?.mutedBackground ?? FudiColors.muted)
+                    : FudiColors.primary,
                 borderRadius: BorderRadius.circular(FudiRadius.md),
               ),
               alignment: Alignment.center,
@@ -449,13 +455,13 @@ class _BusinessLocationEditScreenState
                       width: 22,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        color: Colors.white,
+                        color: FudiColors.primaryForeground,
                       ),
                     )
                   : Text(
                       'Actualizar Sucursal',
                       style: FudiTypography.bodyMedium.copyWith(
-                        color: Colors.white,
+                        color: FudiColors.primaryForeground,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -467,6 +473,7 @@ class _BusinessLocationEditScreenState
   }
 
   Widget _buildBusinessTypeSelector() {
+    final colorScheme = Theme.of(context).colorScheme;
     return SizedBox(
       height: 42,
       child: ListView.builder(
@@ -484,30 +491,30 @@ class _BusinessLocationEditScreenState
                     type.$3,
                     size: 16,
                     color: isSelected
-                        ? Colors.white
-                        : FudiColors.mutedForeground,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(type.$2),
-                ],
+                    ? FudiColors.primaryForeground
+                    : colorScheme.onSurfaceVariant,
               ),
-              selected: isSelected,
-              onSelected: (selected) {
-                if (selected) {
-                  setState(() => _selectedBusinessType = type.$1);
-                }
-              },
-              selectedColor: FudiColors.primary,
-              backgroundColor: FudiColors.background,
-              labelStyle: FudiTypography.bodySmall.copyWith(
-                color: isSelected ? Colors.white : FudiColors.foreground,
+              const SizedBox(width: 6),
+              Text(type.$2),
+            ],
+          ),
+          selected: isSelected,
+          onSelected: (selected) {
+            if (selected) {
+              setState(() => _selectedBusinessType = type.$1);
+            }
+          },
+          selectedColor: FudiColors.primary,
+          backgroundColor: colorScheme.surface,
+          labelStyle: FudiTypography.bodySmall.copyWith(
+            color: isSelected ? FudiColors.primaryForeground : colorScheme.onSurface,
                 fontWeight:
                     isSelected ? FontWeight.bold : FontWeight.normal,
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(FudiRadius.sm),
                 side: BorderSide(
-                  color: isSelected ? FudiColors.primary : FudiColors.border,
+                  color: isSelected ? FudiColors.primary : colorScheme.outlineVariant,
                 ),
               ),
               showCheckmark: false,
@@ -521,11 +528,12 @@ class _BusinessLocationEditScreenState
   }
 
   Widget _buildMapSection() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       height: 220,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(FudiRadius.md),
-        border: Border.all(color: FudiColors.border),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -567,18 +575,18 @@ class _BusinessLocationEditScreenState
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: colorScheme.surface,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
+                      color: colorScheme.shadow.withValues(alpha: 0.1),
                       blurRadius: 6,
                     )
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.fullscreen_rounded,
-                  color: FudiColors.foreground,
+                  color: colorScheme.onSurface,
                   size: 20,
                 ),
               ),
@@ -594,10 +602,10 @@ class _BusinessLocationEditScreenState
                 vertical: 6,
               ),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.95),
+                color: colorScheme.surface.withValues(alpha: 0.95),
                 borderRadius: BorderRadius.circular(FudiRadius.sm),
                 border: Border.all(
-                  color: FudiColors.border.withValues(alpha: 0.5),
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.5),
                 ),
               ),
               child: Row(
@@ -616,8 +624,8 @@ class _BusinessLocationEditScreenState
                       style: FudiTypography.bodySmall.copyWith(
                         fontSize: 11,
                         color: _addressController.text.isNotEmpty
-                            ? FudiColors.foreground
-                            : FudiColors.mutedForeground,
+                            ? colorScheme.onSurface
+                            : colorScheme.onSurfaceVariant,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -643,6 +651,7 @@ class _BusinessLocationEditScreenState
     bool isRequired = false,
     bool readOnly = false,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -650,7 +659,7 @@ class _BusinessLocationEditScreenState
           '$label${isRequired ? ' *' : ''}',
           style: FudiTypography.bodySmall.copyWith(
             fontWeight: FontWeight.w600,
-            color: FudiColors.mutedForeground,
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 6),
@@ -661,22 +670,22 @@ class _BusinessLocationEditScreenState
           maxLines: maxLines,
           readOnly: readOnly,
           style: FudiTypography.bodyMedium.copyWith(
-            color: FudiColors.foreground,
+            color: colorScheme.onSurface,
           ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: FudiTypography.bodyMedium.copyWith(
-              color: FudiColors.mutedForeground.withValues(alpha: 0.7),
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
             ),
             filled: true,
             fillColor: readOnly
-                ? FudiColors.background.withValues(alpha: 0.3)
-                : Colors.white,
+                ? colorScheme.surface.withValues(alpha: 0.3)
+                : colorScheme.surface,
             prefixIcon: icon != null
                 ? Icon(
                     icon,
                     size: 18,
-                    color: FudiColors.mutedForeground.withValues(alpha: 0.7),
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                   )
                 : null,
             contentPadding: const EdgeInsets.symmetric(
@@ -685,8 +694,7 @@ class _BusinessLocationEditScreenState
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(FudiRadius.sm),
-              borderSide:
-                  const BorderSide(color: FudiColors.border),
+              borderSide: BorderSide(color: colorScheme.outlineVariant),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(FudiRadius.sm),
@@ -696,12 +704,12 @@ class _BusinessLocationEditScreenState
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(FudiRadius.sm),
               borderSide:
-                  const BorderSide(color: Colors.redAccent),
+                  const BorderSide(color: FudiColors.destructiveVibrant),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(FudiRadius.sm),
               borderSide:
-                  const BorderSide(color: Colors.redAccent, width: 1.5),
+                  const BorderSide(color: FudiColors.destructiveVibrant, width: 1.5),
             ),
           ),
           validator: (value) =>

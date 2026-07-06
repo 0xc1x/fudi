@@ -106,3 +106,81 @@ Cuando existan conflictos, prioriza:
 4. Accesibilidad
 5. Mantenibilidad arquitectónica
 6. Fidelidad visual
+
+## Sesión actual — Theme migration: business presentation layer
+
+### Completado
+
+Todos los archivos en `lib/features/business/presentation/` fueron migrados de colores hardcodeados (`Colors.white`, `Colors.black*`, `Color(0x...)`) a tokens de `FudiColors` o `Theme.of(context).colorScheme.*`.
+
+Archivos modificados (en orden de edición):
+- `business_profile_screen.dart`
+- `business_edit_screen.dart`
+- `payments/business_payments_screen.dart`
+- `payments/business_payment_detail_screen.dart`
+- `notifications/business_notifications_screen.dart`
+- `orders/business_order_detail_screen.dart`
+- `orders/pickup_scanner_sheet.dart`
+- `components/order_action_buttons.dart`
+- `components/order_stats_row.dart`
+- `components/stats_row.dart`
+- `components/tab_selector.dart`
+- `components/locations_header.dart`
+- `components/logout_button.dart`
+- `components/business_info_card.dart`
+- `components/business_selector.dart`
+- `components/products_category_filters.dart`
+- `components/business_products_active_filters.dart`
+- `components/orders_filters_sheet.dart`
+- `components/orders_content.dart`
+- `components/business_products_filters_sheet.dart`
+- `components/no_business_prompt.dart`
+- `components/product_image.dart`
+- `components/product_card.dart`
+- `components/order_card.dart`
+- `components/product_menu.dart`
+- `components/settings_section.dart`
+- `components/orders_sort_button.dart`
+- `components/business_branch_selector.dart`
+- `components/create_product_button.dart`
+- `coupons/coupon_components.dart`
+- `coupons/business_coupons_screen.dart`
+- `coupons/business_coupon_edit_screen.dart`
+- `locations/business_location_edit_screen.dart`
+- `locations/business_location_create_screen.dart`
+- `locations/business_location_detail_screen.dart`
+- `locations/map_picker_screen.dart`
+- `dashboard/business_dashboard_screen.dart`
+- `catalog/business_product_form_screen.dart`
+- `catalog/business_product_detail_screen.dart`
+- `help/business_help_screen.dart`
+- `business_management_profile_screen.dart`
+
+### Principales reemplazos
+
+| Original → | Token FudiColors |
+|---|---|
+| `Colors.white` (fondo tarjetas) | `Theme.of(context).colorScheme.surface` |
+| `Colors.white` (texto) | `FudiColors.primaryForeground` |
+| `Colors.black54` / `black26` (sombras) | `FudiColors.foreground.withValues(alpha: 0.54/0.26)` |
+| `Color(0x0D000000)` | `FudiColors.foreground.withValues(alpha: 0.05)` |
+| `Color(0x1A000000)` | `FudiColors.foreground.withValues(alpha: 0.1)` |
+| `Color(0xFF4ADE80)` | `FudiColors.success` |
+| `Color(0xFF16A34A)` | `FudiColors.successDark` |
+| `Color(0xFF15803D)` | `FudiColors.successDark` |
+| `Color(0xFFB45309) / 0xFFC2410C` | `FudiColors.warningOrange` |
+| `Color(0xFFFED7AA)` | `FudiColors.warning.withValues(alpha: 0.4)` |
+| `Color(0xFFFFF7ED) / 0xFFDCFCE7 / 0xFFFFEDD5 / 0xFFEFF6FF` | `FudiColors.surfaceWarning` |
+| `Color(0xFFE8F5E9) / 0xFFDCFCE7` | `FudiColors.surfaceSuccess` |
+| `0xFF2563EB` | `FudiColors.info` |
+| `Colors.redAccent` | `FudiColors.destructiveVibrant` |
+| `Colors.red` | `FudiColors.destructive` |
+| `Colors.green` | `FudiColors.success` |
+| `Colors.orange` | `FudiColors.warningOrange` |
+| `Colors.blue` | `FudiColors.info` |
+| `Color(0x0DFA4743)` (branch selected bg) | `FudiColors.destructiveVibrant.withValues(alpha: 0.05)` |
+| `Color(0xFFFFB300)` (stars) | `FudiColors.yellow` |
+
+### Pendiente (fuera de scope de la sesión)
+
+Los siguientes archivos en otras features aún contienen colores hardcodeados (`lib/features/landing/presentation/`, `lib/features/explore/presentation/`, `lib/features/offers/presentation/`, `lib/features/orders/presentation/`, `lib/features/home/presentation/`, `lib/features/favorites/presentation/`, `lib/features/profile/presentation/`, `lib/features/all_offers/presentation/`).

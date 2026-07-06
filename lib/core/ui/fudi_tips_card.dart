@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'fudi_colors.dart';
 import 'fudi_spacing.dart';
 import 'fudi_typography.dart';
 
@@ -18,9 +19,9 @@ class FudiTipsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(FudiSpacing.lg),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
+        color: FudiColors.infoSurface,
         borderRadius: BorderRadius.circular(FudiRadius.xxl),
-        border: Border.all(color: const Color(0xFFBFDBFE)),
+        border: Border.all(color: FudiColors.infoSurfaceBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,7 +29,7 @@ class FudiTipsCard extends StatelessWidget {
           Text(
             title,
             style: FudiTypography.labelSmall.copyWith(
-              color: const Color(0xFF1E3A5F),
+              color: FudiColors.infoTitle,
             ),
           ),
           const SizedBox(height: FudiSpacing.sm),
@@ -47,14 +48,14 @@ class FudiTipsCard extends StatelessWidget {
           Text(
             '• ',
             style: FudiTypography.bodySmall.copyWith(
-              color: const Color(0xFF1D4ED8),
+              color: FudiColors.infoForeground,
             ),
           ),
           Expanded(
             child: Text(
               text,
               style: FudiTypography.bodySmall.copyWith(
-                color: const Color(0xFF1D4ED8),
+                color: FudiColors.infoForeground,
               ),
             ),
           ),

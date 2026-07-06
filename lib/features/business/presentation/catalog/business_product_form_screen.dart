@@ -2,13 +2,19 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/error/user_friendly_message.dart';
+import '../../../../core/ui/atoms/fudi_date_picker_tile.dart';
+import '../../../../core/ui/atoms/fudi_discount_meta_badge.dart';
+import '../../../../core/ui/atoms/fudi_dropdown_form_field.dart';
+import '../../../../core/ui/atoms/fudi_text_form_field.dart';
+import '../../../../core/ui/atoms/fudi_time_picker_tile.dart';
 import '../../../../core/ui/fudi_colors.dart';
-import '../../../../core/ui/fudi_pressable_scale.dart';
-import '../../../../core/ui/atoms/icons/fudi_icons.dart';
+import '../../../../core/ui/fudi_form_section.dart';
+import '../../../../core/ui/fudi_form_submit_bar.dart';
+import '../../../../core/ui/fudi_image_picker_field.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../offers/domain/offer.dart';
@@ -40,6 +46,14 @@ class _BusinessProductFormScreenState
   final _includesController = TextEditingController();
   final _allergensController = TextEditingController();
 
+  final _nameFocus = FocusNode();
+  final _descriptionFocus = FocusNode();
+  final _includesFocus = FocusNode();
+  final _allergensFocus = FocusNode();
+  final _originalPriceFocus = FocusNode();
+  final _priceFocus = FocusNode();
+  final _stockFocus = FocusNode();
+
   OfferCategory _selectedCategory = OfferCategory.surprise;
   XFile? _imageFile;
   DateTime _startDate = DateTime.now();
@@ -48,6 +62,8 @@ class _BusinessProductFormScreenState
   TimeOfDay _endTime = const TimeOfDay(hour: 20, minute: 0);
 
   bool _isSubmitting = false;
+  bool _autoValidate = false;
+  bool _isDirty = false;
 
   String? _existingImageUrl;
   bool _isLoadingProduct = false;
@@ -59,6 +75,23 @@ class _BusinessProductFormScreenState
     super.initState();
     if (widget.productId != null) {
       unawaited(_loadProduct());
+    }
+    for (final controller in [
+      _nameController,
+      _descriptionController,
+      _originalPriceController,
+      _priceController,
+      _stockController,
+      _includesController,
+      _allergensController,
+    ]) {
+      controller.addListener(_markDirty);
+    }
+  }
+
+  void _markDirty() {
+    if (!_isDirty) {
+      setState(() => _isDirty = true);
     }
   }
 
@@ -97,6 +130,7 @@ class _BusinessProductFormScreenState
         );
         _existingImageUrl = offer.imageUrl;
         setState(() {});
+        _isDirty = false;
       }
     } catch (e) {
       if (mounted) {
@@ -105,7 +139,7 @@ class _BusinessProductFormScreenState
             content: Text(
               'Error al cargar producto: ${userFriendlyMessage(e)}',
             ),
-            backgroundColor: Colors.red,
+            backgroundColor: FudiColors.destructive,
           ),
         );
       }
@@ -123,60 +157,22 @@ class _BusinessProductFormScreenState
     _stockController.dispose();
     _includesController.dispose();
     _allergensController.dispose();
+    _nameFocus.dispose();
+    _descriptionFocus.dispose();
+    _includesFocus.dispose();
+    _allergensFocus.dispose();
+    _originalPriceFocus.dispose();
+    _priceFocus.dispose();
+    _stockFocus.dispose();
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-
-    final source = await showModalBottomSheet<ImageSource>(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Imagen del producto', style: FudiTypography.h4),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _SourceOption(
-                    icon: Icons.camera_alt_outlined,
-                    label: 'Cámara',
-                    onTap: () => Navigator.pop(context, ImageSource.camera),
-                  ),
-                  _SourceOption(
-                    icon: Icons.photo_library_outlined,
-                    label: 'Galería',
-                    onTap: () => Navigator.pop(context, ImageSource.gallery),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
-      ),
-    );
-
-    if (source != null) {
-      final XFile? image = await picker.pickImage(
-        source: source,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 85,
-      );
-
-      if (image != null) {
-        setState(() => _imageFile = image);
-      }
-    }
+  void _onImageChanged(XFile? file, String? existingUrl) {
+    setState(() {
+      _imageFile = file;
+      _existingImageUrl = existingUrl;
+      _isDirty = true;
+    });
   }
 
   Future<void> _selectTime(bool isStart) async {
@@ -192,6 +188,7 @@ class _BusinessProductFormScreenState
         } else {
           _endTime = picked;
         }
+        _isDirty = true;
       });
     }
   }
@@ -217,31 +214,83 @@ class _BusinessProductFormScreenState
         } else {
           _endDate = picked;
         }
+        _isDirty = true;
       });
     }
   }
 
-  String _formatDate(DateTime date) {
-    const months = [
-      '',
-      'ene',
-      'feb',
-      'mar',
-      'abr',
-      'may',
-      'jun',
-      'jul',
-      'ago',
-      'sep',
-      'oct',
-      'nov',
-      'dic',
-    ];
-    return '${date.day} ${months[date.month]} ${date.year}';
+  DateTime get _pickupStartAt => DateTime(
+    _startDate.year,
+    _startDate.month,
+    _startDate.day,
+    _startTime.hour,
+    _startTime.minute,
+  );
+
+  DateTime get _pickupEndAt => DateTime(
+    _endDate.year,
+    _endDate.month,
+    _endDate.day,
+    _endTime.hour,
+    _endTime.minute,
+  );
+
+  bool get _hasValidPickupWindow => _pickupEndAt.isAfter(_pickupStartAt);
+
+  double? get _originalPriceValue =>
+      double.tryParse(_originalPriceController.text.replaceAll(',', '.'));
+
+  double? get _discountedPriceValue =>
+      double.tryParse(_priceController.text.replaceAll(',', '.'));
+
+  double? get _discountPercent {
+    final original = _originalPriceValue;
+    final discounted = _discountedPriceValue;
+    if (original == null || discounted == null || original <= 0) return null;
+    if (discounted >= original) return null;
+    return ((original - discounted) / original) * 100;
+  }
+
+  Future<bool> _confirmDiscardChanges() async {
+    if (!_isDirty) return true;
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('¿Descartar cambios?'),
+        content: const Text(
+          'Tienes cambios sin guardar. Si sales ahora, se perderán.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Seguir editando'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Descartar'),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
   }
 
   Future<void> _submit() async {
+    setState(() => _autoValidate = true);
+
     if (!_formKey.currentState!.validate()) return;
+
+    if (!_hasValidPickupWindow) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'La hora/fecha de fin debe ser posterior a la de inicio.',
+          ),
+          backgroundColor: FudiColors.destructive,
+        ),
+      );
+      return;
+    }
 
     setState(() => _isSubmitting = true);
 
@@ -291,20 +340,8 @@ class _BusinessProductFormScreenState
         stock: int.parse(_stockController.text),
         initialStock: int.parse(_stockController.text),
         category: _selectedCategory,
-        pickupStart: DateTime(
-          _startDate.year,
-          _startDate.month,
-          _startDate.day,
-          _startTime.hour,
-          _startTime.minute,
-        ),
-        pickupEnd: DateTime(
-          _endDate.year,
-          _endDate.month,
-          _endDate.day,
-          _endTime.hour,
-          _endTime.minute,
-        ),
+        pickupStart: _pickupStartAt,
+        pickupEnd: _pickupEndAt,
         isActive: true,
         includes: _includesController.text.isNotEmpty
             ? _includesController.text
@@ -322,6 +359,7 @@ class _BusinessProductFormScreenState
 
       if (mounted) {
         ref.invalidate(businessOffersProvider(business.id));
+        _isDirty = false;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Producto guardado correctamente')),
         );
@@ -332,7 +370,7 @@ class _BusinessProductFormScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(userFriendlyMessage(e)),
-            backgroundColor: Colors.red,
+            backgroundColor: FudiColors.destructive,
           ),
         );
       }
@@ -343,403 +381,299 @@ class _BusinessProductFormScreenState
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     if (_isLoadingProduct) {
       return Scaffold(
-        backgroundColor: FudiColors.background,
+        backgroundColor: colorScheme.surface,
         appBar: AppBar(
           title: const Text('Editar producto'),
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           elevation: 0,
         ),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
-    return Scaffold(
-      backgroundColor: FudiColors.background,
-      appBar: AppBar(
-        title: Text(
-          widget.productId == null ? 'Nuevo producto' : 'Editar producto',
+    return PopScope(
+      canPop: !_isDirty,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldPop = await _confirmDiscardChanges();
+        if (shouldPop && context.mounted) {
+          context.pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: colorScheme.surface,
+        appBar: AppBar(
+          title: Text(
+            widget.productId == null ? 'Nuevo producto' : 'Editar producto',
+          ),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          elevation: 0,
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(FudiSpacing.md),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildImagePicker(),
-              const SizedBox(height: FudiSpacing.lg),
-              _buildSection(
-                title: 'Información básica',
+        body: AbsorbPointer(
+          absorbing: _isSubmitting,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+              FudiSpacing.md,
+              FudiSpacing.md,
+              FudiSpacing.md,
+              FudiSpacing.xxl,
+            ),
+            child: Form(
+              key: _formKey,
+              autovalidateMode: _autoValidate
+                  ? AutovalidateMode.onUserInteraction
+                  : AutovalidateMode.disabled,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildTextField(
-                    label: 'Nombre del producto',
-                    controller: _nameController,
-                    hint: 'Ej: Pack Sorpresa Panadería',
-                    validator: (v) =>
-                        v?.isEmpty ?? true ? 'Campo requerido' : null,
+                  FudiImagePickerField(
+                    existingImageUrl: _existingImageUrl,
+                    onChanged: _onImageChanged,
                   ),
-                  const SizedBox(height: FudiSpacing.md),
-                  _buildDropdownField(
-                    label: 'Categoría',
-                    value: _selectedCategory,
-                    items: _categories,
-                    onChanged: (v) => setState(() => _selectedCategory = v ?? OfferCategory.surprise),
-                  ),
-                  const SizedBox(height: FudiSpacing.md),
-                  _buildTextField(
-                    label: 'Descripción',
-                    controller: _descriptionController,
-                    hint: 'Describe brevemente qué trae el producto...',
-                    maxLines: 3,
-                    validator: (v) =>
-                        v?.isEmpty ?? true ? 'Campo requerido' : null,
-                  ),
-                ],
-              ),
-              const SizedBox(height: FudiSpacing.lg),
-              _buildSection(
-                title: 'Detalles adicionales (Mockup)',
-                children: [
-                  _buildTextField(
-                    label: '¿Qué incluye?',
-                    controller: _includesController,
-                    hint: 'Ej: 3 panes, 2 facturas...',
-                    maxLines: 2,
-                  ),
-                  const SizedBox(height: FudiSpacing.md),
-                  _buildTextField(
-                    label: 'Alérgenos',
-                    controller: _allergensController,
-                    hint: 'Ej: Gluten, Lactosa...',
-                  ),
-                ],
-              ),
-              const SizedBox(height: FudiSpacing.lg),
-              _buildSection(
-                title: 'Precios y Stock',
-                children: [
-                  Row(
+                  const SizedBox(height: FudiSpacing.lg),
+                  FudiFormSection(
+                    title: 'Información básica',
+                    icon: Icons.info_outline_rounded,
                     children: [
-                      Expanded(
-                        child: _buildTextField(
-                          label: 'Precio Original',
-                          controller: _originalPriceController,
-                          hint: '0.00',
-                          keyboardType: TextInputType.number,
-                          prefixText: '\$ ',
-                          validator: (v) =>
-                              v?.isEmpty ?? true ? 'Requerido' : null,
-                        ),
+                      FudiTextFormField(
+                        label: 'Nombre del producto',
+                        controller: _nameController,
+                        hint: 'Ej: Pack Sorpresa Panadería',
+                        focusNode: _nameFocus,
+                        textInputAction: TextInputAction.next,
+                        onFieldSubmitted: (_) =>
+                            _descriptionFocus.requestFocus(),
+                        validator: (v) => v?.trim().isEmpty ?? true
+                            ? 'Campo requerido'
+                            : null,
                       ),
-                      const SizedBox(width: FudiSpacing.md),
-                      Expanded(
-                        child: _buildTextField(
-                          label: 'Precio Fudi',
-                          controller: _priceController,
-                          hint: '0.00',
-                          keyboardType: TextInputType.number,
-                          prefixText: '\$ ',
-                          validator: (v) =>
-                              v?.isEmpty ?? true ? 'Requerido' : null,
-                        ),
+                      const SizedBox(height: FudiSpacing.md),
+                      FudiDropdownFormField<OfferCategory>(
+                        label: 'Categoría',
+                        value: _selectedCategory,
+                        items: _categories
+                            .map((e) => DropdownMenuItem(
+                                  value: e,
+                                  child: Text(e.dbValue),
+                                ))
+                            .toList(),
+                        onChanged: (v) => setState(() {
+                          _selectedCategory = v ?? OfferCategory.surprise;
+                          _isDirty = true;
+                        }),
+                      ),
+                      const SizedBox(height: FudiSpacing.md),
+                      FudiTextFormField(
+                        label: 'Descripción',
+                        controller: _descriptionController,
+                        hint: 'Describe brevemente qué trae el producto...',
+                        maxLines: 3,
+                        focusNode: _descriptionFocus,
+                        textInputAction: TextInputAction.next,
+                        onFieldSubmitted: (_) => _includesFocus.requestFocus(),
+                        validator: (v) => v?.trim().isEmpty ?? true
+                            ? 'Campo requerido'
+                            : null,
                       ),
                     ],
                   ),
-                  const SizedBox(height: FudiSpacing.md),
-                  _buildTextField(
-                    label: 'Stock disponible',
-                    controller: _stockController,
-                    hint: '1',
-                    keyboardType: TextInputType.number,
-                    validator: (v) => v?.isEmpty ?? true ? 'Requerido' : null,
-                  ),
-                ],
-              ),
-              const SizedBox(height: FudiSpacing.lg),
-              _buildSection(
-                title: 'Horario de recogida',
-                children: [
-                  Row(
+                  const SizedBox(height: FudiSpacing.lg),
+                  FudiFormSection(
+                    title: 'Detalles adicionales',
+                    icon: Icons.checklist_rounded,
+                    badge: 'Opcional',
                     children: [
-                      Expanded(
-                        child: _buildDatePicker(
-                          label: 'Fecha desde',
-                          date: _startDate,
-                          onTap: () => _selectDate(true),
-                        ),
+                      FudiTextFormField(
+                        label: '¿Qué incluye?',
+                        controller: _includesController,
+                        hint: 'Ej: 3 panes, 2 facturas...',
+                        maxLines: 2,
+                        focusNode: _includesFocus,
+                        textInputAction: TextInputAction.next,
+                        onFieldSubmitted: (_) =>
+                            _allergensFocus.requestFocus(),
                       ),
-                      const SizedBox(width: FudiSpacing.md),
-                      Expanded(
-                        child: _buildDatePicker(
-                          label: 'Fecha hasta',
-                          date: _endDate,
-                          onTap: () => _selectDate(false),
-                        ),
+                      const SizedBox(height: FudiSpacing.md),
+                      FudiTextFormField(
+                        label: 'Alérgenos',
+                        controller: _allergensController,
+                        hint: 'Ej: Gluten, Lactosa...',
+                        focusNode: _allergensFocus,
+                        textInputAction: TextInputAction.next,
+                        onFieldSubmitted: (_) =>
+                            _originalPriceFocus.requestFocus(),
                       ),
                     ],
                   ),
-                  const SizedBox(height: FudiSpacing.md),
-                  Row(
+                  const SizedBox(height: FudiSpacing.lg),
+                  FudiFormSection(
+                    title: 'Precios y stock',
+                    icon: Icons.sell_outlined,
                     children: [
-                      Expanded(
-                        child: _buildTimePicker(
-                          label: 'Hora desde',
-                          time: _startTime,
-                          onTap: () => _selectTime(true),
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: FudiTextFormField(
+                              label: 'Precio original',
+                              controller: _originalPriceController,
+                              hint: '0.00',
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                              prefixText: '\$ ',
+                              focusNode: _originalPriceFocus,
+                              textInputAction: TextInputAction.next,
+                              onFieldSubmitted: (_) =>
+                                  _priceFocus.requestFocus(),
+                              validator: _validatePositivePrice,
+                            ),
+                          ),
+                          const SizedBox(width: FudiSpacing.md),
+                          Expanded(
+                            child: FudiTextFormField(
+                              label: 'Precio Fudi',
+                              controller: _priceController,
+                              hint: '0.00',
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                              prefixText: '\$ ',
+                              focusNode: _priceFocus,
+                              textInputAction: TextInputAction.next,
+                              onFieldSubmitted: (_) =>
+                                  _stockFocus.requestFocus(),
+                              validator: _validateDiscountedPrice,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: FudiSpacing.md),
-                      Expanded(
-                        child: _buildTimePicker(
-                          label: 'Hora hasta',
-                          time: _endTime,
-                          onTap: () => _selectTime(false),
-                        ),
+                      if (_discountPercent != null) ...[
+                        const SizedBox(height: FudiSpacing.sm),
+                        FudiDiscountMetaBadge(percent: _discountPercent!),
+                      ],
+                      const SizedBox(height: FudiSpacing.md),
+                      FudiTextFormField(
+                        label: 'Stock disponible',
+                        controller: _stockController,
+                        hint: '1',
+                        keyboardType: TextInputType.number,
+                        focusNode: _stockFocus,
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (_) => _stockFocus.unfocus(),
+                        validator: (v) {
+                          final n = int.tryParse(v?.trim() ?? '');
+                          if (n == null) return 'Requerido';
+                          if (n < 1) return 'Debe ser al menos 1';
+                          return null;
+                        },
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: FudiSpacing.lg),
+                  FudiFormSection(
+                    title: 'Horario de recogida',
+                    icon: Icons.schedule_rounded,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: FudiDatePickerTile(
+                              label: 'Fecha desde',
+                              date: _startDate,
+                              onTap: () => _selectDate(true),
+                            ),
+                          ),
+                          const SizedBox(width: FudiSpacing.md),
+                          Expanded(
+                            child: FudiDatePickerTile(
+                              label: 'Fecha hasta',
+                              date: _endDate,
+                              onTap: () => _selectDate(false),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: FudiSpacing.md),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: FudiTimePickerTile(
+                              label: 'Hora desde',
+                              time: _startTime,
+                              onTap: () => _selectTime(true),
+                            ),
+                          ),
+                          const SizedBox(width: FudiSpacing.md),
+                          Expanded(
+                            child: FudiTimePickerTile(
+                              label: 'Hora hasta',
+                              time: _endTime,
+                              onTap: () => _selectTime(false),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (!_hasValidPickupWindow) ...[
+                        const SizedBox(height: FudiSpacing.sm),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.error_outline_rounded,
+                              size: 16,
+                              color: FudiColors.destructive,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'La fecha/hora de fin debe ser posterior a la de inicio.',
+                                style: FudiTypography.bodySmall.copyWith(
+                                  color: FudiColors.destructive,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: FudiSpacing.xxl),
-              FudiPressableScale(
-                onTap: _isSubmitting ? null : _submit,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  decoration: BoxDecoration(
-                    color: FudiColors.primary,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: _isSubmitting
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Guardar producto', style: TextStyle(color: Colors.white)),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
+        ),
+        bottomNavigationBar: FudiFormSubmitBar(
+          text: widget.productId == null
+              ? 'Publicar producto'
+              : 'Guardar cambios',
+          onPressed: _isSubmitting ? null : _submit,
+          isLoading: _isSubmitting,
         ),
       ),
     );
   }
 
-  Widget _buildImagePicker() {
-    final hasNewImage = _imageFile != null;
-    final hasExistingImage =
-        _existingImageUrl != null && _existingImageUrl!.isNotEmpty;
-    final showImage = hasNewImage || hasExistingImage;
-
-    return GestureDetector(
-      onTap: _pickImage,
-      child: Container(
-        height: 180,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(FudiRadius.xl),
-          border: Border.all(color: FudiColors.borderSolid),
-        ),
-        child: showImage
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(FudiRadius.xl),
-                child: hasNewImage
-                    ? Image.network(_imageFile!.path, fit: BoxFit.cover)
-                    : Image.network(_existingImageUrl!, fit: BoxFit.cover),
-              )
-            : const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.camera_alt_rounded,
-                    size: 48,
-                    color: FudiColors.mutedForeground,
-                  ),
-                  SizedBox(height: FudiSpacing.sm),
-                  Text(
-                    'Subir foto del producto',
-                    style: FudiTypography.labelSmall,
-                  ),
-                  Text('Opcional', style: FudiTypography.bodySmall),
-                ],
-              ),
-      ),
-    );
+  String? _validatePositivePrice(String? v) {
+    final value = double.tryParse((v ?? '').trim().replaceAll(',', '.'));
+    if (value == null) return 'Requerido';
+    if (value <= 0) return 'Debe ser mayor a 0';
+    return null;
   }
 
-  Widget _buildSection({
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: FudiTypography.h2),
-        const SizedBox(height: FudiSpacing.md),
-        Container(
-          padding: const EdgeInsets.all(FudiSpacing.md),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(FudiRadius.xl),
-            border: Border.all(color: FudiColors.borderSolid),
-          ),
-          child: Column(children: children),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTextField({
-    required String label,
-    required TextEditingController controller,
-    required String hint,
-    int maxLines = 1,
-    TextInputType? keyboardType,
-    String? prefixText,
-    String? Function(String?)? validator,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: FudiTypography.labelSmall),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          maxLines: maxLines,
-          keyboardType: keyboardType,
-          decoration: InputDecoration(
-            hintText: hint,
-            prefixText: prefixText,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(FudiRadius.lg),
-            ),
-          ),
-          validator: validator,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDropdownField({
-    required String label,
-    required OfferCategory value,
-    required List<OfferCategory> items,
-    required void Function(OfferCategory?) onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: FudiTypography.labelSmall),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<OfferCategory>(
-          initialValue: value,
-          items: items
-              .map((e) => DropdownMenuItem(value: e, child: Text(e.dbValue)))
-              .toList(),
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(FudiRadius.lg),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDatePicker({
-    required String label,
-    required DateTime date,
-    required VoidCallback onTap,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: FudiTypography.labelSmall),
-        const SizedBox(height: 8),
-        InkWell(
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              border: Border.all(color: FudiColors.borderSolid),
-              borderRadius: BorderRadius.circular(FudiRadius.lg),
-            ),
-            child: Row(
-              children: [
-                const Icon(FudiIcons.calendar, size: 20),
-                const SizedBox(width: 8),
-                Text(_formatDate(date)),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTimePicker({
-    required String label,
-    required TimeOfDay time,
-    required VoidCallback onTap,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: FudiTypography.labelSmall),
-        const SizedBox(height: 8),
-        InkWell(
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              border: Border.all(color: FudiColors.borderSolid),
-              borderRadius: BorderRadius.circular(FudiRadius.lg),
-            ),
-            child: Row(
-              children: [
-                const Icon(FudiIcons.clock, size: 20),
-                const SizedBox(width: 8),
-                Text(time.format(context)),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SourceOption extends StatelessWidget {
-  const _SourceOption({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: 100,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Column(
-          children: [
-            Icon(icon, size: 32, color: FudiColors.primary),
-            const SizedBox(height: 8),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-          ],
-        ),
-      ),
-    );
+  String? _validateDiscountedPrice(String? v) {
+    final value = double.tryParse((v ?? '').trim().replaceAll(',', '.'));
+    if (value == null) return 'Requerido';
+    if (value <= 0) return 'Debe ser mayor a 0';
+    final original = _originalPriceValue;
+    if (original != null && value >= original) {
+      return 'Debe ser menor al precio original';
+    }
+    return null;
   }
 }

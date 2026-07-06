@@ -119,6 +119,7 @@ class _BusinessBranchSelectorState
             .where((l) => l.id == selectedId)
             .map((l) => l.name)
             .firstOrNull ?? 'Todas las sucursales';
+    final colorScheme = Theme.of(context).colorScheme;
 
     return CompositedTransformTarget(
       link: _layerLink,
@@ -143,9 +144,9 @@ class _BusinessBranchSelectorState
               Flexible(
                 child: Text(
                   selectedName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'DMSans',
-                    color: FudiColors.foreground,
+                    color: colorScheme.onSurface,
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
@@ -160,10 +161,10 @@ class _BusinessBranchSelectorState
                     curve: Curves.easeInOutCubic,
                   ),
                 ),
-                child: const Icon(
+                child: Icon(
                   FudiIcons.chevronDown,
                   size: 16,
-                  color: FudiColors.foreground,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ],
@@ -236,6 +237,7 @@ class _BranchDropdownOverlayState
   @override
   Widget build(BuildContext context) {
     final selectedId = ref.watch(selectedBranchIdProvider);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Stack(
       children: [
@@ -265,14 +267,14 @@ class _BranchDropdownOverlayState
                       maxWidth: 280,
                     ),
                     decoration: BoxDecoration(
-                      color: FudiColors.inputBackground,
+                      color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: FudiColors.borderSolid),
-                      boxShadow: const [
+                      border: Border.all(color: colorScheme.outlineVariant),
+                      boxShadow: [
                         BoxShadow(
-                          color: Color(0x1A000000),
+                          color: colorScheme.shadow.withValues(alpha: 0.1),
                           blurRadius: 20,
-                          offset: Offset(0, 4),
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
@@ -316,12 +318,12 @@ class _DropdownContent extends StatelessWidget {
           onTap: () => onBranchSelected(null),
         ),
         if (locations.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(FudiSpacing.lg),
+          Padding(
+            padding: const EdgeInsets.all(FudiSpacing.lg),
             child: Center(
               child: Text(
                 'Sin sucursales',
-                style: TextStyle(color: FudiColors.mutedForeground),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
           )
@@ -389,6 +391,7 @@ class _BranchItemState extends State<_BranchItem>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return FadeTransition(
       opacity: _opacity,
       child: SlideTransition(
@@ -403,7 +406,7 @@ class _BranchItemState extends State<_BranchItem>
             color: _isPressed
                 ? FudiColors.primary.withValues(alpha: 0.08)
                 : widget.isSelected
-                    ? const Color(0x0DFA4743)
+                    ? FudiColors.destructiveVibrant.withValues(alpha: 0.05)
                     : Colors.transparent,
             padding: const EdgeInsets.symmetric(
               horizontal: FudiSpacing.lg,
@@ -438,15 +441,15 @@ class _BranchItemState extends State<_BranchItem>
                           fontWeight: FontWeight.w500,
                           color: widget.isSelected
                               ? FudiColors.primary
-                              : FudiColors.foreground,
+                              : colorScheme.onSurface,
                         ),
                       ),
                       Text(
                         widget.address,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'DMSans',
                           fontSize: 12,
-                          color: FudiColors.mutedForeground,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],

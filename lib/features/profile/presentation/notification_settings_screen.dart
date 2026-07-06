@@ -20,7 +20,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
     final prefsAsync = ref.watch(consumerNotificationPreferencesProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: const FudiStickyPageHeader(title: 'Notificaciones'),
       body: prefsAsync.when(
         data: (prefs) => _buildContent(context, ref, prefs),

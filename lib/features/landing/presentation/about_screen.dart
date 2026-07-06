@@ -13,9 +13,9 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -32,7 +32,7 @@ class AboutScreen extends StatelessWidget {
                 ),
                 child: const Icon(
                   Icons.arrow_back,
-                  color: Colors.black,
+                  color: FudiColors.foreground,
                   size: 20,
                 ),
               ),
@@ -211,7 +211,7 @@ class _Values extends StatelessWidget {
   Widget build(BuildContext context) {
     final isWide = MediaQuery.of(context).size.width > 600;
     return Container(
-      color: const Color(0xFFF8F9FA),
+      color: Theme.of(context).colorScheme.surface,
       padding: EdgeInsets.symmetric(
         vertical: isWide ? 100 : 48,
         horizontal: FudiSpacing.xl,
@@ -279,7 +279,7 @@ class _ValueCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(isWide ? 32 : 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: FudiColors.muted.withValues(alpha: 0.5)),
       ),

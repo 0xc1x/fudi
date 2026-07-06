@@ -196,14 +196,14 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(
-                              'Guardar cambios',
-                              style: FudiTypography.labelMedium.copyWith(
-                                color: Colors.white,
-                              ),
+                                color: FudiColors.primaryForeground,
+                            ),
+                          )
+                        : Text(
+                            'Guardar cambios',
+                            style: FudiTypography.labelMedium.copyWith(
+                              color: FudiColors.primaryForeground,
+                            ),
                             ),
                     ),
                   ),

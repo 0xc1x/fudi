@@ -140,17 +140,27 @@ class FudiInfoChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedChipColor =
-        chipColor ?? FudiColors.green.withValues(alpha: 0.3);
-    final resolvedIconColor =
-        iconColor ?? FudiColors.greenMidDark.withValues(alpha: 0.7);
-    final resolvedBadgeBg =
-        badgeBackgroundColor ?? FudiColors.greenMidDark.withValues(alpha: 0.1);
-    final resolvedBadgeText = badgeTextColor ?? FudiColors.greenMidDark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
+
+    final resolvedChipColor = chipColor ??
+        (isDark
+            ? scheme.surfaceContainerLow
+            : FudiColors.green.withValues(alpha: 0.3));
+    final resolvedIconColor = iconColor ??
+        (isDark
+            ? scheme.onSurface.withValues(alpha: 0.7)
+            : FudiColors.greenMidDark.withValues(alpha: 0.7));
+    final resolvedBadgeBg = badgeBackgroundColor ??
+        (isDark
+            ? scheme.onSurface.withValues(alpha: 0.1)
+            : FudiColors.greenMidDark.withValues(alpha: 0.1));
+    final resolvedBadgeText =
+        badgeTextColor ?? (isDark ? scheme.onSurface : FudiColors.greenMidDark);
     final resolvedBorderRadius = borderRadius;
 
-    final resolvedLabelColor =
-        labelColor ?? FudiColors.greenDark.withValues(alpha: 0.7);
+    final resolvedLabelColor = labelColor ??
+        (isDark ? scheme.onSurface : FudiColors.greenDark.withValues(alpha: 0.7));
 
     final chip = AnimatedContainer(
       duration: const Duration(milliseconds: 150),

@@ -15,6 +15,7 @@ class BusinessProductsActiveFilters extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final hasActiveFilters =
         ref.watch(productsCategoryFilterProvider) != null;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return FudiPressableScale(
       onTap: () => BusinessProductsFiltersSheet.show(context),
@@ -26,12 +27,12 @@ class BusinessProductsActiveFilters extends ConsumerWidget {
         decoration: BoxDecoration(
           color: hasActiveFilters
               ? FudiColors.primary
-              : FudiColors.background,
+              : colorScheme.surface,
           borderRadius: BorderRadius.circular(FudiRadius.xl),
           border: Border.all(
             color: hasActiveFilters
                 ? FudiColors.primary
-                : FudiColors.borderSolid,
+                : colorScheme.outlineVariant,
           ),
         ),
         child: Row(
@@ -40,14 +41,14 @@ class BusinessProductsActiveFilters extends ConsumerWidget {
             Icon(
               Icons.filter_list_rounded,
               size: 18,
-              color: hasActiveFilters ? Colors.white : FudiColors.foreground,
+              color: hasActiveFilters ? FudiColors.primaryForeground : colorScheme.onSurface,
             ),
             const SizedBox(width: 4),
             Text(
               'Filtrar',
               style: FudiTypography.bodyMedium.copyWith(
                 fontWeight: FontWeight.w500,
-                color: hasActiveFilters ? Colors.white : FudiColors.foreground,
+                color: hasActiveFilters ? FudiColors.primaryForeground : colorScheme.onSurface,
               ),
             ),
           ],

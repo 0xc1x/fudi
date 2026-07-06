@@ -28,7 +28,6 @@ class FudiStickyPageHeader extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: FudiColors.background,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       shadowColor: Colors.transparent,
@@ -72,7 +71,7 @@ class _BackButton extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: FudiColors.muted,
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
               shape: BoxShape.circle,
               border: Border.all(
                 color: FudiColors.border.withValues(alpha: 0.09),

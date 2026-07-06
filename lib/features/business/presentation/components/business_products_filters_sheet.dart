@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../offers/domain/offer_category.dart';
 import '../business_providers.dart';
@@ -41,6 +42,8 @@ class _BusinessProductsFiltersSheetState
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
     return Padding(
       padding: EdgeInsets.fromLTRB(
         FudiSpacing.lg,
@@ -57,7 +60,7 @@ class _BusinessProductsFiltersSheetState
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: FudiColors.borderSolid,
+                color: themeExt?.borderSolid ?? FudiColors.borderSolid,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -102,7 +105,7 @@ class _BusinessProductsFiltersSheetState
                 },
                 selectedColor: FudiColors.secondary,
                 checkmarkColor: FudiColors.primary,
-                side: const BorderSide(color: FudiColors.borderSolid),
+                side: BorderSide(color: themeExt?.borderSolid ?? FudiColors.borderSolid),
               );
             }).toList(),
           ),
@@ -125,7 +128,7 @@ class _BusinessProductsFiltersSheetState
                 child: Text(
                   'Aplicar filtro',
                   style: FudiTypography.labelMedium.copyWith(
-                    color: Colors.white,
+                    color: FudiColors.primaryForeground,
                   ),
                 ),
               ),

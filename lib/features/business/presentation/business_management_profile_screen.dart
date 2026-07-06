@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/route_names.dart';
 import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_theme.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_surface_card.dart';
@@ -16,9 +17,11 @@ class BusinessManagementProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
     final businessAsync = ref.watch(currentBusinessProvider);
     return Scaffold(
-      backgroundColor: FudiColors.muted,
+      backgroundColor: themeExt?.mutedBackground ?? FudiColors.muted,
       appBar: AppBar(
         title: const Text('Perfil de Negocio', style: FudiTypography.h4),
       ),

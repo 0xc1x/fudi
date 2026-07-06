@@ -8,6 +8,7 @@ import '../routing/route_names.dart';
 import 'fudi_colors.dart';
 import 'atoms/icons/fudi_icons.dart';
 import 'fudi_spacing.dart';
+import 'fudi_theme.dart';
 
 // ── Constantes a nivel de archivo ────────────────────────────────────────────
 // Al estar aquí (y no dentro de una clase) son accesibles tanto desde
@@ -153,10 +154,18 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
     final items = appMode == AppMode.consumer ? _consumerItems : _businessItems;
     final currentIndex = _calculateSelectedIndex(location, appMode);
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final themeExt = theme.extension<FudiThemeExtension>();
+
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: FudiColors.borderSolid)),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        border: Border(
+          top: BorderSide(
+            color: themeExt?.border ?? (isDark ? FudiColorsDark.border : FudiColors.borderSolid),
+          ),
+        ),
       ),
       constraints: const BoxConstraints(maxWidth: 480),
       child: LayoutBuilder(
@@ -207,7 +216,7 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
                                 child: Icon(
                                   items[index].icon,
                                   size: 28,
-                                  color: FudiColors.mutedForeground,
+                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                                 ),
                               ),
                             ),
@@ -228,7 +237,7 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
                             horizontal: FudiSpacing.sm,
                           ),
                           decoration: BoxDecoration(
-                            color: FudiColors.foreground,
+                            color: theme.colorScheme.onSurface,
                             borderRadius: BorderRadius.circular(FudiRadius.md),
                           ),
                         ),
@@ -271,13 +280,13 @@ class _FudiBottomNavState extends ConsumerState<FudiBottomNav>
                                             Icon(
                                               items[i].icon,
                                               size: 24,
-                                              color: Colors.white,
+                                              color: theme.colorScheme.surface,
                                             ),
                                             const SizedBox(width: 6),
                                             Text(
                                               items[i].label,
-                                              style: const TextStyle(
-                                                color: Colors.white,
+                                              style: TextStyle(
+                                                color: theme.colorScheme.surface,
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w500,
                                               ),

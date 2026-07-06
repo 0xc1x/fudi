@@ -7,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/atoms/fudi_status_badge.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
@@ -21,6 +22,9 @@ class OrderCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final themeExt = theme.extension<FudiThemeExtension>();
     return FudiSurfaceCard(
       padding: const EdgeInsets.only(right: FudiSpacing.md),
       child: InkWell(
@@ -47,7 +51,7 @@ class OrderCard extends ConsumerWidget {
                           child: Stack(
                             clipBehavior: Clip.none,
                             children: [
-                              _buildContent(),
+                              _buildContent(colorScheme),
                               Positioned(
                                 right: 0,
                                 top: 0,
@@ -66,13 +70,13 @@ class OrderCard extends ConsumerWidget {
                         top: 0,
                         bottom: 0,
                         width: imageWidth,
-                        child: _buildImage(),
+                        child: _buildImage(themeExt),
                       ),
                     ],
                   ),
                 ),
                 if (order.status.isActive) ...[
-                  const Divider(height: 1, color: FudiColors.borderSolid),
+                  Divider(height: 1, color: themeExt?.borderSolid ?? FudiColors.borderSolid),
                   const SizedBox(height: FudiSpacing.md),
                   Padding(
                     padding: const EdgeInsets.only(bottom: FudiSpacing.md),
@@ -88,7 +92,7 @@ class OrderCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildImage() {
+  Widget _buildImage(FudiThemeExtension? themeExt) {
     return ClipRRect(
       borderRadius: const BorderRadius.only(
         topLeft: Radius.circular(FudiRadius.lg),
@@ -96,7 +100,7 @@ class OrderCard extends ConsumerWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: FudiColors.muted,
+          color: themeExt?.mutedBackground ?? FudiColors.muted,
           image: DecorationImage(
             image: order.offerImageUrl != null
                 ? CachedNetworkImageProvider(order.offerImageUrl!)
@@ -108,7 +112,7 @@ class OrderCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(ColorScheme colorScheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -124,7 +128,7 @@ class OrderCard extends ConsumerWidget {
           style: FudiTypography.bodySmall,
         ),
         const SizedBox(height: 2),
-        _buildCustomerRow(),
+        _buildCustomerRow(colorScheme),
         const SizedBox(height: FudiSpacing.xs),
         Text(
           _formatCreatedAt(order.createdAt),
@@ -136,24 +140,24 @@ class OrderCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildCustomerRow() {
+  Widget _buildCustomerRow(ColorScheme colorScheme) {
     return Row(
       children: [
         Flexible(
           child: Text(
             order.customerName ?? 'Cliente',
             style: FudiTypography.labelSmall.copyWith(
-              color: FudiColors.foreground,
+              color: colorScheme.onSurface,
             ),
             overflow: TextOverflow.ellipsis,
           ),
         ),
         if (order.customerPhone != null) ...[
           const SizedBox(width: 6),
-          const Icon(
+          Icon(
             FudiIcons.phone,
             size: 12,
-            color: FudiColors.mutedForeground,
+            color: colorScheme.onSurfaceVariant,
           ),
           const SizedBox(width: 2),
           Flexible(

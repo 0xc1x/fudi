@@ -39,7 +39,7 @@ class LogoutButton extends ConsumerWidget {
                     color: FudiColors.destructive,
                     borderRadius: BorderRadius.circular(100),
                   ),
-                  child: const Text('Cerrar sesión', style: TextStyle(color: Colors.white)),
+                  child: const Text('Cerrar sesión', style: TextStyle(color: FudiColors.primaryForeground)),
                 ),
               ),
             ],

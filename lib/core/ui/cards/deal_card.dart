@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import '../fudi_colors.dart';
+import '../fudi_theme.dart';
 import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
 import '../atoms/icons/fudi_icons.dart';
@@ -77,6 +78,9 @@ class _DealCardState extends State<DealCard>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
+
     return AnimatedBuilder(
       animation: _pressScale,
       builder: (context, child) =>
@@ -98,11 +102,11 @@ class _DealCardState extends State<DealCard>
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
-            color: FudiColors.card,
+            color: themeExt?.cardBg ?? theme.cardTheme.color ?? theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(FudiRadius.lg),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: _isPressed ? 0.04 : 0.08),
+                color: themeExt?.surfaceShadow ?? FudiColors.foreground.withValues(alpha: 0.08),
                 blurRadius: _isPressed ? 4 : 16,
                 spreadRadius: _isPressed ? 0 : -2,
                 offset: Offset(0, _isPressed ? 1 : 6),
@@ -123,6 +127,11 @@ class _DealCardState extends State<DealCard>
   }
 
   Widget _buildImage() {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
+    final resolvedMutedBg = themeExt?.mutedBackground ?? theme.colorScheme.surfaceContainerLow;
+    final resolvedMutedForeground = theme.colorScheme.onSurface.withValues(alpha: 0.6);
+
     return Stack(
       children: [
         // ── Imagen principal ─────────────────────────────────────────────
@@ -132,17 +141,17 @@ class _DealCardState extends State<DealCard>
           width: double.infinity,
           fit: BoxFit.cover,
           placeholder: (context, url) => Shimmer.fromColors(
-            baseColor: FudiColors.muted,
-            highlightColor: Colors.white.withValues(alpha: 0.6),
-            child: Container(height: 160, color: FudiColors.muted),
+            baseColor: resolvedMutedBg,
+            highlightColor: theme.colorScheme.surface.withValues(alpha: 0.6),
+            child: Container(height: 160, color: resolvedMutedBg),
           ),
           errorWidget: (context, url, error) => Container(
             height: 160,
-            color: FudiColors.muted,
-            child: const Center(
+            color: resolvedMutedBg,
+            child: Center(
               child: Icon(
                 FudiIcons.imageOff,
-                color: FudiColors.mutedForeground,
+                color: resolvedMutedForeground,
               ),
             ),
           ),
@@ -175,10 +184,12 @@ class _DealCardState extends State<DealCard>
             onTap: widget.onFavoriteToggle ?? () {},
             size: 30,
             iconSize: 18,
-            activeColor: FudiColors.destructive,
-            inactiveColor: FudiColors.mutedForeground,
-            activeBackground: FudiColors.destructive.withValues(alpha: 0.12),
-            inactiveBackground: Colors.white,
+            activeColor: theme.colorScheme.error,
+            inactiveColor: resolvedMutedForeground,
+            activeBackground: theme.colorScheme.error.withValues(alpha: 0.12),
+            inactiveBackground: theme.brightness == Brightness.dark
+                ? theme.colorScheme.surface.withValues(alpha: 0.9)
+                : FudiColors.card,
           ),
         ),
       ],
@@ -186,6 +197,9 @@ class _DealCardState extends State<DealCard>
   }
 
   Widget _buildContent(BuildContext context) {
+    final theme = Theme.of(context);
+    final resolvedMutedForeground = theme.colorScheme.onSurface.withValues(alpha: 0.6);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         FudiSpacing.md,
@@ -216,17 +230,17 @@ class _DealCardState extends State<DealCard>
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       FudiIcons.mapPin,
                       size: 12,
-                      color: FudiColors.mutedForeground,
+                      color: resolvedMutedForeground,
                     ),
                     const SizedBox(width: 3),
                     Flexible(
                       child: Text(
                         '${widget.distance} · ${widget.businessName}',
                         style: FudiTypography.bodySmall.copyWith(
-                          color: FudiColors.mutedForeground,
+                          color: resolvedMutedForeground,
                           fontSize: 11,
                         ),
                         maxLines: 1,
@@ -239,7 +253,7 @@ class _DealCardState extends State<DealCard>
                 Text(
                   'Recoge antes de las ${widget.pickupUntil.format(context)}',
                   style: FudiTypography.bodySmall.copyWith(
-                    color: FudiColors.mutedForeground,
+                    color: resolvedMutedForeground,
                     fontSize: 11,
                   ),
                 ),
@@ -259,8 +273,8 @@ class _DealCardState extends State<DealCard>
                   '\$${widget.originalPrice.toStringAsFixed(2)}',
                   style: FudiTypography.bodySmall.copyWith(
                     decoration: TextDecoration.lineThrough,
-                    decorationColor: FudiColors.mutedForeground,
-                    color: FudiColors.mutedForeground,
+                    decorationColor: resolvedMutedForeground,
+                    color: resolvedMutedForeground,
                     fontSize: 12,
                     height: 1.0,
                   ),
@@ -269,7 +283,7 @@ class _DealCardState extends State<DealCard>
                 Text(
                   '\$${widget.discountedPrice.toStringAsFixed(2)}',
                   style: FudiTypography.priceLarge.copyWith(
-                    color: FudiColors.primary,
+                    color: theme.colorScheme.primary,
                     fontWeight: FontWeight.w800,
                     fontSize: 20,
                     height: 1.0,
@@ -289,18 +303,22 @@ class DealCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
+    final resolvedMutedBg = themeExt?.mutedBackground ?? theme.colorScheme.surfaceContainerLow;
+
     return Shimmer.fromColors(
-      baseColor: FudiColors.muted,
-      highlightColor: Colors.white,
+      baseColor: resolvedMutedBg,
+      highlightColor: theme.colorScheme.surface,
       child: Material(
-        color: FudiColors.muted,
+        color: resolvedMutedBg,
         borderRadius: BorderRadius.circular(FudiRadius.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(height: 200, color: FudiColors.muted),
-            const Padding(
-              padding: EdgeInsets.all(FudiSpacing.md),
+            Container(height: 200, color: resolvedMutedBg),
+            Padding(
+              padding: const EdgeInsets.all(FudiSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -308,33 +326,33 @@ class DealCardSkeleton extends StatelessWidget {
                     height: 14,
                     width: 160,
                     child: DecoratedBox(
-                      decoration: BoxDecoration(color: FudiColors.muted),
+                      decoration: BoxDecoration(color: resolvedMutedBg),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   SizedBox(
                     height: 10,
                     width: 100,
                     child: DecoratedBox(
-                      decoration: BoxDecoration(color: FudiColors.muted),
+                      decoration: BoxDecoration(color: resolvedMutedBg),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   SizedBox(
                     height: 10,
                     width: 200,
                     child: DecoratedBox(
-                      decoration: BoxDecoration(color: FudiColors.muted),
+                      decoration: BoxDecoration(color: resolvedMutedBg),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   SizedBox(
                     height: 1,
                     child: DecoratedBox(
-                      decoration: BoxDecoration(color: FudiColors.muted),
+                      decoration: BoxDecoration(color: resolvedMutedBg),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -342,14 +360,14 @@ class DealCardSkeleton extends StatelessWidget {
                         height: 14,
                         width: 80,
                         child: DecoratedBox(
-                          decoration: BoxDecoration(color: FudiColors.muted),
+                          decoration: BoxDecoration(color: resolvedMutedBg),
                         ),
                       ),
                       SizedBox(
                         height: 32,
                         width: 90,
                         child: DecoratedBox(
-                          decoration: BoxDecoration(color: FudiColors.muted),
+                          decoration: BoxDecoration(color: resolvedMutedBg),
                         ),
                       ),
                     ],

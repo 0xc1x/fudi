@@ -68,12 +68,12 @@ class SavedAddressCard extends ConsumerWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(FudiRadius.xxl),
         border: Border.all(color: FudiColors.borderSolid),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.015),
+            color: FudiColors.foreground.withValues(alpha: 0.015),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -296,7 +296,7 @@ class SavedAddressCard extends ConsumerWidget {
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
     final confirmed = await showModalBottomSheet<bool>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -364,10 +364,10 @@ class SavedAddressCard extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
-                        child: Text(
-                          'Eliminar',
-                          style: FudiTypography.labelSmall.copyWith(
-                            color: Colors.white,
+                          child: Text(
+                            'Eliminar',
+                            style: FudiTypography.labelSmall.copyWith(
+                              color: FudiColors.primaryForeground,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

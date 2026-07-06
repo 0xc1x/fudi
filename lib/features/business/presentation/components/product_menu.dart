@@ -22,11 +22,12 @@ class ProductMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
     return PopupMenuButton<String>(
       icon: child == null
-          ? const Icon(
+          ? Icon(
               Icons.more_vert,
-              color: FudiColors.mutedForeground,
+              color: colorScheme.onSurfaceVariant,
               size: 20,
             )
           : null,

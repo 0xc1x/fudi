@@ -16,7 +16,6 @@ class FudiTypography {
     fontSize: 24,
     fontWeight: FontWeight.bold,
     height: 1.3,
-    color: FudiColors.foreground,
   );
 
   /// h2 - text-xl (20px), w700 (Bold), height 1.3
@@ -25,7 +24,6 @@ class FudiTypography {
     fontSize: 20,
     fontWeight: FontWeight.bold,
     height: 1.3,
-    color: FudiColors.foreground,
   );
 
   /// h3 - text-lg (18px), w700 (Bold), height 1.3
@@ -34,7 +32,6 @@ class FudiTypography {
     fontSize: 18,
     fontWeight: FontWeight.bold,
     height: 1.3,
-    color: FudiColors.foreground,
   );
 
   /// h4 - text-base (16px), w700 (Bold), height 1.3
@@ -43,7 +40,6 @@ class FudiTypography {
     fontSize: 16,
     fontWeight: FontWeight.bold,
     height: 1.3,
-    color: FudiColors.foreground,
   );
 
   /// headlineMedium - alias for h4 used by AppBar titles
@@ -60,7 +56,6 @@ class FudiTypography {
     fontSize: 16,
     fontWeight: FontWeight.w400,
     height: 1.5,
-    color: FudiColors.foreground,
   );
 
   /// Body Medium - 14px, w400, height 1.4
@@ -69,7 +64,6 @@ class FudiTypography {
     fontSize: 14,
     fontWeight: FontWeight.w400,
     height: 1.4,
-    color: FudiColors.foreground,
   );
 
   /// Body Small - 12px, w400
@@ -77,7 +71,6 @@ class FudiTypography {
     fontFamily: 'DMSans',
     fontSize: 12,
     fontWeight: FontWeight.w400,
-    color: FudiColors.mutedForeground,
   );
 
   // ─── Labels / Interactive (DMSans) ─────────────────────────────
@@ -88,7 +81,6 @@ class FudiTypography {
     fontSize: 16,
     fontWeight: FontWeight.w500,
     height: 1.5,
-    color: FudiColors.foreground,
   );
 
   /// Label Small - 14px, w500 (Medium)
@@ -96,7 +88,6 @@ class FudiTypography {
     fontFamily: 'DMSans',
     fontSize: 14,
     fontWeight: FontWeight.w500,
-    color: FudiColors.foreground,
   );
 
   /// Price Text - used for deals (Outfit)
@@ -113,7 +104,6 @@ class FudiTypography {
     fontSize: 14,
     fontWeight: FontWeight.w400,
     decoration: TextDecoration.lineThrough,
-    color: FudiColors.mutedForeground,
   );
 
   /// Price Text Large - used in Home cards (Outfit)

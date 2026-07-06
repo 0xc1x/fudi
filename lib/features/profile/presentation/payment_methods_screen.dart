@@ -125,7 +125,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
             child: const Center(
               child: Text(
                 'Agregar tarjeta',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: FudiColors.primaryForeground),
               ),
             ),
           ),

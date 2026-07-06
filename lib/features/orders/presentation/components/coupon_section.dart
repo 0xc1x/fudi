@@ -40,8 +40,8 @@ class CouponSection extends StatelessWidget {
                 vertical: FudiSpacing.sm,
               ),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
-                border: Border.all(color: const Color(0xFFDCFCE7)),
+                color: FudiColors.surfaceSuccess,
+                border: Border.all(color: FudiColors.surfaceSuccessBorder),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
@@ -49,14 +49,14 @@ class CouponSection extends StatelessWidget {
                   const Icon(
                     Icons.confirmation_number_rounded,
                     size: 16,
-                    color: Color(0xFF16A34A),
+                    color: FudiColors.ecoGreen,
                   ),
                   const SizedBox(width: FudiSpacing.sm),
                   Expanded(
                     child: Text(
                       '${appliedCoupon!.code} (${appliedCoupon!.type == 'percentage' ? '${appliedCoupon!.value}%' : '\$${appliedCoupon!.value.toStringAsFixed(2)}'})',
                       style: FudiTypography.labelSmall.copyWith(
-                        color: const Color(0xFF15803D),
+                        color: FudiColors.successDark,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -66,7 +66,7 @@ class CouponSection extends StatelessWidget {
                     child: const Icon(
                       Icons.cancel_rounded,
                       size: 18,
-                      color: Color(0xFF16A34A),
+                      color: FudiColors.ecoGreen,
                     ),
                   ),
                 ],
@@ -141,8 +141,8 @@ class CouponSection extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: controller.text.trim().isNotEmpty
-                          ? const Color(0xFF16A34A)
-                          : const Color(0xFF16A34A).withValues(alpha: 0.3),
+                          ? FudiColors.ecoGreen
+                          : FudiColors.ecoGreen.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Center(
@@ -152,13 +152,13 @@ class CouponSection extends StatelessWidget {
                               height: 16,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Colors.white,
+                                color: FudiColors.primaryForeground,
                               ),
                             )
                           : Text(
                               'Aplicar',
                               style: FudiTypography.labelSmall.copyWith(
-                                color: Colors.white,
+                                color: FudiColors.primaryForeground,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

@@ -12,7 +12,7 @@ class FudiSearchBar extends StatelessWidget {
     this.hintText = 'Buscar...',
     this.onChanged,
     this.onSubmitted,
-    this.fillColor = FudiColors.card,
+    this.fillColor,
     this.borderRadius = 12.0,
     this.borderSide = const BorderSide(color: FudiColors.borderSolid),
   });
@@ -21,12 +21,16 @@ class FudiSearchBar extends StatelessWidget {
   final String hintText;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
-  final Color fillColor;
+  final Color? fillColor;
   final double borderRadius;
   final BorderSide borderSide;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final effectiveFillColor =
+        fillColor ?? colorScheme.surfaceContainerLow;
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: controller,
       builder: (context, value, _) => TextField(
@@ -36,11 +40,11 @@ class FudiSearchBar extends StatelessWidget {
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: FudiTypography.bodyMedium.copyWith(
-            color: FudiColors.mutedForeground,
+            color: colorScheme.onSurfaceVariant,
           ),
-          prefixIcon: const Icon(
+          prefixIcon: Icon(
             FudiIcons.search,
-            color: FudiColors.mutedForeground,
+            color: colorScheme.onSurfaceVariant,
           ),
           suffixIcon: value.text.isNotEmpty
               ? FudiPressableScale(
@@ -52,20 +56,20 @@ class FudiSearchBar extends StatelessWidget {
                   child: Container(
                     width: 36,
                     height: 36,
-                    decoration: const BoxDecoration(
-                      color: FudiColors.muted,
+                    decoration: BoxDecoration(
+                      color: effectiveFillColor,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       FudiIcons.x,
                       size: 18,
-                      color: FudiColors.mutedForeground,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                 )
               : null,
           filled: true,
-          fillColor: fillColor,
+          fillColor: effectiveFillColor,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(borderRadius),
             borderSide: borderSide,

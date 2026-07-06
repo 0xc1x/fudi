@@ -55,8 +55,8 @@ class FudiStatusBadge extends StatelessWidget {
     return FudiStatusBadge(
       key: key,
       label: isActive ? 'Activo' : 'Inactivo',
-      color: isActive ? const Color(0xFF16A34A) : FudiColors.mutedForeground,
-      backgroundColor: isActive ? const Color(0xFFDCFCE7) : FudiColors.muted,
+      color: isActive ? FudiColors.ecoGreen : FudiColors.mutedForeground,
+      backgroundColor: isActive ? FudiColors.surfaceSuccess : FudiColors.muted,
       icon: isActive ? Icons.circle : Icons.circle,
       size: size,
       style: style,
@@ -73,18 +73,18 @@ class FudiStatusBadge extends StatelessWidget {
         key: key,
         label: 'Pagado',
         icon: Icons.check_circle_outline_rounded,
-        color: const Color(0xFF15803D),
-        backgroundColor: const Color(0xFFDCFCE7),
-        borderColor: const Color(0xFFBBF7D0),
+        color: FudiColors.successDark,
+        backgroundColor: FudiColors.surfaceSuccess,
+        borderColor: FudiColors.surfaceSuccessBorder,
         size: size,
       ),
       BusinessPayoutStatus.processing => FudiStatusBadge(
         key: key,
         label: 'Procesando',
         icon: Icons.schedule_rounded,
-        color: const Color(0xFFC2410C),
-        backgroundColor: const Color(0xFFFFEDD5),
-        borderColor: const Color(0xFFFED7AA),
+        color: FudiColors.warningDark,
+        backgroundColor: FudiColors.surfaceWarningDark,
+        borderColor: FudiColors.surfaceWarningDarkBorder,
         size: size,
       ),
       BusinessPayoutStatus.pending => FudiStatusBadge(
@@ -100,33 +100,51 @@ class FudiStatusBadge extends StatelessWidget {
         key: key,
         label: 'Fallido',
         icon: Icons.error_outline_rounded,
-        color: const Color(0xFFDC2626),
-        backgroundColor: const Color(0xFFFEE2E2),
-        borderColor: const Color(0xFFFECACA),
+        color: FudiColors.destructiveDark,
+        backgroundColor: FudiColors.destructiveSurface,
+        borderColor: FudiColors.destructiveSurfaceBorder,
         size: size,
       ),
     };
   }
 
   static const Map<dynamic, FudiOrderStatusConfig> _orderDefaults = {
-    'pending': FudiOrderStatusConfig(color: Colors.orange, label: 'Pendiente'),
-    'confirmed': FudiOrderStatusConfig(color: Colors.blue, label: 'Confirmado'),
+    'pending': FudiOrderStatusConfig(
+      color: FudiColors.warning,
+      label: 'Pendiente',
+    ),
+    'confirmed': FudiOrderStatusConfig(
+      color: FudiColors.statusConfirmed,
+      label: 'Confirmado',
+    ),
     'ready_for_pickup': FudiOrderStatusConfig(
-      color: Colors.indigo,
+      color: FudiColors.statusReady,
       label: 'Listo',
     ),
     'readyForPickup': FudiOrderStatusConfig(
-      color: Colors.indigo,
+      color: FudiColors.statusReady,
       label: 'Listo',
     ),
-    'picked_up': FudiOrderStatusConfig(color: Colors.green, label: 'Recogido'),
-    'pickedUp': FudiOrderStatusConfig(color: Colors.green, label: 'Recogido'),
+    'picked_up': FudiOrderStatusConfig(
+      color: FudiColors.success,
+      label: 'Recogido',
+    ),
+    'pickedUp': FudiOrderStatusConfig(
+      color: FudiColors.success,
+      label: 'Recogido',
+    ),
     'completed': FudiOrderStatusConfig(
-      color: Colors.green,
+      color: FudiColors.success,
       label: 'Completado',
     ),
-    'cancelled': FudiOrderStatusConfig(color: Colors.red, label: 'Cancelado'),
-    'expired': FudiOrderStatusConfig(color: Colors.red, label: 'Expirado'),
+    'cancelled': FudiOrderStatusConfig(
+      color: FudiColors.statusCancelled,
+      label: 'Cancelado',
+    ),
+    'expired': FudiOrderStatusConfig(
+      color: FudiColors.statusExpired,
+      label: 'Expirado',
+    ),
   };
 
   final String label;

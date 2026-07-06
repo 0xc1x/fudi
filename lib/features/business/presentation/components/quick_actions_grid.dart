@@ -7,6 +7,7 @@ import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
+import '../../../../core/ui/fudi_theme.dart';
 
 class QuickActionsGrid extends StatelessWidget {
   const QuickActionsGrid({super.key});
@@ -74,6 +75,9 @@ class QuickActionsGrid extends StatelessWidget {
   }
 
   Widget _buildTile(BuildContext context, _QuickActionData item) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final themeExt = theme.extension<FudiThemeExtension>();
     return FudiPressableScale(
       onTap: () => context.push(item.path),
       child: FudiSurfaceCard(
@@ -93,15 +97,15 @@ class QuickActionsGrid extends StatelessWidget {
                     style: TextStyle(
                       fontSize: item.isLarge ? 15 : 13,
                       fontWeight: FontWeight.bold,
-                      color: FudiColors.foreground,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     item.subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: FudiColors.mutedForeground,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -116,19 +120,19 @@ class QuickActionsGrid extends StatelessWidget {
               decoration: BoxDecoration(
                 color: item.isLarge
                     ? FudiColors.primary.withValues(alpha: 0.08)
-                    : FudiColors.background,
+                    : colorScheme.surface,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: item.isLarge
                       ? FudiColors.primary.withValues(alpha: 0.1)
-                      : FudiColors.borderSolid,
+                      : themeExt?.borderSolid ?? FudiColors.borderSolid,
                 ),
               ),
               child: Icon(
                 item.icon,
                 color: item.isLarge
                     ? FudiColors.primary
-                    : FudiColors.foreground,
+                    : colorScheme.onSurface,
                 size: 18,
               ),
             ),

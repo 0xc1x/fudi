@@ -37,7 +37,7 @@ class SavedAddressesScreen extends ConsumerWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 shape: BoxShape.circle,
                 border: Border.all(color: FudiColors.borderSolid),
               ),
@@ -94,12 +94,12 @@ class _AddressListContent extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(FudiIcons.plus, size: 18, color: Colors.white),
+                const Icon(FudiIcons.plus, size: 18, color: FudiColors.primaryForeground),
                 const SizedBox(width: 8),
                 Text(
                   'Nueva dirección',
                   style: FudiTypography.labelMedium.copyWith(
-                    color: Colors.white,
+                    color: FudiColors.primaryForeground,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -198,7 +198,7 @@ class _AddressListContent extends ConsumerWidget {
                           confirmDismiss: (direction) async {
                             final confirmed = await showModalBottomSheet<bool>(
                               context: context,
-                              backgroundColor: Colors.white,
+                              backgroundColor: Theme.of(context).colorScheme.surface,
                               shape: const RoundedRectangleBorder(
                                 borderRadius: BorderRadius.vertical(
                                   top: Radius.circular(24),
@@ -289,8 +289,8 @@ class _AddressListContent extends ConsumerWidget {
                                                   style: FudiTypography
                                                       .labelSmall
                                                       .copyWith(
-                                                        color: Colors.white,
-                                                        fontWeight:
+                                                  color: FudiColors.primaryForeground,
+                                                  fontWeight:
                                                             FontWeight.bold,
                                                       ),
                                                 ),

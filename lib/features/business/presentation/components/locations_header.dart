@@ -29,12 +29,12 @@ class LocationsHeader extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(FudiIcons.plus, size: 16, color: Colors.white),
+                const Icon(FudiIcons.plus, size: 16, color: FudiColors.primaryForeground),
                 const SizedBox(width: 4),
                 Text(
                   'Agregar',
                   style: FudiTypography.labelSmall.copyWith(
-                    color: Colors.white,
+                    color: FudiColors.primaryForeground,
                   ),
                 ),
               ],

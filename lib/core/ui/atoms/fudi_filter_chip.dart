@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../fudi_colors.dart';
 import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
 
@@ -21,19 +20,24 @@ class FudiFilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeSecondary = theme.colorScheme.secondary;
+    final themePrimary = theme.colorScheme.primary;
+    final themeMutedForeground = theme.colorScheme.onSurface.withValues(alpha: 0.5);
+
     return Padding(
       padding: const EdgeInsets.only(right: FudiSpacing.xs),
       child: Chip(
         label: Text(label),
         onDeleted: onClear,
-        deleteIconColor: FudiColors.mutedForeground,
+        deleteIconColor: themeMutedForeground,
         backgroundColor: backgroundColor ??
-            FudiColors.secondary.withValues(alpha: 0.3),
+            themeSecondary.withValues(alpha: 0.3),
         side: BorderSide(
-          color: borderColor ?? FudiColors.primary.withValues(alpha: 0.2),
+          color: borderColor ?? themePrimary.withValues(alpha: 0.2),
         ),
         labelStyle: FudiTypography.bodySmall.copyWith(
-          color: textColor ?? FudiColors.primary,
+          color: textColor ?? themePrimary,
           fontWeight: FontWeight.w600,
         ),
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

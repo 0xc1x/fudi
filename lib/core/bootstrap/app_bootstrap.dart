@@ -15,10 +15,12 @@ class AppBootstrapResult {
     required this.environment,
     required this.config,
     required this.sentryEnabled,
+    required this.sharedPreferences,
   });
   final AppEnvironment environment;
   final AppConfig config;
   final bool sentryEnabled;
+  final SharedPreferences sharedPreferences;
 }
 
 class AppBootstrap {
@@ -62,7 +64,7 @@ class AppBootstrap {
     }
 
     // Initialize local notifications prefs for push handlers
-    await SharedPreferences.getInstance();
+    final sharedPrefs = await SharedPreferences.getInstance();
 
     bool sentryEnabled = false;
     if (config.hasSentry && !config.isDev) {
@@ -100,6 +102,7 @@ class AppBootstrap {
       environment: environment,
       config: config,
       sentryEnabled: sentryEnabled,
+      sharedPreferences: sharedPrefs,
     );
   }
 

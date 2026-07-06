@@ -6,6 +6,7 @@ import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_surface_card.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/atoms/fudi_status_badge.dart';
 import '../../../offers/domain/offer.dart';
@@ -21,6 +22,7 @@ class ProductCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isActive = offer.isActive;
     final soldCount = offer.initialStock - offer.stock;
+    final colorScheme = Theme.of(context).colorScheme;
 
     // The card padding is lg (16) on all sides, so the image needs to
     // escape that padding on the left, top, and bottom using negative margins.
@@ -82,7 +84,7 @@ class ProductCard extends ConsumerWidget {
                             offer.title,
                             style: FudiTypography.h4.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: FudiColors.foreground,
+                              color: colorScheme.onSurface,
                               fontSize: 15,
                             ),
                             maxLines: 2,
@@ -143,7 +145,7 @@ class ProductCard extends ConsumerWidget {
             ),
             Divider(
               height: 1,
-              color: FudiColors.borderSolid.withValues(alpha: 0.5),
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.sm),
@@ -237,25 +239,29 @@ class _InfoChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final mutedBg = theme.extension<FudiThemeExtension>()?.mutedBackground ?? FudiColors.muted;
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: FudiSpacing.sm,
         vertical: 6,
       ),
       decoration: BoxDecoration(
-        color: FudiColors.muted,
+        color: mutedBg,
         borderRadius: BorderRadius.circular(FudiRadius.xs),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: FudiColors.mutedForeground),
+          Icon(icon, size: 14, color: colorScheme.onSurfaceVariant),
           const SizedBox(width: 4),
           Text(
             label,
             style: FudiTypography.bodySmall.copyWith(
               fontWeight: FontWeight.w500,
-              color: FudiColors.foreground,
+              color: colorScheme.onSurface,
             ),
           ),
         ],
@@ -271,13 +277,16 @@ class _SoldChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final mutedBg = theme.extension<FudiThemeExtension>()?.mutedBackground ?? FudiColors.muted;
+
     final hasSales = count > 0;
     final chipColor = hasSales
         ? FudiColors.success
-        : FudiColors.mutedForeground;
+        : theme.colorScheme.onSurfaceVariant;
     final bgColor = hasSales
         ? FudiColors.success.withValues(alpha: 0.12)
-        : FudiColors.muted;
+        : mutedBg;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: FudiSpacing.sm,
@@ -319,19 +328,23 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final mutedBg = theme.extension<FudiThemeExtension>()?.mutedBackground ?? FudiColors.muted;
+
     return FudiPressableScale(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
         decoration: BoxDecoration(
-          color: FudiColors.muted,
+          color: mutedBg,
           borderRadius: BorderRadius.circular(FudiRadius.xs),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: FudiColors.mutedForeground),
+            Icon(icon, size: 14, color: colorScheme.onSurfaceVariant),
             const SizedBox(width: 4),
             Flexible(
               child: FittedBox(
@@ -339,7 +352,7 @@ class _ActionButton extends StatelessWidget {
                 child: Text(
                   label,
                   style: FudiTypography.bodySmall.copyWith(
-                    color: FudiColors.foreground,
+                    color: colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),

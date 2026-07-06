@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_theme.dart';
 
 class OrderStatsRow extends StatelessWidget {
   const OrderStatsRow({
@@ -22,8 +24,9 @@ class OrderStatsRow extends StatelessWidget {
           // 1. Tarjeta Pendientes (Naranja)
           Expanded(
             child: _buildOrderStatCard(
+              context: context,
               icon: Icons.schedule_rounded,
-              color: const Color(0xFFF97316), // Naranja premium
+              color: FudiColors.warning,
               value: '$pendingCount',
               label: 'Pendientes',
             ),
@@ -33,8 +36,9 @@ class OrderStatsRow extends StatelessWidget {
           // 2. Tarjeta Listos (Azul)
           Expanded(
             child: _buildOrderStatCard(
+              context: context,
               icon: Icons.local_mall_outlined,
-              color: const Color(0xFF3B82F6), // Azul premium
+              color: FudiColors.info,
               value: '$readyCount',
               label: 'Listos',
             ),
@@ -44,8 +48,9 @@ class OrderStatsRow extends StatelessWidget {
           // 3. Tarjeta Hoy (Verde)
           Expanded(
             child: _buildOrderStatCard(
+              context: context,
               icon: Icons.check_circle_outline_rounded,
-              color: const Color(0xFF22C55E), // Verde premium
+              color: FudiColors.success,
               value: '$todayCompletedCount',
               label: 'Hoy',
             ),
@@ -56,25 +61,29 @@ class OrderStatsRow extends StatelessWidget {
   }
 
   Widget _buildOrderStatCard({
+    required BuildContext context,
     required IconData icon,
     required Color color,
     required String value,
     required String label,
   }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final themeExt = theme.extension<FudiThemeExtension>();
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(
           20,
         ), // Bordes idénticos a image_9dad6b.png
         border: Border.all(
-          color: const Color(0xFFF3F4F6), // Borde gris claro muy limpio
+          color: themeExt?.mutedBackground ?? FudiColors.surfaceMuted,
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: colorScheme.onSurface.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -112,10 +121,10 @@ class OrderStatsRow extends StatelessWidget {
           // Etiqueta descriptiva en la parte inferior
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF6B7280), // Gris neutro suave de la app
+              color: colorScheme.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),

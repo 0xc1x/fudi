@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_typography.dart';
 
 enum OrdersSort {
@@ -26,14 +27,17 @@ class OrdersSortButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final themeExt = theme.extension<FudiThemeExtension>();
     return PopupMenuButton<OrdersSort>(
       onSelected: onChanged,
       offset: const Offset(0, 40),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: FudiColors.borderSolid),
+        side: BorderSide(color: themeExt?.borderSolid ?? FudiColors.borderSolid),
       ),
-      color: FudiColors.inputBackground,
+      color: colorScheme.surface,
       itemBuilder: (context) => OrdersSort.values.map((sort) {
         final isSelected = sort == value;
         return PopupMenuItem<OrdersSort>(
@@ -46,7 +50,7 @@ class OrdersSortButton extends StatelessWidget {
                     : Icons.radio_button_off,
                 size: 18,
                 color:
-                    isSelected ? FudiColors.primary : FudiColors.mutedForeground,
+                    isSelected ? FudiColors.primary : colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: FudiSpacing.sm),
               Text(
@@ -54,7 +58,7 @@ class OrdersSortButton extends StatelessWidget {
                 style: FudiTypography.bodyMedium.copyWith(
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   color:
-                      isSelected ? FudiColors.primary : FudiColors.foreground,
+                      isSelected ? FudiColors.primary : colorScheme.onSurface,
                 ),
               ),
             ],
@@ -67,23 +71,23 @@ class OrdersSortButton extends StatelessWidget {
           vertical: 6,
         ),
         decoration: BoxDecoration(
-          color: FudiColors.muted,
+          color: themeExt?.mutedBackground ?? FudiColors.muted,
           borderRadius: BorderRadius.circular(FudiRadius.xs),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.swap_vert,
               size: 16,
-              color: FudiColors.mutedForeground,
+              color: colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: 4),
             Text(
               _labels[value]!,
               style: FudiTypography.bodySmall.copyWith(
                 fontWeight: FontWeight.w500,
-                color: FudiColors.foreground,
+                color: colorScheme.onSurface,
               ),
             ),
           ],

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../fudi_colors.dart';
 import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
 
@@ -74,6 +73,7 @@ class _FudiButtonState extends State<FudiButton>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final isEnabled = widget.onPressed != null && !widget.isLoading;
 
     Color backgroundColor;
@@ -83,33 +83,33 @@ class _FudiButtonState extends State<FudiButton>
     switch (widget.variant) {
       case FudiButtonVariant.primary:
         backgroundColor = isEnabled
-            ? FudiColors.primary
-            : FudiColors.primary.withValues(alpha: 0.5);
-        foregroundColor = FudiColors.primaryForeground;
+            ? theme.colorScheme.primary
+            : theme.colorScheme.primary.withValues(alpha: 0.5);
+        foregroundColor = theme.colorScheme.onPrimary;
         break;
       case FudiButtonVariant.secondary:
         backgroundColor = isEnabled
-            ? FudiColors.secondary
-            : FudiColors.secondary.withValues(alpha: 0.5);
-        foregroundColor = FudiColors.secondaryForeground;
+            ? theme.colorScheme.secondary
+            : theme.colorScheme.secondary.withValues(alpha: 0.5);
+        foregroundColor = theme.colorScheme.onSecondary;
         break;
       case FudiButtonVariant.outlined:
         backgroundColor = Colors.transparent;
         foregroundColor = isEnabled
-            ? FudiColors.foreground
-            : FudiColors.foreground.withValues(alpha: 0.5);
+            ? theme.colorScheme.onSurface
+            : theme.colorScheme.onSurface.withValues(alpha: 0.5);
         borderSide = BorderSide(
           color: isEnabled
-              ? FudiColors.foreground
-              : FudiColors.foreground.withValues(alpha: 0.3),
+              ? theme.colorScheme.onSurface
+              : theme.colorScheme.onSurface.withValues(alpha: 0.3),
           width: 1.5,
         );
         break;
       case FudiButtonVariant.text:
         backgroundColor = Colors.transparent;
         foregroundColor = isEnabled
-            ? FudiColors.primary
-            : FudiColors.primary.withValues(alpha: 0.5);
+            ? theme.colorScheme.primary
+            : theme.colorScheme.primary.withValues(alpha: 0.5);
         break;
     }
 

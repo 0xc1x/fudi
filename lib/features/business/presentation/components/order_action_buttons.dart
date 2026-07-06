@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../business_providers.dart';
 import '../../../orders/domain/order_model.dart';
@@ -24,6 +25,8 @@ class OrderActionButtons extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
     if (order.status == OrderStatus.pending) {
       return Row(
         children: [
@@ -38,7 +41,7 @@ class OrderActionButtons extends ConsumerWidget {
               icon: const Icon(FudiIcons.checkCircle, size: 18),
               label: const Text('Marcar listo'),
               style: FilledButton.styleFrom(
-                backgroundColor: Colors.blue,
+                backgroundColor: FudiColors.info,
                 padding: const EdgeInsets.symmetric(vertical: 10),
               ),
             ),
@@ -57,7 +60,7 @@ class OrderActionButtons extends ConsumerWidget {
               color: FudiColors.destructive,
             ),
             style: IconButton.styleFrom(
-              side: const BorderSide(color: FudiColors.borderSolid),
+              side: BorderSide(color: themeExt?.borderSolid ?? FudiColors.borderSolid),
               padding: const EdgeInsets.all(10),
             ),
           ),
@@ -73,7 +76,7 @@ class OrderActionButtons extends ConsumerWidget {
           icon: const Icon(FudiIcons.qrCode, size: 18),
           label: const Text('Validar y entregar'),
           style: FilledButton.styleFrom(
-            backgroundColor: Colors.green,
+            backgroundColor: FudiColors.success,
             padding: const EdgeInsets.symmetric(vertical: 10),
           ),
         ),
@@ -91,9 +94,9 @@ class OrderActionButtons extends ConsumerWidget {
             _invalidateOrders(ref);
           },
           icon: const Icon(FudiIcons.checkCircle, size: 18),
-          label: const Text('Marcar listo'),
-          style: FilledButton.styleFrom(
-            backgroundColor: Colors.blue,
+            label: const Text('Marcar listo'),
+            style: FilledButton.styleFrom(
+              backgroundColor: FudiColors.info,
             padding: const EdgeInsets.symmetric(vertical: 10),
           ),
         ),

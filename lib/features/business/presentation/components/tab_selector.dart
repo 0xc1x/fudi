@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_typography.dart';
 
 class TabSelector extends StatelessWidget {
@@ -17,12 +18,14 @@ class TabSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(FudiRadius.xl),
-        border: Border.all(color: FudiColors.borderSolid),
+        border: Border.all(color: themeExt?.borderSolid ?? FudiColors.borderSolid),
       ),
       child: Row(
         children: List.generate(tabs.length, (i) {
@@ -63,6 +66,7 @@ class _TabButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final displayLabel = count != null ? '$label ($count)' : label;
     return GestureDetector(
       onTap: onTap,
@@ -77,7 +81,7 @@ class _TabButton extends StatelessWidget {
           displayLabel,
           textAlign: TextAlign.center,
           style: FudiTypography.labelSmall.copyWith(
-            color: isActive ? Colors.white : FudiColors.mutedForeground,
+            color: isActive ? FudiColors.primaryForeground : colorScheme.onSurfaceVariant,
             fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
           ),
         ),

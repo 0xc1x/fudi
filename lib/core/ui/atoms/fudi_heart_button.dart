@@ -10,8 +10,8 @@ class FudiHeartButton extends StatefulWidget {
     required this.onTap,
     this.size = 40,
     this.iconSize = 20,
-    this.activeColor = const Color(0xFFEF4444),
-    this.inactiveColor = FudiColors.foreground,
+    this.activeColor = FudiColors.destructiveVibrant,
+    this.inactiveColor,
     this.activeBackground,
     this.inactiveBackground,
     this.duration = const Duration(milliseconds: 380),
@@ -22,7 +22,7 @@ class FudiHeartButton extends StatefulWidget {
   final double size;
   final double iconSize;
   final Color activeColor;
-  final Color inactiveColor;
+  final Color? inactiveColor;
   final Color? activeBackground;
   final Color? inactiveBackground;
   final Duration duration;
@@ -78,10 +78,14 @@ class _FudiHeartButtonState extends State<FudiHeartButton>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final resolvedActiveBg = widget.activeBackground ??
         widget.activeColor.withValues(alpha: 0.15);
     final resolvedInactiveBg = widget.inactiveBackground ??
-        Colors.white.withValues(alpha: 0.9);
+        (theme.brightness == Brightness.dark
+            ? theme.colorScheme.surface.withValues(alpha: 0.9)
+            : FudiColors.card.withValues(alpha: 0.9));
+    final resolvedInactiveColor = widget.inactiveColor ?? theme.colorScheme.onSurface;
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -98,7 +102,7 @@ class _FudiHeartButtonState extends State<FudiHeartButton>
             shape: BoxShape.circle,
             boxShadow: const [
               BoxShadow(
-                color: Colors.black12,
+                color: FudiColors.shadow,
                 blurRadius: 8,
                 offset: Offset(0, 2),
               ),
@@ -109,7 +113,7 @@ class _FudiHeartButtonState extends State<FudiHeartButton>
             size: widget.iconSize,
             color: widget.isFavorite
                 ? widget.activeColor
-                : widget.inactiveColor,
+                : resolvedInactiveColor,
           ),
         ),
       ),

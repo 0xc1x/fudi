@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../fudi_colors.dart';
 import '../fudi_pressable_scale.dart';
 import '../fudi_spacing.dart';
 import '../fudi_typography.dart';
@@ -10,7 +9,7 @@ class FudiInfoRow extends StatelessWidget {
     required this.icon,
     required this.text,
     this.label,
-    this.iconColor = FudiColors.primary,
+    this.iconColor,
     this.iconSize = 16,
     this.textStyle,
     this.spacing = FudiSpacing.sm,
@@ -24,7 +23,7 @@ class FudiInfoRow extends StatelessWidget {
   final IconData icon;
   final String text;
   final String? label;
-  final Color iconColor;
+  final Color? iconColor;
   final double iconSize;
   final TextStyle? textStyle;
   final double spacing;
@@ -36,18 +35,21 @@ class FudiInfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget iconWidget = Icon(icon, size: iconSize, color: iconColor);
+    final theme = Theme.of(context);
+    final resolvedIconColor = iconColor ?? theme.colorScheme.primary;
+
+    Widget iconWidget = Icon(icon, size: iconSize, color: resolvedIconColor);
     
     if (useIconBackground) {
       iconWidget = Container(
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: iconColor.withValues(alpha: 0.1),
+          color: resolvedIconColor.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: Center(
-          child: Icon(icon, size: iconSize, color: iconColor),
+          child: Icon(icon, size: iconSize, color: resolvedIconColor),
         ),
       );
     } else {
@@ -60,8 +62,8 @@ class FudiInfoRow extends StatelessWidget {
     final TextStyle resolvedTextStyle = textStyle ?? 
         FudiTypography.bodyMedium.copyWith(
           color: isLink 
-              ? FudiColors.primary 
-              : (isPrimary ? FudiColors.primary : FudiColors.foreground),
+              ? theme.colorScheme.primary 
+              : (isPrimary ? theme.colorScheme.primary : theme.colorScheme.onSurface),
           fontWeight: isPrimary ? FontWeight.w500 : null,
         );
 
@@ -93,7 +95,7 @@ class FudiInfoRow extends StatelessWidget {
                     Text(
                       label!, 
                       style: FudiTypography.bodySmall.copyWith(
-                        color: FudiColors.mutedForeground,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                     const SizedBox(height: 2),

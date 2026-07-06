@@ -18,6 +18,8 @@ class BusinessSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     if (allBusinesses.length <= 1) {
       return Row(
         mainAxisSize: MainAxisSize.min,
@@ -26,9 +28,9 @@ class BusinessSelector extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             business.name,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: Color.fromARGB(255, 144, 191, 25),
+              color: colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -42,6 +44,7 @@ class BusinessSelector extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(FudiRadius.md),
       ),
+      color: colorScheme.surface,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -73,7 +76,7 @@ class BusinessSelector extends StatelessWidget {
                     size: 16,
                     color: b.id == business.id
                         ? FudiColors.primary
-                        : FudiColors.mutedForeground,
+                        : colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -83,6 +86,7 @@ class BusinessSelector extends StatelessWidget {
                           ? FontWeight.bold
                           : FontWeight.normal,
                       fontSize: 14,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                 ],

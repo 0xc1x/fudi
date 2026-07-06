@@ -181,13 +181,13 @@ class _PromoCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(FudiRadius.md),
                     boxShadow: [
                       BoxShadow(
-                        color: FudiColors.green.withValues(alpha: 0.15),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                         blurRadius: 40,
                         spreadRadius: 6,
                         offset: const Offset(-6, -3),
                       ),
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.4),
+                        color: FudiColors.foreground.withValues(alpha: 0.4),
                         blurRadius: 12,
                         spreadRadius: -4,
                       ),
@@ -201,9 +201,9 @@ class _PromoCard extends StatelessWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.08),
+                        color: FudiColors.greenDarkForeground.withValues(alpha: 0.08),
                       ),
-                      color: const Color(0xFF140D0D),
+                      color: FudiColors.greenDark,
                     ),
                     child: Stack(
                       children: [
@@ -227,7 +227,7 @@ class _PromoCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
-                                    Colors.black.withValues(alpha: 0.5),
+                                    FudiColors.foreground.withValues(alpha: 0.5),
                                     Colors.transparent,
                                   ],
                                 ),
@@ -252,7 +252,7 @@ class _PromoCard extends StatelessWidget {
                                     Text(
                                       item.title,
                                       style: const TextStyle(
-                                        color: Colors.white,
+                                        color: FudiColors.greenDarkForeground,
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600,
                                         letterSpacing: -0.2,
@@ -262,7 +262,7 @@ class _PromoCard extends StatelessWidget {
                                     Text(
                                       item.message,
                                       style: TextStyle(
-                                        color: Colors.white.withValues(
+                                        color: FudiColors.greenDarkForeground.withValues(
                                           alpha: 0.7,
                                         ),
                                         fontSize: 12,
@@ -302,7 +302,7 @@ class _PromoCard extends StatelessWidget {
                               child: Icon(
                                 item.icon,
                                 size: 48,
-                                color: Colors.white.withValues(alpha: 0.2),
+                                color: FudiColors.greenDarkForeground.withValues(alpha: 0.2),
                               ),
                             ),
                           ),
@@ -381,24 +381,24 @@ class _PromoButtonState extends State<_PromoButton>
             duration: const Duration(milliseconds: 120),
             decoration: BoxDecoration(
               color: _isPressed
-                  ? FudiColors.primary.withValues(alpha: 0.8)
-                  : FudiColors.primary,
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.8)
+                  : Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.circular(FudiRadius.md),
               boxShadow: _isPressed
                   ? []
                   : [
                       BoxShadow(
-                        color: FudiColors.primary.withValues(alpha: 0.45),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.45),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
                     ],
             ),
-            child: const Center(
+            child: Center(
               child: Text(
                 'Ver más',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
@@ -423,13 +423,13 @@ class _SponsorBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.12),
+        color: FudiColors.greenDarkForeground.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(FudiRadius.full),
       ),
       child: Text(
         isSponsored ? 'Sponsoreado' : 'Tips',
-        style: const TextStyle(
-          color: Colors.white70,
+        style: TextStyle(
+          color: FudiColors.greenDarkForeground.withValues(alpha: 0.7),
           fontSize: 11,
           fontWeight: FontWeight.w500,
         ),
@@ -446,6 +446,7 @@ class _PageDots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(count, (index) {
@@ -457,8 +458,8 @@ class _PageDots extends StatelessWidget {
           height: 8,
           decoration: BoxDecoration(
             color: isActive
-                ? FudiColors.primary
-                : FudiColors.mutedForeground.withValues(alpha: 0.3),
+                ? theme.colorScheme.primary
+                : theme.colorScheme.onSurface.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(4),
           ),
         );

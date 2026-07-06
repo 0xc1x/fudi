@@ -200,14 +200,14 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
             right: 0,
             child: Container(
               padding: const EdgeInsets.all(FudiSpacing.lg),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(FudiRadius.xxl),
                 ),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
-                    color: Colors.black12,
+                    color: FudiColors.shadow,
                     blurRadius: 10,
                     offset: Offset(0, -2),
                   ),
@@ -252,7 +252,7 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
                         child: const Center(
                           child: Text(
                             'Confirmar ubicación',
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(color: FudiColors.primaryForeground),
                           ),
                         ),
                       ),
@@ -268,7 +268,7 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
             right: FudiSpacing.md,
             child: FloatingActionButton.small(
               onPressed: _determinePosition,
-              backgroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.surface,
               child: const Icon(Icons.my_location, color: FudiColors.primary),
             ),
           ),

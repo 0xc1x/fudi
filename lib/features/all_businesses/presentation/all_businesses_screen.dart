@@ -51,7 +51,6 @@ class _AllBusinessesScreenState extends ConsumerState<AllBusinessesScreen> {
     final businessesAsync = ref.watch(allBusinessesProvider(filter));
 
     return Scaffold(
-      backgroundColor: FudiColors.background,
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -179,7 +178,7 @@ class _AllBusinessesHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: FudiColors.background,
+      color: Theme.of(context).colorScheme.surface,
       padding: const EdgeInsets.fromLTRB(
         FudiSpacing.lg,
         FudiSpacing.lg + 8,
@@ -198,10 +197,13 @@ class _AllBusinessesHeader extends StatelessWidget {
                   child: Container(
                     width: 40,
                     height: 40,
-                    decoration: const BoxDecoration(shape: BoxShape.circle),
-                    child: const Icon(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
                       FudiIcons.chevronLeft,
-                      color: FudiColors.foreground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),

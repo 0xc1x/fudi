@@ -42,16 +42,16 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
 
     return orderAsync.when(
       data: (order) => _buildContent(context, order),
-      loading: () => const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
+      loading: () => Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: const Center(
           child: CircularProgressIndicator(color: FudiColors.primary),
         ),
       ),
-      error: (error, _) => const Scaffold(
-        backgroundColor: Colors.white,
-        appBar: FudiStickyPageHeader(title: 'Calificar experiencia'),
-        body: Center(
+      error: (error, _) => Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        appBar: const FudiStickyPageHeader(title: 'Calificar experiencia'),
+        body: const Center(
           child: Text(
             'Hubo un problema al cargar el formulario',
             style: FudiTypography.bodyMedium,
@@ -69,7 +69,7 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
             const SnackBar(
               content: Text('Reseña publicada exitosamente'),
               behavior: SnackBarBehavior.floating,
-              backgroundColor: Color(0xFF16A34A),
+              backgroundColor: FudiColors.ecoGreen,
             ),
           );
           Navigator.of(context).pop();
@@ -148,7 +148,7 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
                           ),
                         ),
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: Theme.of(context).colorScheme.surface,
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
@@ -221,9 +221,9 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
                 message:
                     'Sé lo más honesto posible. Tu opinión es valiosa para la comunidad de rescate de alimentos.',
                 icon: FudiIcons.star,
-                backgroundColor: Color(0xFFEFF6FF),
-                borderColor: Color(0xFFBFDBFE),
-                foregroundColor: Color(0xFF1D4ED8),
+                backgroundColor: FudiColors.infoSurface,
+                borderColor: FudiColors.infoSurfaceBorder,
+                foregroundColor: FudiColors.infoForeground,
               ),
               const SizedBox(height: 140),
             ],
@@ -262,13 +262,13 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              color: Colors.white,
+                              color: FudiColors.primaryForeground,
                             ),
                           )
                         : Text(
                             'Publicar reseña',
                             style: FudiTypography.labelMedium.copyWith(
-                              color: Colors.white,
+                              color: FudiColors.primaryForeground,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

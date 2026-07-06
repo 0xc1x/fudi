@@ -54,6 +54,7 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Padding(
       padding: EdgeInsets.only(bottom: bottomInset),
@@ -67,7 +68,7 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: FudiColors.mutedForeground.withAlpha(80),
+                color: colorScheme.onSurfaceVariant.withAlpha(80),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -77,7 +78,7 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
             Text(
               'Apunta la cámara al código QR del cliente',
               style: FudiTypography.bodySmall.copyWith(
-                color: FudiColors.mutedForeground,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: FudiSpacing.lg),
@@ -95,7 +96,7 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
                       ),
                       if (_isValidating || _isSuccess != null)
                         Container(
-                          color: Colors.black54,
+                          color: colorScheme.onSurface.withValues(alpha: 0.54),
                           alignment: Alignment.center,
                           child: _buildOverlay(),
                         ),
@@ -149,11 +150,11 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
       return const Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CircularProgressIndicator(color: Colors.white),
+          CircularProgressIndicator(color: FudiColors.primaryForeground),
           SizedBox(height: 12),
           Text(
             'Validando código...',
-            style: TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(color: FudiColors.primaryForeground, fontSize: 16),
           ),
         ],
       );
@@ -163,12 +164,12 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
       return const Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check_circle, color: Colors.greenAccent, size: 64),
+          Icon(Icons.check_circle, color: FudiColors.success, size: 64),
           SizedBox(height: 12),
           Text(
             '¡Entrega validada!',
             style: TextStyle(
-              color: Colors.white,
+              color: FudiColors.primaryForeground,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -180,12 +181,12 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.error, color: Colors.redAccent, size: 64),
+        const Icon(Icons.error, color: FudiColors.destructiveVibrant, size: 64),
         const SizedBox(height: 12),
         const Text(
           'Código inválido',
           style: TextStyle(
-            color: Colors.white,
+            color: FudiColors.primaryForeground,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -193,7 +194,7 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
         const SizedBox(height: 4),
         Text(
           _scannedValue ?? '',
-          style: const TextStyle(color: Colors.white70, fontSize: 12),
+          style: TextStyle(color: FudiColors.primaryForeground.withValues(alpha: 0.7), fontSize: 12),
         ),
         const SizedBox(height: 16),
         FudiPressableScale(
@@ -206,7 +207,7 @@ class _PickupScannerSheetState extends ConsumerState<_PickupScannerSheet> {
             ),
             child: const Text(
               'Escanear de nuevo',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: FudiColors.primaryForeground),
             ),
           ),
         ),

@@ -69,7 +69,7 @@ class ProductSummaryCard extends StatelessWidget {
                   child: Text(
                     'Salvaste -$discountPercent%',
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: FudiColors.primaryForeground,
                       fontSize: 9,
                       fontWeight: FontWeight.bold,
                     ),

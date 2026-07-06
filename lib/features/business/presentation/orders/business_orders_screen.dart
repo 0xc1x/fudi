@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/ui/fudi_colors.dart';
 import '../business_providers.dart';
 import '../components/business_app_bar.dart';
 import '../components/no_business_prompt.dart';
@@ -14,7 +13,6 @@ class BusinessOrdersScreen extends ConsumerWidget {
     final businessAsync = ref.watch(currentBusinessProvider);
 
     return Scaffold(
-      backgroundColor: FudiColors.background,
       body: businessAsync.when(
         data: (business) {
           if (business == null) return const NoBusinessPrompt();
@@ -26,7 +24,6 @@ class BusinessOrdersScreen extends ConsumerWidget {
           );
 
           return Scaffold(
-            backgroundColor: FudiColors.background,
             appBar: PreferredSize(
               preferredSize: const Size.fromHeight(kToolbarHeight + 20),
               child: BusinessAppBar(

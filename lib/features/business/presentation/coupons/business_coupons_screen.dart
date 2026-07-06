@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
@@ -20,10 +21,12 @@ class BusinessCouponsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
     final businessAsync = ref.watch(currentBusinessProvider);
 
     return Scaffold(
-      backgroundColor: FudiColors.muted.withValues(alpha: 0.4),
+      backgroundColor: (themeExt?.mutedBackground ?? FudiColors.muted).withValues(alpha: 0.4),
       appBar: _AppBar(
         onCreate: () => context.push(RouteNames.businessCouponCreatePath),
       ),
@@ -34,7 +37,7 @@ class BusinessCouponsScreen extends ConsumerWidget {
           return couponsAsync.when(
             data: (coupons) => RefreshIndicator(
               color: FudiColors.primary,
-              backgroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.surface,
               onRefresh: () async {
                 ref.invalidate(businessCouponsProvider(business.id));
               },
@@ -69,8 +72,10 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       centerTitle: false,
@@ -88,7 +93,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
           Text(
             'Gestiona tus ofertas y códigos',
             style: FudiTypography.bodySmall.copyWith(
-              color: FudiColors.mutedForeground,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -108,18 +113,18 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: FudiColors.foreground,
+                    color: colorScheme.onSurface,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(FudiIcons.plus, size: 14, color: Colors.white),
+                      const Icon(FudiIcons.plus, size: 14, color: FudiColors.primaryForeground),
                       const SizedBox(width: FudiSpacing.xs),
                       Text(
                         'Nuevo',
                         style: FudiTypography.bodyMedium.copyWith(
-                          color: Colors.white,
+                          color: FudiColors.primaryForeground,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -160,8 +165,8 @@ class _Content extends StatelessWidget {
               child: FudiStatCard(
                 label: 'Activos',
                 value: '$activeCount',
-                valueColor: const Color(0xFF15803D),
-                backgroundColor: Colors.white,
+                valueColor: FudiColors.successDark,
+                backgroundColor: Theme.of(context).colorScheme.surface,
               ),
             ),
             const SizedBox(width: FudiSpacing.sm),
@@ -170,7 +175,7 @@ class _Content extends StatelessWidget {
                 label: 'Usos Totales',
                 value: '$totalUses',
                 valueColor: FudiColors.primary,
-                backgroundColor: Colors.white,
+                backgroundColor: Theme.of(context).colorScheme.surface,
               ),
             ),
             const SizedBox(width: FudiSpacing.sm),
@@ -179,7 +184,7 @@ class _Content extends StatelessWidget {
                 label: 'Creados',
                 value: '${coupons.length}',
                 valueColor: FudiColors.foreground,
-                backgroundColor: Colors.white,
+                backgroundColor: Theme.of(context).colorScheme.surface,
               ),
             ),
           ],

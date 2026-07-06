@@ -28,8 +28,10 @@ class _BusinessPaymentDetailScreenState
   @override
   Widget build(BuildContext context) {
     final payoutAsync = ref.watch(businessPayoutProvider(widget.payoutId));
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: FudiColors.background,
+      backgroundColor: colorScheme.surface,
       appBar: _AppBar(
         period: payoutAsync.asData?.value != null
             ? _periodLabel(payoutAsync.asData!.value)
@@ -81,16 +83,17 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return AppBar(
       leading: Padding(
         padding: const EdgeInsets.only(left: FudiSpacing.sm),
         child: FudiPressableScale(
           onTap: () => context.pop(),
-          child: const Center(
+          child: Center(
             child: Icon(
               FudiIcons.chevronLeft,
               size: 20,
-              color: FudiColors.foreground,
+              color: colorScheme.onSurface,
             ),
           ),
         ),
@@ -105,9 +108,9 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
           if (period.isNotEmpty)
             Text(
               period,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
-                color: FudiColors.mutedForeground,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
         ],
@@ -121,10 +124,10 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ],
-      backgroundColor: FudiColors.background,
+      backgroundColor: colorScheme.surface,
       elevation: 0,
-      shape: const Border(
-        bottom: BorderSide(color: FudiColors.borderSolid),
+      shape: Border(
+        bottom: BorderSide(color: colorScheme.outlineVariant),
       ),
     );
   }
@@ -165,11 +168,12 @@ class _AmountHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(FudiSpacing.xl),
       decoration: BoxDecoration(
-        color: FudiColors.foreground,
+        color: colorScheme.onSurface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -177,7 +181,7 @@ class _AmountHero extends StatelessWidget {
           Text(
             'MONTO TOTAL NETO',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.6),
+              color: FudiColors.primaryForeground.withValues(alpha: 0.6),
               fontSize: 10,
               fontWeight: FontWeight.bold,
               letterSpacing: 1,
@@ -189,7 +193,7 @@ class _AmountHero extends StatelessWidget {
             style: const TextStyle(
               fontSize: 38,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: FudiColors.primaryForeground,
               letterSpacing: -0.5,
             ),
           ),
@@ -199,7 +203,7 @@ class _AmountHero extends StatelessWidget {
             Text(
               'Liquidado el ${_formatDate(payout.paidAt!)}',
               style: const TextStyle(
-                color: Color(0xFF4ADE80),
+                color: FudiColors.success,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -236,6 +240,7 @@ class _BreakdownSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final totalSales = payout.grossAmount;
     final taxes = totalSales - payout.platformFee - payout.netAmount;
 
@@ -251,20 +256,23 @@ class _BreakdownSection extends StatelessWidget {
           _buildRow(
             'Total ventas brutas',
             '\$${totalSales.toStringAsFixed(2)}',
+            colorScheme,
           ),
           _buildRow(
             'Comisión plataforma (10%)',
             '-\$${payout.platformFee.toStringAsFixed(2)}',
+            colorScheme,
             isNegative: true,
           ),
           _buildRow(
             'Retenciones bancarias / tasas',
             '-\$${taxes.toStringAsFixed(2)}',
+            colorScheme,
             isNegative: true,
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: FudiSpacing.sm),
-            child: Divider(color: FudiColors.borderSolid, height: 1),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: FudiSpacing.sm),
+            child: Divider(color: colorScheme.outlineVariant, height: 1),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -278,7 +286,7 @@ class _BreakdownSection extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF16A34A),
+                  color: FudiColors.successDark,
                 ),
               ),
             ],
@@ -288,7 +296,12 @@ class _BreakdownSection extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(String label, String value, {bool isNegative = false}) {
+  Widget _buildRow(
+    String label,
+    String value,
+    ColorScheme colorScheme, {
+    bool isNegative = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -296,9 +309,9 @@ class _BreakdownSection extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: FudiColors.mutedForeground,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           Text(
@@ -308,7 +321,7 @@ class _BreakdownSection extends StatelessWidget {
               fontWeight: isNegative ? FontWeight.w500 : FontWeight.bold,
               color: isNegative
                   ? FudiColors.destructive
-                  : FudiColors.foreground,
+                  : colorScheme.onSurface,
             ),
           ),
         ],
@@ -321,29 +334,30 @@ class _PaymentMethodSection extends StatelessWidget {
   const _PaymentMethodSection();
   @override
   Widget build(BuildContext context) {
-    return const FudiSurfaceCard(
+    final colorScheme = Theme.of(context).colorScheme;
+    return FudiSurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Destino del depósito',
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: FudiSpacing.sm),
+          const SizedBox(height: FudiSpacing.sm),
           Row(
             children: [
               Icon(
                 FudiIcons.creditCard,
                 size: 16,
-                color: FudiColors.mutedForeground,
+                color: colorScheme.onSurfaceVariant,
               ),
-              SizedBox(width: FudiSpacing.sm),
+              const SizedBox(width: FudiSpacing.sm),
               Expanded(
                 child: Text(
                   'Banco del Pacífico • Account •••• 4532',
                   style: TextStyle(
                     fontSize: 12,
-                    color: FudiColors.mutedForeground,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),

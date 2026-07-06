@@ -255,7 +255,7 @@ class ExploreCategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color cardBackground = isSelected
         ? FudiColors.primary.withValues(alpha: 0.2)
-        : FudiColors.card;
+        : Theme.of(context).colorScheme.surfaceContainerLow;
 
     return FudiPressableScale(
       onTap: onTap,
@@ -266,12 +266,12 @@ class ExploreCategoryCard extends StatelessWidget {
           color: cardBackground,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? const Color(0xFFFF4B4B) : FudiColors.border,
+            color: isSelected ? FudiColors.redAccent : FudiColors.border,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFFFF4B4B).withValues(alpha: 0.15),
+                    color: FudiColors.redAccent.withValues(alpha: 0.15),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -302,7 +302,7 @@ class ExploreCategoryCard extends StatelessWidget {
                     fit: BoxFit.cover,
                     alignment: Alignment.centerLeft,
                     errorBuilder: (context, error, stackTrace) =>
-                        Container(color: const Color(0xFF1E2022)),
+                        Container(color: Theme.of(context).colorScheme.surfaceContainerLow),
                   ),
                 ),
               ),
@@ -325,7 +325,7 @@ class ExploreCategoryCard extends StatelessWidget {
                       Text(
                         '$count ofertas',
                         style: FudiTypography.bodySmall.copyWith(
-                          color: FudiColors.mutedForeground,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -362,7 +362,7 @@ class ExploreExpandCard extends StatelessWidget {
         height: 85,
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         decoration: BoxDecoration(
-          color: FudiColors.card,
+          color: Theme.of(context).colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(FudiRadius.lg),
           border: Border.all(color: FudiColors.border),
         ),

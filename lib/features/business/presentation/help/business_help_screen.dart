@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_spacing.dart';
@@ -241,9 +242,14 @@ class _BusinessHelpScreenState extends State<BusinessHelpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final themeExt = theme.extension<FudiThemeExtension>();
+    final mutedBg = themeExt?.mutedBackground ?? FudiColors.muted;
+
     return Scaffold(
-      backgroundColor: FudiColors.muted,
-      appBar: _AppBar(),
+      backgroundColor: mutedBg,
+      appBar: const _AppBar(),
       body: ListView(
         padding: const EdgeInsets.all(FudiSpacing.lg),
         children: [
@@ -251,7 +257,7 @@ class _BusinessHelpScreenState extends State<BusinessHelpScreen> {
             controller: _searchController,
             onChanged: (v) => setState(() => _searchQuery = v),
             hintText: 'Buscar en ayuda...',
-            fillColor: FudiColors.background,
+            fillColor: colorScheme.surface,
             borderRadius: FudiRadius.xl,
           ),
           const SizedBox(height: FudiSpacing.lg),
@@ -267,7 +273,7 @@ class _BusinessHelpScreenState extends State<BusinessHelpScreen> {
                 icon: FudiIcons.package_,
                 label: 'Gestión de productos',
                 subtitle: 'Crear, editar y administrar',
-                bgColor: const Color(0xFFE8F5E9),
+                bgColor: FudiColors.surfaceSuccess,
                 iconColor: FudiColors.primary,
                 onTap: () => _openProductsInfo(context),
               ),
@@ -275,24 +281,24 @@ class _BusinessHelpScreenState extends State<BusinessHelpScreen> {
                 icon: Icons.attach_money_rounded,
                 label: 'Pagos y facturación',
                 subtitle: 'Cobros y métodos de pago',
-                bgColor: const Color(0xFFDCFCE7),
-                iconColor: const Color(0xFF16A34A),
+                bgColor: FudiColors.surfaceSuccess,
+                iconColor: FudiColors.ecoGreen,
                 onTap: () => _openBusinessPaymentsInfo(context),
               ),
               FudiHelpCategory(
                 icon: Icons.menu_book_rounded,
                 label: 'Guías y tutoriales',
                 subtitle: 'Aprende a usar la plataforma',
-                bgColor: const Color(0xFFFFEDD5),
-                iconColor: const Color(0xFFEA580C),
+                bgColor: FudiColors.surfaceWarning,
+                iconColor: FudiColors.warningOrange,
                 onTap: () => context.push('/how-it-works'),
               ),
               FudiHelpCategory(
                 icon: Icons.shield_rounded,
                 label: 'Políticas y seguridad',
                 subtitle: 'Términos y privacidad',
-                bgColor: const Color(0xFFEFF6FF),
-                iconColor: const Color(0xFF2563EB),
+                bgColor: FudiColors.infoSurface,
+                iconColor: FudiColors.infoForeground,
                 onTap: () => context.push('/privacy'),
               ),
             ],
@@ -317,11 +323,16 @@ class _BusinessHelpScreenState extends State<BusinessHelpScreen> {
 }
 
 class _AppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _AppBar();
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeExt = theme.extension<FudiThemeExtension>();
+    final mutedBg = themeExt?.mutedBackground ?? FudiColors.muted;
+
     return AppBar(
       leading: Padding(
         padding: const EdgeInsets.only(left: FudiSpacing.sm),
@@ -330,8 +341,8 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
-              color: FudiColors.muted,
+            decoration: BoxDecoration(
+              color: mutedBg,
               shape: BoxShape.circle,
             ),
             child: const Icon(FudiIcons.chevronLeft, size: 20),
@@ -345,11 +356,11 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
           Text('Soporte y recursos', style: FudiTypography.bodySmall),
         ],
       ),
-      backgroundColor: FudiColors.background,
+      backgroundColor: theme.colorScheme.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 1,
-      shadowColor: Colors.black12,
+      shadowColor: FudiColors.shadow,
     );
   }
 }
