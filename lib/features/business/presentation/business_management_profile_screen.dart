@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/route_names.dart';
 import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_theme.dart';
+import '../../../core/ui/fudi_typography.dart';
+import '../../../core/ui/theme_notifier.dart';
 import '../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_surface_card.dart';
-import '../../../core/ui/fudi_typography.dart';
 import 'business_providers.dart';
 import 'components/no_business_prompt.dart';
 
@@ -69,6 +71,15 @@ class BusinessManagementProfileScreen extends ConsumerWidget {
                   ],
                 ),
               ),
+              const SizedBox(height: FudiSpacing.xl),
+              Text(
+                'Apariencia',
+                style: FudiTypography.labelSmall.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: FudiSpacing.md),
+              _ThemeRow(),
             ],
           );
         },
@@ -94,6 +105,114 @@ class _Info extends StatelessWidget {
           const SizedBox(width: FudiSpacing.sm),
           Expanded(child: Text(value, style: FudiTypography.bodyMedium)),
         ],
+      ),
+    );
+  }
+}
+
+class _ThemeRow extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeState = ref.watch(themeNotifierProvider);
+
+    return Row(
+      children: [
+        Expanded(
+          child: _ThemeOptionCard(
+            title: 'Claro',
+            icon: Icons.light_mode_rounded,
+            isSelected: themeState == AppThemeMode.light,
+            onTap: () => ref
+                .read(themeNotifierProvider.notifier)
+                .setThemeMode(AppThemeMode.light),
+          ),
+        ),
+        const SizedBox(width: FudiSpacing.sm),
+        Expanded(
+          child: _ThemeOptionCard(
+            title: 'Oscuro',
+            icon: Icons.dark_mode_rounded,
+            isSelected: themeState == AppThemeMode.dark,
+            onTap: () => ref
+                .read(themeNotifierProvider.notifier)
+                .setThemeMode(AppThemeMode.dark),
+          ),
+        ),
+        const SizedBox(width: FudiSpacing.sm),
+        Expanded(
+          child: _ThemeOptionCard(
+            title: 'Sistema',
+            icon: Icons.brightness_auto_rounded,
+            isSelected: themeState == AppThemeMode.system,
+            onTap: () => ref
+                .read(themeNotifierProvider.notifier)
+                .setThemeMode(AppThemeMode.system),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ThemeOptionCard extends StatelessWidget {
+  const _ThemeOptionCard({
+    required this.title,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String title;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final themeExt = theme.extension<FudiThemeExtension>();
+
+    return FudiPressableScale(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? theme.colorScheme.primary.withValues(alpha: isDark ? 0.15 : 0.05)
+              : (themeExt?.cardBg ??
+                  (isDark ? FudiColorsDark.muted : FudiColors.card)),
+          borderRadius: BorderRadius.circular(FudiRadius.md),
+          border: Border.all(
+            color: isSelected
+                ? theme.colorScheme.primary
+                : (themeExt?.border ??
+                    (isDark
+                        ? FudiColorsDark.border
+                        : FudiColors.borderSolid)),
+            width: isSelected ? 1.5 : 1.0,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: isSelected
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+            const SizedBox(height: FudiSpacing.xs),
+            Text(
+              title,
+              style: FudiTypography.bodySmall.copyWith(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

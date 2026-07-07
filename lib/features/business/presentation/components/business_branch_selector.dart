@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../business_providers.dart';
 import '../../domain/business_location.dart';
@@ -238,6 +239,7 @@ class _BranchDropdownOverlayState
   Widget build(BuildContext context) {
     final selectedId = ref.watch(selectedBranchIdProvider);
     final colorScheme = Theme.of(context).colorScheme;
+    final themeExt = Theme.of(context).extension<FudiThemeExtension>();
 
     return Stack(
       children: [
@@ -269,7 +271,7 @@ class _BranchDropdownOverlayState
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: colorScheme.outlineVariant),
+                      border: Border.all(color: themeExt?.borderSolid ?? FudiColors.borderSolid),
                       boxShadow: [
                         BoxShadow(
                           color: colorScheme.shadow.withValues(alpha: 0.1),

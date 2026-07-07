@@ -27,7 +27,7 @@ class FudiSurfaceCard extends StatelessWidget {
         color: themeExt?.cardBg ?? theme.cardTheme.color ?? FudiColors.card,
         borderRadius: BorderRadius.circular(FudiRadius.lg),
         border: Border.all(
-          color: themeExt?.border ?? FudiColors.border.withValues(alpha: 0.09),
+          color: themeExt?.borderSolid ?? FudiColors.borderSolid,
         ),
         boxShadow: themeExt?.surfaceShadow != null && themeExt!.surfaceShadow != Colors.transparent
             ? [

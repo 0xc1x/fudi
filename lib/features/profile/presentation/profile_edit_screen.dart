@@ -51,7 +51,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Editar perfil'),
-        backgroundColor: FudiColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         surfaceTintColor: Colors.transparent,
       ),
       body: Form(

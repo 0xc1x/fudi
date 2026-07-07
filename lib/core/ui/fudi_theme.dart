@@ -64,7 +64,7 @@ class FudiThemeExtension extends ThemeExtension<FudiThemeExtension> {
   static const dark = FudiThemeExtension(
     cardBg: FudiColorsDark.muted,
     border: FudiColorsDark.border,
-    borderSolid: FudiColorsDark.border,
+    borderSolid: FudiColorsDark.borderSolid,
     mutedBackground: FudiColorsDark.surfaceMuted,
     surfaceShadow: Colors.transparent,
   );
@@ -167,7 +167,9 @@ class FudiTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: FudiColors.foreground,
-        contentTextStyle: FudiTypography.bodyMedium.copyWith(color: FudiColors.background),
+        contentTextStyle: FudiTypography.bodyMedium.copyWith(
+          color: FudiColors.background,
+        ),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FudiRadius.lg),
@@ -191,7 +193,6 @@ class FudiTheme {
         secondary: FudiColorsDark.mutedForeground,
         onSecondary: FudiColorsDark.muted,
         error: FudiColorsDark.destructive,
-        surface: FudiColorsDark.background,
         onSurface: FudiColorsDark.foreground,
         outline: FudiColorsDark.border,
         surfaceContainerLow: FudiColorsDark.muted,
@@ -206,15 +207,33 @@ class FudiTheme {
         ),
       ),
       textTheme: TextTheme(
-        displayLarge: FudiTypography.h1.copyWith(color: FudiColorsDark.foreground),
-        displayMedium: FudiTypography.h2.copyWith(color: FudiColorsDark.foreground),
-        displaySmall: FudiTypography.h3.copyWith(color: FudiColorsDark.foreground),
-        headlineMedium: FudiTypography.h4.copyWith(color: FudiColorsDark.foreground),
-        bodyLarge: FudiTypography.bodyLarge.copyWith(color: FudiColorsDark.foreground),
-        bodyMedium: FudiTypography.bodyMedium.copyWith(color: FudiColorsDark.foreground),
-        bodySmall: FudiTypography.bodySmall.copyWith(color: FudiColorsDark.mutedForeground),
-        labelLarge: FudiTypography.labelMedium.copyWith(color: FudiColorsDark.foreground),
-        labelSmall: FudiTypography.labelSmall.copyWith(color: FudiColorsDark.foreground),
+        displayLarge: FudiTypography.h1.copyWith(
+          color: FudiColorsDark.foreground,
+        ),
+        displayMedium: FudiTypography.h2.copyWith(
+          color: FudiColorsDark.foreground,
+        ),
+        displaySmall: FudiTypography.h3.copyWith(
+          color: FudiColorsDark.foreground,
+        ),
+        headlineMedium: FudiTypography.h4.copyWith(
+          color: FudiColorsDark.foreground,
+        ),
+        bodyLarge: FudiTypography.bodyLarge.copyWith(
+          color: FudiColorsDark.foreground,
+        ),
+        bodyMedium: FudiTypography.bodyMedium.copyWith(
+          color: FudiColorsDark.foreground,
+        ),
+        bodySmall: FudiTypography.bodySmall.copyWith(
+          color: FudiColorsDark.mutedForeground,
+        ),
+        labelLarge: FudiTypography.labelMedium.copyWith(
+          color: FudiColorsDark.foreground,
+        ),
+        labelSmall: FudiTypography.labelSmall.copyWith(
+          color: FudiColorsDark.foreground,
+        ),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: FudiColorsDark.background,
@@ -227,19 +246,18 @@ class FudiTheme {
         fillColor: FudiColorsDark.muted,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(FudiRadius.md),
-          borderSide: const BorderSide(
-            color: FudiColorsDark.border,
-          ),
+          borderSide: const BorderSide(color: FudiColorsDark.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(FudiRadius.md),
-          borderSide: const BorderSide(
-            color: FudiColorsDark.border,
-          ),
+          borderSide: const BorderSide(color: FudiColorsDark.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(FudiRadius.md),
-          borderSide: const BorderSide(color: FudiColorsDark.primary, width: 1.5),
+          borderSide: const BorderSide(
+            color: FudiColorsDark.primary,
+            width: 1.5,
+          ),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: FudiSpacing.lg,
@@ -268,7 +286,9 @@ class FudiTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: FudiColorsDark.foreground,
-        contentTextStyle: FudiTypography.bodyMedium.copyWith(color: FudiColorsDark.background),
+        contentTextStyle: FudiTypography.bodyMedium.copyWith(
+          color: FudiColorsDark.background,
+        ),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FudiRadius.lg),

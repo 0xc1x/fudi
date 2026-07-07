@@ -25,6 +25,14 @@ class FudiStarRating extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final resolvedInactive = isDark
+        ? FudiColorsDark.mutedForeground
+        : FudiColors.mutedForeground;
+    final starInactiveColor = inactiveColor == FudiColors.mutedForeground
+        ? resolvedInactive
+        : inactiveColor;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -41,7 +49,7 @@ class FudiStarRating extends StatelessWidget {
               color = activeColor;
             } else {
               icon = FudiIcons.starOutline;
-              color = inactiveColor;
+              color = starInactiveColor;
             }
 
             final star = Icon(icon, size: size, color: color);

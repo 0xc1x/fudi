@@ -22,14 +22,15 @@ class FudiContactChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: FudiSpacing.md),
         decoration: BoxDecoration(
-          color: FudiColors.background,
+          color: isDark ? FudiColorsDark.background : FudiColors.background,
           borderRadius: BorderRadius.circular(FudiRadius.xl),
-          border: Border.all(color: FudiColors.borderSolid),
+          border: Border.all(color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid),
         ),
         child: Column(
           children: [
@@ -140,6 +141,7 @@ class FudiCategoriesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return FudiSurfaceCard(
       padding: EdgeInsets.zero,
       child: Column(
@@ -149,8 +151,8 @@ class FudiCategoriesSection extends StatelessWidget {
             padding: const EdgeInsets.all(FudiSpacing.lg),
             child: Text(title, style: FudiTypography.labelSmall),
           ),
-          const Divider(height: 1, color: FudiColors.borderSolid),
-          ...categories.map((cat) => _FudiCategoryRow(category: cat)),
+          Divider(height: 1, color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid),
+          ...categories.map((cat) => _FudiCategoryRow(category: cat, isDark: isDark)),
         ],
       ),
     );
@@ -158,8 +160,9 @@ class FudiCategoriesSection extends StatelessWidget {
 }
 
 class _FudiCategoryRow extends StatelessWidget {
-  const _FudiCategoryRow({required this.category});
+  const _FudiCategoryRow({required this.category, required this.isDark});
   final FudiHelpCategory category;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -196,10 +199,10 @@ class _FudiCategoryRow extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(
+            Icon(
               FudiIcons.chevronRight,
               size: 20,
-              color: FudiColors.mutedForeground,
+              color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
             ),
           ],
         ),
@@ -225,6 +228,7 @@ class FudiFAQSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return FudiSurfaceCard(
       padding: EdgeInsets.zero,
       child: Column(
@@ -234,12 +238,13 @@ class FudiFAQSection extends StatelessWidget {
             padding: const EdgeInsets.all(FudiSpacing.lg),
             child: Text(title, style: FudiTypography.labelSmall),
           ),
-          const Divider(height: 1, color: FudiColors.borderSolid),
+          Divider(height: 1, color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid),
           ...items.map(
             (faq) => _FudiFAQRow(
               faq: faq,
               isExpanded: expandedId == faq.id,
               onToggle: () => onToggle(faq.id),
+              isDark: isDark,
             ),
           ),
         ],
@@ -253,11 +258,13 @@ class _FudiFAQRow extends StatelessWidget {
     required this.faq,
     required this.isExpanded,
     required this.onToggle,
+    required this.isDark,
   });
 
   final FudiFAQData faq;
   final bool isExpanded;
   final VoidCallback onToggle;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
@@ -289,7 +296,7 @@ class _FudiFAQRow extends StatelessWidget {
                     Text(
                       faq.answer,
                       style: FudiTypography.bodySmall.copyWith(
-                        color: FudiColors.mutedForeground,
+                        color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                         height: 1.5,
                       ),
                     ),
@@ -300,10 +307,10 @@ class _FudiFAQRow extends StatelessWidget {
             AnimatedRotation(
               turns: isExpanded ? 0.25 : 0,
               duration: const Duration(milliseconds: 200),
-              child: const Icon(
+              child: Icon(
                 FudiIcons.chevronRight,
                 size: 20,
-                color: FudiColors.mutedForeground,
+                color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
               ),
             ),
           ],
@@ -330,6 +337,7 @@ class FudiContactSupportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -342,11 +350,11 @@ class FudiContactSupportCard extends StatelessWidget {
           ],
         ),
         borderRadius: BorderRadius.circular(FudiRadius.xxl),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: FudiColors.shadow,
+            color: isDark ? FudiColorsDark.shadow : FudiColors.shadow,
             blurRadius: 12,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -407,6 +415,7 @@ class HelpCategoryDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -414,7 +423,7 @@ class HelpCategoryDetailPage extends StatelessWidget {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 1,
-        shadowColor: FudiColors.shadow,
+        shadowColor: isDark ? FudiColorsDark.shadow : FudiColors.shadow,
         leading: Padding(
           padding: const EdgeInsets.only(left: FudiSpacing.sm),
           child: IconButton(
@@ -442,7 +451,7 @@ class HelpCategoryDetailPage extends StatelessWidget {
                     ),
                   ),
                   if (section.items.isNotEmpty)
-                    const Divider(height: 1, color: FudiColors.borderSolid),
+                    Divider(height: 1, color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid),
                   for (final item in section.items)
                     HelpItemRow(item: item),
                 ],
@@ -474,6 +483,7 @@ class HelpItemRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: FudiSpacing.lg,
@@ -486,14 +496,14 @@ class HelpItemRow extends StatelessWidget {
             item.title,
             style: FudiTypography.bodyMedium.copyWith(
               fontWeight: FontWeight.w600,
-              color: FudiColors.foreground,
+              color: isDark ? FudiColorsDark.foreground : FudiColors.foreground,
             ),
           ),
           const SizedBox(height: FudiSpacing.xs),
           Text(
             item.description,
             style: FudiTypography.bodySmall.copyWith(
-              color: FudiColors.mutedForeground,
+              color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
               height: 1.5,
             ),
           ),

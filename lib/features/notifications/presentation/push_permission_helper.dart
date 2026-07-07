@@ -32,10 +32,22 @@ Future<bool> ensurePushPermission(
     if (permission == 'granted') return true;
 
     if (permission == 'denied') {
-      _showSnack(
-        context,
-        '${getBrowserName()} bloqueó las notificaciones. '
-        'Activálas desde la configuración del sitio.',
+      if (!context.mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${getBrowserName()} bloqueó las notificaciones. '
+            'Activálas desde la configuración del sitio.',
+          ),
+          duration: const Duration(seconds: 8),
+          action: SnackBarAction(
+            label: 'OK',
+            textColor: Theme.of(context).colorScheme.primary,
+            onPressed: () async {
+              await requestWebNotificationPermission();
+            },
+          ),
+        ),
       );
       return false;
     }
@@ -43,10 +55,21 @@ Future<bool> ensurePushPermission(
     final granted = await requestWebNotificationPermission();
     if (!granted) {
       if (!context.mounted) return false;
-      _showSnack(
-        context,
-        'Permiso denegado. Activá las notificaciones desde la '
-        'configuración del navegador.',
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Permiso denegado. Activá las notificaciones desde la '
+            'configuración del navegador.',
+          ),
+          duration: const Duration(seconds: 8),
+          action: SnackBarAction(
+            label: 'OK',
+            textColor: Theme.of(context).colorScheme.primary,
+            onPressed: () async {
+              await requestWebNotificationPermission();
+            },
+          ),
+        ),
       );
       return false;
     }

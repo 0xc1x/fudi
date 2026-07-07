@@ -221,7 +221,7 @@ class _StepRow extends StatelessWidget {
                       color: FudiColors.primary,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.check,
                       color: FudiColors.primaryForeground,
                       size: 12,

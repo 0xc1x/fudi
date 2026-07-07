@@ -27,6 +27,7 @@ class CouponSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return FudiSurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,8 +41,8 @@ class CouponSection extends StatelessWidget {
                 vertical: FudiSpacing.sm,
               ),
               decoration: BoxDecoration(
-                color: FudiColors.surfaceSuccess,
-                border: Border.all(color: FudiColors.surfaceSuccessBorder),
+                color: isDark ? FudiColorsDark.surfaceSuccess : FudiColors.surfaceSuccess,
+                border: Border.all(color: isDark ? FudiColorsDark.surfaceSuccessBorder : FudiColors.surfaceSuccessBorder),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
@@ -94,23 +95,23 @@ class CouponSection extends StatelessWidget {
                       decoration: InputDecoration(
                         hintText: 'Código (Ej: REVOLUCION)',
                         hintStyle: TextStyle(
-                          color: FudiColors.mutedForeground.withValues(
+                          color: (isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground).withValues(
                             alpha: 0.6,
                           ),
                           fontSize: 13,
                         ),
                         filled: true,
-                        fillColor: FudiColors.background,
+                        fillColor: isDark ? FudiColorsDark.background : FudiColors.background,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(
-                            color: FudiColors.borderSolid,
+                          borderSide: BorderSide(
+                            color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(
-                            color: FudiColors.borderSolid,
+                          borderSide: BorderSide(
+                            color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(

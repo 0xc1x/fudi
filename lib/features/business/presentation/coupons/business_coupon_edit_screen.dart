@@ -178,7 +178,9 @@ class _BusinessCouponEditScreenState
           SnackBar(
             content: Text(
               'No se pudo guardar el cupón. Intenta de nuevo.',
-              style: FudiTypography.bodyMedium.copyWith(color: FudiColors.primaryForeground),
+              style: FudiTypography.bodyMedium.copyWith(
+                color: FudiColors.primaryForeground,
+              ),
             ),
             backgroundColor: FudiColors.destructive,
             behavior: SnackBarBehavior.floating,
@@ -233,8 +235,11 @@ class _BusinessCouponEditScreenState
     }
 
     // Renderizado unificado del body una vez que el estado local ha tomado control.
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: FudiColors.muted.withValues(alpha: 0.4),
+      backgroundColor: isDark
+          ? FudiColorsDark.background
+          : FudiColors.muted.withValues(alpha: 0.4),
       appBar: _AppBar(isEdit: _isEdit),
       body: _FormBody(
         formKey: _formKey,
@@ -372,6 +377,7 @@ class _CodeSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return FudiSurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -405,7 +411,10 @@ class _CodeSection extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.1,
                   ),
-                  decoration: couponInputDecoration(hint: 'EJ. PROMO2026'),
+                  decoration: couponInputDecoration(
+                    hint: 'EJ. PROMO2026',
+                    isDark: isDark,
+                  ),
                   validator: (v) {
                     final trimmed = v?.trim() ?? '';
                     if (trimmed.isEmpty) return 'El código es obligatorio';
@@ -452,7 +461,9 @@ class _CodeSection extends StatelessWidget {
           Text(
             'El identificador único que tus clientes ingresarán antes del checkout.',
             style: FudiTypography.bodySmall.copyWith(
-              color: FudiColors.mutedForeground,
+              color: isDark
+                  ? FudiColorsDark.mutedForeground
+                  : FudiColors.mutedForeground,
             ),
           ),
         ],
@@ -475,6 +486,7 @@ class _DiscountTypeSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isPercentage = type == 'percentage';
 
     return FudiSurfaceCard(
@@ -528,13 +540,16 @@ class _DiscountTypeSection extends StatelessWidget {
             ),
             decoration: couponInputDecoration(
               hint: isPercentage ? '15' : '5.00',
+              isDark: isDark,
               prefix: Padding(
                 padding: const EdgeInsets.only(right: 4),
                 child: Text(
                   isPercentage ? '%' : '\$',
                   style: FudiTypography.bodyMedium.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: FudiColors.mutedForeground,
+                    color: isDark
+                        ? FudiColorsDark.mutedForeground
+                        : FudiColors.mutedForeground,
                   ),
                 ),
               ),
@@ -572,6 +587,7 @@ class _TypeOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Semantics(
       label: label,
       button: true,
@@ -588,7 +604,11 @@ class _TypeOption extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(FudiRadius.md),
             border: Border.all(
-              color: selected ? FudiColors.primary : FudiColors.borderSolid,
+              color: selected
+                  ? FudiColors.primary
+                  : isDark
+                  ? FudiColorsDark.borderSolid
+                  : FudiColors.borderSolid,
               width: selected ? 1.5 : 1,
             ),
             color: selected
@@ -603,6 +623,8 @@ class _TypeOption extends StatelessWidget {
                 size: 18,
                 color: selected
                     ? FudiColors.primary
+                    : isDark
+                    ? FudiColorsDark.mutedForeground
                     : FudiColors.mutedForeground,
               ),
               const SizedBox(width: FudiSpacing.xs),
@@ -610,7 +632,11 @@ class _TypeOption extends StatelessWidget {
                 label,
                 style: FudiTypography.bodyMedium.copyWith(
                   fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-                  color: selected ? FudiColors.primary : FudiColors.foreground,
+                  color: selected
+                      ? FudiColors.primary
+                      : isDark
+                      ? FudiColorsDark.foreground
+                      : FudiColors.foreground,
                 ),
               ),
             ],
@@ -628,6 +654,7 @@ class _ConditionsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return FudiSurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -657,12 +684,15 @@ class _ConditionsSection extends StatelessWidget {
             ),
             decoration: couponInputDecoration(
               hint: '0.00',
+              isDark: isDark,
               prefix: Padding(
                 padding: const EdgeInsets.only(right: 4),
                 child: Text(
                   '\$',
                   style: FudiTypography.bodyMedium.copyWith(
-                    color: FudiColors.mutedForeground,
+                    color: isDark
+                        ? FudiColorsDark.mutedForeground
+                        : FudiColors.mutedForeground,
                   ),
                 ),
               ),
@@ -681,7 +711,9 @@ class _ConditionsSection extends StatelessWidget {
           Text(
             'El cupón solo se activará si el carrito del cliente supera este umbral.',
             style: FudiTypography.bodySmall.copyWith(
-              color: FudiColors.mutedForeground,
+              color: isDark
+                  ? FudiColorsDark.mutedForeground
+                  : FudiColors.mutedForeground,
             ),
           ),
         ],
@@ -706,6 +738,7 @@ class _ValiditySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasError = showError && expiryDate == null;
 
     return FudiSurfaceCard(
@@ -740,10 +773,16 @@ class _ValiditySection extends StatelessWidget {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: FudiColors.inputBackground.withValues(alpha: 0.5),
+                  color:
+                      (isDark
+                              ? FudiColorsDark.inputBackground
+                              : FudiColors.inputBackground)
+                          .withValues(alpha: 0.5),
                   border: Border.all(
                     color: hasError
                         ? FudiColors.destructive
+                        : isDark
+                        ? FudiColorsDark.borderSolid
                         : FudiColors.borderSolid,
                     width: hasError ? 1.5 : 1,
                   ),
@@ -756,6 +795,8 @@ class _ValiditySection extends StatelessWidget {
                       size: 16,
                       color: hasError
                           ? FudiColors.destructive
+                          : isDark
+                          ? FudiColorsDark.mutedForeground
                           : FudiColors.mutedForeground,
                     ),
                     const SizedBox(width: FudiSpacing.sm),
@@ -768,7 +809,11 @@ class _ValiditySection extends StatelessWidget {
                             ? FontWeight.w600
                             : FontWeight.normal,
                         color: expiryDate != null
-                            ? FudiColors.foreground
+                            ? isDark
+                                  ? FudiColorsDark.foreground
+                                  : FudiColors.foreground
+                            : isDark
+                            ? FudiColorsDark.mutedForeground
                             : FudiColors.mutedForeground,
                       ),
                     ),
@@ -801,7 +846,10 @@ class _ValiditySection extends StatelessWidget {
             style: FudiTypography.bodyMedium.copyWith(
               fontWeight: FontWeight.w600,
             ),
-            decoration: couponInputDecoration(hint: 'Sin límite (Ilimitado)'),
+            decoration: couponInputDecoration(
+              hint: 'Sin límite (Ilimitado)',
+              isDark: isDark,
+            ),
             validator: (v) {
               final trimmed = v?.trim() ?? '';
               if (trimmed.isEmpty) return null;
@@ -826,6 +874,7 @@ class _StatusSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return FudiSurfaceCard(
       padding: const EdgeInsets.symmetric(
         horizontal: FudiSpacing.lg,
@@ -847,7 +896,9 @@ class _StatusSection extends StatelessWidget {
                 Text(
                   'Si se desactiva, ningún cliente podrá aplicar el código.',
                   style: FudiTypography.bodySmall.copyWith(
-                    color: FudiColors.mutedForeground,
+                    color: isDark
+                        ? FudiColorsDark.mutedForeground
+                        : FudiColors.mutedForeground,
                   ),
                 ),
               ],
@@ -861,7 +912,9 @@ class _StatusSection extends StatelessWidget {
               activeThumbColor: FudiColors.primaryForeground,
               activeTrackColor: FudiColors.primary,
               inactiveThumbColor: FudiColors.primaryForeground,
-              inactiveTrackColor: FudiColors.borderSolid,
+              inactiveTrackColor: isDark
+                  ? FudiColorsDark.borderSolid
+                  : FudiColors.borderSolid,
               trackOutlineColor: const WidgetStatePropertyAll(
                 Colors.transparent,
               ),
@@ -890,12 +943,17 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final enabled = canSave && !saving;
 
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        border: const Border(top: BorderSide(color: FudiColors.borderSolid)),
+        border: Border(
+          top: BorderSide(
+            color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid,
+          ),
+        ),
       ),
       padding: const EdgeInsets.all(FudiSpacing.lg),
       child: SafeArea(
@@ -912,14 +970,22 @@ class _BottomBar extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 14),
               decoration: BoxDecoration(
-                color: enabled ? FudiColors.primary : FudiColors.muted,
+                color: enabled
+                    ? FudiColors.primary
+                    : isDark
+                    ? FudiColorsDark.muted
+                    : FudiColors.muted,
                 borderRadius: BorderRadius.circular(FudiRadius.md),
               ),
               child: Text(
                 isEdit ? 'Guardar cambios' : 'Publicar cupón',
                 textAlign: TextAlign.center,
                 style: FudiTypography.bodyMedium.copyWith(
-                  color: enabled ? FudiColors.primaryForeground : FudiColors.mutedForeground,
+                  color: enabled
+                      ? FudiColors.primaryForeground
+                      : isDark
+                      ? FudiColorsDark.mutedForeground
+                      : FudiColors.mutedForeground,
                   fontWeight: FontWeight.bold,
                 ),
               ),

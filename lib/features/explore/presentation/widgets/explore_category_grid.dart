@@ -301,8 +301,9 @@ class ExploreCategoryCard extends StatelessWidget {
                     imageUrl,
                     fit: BoxFit.cover,
                     alignment: Alignment.centerLeft,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Container(color: Theme.of(context).colorScheme.surfaceContainerLow),
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
+                    ),
                   ),
                 ),
               ),
@@ -325,7 +326,9 @@ class ExploreCategoryCard extends StatelessWidget {
                       Text(
                         '$count ofertas',
                         style: FudiTypography.bodySmall.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -356,6 +359,7 @@ class ExploreExpandCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return FudiPressableScale(
       onTap: onTap,
       child: Container(
@@ -364,7 +368,11 @@ class ExploreExpandCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(FudiRadius.lg),
-          border: Border.all(color: FudiColors.border),
+          border: Border.all(
+            color: isDark
+                ? FudiColors.primary.withValues(alpha: 0.2)
+                : FudiColors.primary.withValues(alpha: 0.15),
+          ),
         ),
         child: Row(
           children: [
@@ -372,10 +380,10 @@ class ExploreExpandCard extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: FudiColors.mutedForeground.withValues(alpha: 0.05),
+                color: FudiColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 22, color: FudiColors.mutedForeground),
+              child: Icon(icon, size: 22, color: FudiColors.primary),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -387,7 +395,7 @@ class ExploreExpandCard extends StatelessWidget {
                     label,
                     style: FudiTypography.bodySmall.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: FudiColors.mutedForeground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -397,9 +405,9 @@ class ExploreExpandCard extends StatelessWidget {
                     Text(
                       '+$remaining categorías',
                       style: FudiTypography.bodySmall.copyWith(
-                        color: FudiColors.mutedForeground.withValues(
-                          alpha: 0.6,
-                        ),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.6),
                         fontSize: 12,
                       ),
                     ),
@@ -407,10 +415,10 @@ class ExploreExpandCard extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(
+            const Icon(
               Icons.chevron_right_rounded,
               size: 20,
-              color: FudiColors.mutedForeground.withValues(alpha: 0.4),
+              color: FudiColors.primary,
             ),
           ],
         ),

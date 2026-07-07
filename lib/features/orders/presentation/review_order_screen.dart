@@ -91,8 +91,9 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
     final canSubmit =
         _productRating > 0 && _businessRating > 0 && !isSubmitting;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: FudiColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: const FudiStickyPageHeader(title: 'Calificar pedido'),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -143,7 +144,7 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
                         hintText:
                             '¿Qué fue lo que más te gustó? ¿Algún aspecto a mejorar?',
                         hintStyle: FudiTypography.bodyMedium.copyWith(
-                          color: FudiColors.mutedForeground.withValues(
+                          color: (isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground).withValues(
                             alpha: 0.6,
                           ),
                         ),
@@ -151,8 +152,8 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
                         fillColor: Theme.of(context).colorScheme.surface,
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: FudiColors.border,
+                          borderSide: BorderSide(
+                            color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
@@ -186,10 +187,10 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
                         horizontal: FudiSpacing.md,
                       ),
                       decoration: BoxDecoration(
-                        color: FudiColors.background,
+                        color: isDark ? FudiColorsDark.background : FudiColors.background,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-          color: FudiColors.border,
+          color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid,
                         ),
                       ),
                       child: Column(
@@ -197,7 +198,7 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
                           Icon(
                             Icons.camera_alt_outlined,
                             size: 32,
-                            color: FudiColors.mutedForeground.withValues(
+                            color: (isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground).withValues(
                               alpha: 0.7,
                             ),
                           ),
@@ -206,7 +207,7 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
                             'Adjuntar fotos próximamente',
                             style: FudiTypography.bodyMedium.copyWith(
                               fontWeight: FontWeight.w600,
-                              color: FudiColors.mutedForeground,
+                              color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                             ),
                           ),
                         ],
@@ -216,14 +217,14 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
                 ),
               ),
               const SizedBox(height: FudiSpacing.md),
-              const FudiInfoBanner(
+              FudiInfoBanner(
                 title: 'Reseñas transparentes',
                 message:
                     'Sé lo más honesto posible. Tu opinión es valiosa para la comunidad de rescate de alimentos.',
                 icon: FudiIcons.star,
-                backgroundColor: FudiColors.infoSurface,
-                borderColor: FudiColors.infoSurfaceBorder,
-                foregroundColor: FudiColors.infoForeground,
+                backgroundColor: isDark ? FudiColorsDark.infoSurface : FudiColors.infoSurface,
+                borderColor: isDark ? FudiColorsDark.infoSurfaceBorder : FudiColors.infoSurfaceBorder,
+                foregroundColor: isDark ? FudiColorsDark.infoForeground : FudiColors.infoForeground,
               ),
               const SizedBox(height: 140),
             ],
@@ -252,7 +253,7 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
                   width: double.infinity,
                   height: 52,
                   decoration: BoxDecoration(
-                    color: canSubmit ? FudiColors.primary : FudiColors.muted,
+                    color: canSubmit ? FudiColors.primary : (isDark ? FudiColorsDark.muted : FudiColors.muted),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
@@ -281,7 +282,7 @@ class _ReviewOrderScreenState extends ConsumerState<ReviewOrderScreen> {
               Text(
                 'Por favor selecciona las estrellas obligatorias',
                 style: FudiTypography.bodySmall.copyWith(
-                  color: FudiColors.destructive,
+                  color: isDark ? FudiColorsDark.destructiveVibrant : FudiColors.destructive,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -311,6 +312,7 @@ class _OrderSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return FudiSurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -329,11 +331,11 @@ class _OrderSummaryCard extends StatelessWidget {
                     : Container(
                         width: 60,
                         height: 60,
-                        color: FudiColors.background,
+                        color: isDark ? FudiColorsDark.background : FudiColors.background,
                         alignment: Alignment.center,
-                        child: const Icon(
+                        child: Icon(
                           Icons.restaurant_rounded,
-                          color: FudiColors.mutedForeground,
+                          color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                         ),
                       ),
               ),
@@ -359,7 +361,7 @@ class _OrderSummaryCard extends StatelessWidget {
                     Text(
                       order.orderNumber,
                       style: FudiTypography.bodySmall.copyWith(
-                        color: FudiColors.mutedForeground,
+                        color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                         fontSize: 11,
                       ),
                     ),
@@ -369,7 +371,7 @@ class _OrderSummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: FudiSpacing.md),
-          const Divider(color: FudiColors.border, thickness: 0.5),
+          Divider(color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid, thickness: 0.5),
           const SizedBox(height: FudiSpacing.xs),
           _SummaryRow(
             label: 'Total abonado',
@@ -397,6 +399,7 @@ class _RatingSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return FudiSurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -422,7 +425,7 @@ class _RatingSection extends StatelessWidget {
               style: FudiTypography.bodySmall.copyWith(
                 color: value > 0
                     ? FudiColors.primary
-                    : FudiColors.mutedForeground,
+                    : (isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground),
                 fontWeight: value > 0 ? FontWeight.bold : FontWeight.normal,
               ),
               textAlign: TextAlign.center,
@@ -447,20 +450,21 @@ class _SummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
           style: FudiTypography.bodyMedium.copyWith(
-            color: FudiColors.mutedForeground,
+            color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
           ),
         ),
         Text(
           value,
           style: FudiTypography.bodyMedium.copyWith(
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            color: isBold ? FudiColors.primary : FudiColors.foreground,
+            color: isBold ? FudiColors.primary : (isDark ? FudiColorsDark.foreground : FudiColors.foreground),
           ),
         ),
       ],

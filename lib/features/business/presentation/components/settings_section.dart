@@ -31,7 +31,7 @@ class SettingsSection extends StatelessWidget {
           FudiSettingsItem(
             icon: FudiIcons.settings,
             label: 'Configuración general',
-            onTap: () => context.push('/profile/settings'),
+            onTap: () => context.push(RouteNames.businessProfilePath),
           ),
           const Divider(
             height: 1,

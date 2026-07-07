@@ -152,6 +152,7 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Decorador alternativo basado en bloques integrados sin bordes toscos
     InputDecoration blockInputDecoration({
@@ -161,15 +162,15 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
       return InputDecoration(
         hintText: hint,
         hintStyle: FudiTypography.bodyMedium.copyWith(
-          color: FudiColors.mutedForeground.withValues(alpha: 0.7),
+          color: (isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground).withValues(alpha: 0.7),
         ),
         prefixIcon: Icon(
           icon,
           size: 20,
-          color: FudiColors.foreground.withValues(alpha: 0.6),
+          color: (isDark ? FudiColorsDark.foreground : FudiColors.foreground).withValues(alpha: 0.6),
         ),
         filled: true,
-        fillColor: FudiColors.inputBackground.withValues(alpha: 0.5),
+        fillColor: (isDark ? FudiColorsDark.inputBackground : FudiColors.inputBackground).withValues(alpha: 0.5),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,
@@ -204,7 +205,7 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
                 width: 48,
                 height: 5,
                 decoration: BoxDecoration(
-                  color: FudiColors.borderSolid,
+                  color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid,
                   borderRadius: BorderRadius.circular(2.5),
                 ),
               ),
@@ -228,13 +229,13 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
                     ),
                     FudiPressableScale(
                       onTap: () => Navigator.of(context).pop(),
-                      child: const CircleAvatar(
+                      child: CircleAvatar(
                         radius: 16,
-                        backgroundColor: FudiColors.inputBackground,
+                        backgroundColor: isDark ? FudiColorsDark.inputBackground : FudiColors.inputBackground,
                         child: Icon(
                           FudiIcons.x,
                           size: 14,
-                          color: FudiColors.foreground,
+                          color: isDark ? FudiColorsDark.foreground : FudiColors.foreground,
                         ),
                       ),
                     ),
@@ -253,7 +254,7 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: FudiColors.inputBackground.withValues(
+                          color: (isDark ? FudiColorsDark.inputBackground : FudiColors.inputBackground).withValues(
                             alpha: 0.6,
                           ),
                           borderRadius: BorderRadius.circular(24),
@@ -320,7 +321,7 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
                             border: Border.all(
                               color: _pickedLocation != null
                                   ? FudiColors.primary
-                                  : FudiColors.borderSolid,
+                                  : (isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid),
                               width: _pickedLocation != null ? 2 : 1.5,
                             ),
                           ),
@@ -331,7 +332,7 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
                                 decoration: BoxDecoration(
                                   color: _pickedLocation != null
                                       ? FudiColors.primary
-                                      : FudiColors.inputBackground,
+                                      : (isDark ? FudiColorsDark.inputBackground : FudiColors.inputBackground),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
@@ -340,7 +341,7 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
                                       : Icons.map_outlined,
                                   color: _pickedLocation != null
                                       ? FudiColors.primaryForeground
-                                      : FudiColors.foreground,
+                                      : (isDark ? FudiColorsDark.foreground : FudiColors.foreground),
                                   size: 20,
                                 ),
                               ),
@@ -362,7 +363,7 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
                                           ? 'Coordenadas registradas de forma exacta'
                                           : 'Toca para abrir el GPS',
                                       style: FudiTypography.bodySmall.copyWith(
-                                        color: FudiColors.mutedForeground,
+                                        color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                                       ),
                                     ),
                                   ],
@@ -370,7 +371,7 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
                               ),
                               Icon(
                                 Icons.chevron_right,
-                                color: FudiColors.mutedForeground.withValues(
+                                color: (isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground).withValues(
                                   alpha: 0.5,
                                 ),
                               ),
@@ -421,12 +422,12 @@ class _AddAddressSheetState extends ConsumerState<AddAddressSheet> {
                         }),
                         padding: EdgeInsets.zero,
                         horizontalChipPadding: FudiSpacing.md,
-                        activeColor: FudiColors.foreground,
+                        activeColor: isDark ? FudiColorsDark.foreground : FudiColors.foreground,
                         activeTextColor: FudiColors.primaryForeground,
-                        inactiveColor: FudiColors.inputBackground.withValues(
+                        inactiveColor: (isDark ? FudiColorsDark.inputBackground : FudiColors.inputBackground).withValues(
                           alpha: 0.5,
                         ),
-                        inactiveTextColor: FudiColors.foreground,
+                        inactiveTextColor: isDark ? FudiColorsDark.foreground : FudiColors.foreground,
                         borderColor: Colors.transparent,
                         borderRadius: FudiRadius.full,
                       ),

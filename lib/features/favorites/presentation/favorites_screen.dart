@@ -26,7 +26,7 @@ class FavoritesScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: FudiColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: const FudiStickyPageHeader(title: 'Favoritos'),
       body: favoritesAsync.when(
         loading: () => const _FavoritesLoadingState(),

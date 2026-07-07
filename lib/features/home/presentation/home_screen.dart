@@ -253,8 +253,12 @@ class _CategoryChips extends StatelessWidget {
         },
         initialCount: 5,
         inactiveColor: FudiColors.green.withValues(alpha: 0.3),
-        inactiveTextColor: FudiColors.greenDark.withValues(alpha: 0.7),
-        borderColor: FudiColors.greenDark.withValues(alpha: 0.15),
+        inactiveTextColor: Theme.of(context).brightness == Brightness.dark
+            ? FudiColors.green.withValues(alpha: 0.8)
+            : FudiColors.greenDark.withValues(alpha: 0.7),
+        borderColor: Theme.of(context).brightness == Brightness.dark
+            ? FudiColors.green.withValues(alpha: 0.3)
+            : FudiColors.greenDark.withValues(alpha: 0.15),
         borderRadius: FudiRadius.md,
       ),
     );

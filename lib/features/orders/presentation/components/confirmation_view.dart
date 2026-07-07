@@ -21,8 +21,9 @@ class ConfirmationView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: FudiColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -45,7 +46,7 @@ class ConfirmationView extends StatelessWidget {
               Text(
                 'Tu comida ha sido salvada con éxito',
                 style: FudiTypography.bodyMedium.copyWith(
-                  color: FudiColors.mutedForeground,
+                  color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                 ),
               ),
               const SizedBox(height: FudiSpacing.xl),
@@ -57,14 +58,14 @@ class ConfirmationView extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: FudiColors.borderSolid, width: 1.5),
+                  border: Border.all(color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid, width: 1.5),
                 ),
                 child: Column(
                   children: [
                     Text(
                       'CÓDIGO DE RECOGIDA',
                       style: FudiTypography.labelSmall.copyWith(
-                        color: FudiColors.mutedForeground,
+                        color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                         letterSpacing: 1,
                       ),
                     ),
@@ -72,7 +73,7 @@ class ConfirmationView extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(FudiSpacing.md),
                       decoration: BoxDecoration(
-                        color: FudiColors.muted.withValues(alpha: 0.5),
+                        color: isDark ? FudiColorsDark.muted : FudiColors.muted.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: PickupCodeQr(
@@ -93,7 +94,7 @@ class ConfirmationView extends StatelessWidget {
                     Text(
                       'Orden: #${result.orderNumber}',
                       style: FudiTypography.bodySmall.copyWith(
-                        color: FudiColors.mutedForeground,
+                        color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                       ),
                     ),
                   ],
@@ -105,7 +106,7 @@ class ConfirmationView extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(FudiSpacing.md),
                 decoration: BoxDecoration(
-                  color: FudiColors.muted.withValues(alpha: 0.3),
+                  color: isDark ? FudiColorsDark.muted : FudiColors.muted.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -168,14 +169,14 @@ class ConfirmationView extends StatelessWidget {
                   width: double.infinity,
                   height: 48,
                   decoration: BoxDecoration(
-                    border: Border.all(color: FudiColors.borderSolid),
+                    border: Border.all(color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
                     child: Text(
                       'Buscar más ofertas',
                       style: FudiTypography.labelSmall.copyWith(
-                        color: FudiColors.mutedForeground,
+                        color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                       ),
                     ),
                   ),

@@ -109,6 +109,7 @@ class _PushNotificationHandlerState
               duration: const Duration(seconds: 15),
               action: SnackBarAction(
                 label: 'Activar',
+                textColor: Theme.of(context).colorScheme.primary,
                 onPressed: () async {
                   final granted = await requestWebNotificationPermission();
                   if (!mounted) return;
@@ -116,7 +117,7 @@ class _PushNotificationHandlerState
                     await pushService.initialize();
                     await pushService.registerToken(userId);
                   } else {
-                    _showPermissionBlockedHelp();
+                    _showPermissionBlockedHelp(pushService, userId);
                   }
                 },
               ),
@@ -125,7 +126,7 @@ class _PushNotificationHandlerState
           return;
         }
 
-        _showPermissionBlockedHelp();
+        _showPermissionBlockedHelp(pushService, userId);
         return;
       }
 
@@ -175,7 +176,7 @@ class _PushNotificationHandlerState
     }
   }
 
-  void _showPermissionBlockedHelp() {
+  void _showPermissionBlockedHelp(PushService pushService, String userId) {
     final browser = getBrowserName();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -183,7 +184,18 @@ class _PushNotificationHandlerState
           '$browser bloqueó las notificaciones. Activálas manualmente en Configuración del sitio.',
         ),
         duration: const Duration(seconds: 8),
-        action: SnackBarAction(label: 'OK', onPressed: () {}),
+        action: SnackBarAction(
+          label: 'OK',
+          textColor: Theme.of(context).colorScheme.primary,
+          onPressed: () async {
+            final granted = await requestWebNotificationPermission();
+            if (!mounted) return;
+            if (granted) {
+              await pushService.initialize();
+              await pushService.registerToken(userId);
+            }
+          },
+        ),
       ),
     );
   }
@@ -195,7 +207,11 @@ class _PushNotificationHandlerState
           'Tu navegador no soporta notificaciones push. Probá con Chrome, Firefox, o Safari en macOS.',
         ),
         duration: const Duration(seconds: 10),
-        action: SnackBarAction(label: 'OK', onPressed: () {}),
+        action: SnackBarAction(
+          label: 'OK',
+          textColor: Theme.of(context).colorScheme.primary,
+          onPressed: () {},
+        ),
       ),
     );
   }

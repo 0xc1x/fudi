@@ -73,9 +73,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       data: (offer) => _confirmed
           ? ConfirmationView(offer: offer, result: _confirmationResult!)
           : _buildCheckoutContent(context, offer, reservationState),
-      loading: () => const Scaffold(
-        backgroundColor: FudiColors.background,
-        body: Center(
+      loading: () => Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: const Center(
           child: CircularProgressIndicator(
             color: FudiColors.primary,
             strokeWidth: 2.5,
@@ -83,7 +83,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         ),
       ),
       error: (error, _) => Scaffold(
-        backgroundColor: FudiColors.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: const FudiStickyPageHeader(title: 'Checkout'),
         body: Center(
           child: Padding(
@@ -107,7 +107,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 Text(
                   userFriendlyMessage(error),
                   style: FudiTypography.bodyMedium.copyWith(
-                    color: FudiColors.mutedForeground,
+                    color: Theme.of(context).brightness == Brightness.dark
+                      ? FudiColorsDark.mutedForeground
+                      : FudiColors.mutedForeground,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -132,8 +134,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     const serviceFee = 0.50;
     final total = offer.discountedPrice + serviceFee - discount;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: FudiColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: const FudiStickyPageHeader(title: 'Confirmar reserva'),
       body: AbsorbPointer(
         absorbing: isProcessing,
@@ -184,13 +187,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                             ? 'Contraer'
                             : 'Ver desglose de precio',
                         style: FudiTypography.bodyMedium.copyWith(
-                          color: FudiColors.mutedForeground,
+                          color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                           fontWeight: FontWeight.w500,
                           decoration: TextDecoration.underline,
                         ),
                       ),
-                      iconColor: FudiColors.mutedForeground,
-                      collapsedIconColor: FudiColors.mutedForeground,
+                      iconColor: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
+                      collapsedIconColor: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                       children: [
                         PriceBreakdownCard(
                           offer: offer,
@@ -203,13 +206,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       ],
                     ),
                   ),
-                  const FudiInfoBanner(
+                  FudiInfoBanner(
                     title: 'Política de Rescate Circular',
                     message:
                         'Asegúrate de retirar a tiempo. Al rescatar esta comida evitas desperdicios directos de CO₂ en el mercado local.',
                     icon: Icons.eco_rounded,
-                    backgroundColor: FudiColors.surfaceSuccess,
-                    borderColor: FudiColors.surfaceSuccessBorder,
+                    backgroundColor: isDark ? FudiColorsDark.surfaceSuccess : FudiColors.surfaceSuccess,
+                    borderColor: isDark ? FudiColorsDark.surfaceSuccessBorder : FudiColors.surfaceSuccessBorder,
                     foregroundColor: FudiColors.successDark,
                   ),
                   const SizedBox(height: 160),
@@ -234,7 +237,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 decoration: BoxDecoration(
                   color: (offer.isAvailable && !isProcessing)
                       ? FudiColors.primary
-                      : FudiColors.muted,
+                      : (isDark ? FudiColorsDark.muted : FudiColors.muted),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: isProcessing
@@ -312,7 +315,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               'Términos y condiciones de Economía Circular aplicados.',
               style: FudiTypography.bodySmall.copyWith(
                 fontSize: 9,
-                color: FudiColors.mutedForeground,
+                color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
               ),
               textAlign: TextAlign.center,
             ),

@@ -253,6 +253,7 @@ class _LocationDropdownOverlayState
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final addressesAsync = ref.watch(savedAddressesProvider);
     final selectedAddress = ref.watch(userSelectedAddressProvider);
 
@@ -285,9 +286,13 @@ class _LocationDropdownOverlayState
                       maxWidth: _kDropdownMaxWidth,
                     ),
                     decoration: BoxDecoration(
-                      color: FudiColors.inputBackground,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(FudiRadius.xl),
-                      border: Border.all(color: FudiColors.borderSolid),
+                      border: Border.all(
+                        color: isDark
+                            ? FudiColorsDark.borderSolid
+                            : FudiColors.borderSolid,
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: Theme.of(context).colorScheme.shadow,
@@ -363,7 +368,13 @@ class _DropdownContent extends StatelessWidget {
             isSelected: addresses[i].id == selectedAddress?.id,
             onTap: () => onAddressSelected(addresses[i]),
           ),
-        const Divider(height: 1, thickness: 1, color: FudiColors.borderSolid),
+        Divider(
+          height: 1,
+          thickness: 1,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? FudiColorsDark.borderSolid
+              : FudiColors.borderSolid,
+        ),
         _AddAddressButton(onTap: onAddAddress),
       ],
     );

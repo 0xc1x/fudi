@@ -113,7 +113,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: colorScheme.onSurface,
+                    color: FudiColors.primary,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(

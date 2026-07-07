@@ -23,6 +23,7 @@ class BusinessCouponBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(left: FudiSpacing.md),
       child: Center(
@@ -35,13 +36,17 @@ class BusinessCouponBackButton extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: FudiColors.inputBackground.withValues(alpha: 0.7),
+                color: isDark
+                    ? FudiColorsDark.inputBackground
+                    : FudiColors.inputBackground.withValues(alpha: 0.7),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 FudiIcons.chevronLeft,
                 size: 18,
-                color: FudiColors.foreground,
+                color: isDark
+                    ? FudiColorsDark.foreground
+                    : FudiColors.foreground,
               ),
             ),
           ),
@@ -121,32 +126,49 @@ class BusinessCouponErrorState extends StatelessWidget {
 
 // ─── Shared Input Decoration ─────────────────────────────────────────
 
-InputDecoration couponInputDecoration({required String hint, Widget? prefix}) {
+InputDecoration couponInputDecoration({
+  required String hint,
+  Widget? prefix,
+  bool isDark = false,
+}) {
   return InputDecoration(
     hintText: hint,
     hintStyle: FudiTypography.bodyMedium.copyWith(
-      color: FudiColors.mutedForeground.withValues(alpha: 0.6),
+      color: (isDark
+              ? FudiColorsDark.mutedForeground
+              : FudiColors.mutedForeground)
+          .withValues(alpha: 0.6),
     ),
     prefixIcon: prefix,
     prefixIconConstraints: const BoxConstraints(),
     counterText: '',
     filled: true,
-    fillColor: FudiColors.inputBackground.withValues(alpha: 0.5),
+    fillColor: (isDark
+            ? FudiColorsDark.inputBackground
+            : FudiColors.inputBackground)
+        .withValues(alpha: 0.5),
     contentPadding: const EdgeInsets.symmetric(
       horizontal: FudiSpacing.lg,
       vertical: 12,
     ),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(FudiRadius.md),
-      borderSide: const BorderSide(color: FudiColors.borderSolid),
+      borderSide: BorderSide(
+        color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid,
+      ),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(FudiRadius.md),
-      borderSide: const BorderSide(color: FudiColors.borderSolid),
+      borderSide: BorderSide(
+        color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid,
+      ),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(FudiRadius.md),
-      borderSide: const BorderSide(color: FudiColors.foreground, width: 1.2),
+      borderSide: BorderSide(
+        color: isDark ? FudiColorsDark.foreground : FudiColors.foreground,
+        width: 1.2,
+      ),
     ),
     errorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(FudiRadius.md),
@@ -225,7 +247,12 @@ class CouponCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: FudiSpacing.md),
-            const Divider(color: FudiColors.borderSolid, height: 1),
+            Divider(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? FudiColorsDark.borderSolid
+                  : FudiColors.borderSolid,
+              height: 1,
+            ),
             const SizedBox(height: FudiSpacing.md),
             _CouponDetails(coupon: coupon),
           ],
@@ -352,13 +379,17 @@ class _DetailItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mutedFg = isDark
+        ? FudiColorsDark.mutedForeground
+        : FudiColors.mutedForeground;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           icon,
           size: 16,
-          color: FudiColors.mutedForeground.withValues(alpha: 0.8),
+          color: mutedFg.withValues(alpha: 0.8),
         ),
         const SizedBox(width: FudiSpacing.xs),
         Column(
@@ -368,7 +399,7 @@ class _DetailItem extends StatelessWidget {
               title,
               style: FudiTypography.bodySmall.copyWith(
                 fontSize: 10,
-                color: FudiColors.mutedForeground,
+                color: mutedFg,
               ),
             ),
             Text(
@@ -412,7 +443,9 @@ class _CouponMenuState extends ConsumerState<_CouponMenu> {
         behavior: SnackBarBehavior.floating,
         backgroundColor: isError
             ? FudiColors.destructive
-            : FudiColors.foreground,
+            : Theme.of(context).brightness == Brightness.dark
+                ? FudiColorsDark.foreground
+                : FudiColors.foreground,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FudiRadius.md),
         ),
@@ -464,7 +497,9 @@ class _CouponMenuState extends ConsumerState<_CouponMenu> {
         content: Text(
           'El código "${widget.coupon.code}" será removido definitivamente de tu catálogo de promociones.',
           style: FudiTypography.bodyMedium.copyWith(
-            color: FudiColors.mutedForeground,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? FudiColorsDark.mutedForeground
+                : FudiColors.mutedForeground,
           ),
         ),
         actionsPadding: const EdgeInsets.symmetric(
@@ -474,10 +509,12 @@ class _CouponMenuState extends ConsumerState<_CouponMenu> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text(
+            child: Text(
               'Cancelar',
               style: TextStyle(
-                color: FudiColors.mutedForeground,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? FudiColorsDark.mutedForeground
+                    : FudiColors.mutedForeground,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -554,36 +591,42 @@ class _CouponMenuState extends ConsumerState<_CouponMenu> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(FudiRadius.lg),
         ),
-        icon: const Icon(
+        icon: Icon(
           Icons.more_vert_rounded,
-          color: FudiColors.mutedForeground,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? FudiColorsDark.mutedForeground
+              : FudiColors.mutedForeground,
         ),
         itemBuilder: (_) => [
-          const PopupMenuItem(
+          PopupMenuItem(
             value: 'edit',
             child: Row(
               children: [
                 Icon(
                   Icons.edit_outlined,
                   size: 18,
-                  color: FudiColors.foreground,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? FudiColorsDark.foreground
+                      : FudiColors.foreground,
                 ),
-                SizedBox(width: FudiSpacing.sm),
-                Text('Editar promoción', style: FudiTypography.bodyMedium),
+                const SizedBox(width: FudiSpacing.sm),
+                const Text('Editar promoción', style: FudiTypography.bodyMedium),
               ],
             ),
           ),
-          const PopupMenuItem(
+          PopupMenuItem(
             value: 'copy',
             child: Row(
               children: [
                 Icon(
                   Icons.copy_rounded,
                   size: 18,
-                  color: FudiColors.foreground,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? FudiColorsDark.foreground
+                      : FudiColors.foreground,
                 ),
-                SizedBox(width: FudiSpacing.sm),
-                Text('Copiar código', style: FudiTypography.bodyMedium),
+                const SizedBox(width: FudiSpacing.sm),
+                const Text('Copiar código', style: FudiTypography.bodyMedium),
               ],
             ),
           ),
@@ -596,7 +639,9 @@ class _CouponMenuState extends ConsumerState<_CouponMenu> {
                       ? Icons.pause_circle_outline_rounded
                       : Icons.play_circle_outline_rounded,
                   size: 18,
-                  color: FudiColors.foreground,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? FudiColorsDark.foreground
+                      : FudiColors.foreground,
                 ),
                 const SizedBox(width: FudiSpacing.sm),
                 Text(
@@ -606,7 +651,12 @@ class _CouponMenuState extends ConsumerState<_CouponMenu> {
               ],
             ),
           ),
-          const PopupMenuDivider(height: 1, color: FudiColors.borderSolid),
+          PopupMenuDivider(
+            height: 1,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? FudiColorsDark.borderSolid
+                : FudiColors.borderSolid,
+          ),
           PopupMenuItem(
             value: 'delete',
             child: Row(
@@ -642,6 +692,11 @@ class EmptyCouponsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mutedFg = isDark
+        ? FudiColorsDark.mutedForeground
+        : FudiColors.mutedForeground;
+    final muted = isDark ? FudiColorsDark.muted : FudiColors.muted;
     return FudiSurfaceCard(
       padding: const EdgeInsets.symmetric(
         vertical: FudiSpacing.xxl * 1.5,
@@ -652,13 +707,13 @@ class EmptyCouponsView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: FudiColors.muted.withValues(alpha: 0.5),
+              color: muted.withValues(alpha: 0.5),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.local_offer_outlined,
               size: 40,
-              color: FudiColors.mutedForeground,
+              color: mutedFg,
             ),
           ),
           const SizedBox(height: FudiSpacing.lg),
@@ -671,7 +726,7 @@ class EmptyCouponsView extends StatelessWidget {
             'Lanza tu primera promoción para fidelizar clientes y reducir excedentes de alimentos rápidamente.',
             textAlign: TextAlign.center,
             style: FudiTypography.bodyMedium.copyWith(
-              color: FudiColors.mutedForeground,
+              color: mutedFg,
               height: 1.4,
             ),
           ),
@@ -706,9 +761,13 @@ class CouponsLoadingSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final inputBg = isDark
+        ? FudiColorsDark.inputBackground
+        : FudiColors.inputBackground;
     return Shimmer.fromColors(
-      baseColor: FudiColors.inputBackground.withValues(alpha: 0.6),
-      highlightColor: FudiColors.inputBackground.withValues(alpha: 0.2),
+      baseColor: inputBg.withValues(alpha: 0.6),
+      highlightColor: inputBg.withValues(alpha: 0.2),
       child: ListView(
         padding: const EdgeInsets.all(FudiSpacing.xl),
         physics: const NeverScrollableScrollPhysics(),
@@ -757,9 +816,13 @@ class CouponEditFormSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final inputBg = isDark
+        ? FudiColorsDark.inputBackground
+        : FudiColors.inputBackground;
     return Shimmer.fromColors(
-      baseColor: FudiColors.inputBackground.withValues(alpha: 0.6),
-      highlightColor: FudiColors.inputBackground.withValues(alpha: 0.2),
+      baseColor: inputBg.withValues(alpha: 0.6),
+      highlightColor: inputBg.withValues(alpha: 0.2),
       child: ListView(
         padding: const EdgeInsets.all(FudiSpacing.xl),
         physics: const NeverScrollableScrollPhysics(),

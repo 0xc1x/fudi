@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'fudi_colors.dart';
 import 'fudi_spacing.dart';
+import 'fudi_theme.dart';
 import 'fudi_typography.dart';
 import 'fudi_settings_item.dart';
 
@@ -17,6 +18,8 @@ class FudiSettingsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeExt = Theme.of(context).extension<FudiThemeExtension>();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -26,7 +29,9 @@ class FudiSettingsGroup extends StatelessWidget {
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(FudiRadius.xl),
-            border: Border.all(color: FudiColors.borderSolid),
+            border: Border.all(
+              color: themeExt?.borderSolid ?? FudiColors.borderSolid,
+            ),
           ),
           child: Column(
             children: items.asMap().entries.map((entry) {
@@ -36,10 +41,10 @@ class FudiSettingsGroup extends StatelessWidget {
                 children: [
                   item,
                   if (index < items.length - 1)
-                    const Divider(
+                    Divider(
                       height: 1,
                       thickness: 1,
-                      color: FudiColors.borderSolid,
+                      color: themeExt?.borderSolid ?? FudiColors.borderSolid,
                       indent: FudiSpacing.lg + 20 + FudiSpacing.md,
                     ),
                 ],

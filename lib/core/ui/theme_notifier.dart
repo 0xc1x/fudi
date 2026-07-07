@@ -34,21 +34,21 @@ class ThemeNotifier extends Notifier<AppThemeMode> {
     final localPrefs = ref.watch(sharedPreferencesProvider);
     final prefsAsync = ref.watch(consumerPreferencesProvider);
 
-    // 1. Start with local cache (synchronous, prevents flash of light mode)
+    // Start with local cache (synchronous, prevents flash on first paint)
     final localThemeStr = localPrefs.getString(_kThemeModeKey);
-    var currentMode = AppThemeMode.fromString(localThemeStr);
+    final localMode = AppThemeMode.fromString(localThemeStr);
 
-    // 2. If logged in and Supabase preferences are fetched, sync with DB
-    prefsAsync.whenData((prefs) {
+    // When remote preferences are available, prefer them
+    final prefs = prefsAsync.asData?.value;
+    if (prefs != null) {
       final remoteMode = AppThemeMode.fromString(prefs.themeMode);
-      if (remoteMode != currentMode) {
-        // Sync local cache
+      if (remoteMode != localMode) {
         unawaited(localPrefs.setString(_kThemeModeKey, remoteMode.name));
-        currentMode = remoteMode;
+        return remoteMode;
       }
-    });
+    }
 
-    return currentMode;
+    return localMode;
   }
 
   Future<void> setThemeMode(AppThemeMode mode) async {

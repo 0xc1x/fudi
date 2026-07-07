@@ -146,6 +146,7 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Selecciona tu ubicación', style: FudiTypography.h4),
@@ -154,11 +155,11 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
           child: Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
-              color: FudiColors.muted,
+            decoration: BoxDecoration(
+              color: isDark ? FudiColorsDark.muted : FudiColors.muted,
               shape: BoxShape.circle,
             ),
-            child: const Icon(FudiIcons.chevronLeft, size: 20),
+            child: Icon(FudiIcons.chevronLeft, size: 20, color: isDark ? FudiColorsDark.foreground : FudiColors.foreground),
           ),
         ),
       ),
@@ -205,11 +206,11 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(FudiRadius.xxl),
                 ),
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: FudiColors.shadow,
+                    color: isDark ? FudiColorsDark.shadow : FudiColors.shadow,
                     blurRadius: 10,
-                    offset: Offset(0, -2),
+                    offset: const Offset(0, -2),
                   ),
                 ],
               ),
@@ -235,7 +236,7 @@ class _AddressMapPickerScreenState extends State<AddressMapPickerScreen> {
                       'Mueve el mapa para seleccionar la ubicación',
                       textAlign: TextAlign.center,
                       style: FudiTypography.bodySmall.copyWith(
-                        color: FudiColors.mutedForeground,
+                        color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                       ),
                     ),
                   const SizedBox(height: FudiSpacing.md),

@@ -29,8 +29,8 @@ class OrderDetailScreen extends ConsumerWidget {
 
     return orderAsync.when(
       data: (order) => _OrderDetailContent(order: order),
-      loading: () => Scaffold(
-        body: const Center(
+      loading: () => const Scaffold(
+        body: Center(
           child: CircularProgressIndicator(
             color: FudiColors.primary,
             strokeWidth: 3,
@@ -79,7 +79,9 @@ class OrderDetailScreen extends ConsumerWidget {
                 Text(
                   'Por favor verifica tu conexión de red e inténtalo de nuevo.',
                   style: FudiTypography.bodyMedium.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -97,10 +99,10 @@ class OrderDetailScreen extends ConsumerWidget {
                     ),
                     child: Text(
                       'Reintentar',
-                    style: FudiTypography.labelSmall.copyWith(
-                      color: FudiColors.primaryForeground,
-                      fontWeight: FontWeight.bold,
-                    ),
+                      style: FudiTypography.labelSmall.copyWith(
+                        color: FudiColors.primaryForeground,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -127,6 +129,7 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
   @override
   Widget build(BuildContext context) {
     final order = widget.order;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isUpcoming = order.status.isActive;
 
     return Scaffold(
@@ -184,15 +187,15 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
                     child: Container(
                       width: double.infinity,
                       height: 52,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: Center(
-                    child: Text(
-                      'Volver a pedir',
-                      style: FudiTypography.labelMedium.copyWith(
-                        color: FudiColors.primaryForeground,
+                        child: Text(
+                          'Volver a pedir',
+                          style: FudiTypography.labelMedium.copyWith(
+                            color: FudiColors.primaryForeground,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -206,9 +209,15 @@ class _OrderDetailContentState extends ConsumerState<_OrderDetailContent> {
                       width: double.infinity,
                       height: 52,
                       decoration: BoxDecoration(
-                        border: Border.all(color: FudiColors.border),
+                        border: Border.all(
+                          color: isDark
+                              ? FudiColorsDark.border
+                              : FudiColors.border,
+                        ),
                         borderRadius: BorderRadius.circular(12),
-                        color: Theme.of(context).colorScheme.surfaceContainerLow,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerLow,
                       ),
                       child: Center(
                         child: Text(
@@ -237,6 +246,7 @@ class _PickupCodeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (code.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -245,7 +255,9 @@ class _PickupCodeCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border.all(
-          color: FudiColors.primary.withValues(alpha: 0.3),
+          color: isDark
+              ? FudiColorsDark.border
+              : FudiColors.primary.withValues(alpha: 0.3),
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -261,7 +273,9 @@ class _PickupCodeCard extends StatelessWidget {
           Text(
             'CÓDIGO DE RECOGIDA',
             style: FudiTypography.labelSmall.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
               letterSpacing: 1.2,
               fontWeight: FontWeight.bold,
             ),
@@ -282,7 +296,10 @@ class _PickupCodeCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: FudiColors.border, width: 0.5),
+              border: Border.all(
+                color: isDark ? FudiColorsDark.border : FudiColors.border,
+                width: 0.5,
+              ),
             ),
             child: SizedBox(
               width: 250,
@@ -298,7 +315,9 @@ class _PickupCodeCard extends StatelessWidget {
           Text(
             'Presenta este código QR o el identificador de texto en el mostrador para retirar tu pack.',
             style: FudiTypography.bodySmall.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
               height: 1.4,
             ),
             textAlign: TextAlign.center,
@@ -316,6 +335,7 @@ class _BusinessInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return FudiSurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,9 +409,15 @@ class _BusinessInfoCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 11),
                       decoration: BoxDecoration(
-                        border: Border.all(color: FudiColors.border),
+                        border: Border.all(
+                          color: isDark
+                              ? FudiColorsDark.border
+                              : FudiColors.border,
+                        ),
                         borderRadius: BorderRadius.circular(12),
-                        color: Theme.of(context).colorScheme.surfaceContainerLow,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerLow,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -436,6 +462,7 @@ class _OrderItemsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return FudiSurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -444,7 +471,9 @@ class _OrderItemsCard extends StatelessWidget {
             'Productos contratados',
             style: FudiTypography.labelSmall.copyWith(
               fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: FudiSpacing.sm),
@@ -453,7 +482,10 @@ class _OrderItemsCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: FudiColors.border, width: 0.5),
+              border: Border.all(
+                color: isDark ? FudiColorsDark.border : FudiColors.border,
+                width: 0.5,
+              ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -491,6 +523,7 @@ class _PriceDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return FudiSurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -499,7 +532,9 @@ class _PriceDetailsCard extends StatelessWidget {
             'Resumen económico',
             style: FudiTypography.labelSmall.copyWith(
               fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: FudiSpacing.md),
@@ -509,14 +544,18 @@ class _PriceDetailsCard extends StatelessWidget {
               Text(
                 'Precio original establecido',
                 style: FudiTypography.bodyMedium.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
               Text(
                 '\$${order.originalPrice.toStringAsFixed(2)}',
                 style: FudiTypography.bodyMedium.copyWith(
                   decoration: TextDecoration.lineThrough,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ],
@@ -527,7 +566,9 @@ class _PriceDetailsCard extends StatelessWidget {
             children: [
               Text(
                 'Descuento circular aplicado',
-                style: FudiTypography.bodyMedium.copyWith(color: FudiColors.ecoGreen),
+                style: FudiTypography.bodyMedium.copyWith(
+                  color: FudiColors.ecoGreen,
+                ),
               ),
               Text(
                 '-\$${order.discount.toStringAsFixed(2)}',
@@ -539,7 +580,10 @@ class _PriceDetailsCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: FudiSpacing.sm),
-          const Divider(color: FudiColors.border, thickness: 0.5),
+          Divider(
+            color: isDark ? FudiColorsDark.border : FudiColors.border,
+            thickness: 0.5,
+          ),
           const SizedBox(height: FudiSpacing.xs),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -565,12 +609,18 @@ class _PriceDetailsCard extends StatelessWidget {
             padding: const EdgeInsets.all(FudiSpacing.md),
             decoration: BoxDecoration(
               color: FudiColors.ecoGreen.withValues(alpha: 0.05),
-              border: Border.all(color: FudiColors.ecoGreen.withValues(alpha: 0.15)),
+              border: Border.all(
+                color: FudiColors.ecoGreen.withValues(alpha: 0.15),
+              ),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
-                const Icon(Icons.eco_rounded, size: 18, color: FudiColors.ecoGreen),
+                const Icon(
+                  Icons.eco_rounded,
+                  size: 18,
+                  color: FudiColors.ecoGreen,
+                ),
                 const SizedBox(width: FudiSpacing.sm),
                 Expanded(
                   child: Text(
@@ -627,7 +677,9 @@ class _InstructionsCard extends StatelessWidget {
                       ? 'Este bolso de comida fue entregado y validado de manera exitosa.'
                       : 'Acércate al local comercial dentro del rango horario indicado. Menciona que vienes de parte de Fudi y presenta tu pantalla.',
                   style: FudiTypography.bodyMedium.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                     height: 1.4,
                   ),
                 ),

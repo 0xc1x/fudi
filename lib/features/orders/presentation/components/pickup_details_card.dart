@@ -13,6 +13,7 @@ class PickupDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final timeFormat = MaterialLocalizations.of(context);
     final untilTime = timeFormat.formatTimeOfDay(offer.pickupUntilTimeOfDay);
 
@@ -26,6 +27,7 @@ class PickupDetailsCard extends StatelessWidget {
             icon: Icons.location_on_rounded,
             title: 'Dirección del local',
             subtitle: offer.business.address,
+            isDark: isDark,
           ),
           const SizedBox(height: FudiSpacing.sm),
           _buildItem(
@@ -33,6 +35,7 @@ class PickupDetailsCard extends StatelessWidget {
             title: 'Límite de retiro',
             subtitle: 'Hoy antes de $untilTime',
             highlight: true,
+            isDark: isDark,
           ),
         ],
       ),
@@ -44,14 +47,19 @@ class PickupDetailsCard extends StatelessWidget {
     required String title,
     required String subtitle,
     bool highlight = false,
+    required bool isDark,
   }) {
     return Container(
       padding: const EdgeInsets.all(FudiSpacing.sm),
       decoration: BoxDecoration(
-        color: highlight ? FudiColors.destructiveSurface : FudiColors.background,
+        color: highlight
+            ? (isDark ? FudiColorsDark.destructiveSurface : FudiColors.destructiveSurface)
+            : (isDark ? FudiColorsDark.background : FudiColors.background),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: highlight ? FudiColors.destructiveSurface : FudiColors.borderSolid,
+          color: highlight
+              ? (isDark ? FudiColorsDark.destructiveSurface : FudiColors.destructiveSurface)
+              : FudiColors.borderSolid,
         ),
       ),
       child: Row(

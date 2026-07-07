@@ -12,7 +12,7 @@ class FudiBottomActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final effectiveBorder = isDark ? FudiColorsDark.border : FudiColors.borderSolid;
+    final effectiveBorder = isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid;
 
     return Container(
       decoration: BoxDecoration(

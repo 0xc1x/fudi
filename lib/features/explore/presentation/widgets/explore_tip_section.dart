@@ -23,13 +23,13 @@ class ExploreTipSection extends StatelessWidget {
         padding: const EdgeInsets.all(FudiSpacing.lg),
         decoration: BoxDecoration(
           color: isDark
-              ? theme.colorScheme.secondary.withValues(alpha: 0.1)
-              : FudiColors.yellowDark.withValues(alpha: 0.1),
+              ? FudiColors.surfaceWarning.withValues(alpha: 0.2)
+              : FudiColors.surfaceWarning,
           borderRadius: BorderRadius.circular(FudiRadius.xl),
           border: Border.all(
             color: isDark
-                ? theme.colorScheme.secondary.withValues(alpha: 0.2)
-                : FudiColors.yellowDark.withValues(alpha: 0.1),
+                ? FudiColors.yellowDark.withValues(alpha: 0.3)
+                : FudiColors.yellowDark.withValues(alpha: 0.2),
           ),
         ),
         child: Column(
@@ -43,8 +43,8 @@ class ExploreTipSection extends StatelessWidget {
                     boxShadow: [
                       BoxShadow(
                         color: isDark
-                            ? theme.colorScheme.secondary.withValues(alpha: 0.2)
-                            : FudiColors.yellow.withValues(alpha: 0.25),
+                            ? FudiColors.yellow.withValues(alpha: 0.2)
+                            : FudiColors.yellow.withValues(alpha: 0.3),
                         blurRadius: 12,
                         spreadRadius: 2,
                       ),
@@ -52,7 +52,7 @@ class ExploreTipSection extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.lightbulb_rounded,
-                    color: isDark ? theme.colorScheme.secondary : FudiColors.yellow,
+                    color: isDark ? FudiColors.yellow : FudiColors.yellowDark,
                     size: 20,
                   ),
                 ),
@@ -62,6 +62,9 @@ class ExploreTipSection extends StatelessWidget {
                     'Consejo del día',
                     style: FudiTypography.h3.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: isDark
+                          ? FudiColorsDark.foreground
+                          : FudiColors.foreground,
                     ),
                   ),
                 ),
@@ -70,7 +73,12 @@ class ExploreTipSection extends StatelessWidget {
             const SizedBox(height: FudiSpacing.md),
             Text(
               ExploreScreenContent.tips.join(' '),
-              style: FudiTypography.bodyMedium.copyWith(height: 1.4),
+              style: FudiTypography.bodyMedium.copyWith(
+                height: 1.4,
+                color: isDark
+                    ? FudiColorsDark.mutedForeground
+                    : FudiColors.foreground,
+              ),
             ),
           ],
         ),

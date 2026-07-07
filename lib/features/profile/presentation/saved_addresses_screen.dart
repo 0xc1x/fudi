@@ -24,9 +24,10 @@ class SavedAddressesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final addressesAsync = ref.watch(savedAddressesProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: FudiColors.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: FudiStickyPageHeader(
         title: 'Direcciones',
         leading: Padding(
@@ -39,12 +40,12 @@ class SavedAddressesScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 shape: BoxShape.circle,
-                border: Border.all(color: FudiColors.borderSolid),
+                border: Border.all(color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid),
               ),
-              child: const Icon(
+              child: Icon(
                 FudiIcons.chevronLeft,
                 size: 18,
-                color: FudiColors.foreground,
+                color: isDark ? FudiColorsDark.foreground : FudiColors.foreground,
               ),
             ),
           ),
@@ -72,6 +73,7 @@ class _AddressListContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ListView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(
@@ -88,7 +90,7 @@ class _AddressListContent extends ConsumerWidget {
             width: double.infinity,
             height: 54,
             decoration: BoxDecoration(
-              color: FudiColors.foreground,
+              color: isDark ? FudiColorsDark.foreground : FudiColors.foreground,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -149,7 +151,7 @@ class _AddressListContent extends ConsumerWidget {
           Text(
             'Tus ubicaciones guardadas'.toUpperCase(),
             style: FudiTypography.labelSmall.copyWith(
-              color: FudiColors.mutedForeground,
+              color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.2,
             ),
@@ -184,8 +186,8 @@ class _AddressListContent extends ConsumerWidget {
                           key: Key(address.id),
                           direction: DismissDirection.endToStart,
                           background: Container(
-                            decoration: const BoxDecoration(
-                              color: FudiColors.destructiveSurface,
+                            decoration: BoxDecoration(
+                              color: isDark ? FudiColorsDark.destructiveSurface : FudiColors.destructiveSurface,
                             ),
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.only(right: 24),
@@ -220,7 +222,7 @@ class _AddressListContent extends ConsumerWidget {
                                         width: 38,
                                         height: 4,
                                         decoration: BoxDecoration(
-                                          color: FudiColors.borderSolid,
+                                          color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid,
                                           borderRadius: BorderRadius.circular(
                                             2,
                                           ),
@@ -239,7 +241,7 @@ class _AddressListContent extends ConsumerWidget {
                                     Text(
                                       'La ubicación "${address.label}" dejará de estar disponible para tus pedidos rápidos.',
                                       style: FudiTypography.bodyMedium.copyWith(
-                                        color: FudiColors.mutedForeground,
+                                        color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                                       ),
                                     ),
                                     const SizedBox(height: 24),
@@ -252,7 +254,7 @@ class _AddressListContent extends ConsumerWidget {
                                             child: Container(
                                               height: 48,
                                               decoration: BoxDecoration(
-                                                color: FudiColors.surfaceMuted,
+                                                color: isDark ? FudiColorsDark.surfaceMuted : FudiColors.surfaceMuted,
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),

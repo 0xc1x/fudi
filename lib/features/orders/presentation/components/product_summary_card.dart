@@ -108,8 +108,9 @@ class _FallbackImage extends StatelessWidget {
   const _FallbackImage();
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      color: FudiColors.muted,
+      color: isDark ? FudiColorsDark.muted : FudiColors.muted,
       child: const Icon(
         Icons.restaurant_rounded,
         size: 20,

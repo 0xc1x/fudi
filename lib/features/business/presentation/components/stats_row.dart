@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
+import '../../../../core/ui/fudi_theme.dart';
 
 class StatsRow extends StatelessWidget {
   const StatsRow({
@@ -25,6 +26,7 @@ class StatsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final themeExt = Theme.of(context).extension<FudiThemeExtension>();
     return Padding(
       padding: const EdgeInsets.all(FudiSpacing.lg),
       child: Container(
@@ -32,7 +34,10 @@ class StatsRow extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: colorScheme.outlineVariant, width: 1.5),
+          border: Border.all(
+            color: themeExt?.borderSolid ?? FudiColors.borderSolid,
+            width: 1.5,
+          ),
           boxShadow: [
             BoxShadow(
               color: colorScheme.shadow.withValues(alpha: 0.03),
@@ -187,8 +192,9 @@ class StatsRow extends StatelessWidget {
   }
 
   Widget _buildDivider(BuildContext context) {
+    final themeExt = Theme.of(context).extension<FudiThemeExtension>();
     return VerticalDivider(
-      color: Theme.of(context).colorScheme.outlineVariant,
+      color: themeExt?.borderSolid ?? FudiColors.borderSolid,
       thickness: 1,
       width: 8,
       indent: 8,

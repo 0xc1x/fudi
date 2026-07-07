@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/ui/fudi_colors.dart';
 import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_spacing.dart';
+import '../../../core/ui/fudi_theme.dart';
 import '../../../core/ui/fudi_typography.dart';
 import '../../offers/domain/offer_category.dart';
 import '../../offers/presentation/offer_providers.dart';
@@ -104,6 +105,9 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final themeExt = Theme.of(context).extension<FudiThemeExtension>();
+    final chipBorder = BorderSide(color: themeExt?.borderSolid ?? FudiColors.borderSolid);
+
     return Padding(
       padding: EdgeInsets.fromLTRB(
         FudiSpacing.lg,
@@ -120,7 +124,7 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: FudiColors.borderSolid,
+                color: themeExt?.borderSolid ?? FudiColors.borderSolid,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -177,7 +181,7 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
                   },
                   selectedColor: FudiColors.secondary,
                   checkmarkColor: FudiColors.primary,
-                  side: const BorderSide(color: FudiColors.borderSolid),
+                  side: chipBorder,
                 );
               }).toList(),
             ),
@@ -201,7 +205,7 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
                 },
                 selectedColor: FudiColors.secondary,
                 checkmarkColor: FudiColors.primary,
-                side: const BorderSide(color: FudiColors.borderSolid),
+                side: chipBorder,
               );
             }).toList(),
           ),
@@ -225,7 +229,7 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
                 },
                 selectedColor: FudiColors.secondary,
                 checkmarkColor: FudiColors.primary,
-                side: const BorderSide(color: FudiColors.borderSolid),
+                side: chipBorder,
               );
             }).toList(),
           ),

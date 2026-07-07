@@ -114,6 +114,7 @@ class _BusinessProfileContentState
   Widget build(BuildContext context) {
     final profile = widget.profile;
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -178,13 +179,13 @@ class _BusinessProfileContentState
                               width: 86,
                               height: 86,
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: colorScheme.surface,
                                 borderRadius: BorderRadius.circular(
                                   FudiRadius.xxl,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.06),
+                                    color: isDark ? Colors.transparent : Colors.black.withValues(alpha: 0.06),
                                     blurRadius: FudiRadius.sm,
                                     offset: const Offset(0, 8),
                                   ),
@@ -458,14 +459,16 @@ class _ContactInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(FudiSpacing.xl),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(FudiRadius.xxl),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: isDark ? Colors.transparent : Colors.black.withValues(alpha: 0.02),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -809,14 +812,14 @@ class _LocationCard extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 14),
 decoration: BoxDecoration(
-              color: colorScheme.onSurface,
+              color: colorScheme.primary,
               borderRadius: BorderRadius.circular(16),
             ),
                 child: Text(
                   'Trazar ruta en Maps',
                   textAlign: TextAlign.center,
                   style: FudiTypography.labelSmall.copyWith(
-                    color: Colors.white,
+                    color: FudiColors.primaryForeground,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

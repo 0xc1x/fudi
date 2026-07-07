@@ -235,6 +235,7 @@ class FudiApp extends ConsumerWidget {
       theme: FudiTheme.light(),
       darkTheme: FudiTheme.dark(),
       themeMode: themeMode,
+      themeAnimationDuration: Duration.zero,
       locale: const Locale('es'),
       supportedLocales: const [Locale('es')],
       localizationsDelegates: const [

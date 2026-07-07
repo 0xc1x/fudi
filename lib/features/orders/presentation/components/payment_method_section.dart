@@ -23,6 +23,7 @@ class PaymentMethodSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return FudiSurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,7 +47,7 @@ class PaymentMethodSection extends StatelessWidget {
                     border: Border.all(
                       color: selected
                           ? FudiColors.primary
-                          : FudiColors.borderSolid,
+                          : (isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid),
                       width: selected ? 1.5 : 1,
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -61,7 +62,7 @@ class PaymentMethodSection extends StatelessWidget {
                         size: 18,
                         color: selected
                             ? FudiColors.primary
-                            : FudiColors.mutedForeground,
+                            : (isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground),
                       ),
                       const SizedBox(width: FudiSpacing.md),
                       Expanded(
@@ -80,7 +81,7 @@ class PaymentMethodSection extends StatelessWidget {
                               Text(
                                 detail,
                                 style: FudiTypography.bodySmall.copyWith(
-                                  color: FudiColors.mutedForeground,
+                                  color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                                 ),
                               ),
                           ],
@@ -93,12 +94,12 @@ class PaymentMethodSection extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: selected
-                                ? FudiColors.primary
-                                : FudiColors.borderSolid,
-                            width: selected ? 5 : 1.5,
+                              color: selected
+                                  ? FudiColors.primary
+                                  : (isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid),
+                              width: selected ? 5 : 1.5,
                           ),
-                          color: FudiColors.background,
+                          color: isDark ? FudiColorsDark.background : FudiColors.background,
                         ),
                       ),
                     ],

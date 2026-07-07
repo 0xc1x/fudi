@@ -24,17 +24,19 @@ class PaymentMethodsScreen extends ConsumerWidget {
       body: paymentsAsync.when(
         data: (methods) {
           if (methods.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     FudiIcons.creditCard,
                     size: 64,
-                    color: FudiColors.mutedForeground,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? FudiColorsDark.mutedForeground
+                        : FudiColors.mutedForeground,
                   ),
-                  SizedBox(height: FudiSpacing.md),
-                  Text(
+                  const SizedBox(height: FudiSpacing.md),
+                  const Text(
                     'No tienes tarjetas guardadas',
                     style: FudiTypography.bodyLarge,
                   ),
@@ -141,12 +143,16 @@ class PaymentMethodsScreen extends ConsumerWidget {
   }
 
   void _deleteMethod(WidgetRef ref, String id) {
-    unawaited(ref.read(consumerProfileRepositoryProvider).deletePaymentMethod(id));
+    unawaited(
+      ref.read(consumerProfileRepositoryProvider).deletePaymentMethod(id),
+    );
     ref.invalidate(paymentMethodsProvider);
   }
 
   void _setDefault(WidgetRef ref, String id) {
-    unawaited(ref.read(consumerProfileRepositoryProvider).setDefaultPaymentMethod(id));
+    unawaited(
+      ref.read(consumerProfileRepositoryProvider).setDefaultPaymentMethod(id),
+    );
     ref.invalidate(paymentMethodsProvider);
   }
 

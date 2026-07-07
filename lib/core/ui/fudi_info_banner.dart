@@ -24,7 +24,8 @@ class FudiInfoBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveForeground = foregroundColor ?? FudiColors.foreground;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final effectiveForeground = foregroundColor ?? (isDark ? FudiColorsDark.foreground : FudiColors.foreground);
     return Container(
       padding: const EdgeInsets.all(FudiSpacing.lg),
       decoration: BoxDecoration(

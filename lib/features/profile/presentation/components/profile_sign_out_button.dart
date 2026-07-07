@@ -17,6 +17,9 @@ class ProfileSignOutButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authController = ref.read(authControllerProvider.notifier);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final destructiveColor = isDark ? FudiColorsDark.destructiveVibrant : FudiColors.destructive;
+
     return FudiPressableScale(
       onTap: () => _showSignOutDialog(context, authController),
       child: Container(
@@ -24,21 +27,23 @@ class ProfileSignOutButton extends ConsumerWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(FudiRadius.xl),
-          border: Border.all(color: FudiColors.borderSolid),
+          border: Border.all(
+            color: destructiveColor.withValues(alpha: isDark ? 0.5 : 1.0),
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               FudiIcons.logOut,
               size: 20,
-              color: FudiColors.destructive,
+              color: destructiveColor,
             ),
             const SizedBox(width: FudiSpacing.sm),
             Text(
               'Cerrar sesión',
               style: FudiTypography.labelSmall.copyWith(
-                color: FudiColors.destructive,
+                color: destructiveColor,
               ),
             ),
           ],

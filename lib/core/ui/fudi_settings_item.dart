@@ -20,19 +20,22 @@ class FudiSettingsItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mutedColor = isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground;
+
     return FudiPressableScale(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.all(FudiSpacing.md),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: FudiColors.mutedForeground),
+            Icon(icon, size: 20, color: mutedColor),
             const SizedBox(width: FudiSpacing.md),
             Expanded(child: Text(label, style: FudiTypography.labelSmall)),
-            const Icon(
+            Icon(
               FudiIcons.chevronRight,
               size: 20,
-              color: FudiColors.mutedForeground,
+              color: mutedColor,
             ),
           ],
         ),

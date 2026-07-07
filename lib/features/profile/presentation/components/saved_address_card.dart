@@ -63,6 +63,7 @@ class SavedAddressCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isDefault = address.isDefault;
 
     return Container(
@@ -70,10 +71,10 @@ class SavedAddressCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(FudiRadius.xxl),
-        border: Border.all(color: FudiColors.borderSolid),
+        border: Border.all(color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid),
         boxShadow: [
           BoxShadow(
-            color: FudiColors.foreground.withValues(alpha: 0.015),
+            color: (isDark ? FudiColorsDark.foreground : FudiColors.foreground).withValues(alpha: 0.015),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -93,12 +94,12 @@ class SavedAddressCard extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: isDefault
                       ? FudiColors.primary.withValues(alpha: 0.08)
-                      : FudiColors.surfaceMuted,
+                      : (isDark ? FudiColorsDark.surfaceMuted : FudiColors.surfaceMuted),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
                   addressTypeIcon(address.type),
-                  color: isDefault ? FudiColors.primary : FudiColors.foreground,
+                  color: isDefault ? FudiColors.primary : (isDark ? FudiColorsDark.foreground : FudiColors.foreground),
                   size: 22,
                 ),
               ),
@@ -123,7 +124,7 @@ class SavedAddressCard extends ConsumerWidget {
                         ),
                         if (address.housingType != null) ...[
                           const SizedBox(width: 8),
-                          _buildHousingBadge(address.housingType!),
+                          _buildHousingBadge(address.housingType!, isDark),
                         ],
                       ],
                     ),
@@ -131,7 +132,7 @@ class SavedAddressCard extends ConsumerWidget {
                     Text(
                       address.address,
                       style: FudiTypography.bodyMedium.copyWith(
-                        color: FudiColors.mutedForeground,
+                        color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                         height: 1.4,
                       ),
                       maxLines: 2,
@@ -148,22 +149,22 @@ class SavedAddressCard extends ConsumerWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: FudiColors.surfaceMuted,
+                          color: isDark ? FudiColorsDark.surfaceMuted : FudiColors.surfaceMuted,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.turn_left_rounded,
                               size: 14,
-                              color: FudiColors.mutedForeground,
+                              color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                             ),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
                                 address.references!,
                                 style: FudiTypography.bodySmall.copyWith(
-                                  color: FudiColors.mutedForeground,
+                                  color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
                                   fontSize: 11,
                                 ),
                                 maxLines: 1,
@@ -181,7 +182,7 @@ class SavedAddressCard extends ConsumerWidget {
           ),
 
           const SizedBox(height: FudiSpacing.xs),
-          const Divider(height: 1, color: FudiColors.surfaceMuted),
+          Divider(height: 1, color: isDark ? FudiColorsDark.surfaceMuted : FudiColors.surfaceMuted),
           const SizedBox(height: FudiSpacing.xs),
 
           // Fila Inferior Unificada de Acciones (Fin del desorden de Positioned)
@@ -205,7 +206,7 @@ class SavedAddressCard extends ConsumerWidget {
                     width: 38,
                     height: 38,
                     decoration: BoxDecoration(
-                      color: FudiColors.destructiveSurface,
+                      color: isDark ? FudiColorsDark.destructiveSurface : FudiColors.destructiveSurface,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
@@ -223,11 +224,11 @@ class SavedAddressCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildHousingBadge(HousingType type) {
+  Widget _buildHousingBadge(HousingType type, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: FudiColors.surfaceMuted,
+        color: isDark ? FudiColorsDark.surfaceMuted : FudiColors.surfaceMuted,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
@@ -236,14 +237,14 @@ class SavedAddressCard extends ConsumerWidget {
           Icon(
             addressHousingTypeIcon(type),
             size: 11,
-            color: FudiColors.mutedForeground,
+            color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
           ),
           const SizedBox(width: 4),
           Text(
             addressHousingTypeLabel(type).toUpperCase(),
             style: FudiTypography.labelSmall.copyWith(
               fontSize: 9,
-              color: FudiColors.mutedForeground,
+              color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.5,
             ),
@@ -294,6 +295,7 @@ class SavedAddressCard extends ConsumerWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final confirmed = await showModalBottomSheet<bool>(
       context: context,
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -311,7 +313,7 @@ class SavedAddressCard extends ConsumerWidget {
                 width: 38,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: FudiColors.borderSolid,
+                  color: isDark ? FudiColorsDark.borderSolid : FudiColors.borderSolid,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -327,7 +329,7 @@ class SavedAddressCard extends ConsumerWidget {
             Text(
               'La ubicación "${address.label}" dejará de estar disponible para tus pedidos rápidos.',
               style: FudiTypography.bodyMedium.copyWith(
-                color: FudiColors.mutedForeground,
+                color: isDark ? FudiColorsDark.mutedForeground : FudiColors.mutedForeground,
               ),
             ),
             const SizedBox(height: 24),
@@ -339,7 +341,7 @@ class SavedAddressCard extends ConsumerWidget {
                     child: Container(
                       height: 48,
                       decoration: BoxDecoration(
-                        color: FudiColors.surfaceMuted,
+                        color: isDark ? FudiColorsDark.surfaceMuted : FudiColors.surfaceMuted,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(

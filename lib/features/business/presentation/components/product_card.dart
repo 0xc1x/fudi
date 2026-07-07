@@ -145,7 +145,7 @@ class ProductCard extends ConsumerWidget {
             ),
             Divider(
               height: 1,
-              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              color: colorScheme.outlineVariant.withValues(alpha: 0.2),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: FudiSpacing.sm),

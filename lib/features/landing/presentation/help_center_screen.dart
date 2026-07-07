@@ -143,100 +143,116 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
   }
 
   void _openOrdersInfo(BuildContext context) {
-    unawaited(Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const HelpCategoryDetailPage(
-          title: 'Pedidos y recogidas',
-          sections: [
-            HelpSection(
-              title: 'Cómo hacer un pedido',
-              items: [
-                HelpItem(
-                  title: 'Buscar ofertas',
-                  description: 'Explora las ofertas disponibles cerca de ti en la pantalla de inicio o usando el mapa. Cada oferta muestra el precio, la cantidad disponible y el horario de recogida.',
-                ),
-                HelpItem(
-                  title: 'Seleccionar y pagar',
-                  description: 'Toca la oferta que te interese, elige la cantidad y confirma tu pedido. El pago se procesa de forma segura al momento de confirmar.',
-                ),
-                HelpItem(
-                  title: 'Recibir código',
-                  description: 'Después de confirmar, recibirás un código de recogida único de 6 dígitos. Guárdalo, lo necesitarás para recoger tu pedido.',
-                ),
-              ],
-            ),
-            HelpSection(
-              title: 'Recogida',
-              items: [
-                HelpItem(
-                  title: 'Cómo recoger',
-                  description: 'Dirígete al local dentro del horario de recogida indicado. Muestra tu código de recogida al personal del negocio para recibir tu pedido.',
-                ),
-                HelpItem(
-                  title: 'Llegar tarde',
-                  description: 'Si llegas fuera del horario establecido, el negocio puede negarse a entregarte el pedido. Contacta al negocio directamente si tienes un imprevisto.',
-                ),
-              ],
-            ),
-            HelpSection(
-              title: 'Cancelaciones',
-              items: [
-                HelpItem(
-                  title: 'Antes de confirmar',
-                  description: 'Puedes cancelar tu pedido sin problema mientras no haya sido confirmado por el negocio.',
-                ),
-                HelpItem(
-                  title: 'Después de confirmar',
-                  description: 'Una vez que el negocio confirma el pedido, no es posible cancelar ni obtener reembolso, a menos que sea por un error del negocio.',
-                ),
-              ],
-            ),
-          ],
+    unawaited(
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const HelpCategoryDetailPage(
+            title: 'Pedidos y recogidas',
+            sections: [
+              HelpSection(
+                title: 'Cómo hacer un pedido',
+                items: [
+                  HelpItem(
+                    title: 'Buscar ofertas',
+                    description:
+                        'Explora las ofertas disponibles cerca de ti en la pantalla de inicio o usando el mapa. Cada oferta muestra el precio, la cantidad disponible y el horario de recogida.',
+                  ),
+                  HelpItem(
+                    title: 'Seleccionar y pagar',
+                    description:
+                        'Toca la oferta que te interese, elige la cantidad y confirma tu pedido. El pago se procesa de forma segura al momento de confirmar.',
+                  ),
+                  HelpItem(
+                    title: 'Recibir código',
+                    description:
+                        'Después de confirmar, recibirás un código de recogida único de 6 dígitos. Guárdalo, lo necesitarás para recoger tu pedido.',
+                  ),
+                ],
+              ),
+              HelpSection(
+                title: 'Recogida',
+                items: [
+                  HelpItem(
+                    title: 'Cómo recoger',
+                    description:
+                        'Dirígete al local dentro del horario de recogida indicado. Muestra tu código de recogida al personal del negocio para recibir tu pedido.',
+                  ),
+                  HelpItem(
+                    title: 'Llegar tarde',
+                    description:
+                        'Si llegas fuera del horario establecido, el negocio puede negarse a entregarte el pedido. Contacta al negocio directamente si tienes un imprevisto.',
+                  ),
+                ],
+              ),
+              HelpSection(
+                title: 'Cancelaciones',
+                items: [
+                  HelpItem(
+                    title: 'Antes de confirmar',
+                    description:
+                        'Puedes cancelar tu pedido sin problema mientras no haya sido confirmado por el negocio.',
+                  ),
+                  HelpItem(
+                    title: 'Después de confirmar',
+                    description:
+                        'Una vez que el negocio confirma el pedido, no es posible cancelar ni obtener reembolso, a menos que sea por un error del negocio.',
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 
   void _openPaymentsInfo(BuildContext context) {
-    unawaited(Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const HelpCategoryDetailPage(
-          title: 'Pagos y reembolsos',
-          sections: [
-            HelpSection(
-              title: 'Métodos de pago',
-              items: [
-                HelpItem(
-                  title: 'Medios aceptados',
-                  description: 'Aceptamos tarjetas de crédito y débito de las principales redes (Visa, Mastercard, American Express). El pago siempre se procesa de forma segura.',
-                ),
-                HelpItem(
-                  title: 'Seguridad',
-                  description: 'Todos los pagos se procesan a través de pasarelas seguras con encriptación. No almacenamos información sensible de tu tarjeta.',
-                ),
-              ],
-            ),
-            HelpSection(
-              title: 'Reembolsos',
-              items: [
-                HelpItem(
-                  title: 'Casos elegibles',
-                  description: 'Los reembolsos se procesan solo en casos excepcionales, como productos en mal estado, errores del negocio o pedidos no entregados por causas ajenas a ti.',
-                ),
-                HelpItem(
-                  title: 'Cómo solicitar',
-                  description: 'Contacta a soporte dentro de las 24 horas posteriores a la recogida. Incluye los detalles de tu pedido y el motivo de tu solicitud.',
-                ),
-                HelpItem(
-                  title: 'Tiempo de procesamiento',
-                  description: 'Una vez aprobado, el reembolso se verá reflejado en tu método de pago original en un plazo de 5 a 10 días hábiles.',
-                ),
-              ],
-            ),
-          ],
+    unawaited(
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const HelpCategoryDetailPage(
+            title: 'Pagos y reembolsos',
+            sections: [
+              HelpSection(
+                title: 'Métodos de pago',
+                items: [
+                  HelpItem(
+                    title: 'Medios aceptados',
+                    description:
+                        'Aceptamos tarjetas de crédito y débito de las principales redes (Visa, Mastercard, American Express). El pago siempre se procesa de forma segura.',
+                  ),
+                  HelpItem(
+                    title: 'Seguridad',
+                    description:
+                        'Todos los pagos se procesan a través de pasarelas seguras con encriptación. No almacenamos información sensible de tu tarjeta.',
+                  ),
+                ],
+              ),
+              HelpSection(
+                title: 'Reembolsos',
+                items: [
+                  HelpItem(
+                    title: 'Casos elegibles',
+                    description:
+                        'Los reembolsos se procesan solo en casos excepcionales, como productos en mal estado, errores del negocio o pedidos no entregados por causas ajenas a ti.',
+                  ),
+                  HelpItem(
+                    title: 'Cómo solicitar',
+                    description:
+                        'Contacta a soporte dentro de las 24 horas posteriores a la recogida. Incluye los detalles de tu pedido y el motivo de tu solicitud.',
+                  ),
+                  HelpItem(
+                    title: 'Tiempo de procesamiento',
+                    description:
+                        'Una vez aprobado, el reembolso se verá reflejado en tu método de pago original en un plazo de 5 a 10 días hábiles.',
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 
   @override
@@ -247,8 +263,9 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: FudiColors.muted,
+      backgroundColor: isDark ? FudiColorsDark.muted : FudiColors.muted,
       appBar: _AppBar(),
       body: ListView(
         padding: const EdgeInsets.all(FudiSpacing.lg),
@@ -257,7 +274,9 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
             controller: _searchController,
             onChanged: (v) => setState(() => _searchQuery = v),
             hintText: 'Buscar en ayuda...',
-            fillColor: FudiColors.background,
+            fillColor: isDark
+                ? FudiColorsDark.background
+                : FudiColors.background,
             borderRadius: FudiRadius.xl,
           ),
           const SizedBox(height: FudiSpacing.lg),
@@ -273,7 +292,9 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 icon: Icons.eco_rounded,
                 label: 'Sobre Fudi',
                 subtitle: 'Cómo funciona y misión',
-                bgColor: FudiColors.surfaceSuccess,
+                bgColor: isDark
+                    ? FudiColorsDark.surfaceSuccess
+                    : FudiColors.surfaceSuccess,
                 iconColor: FudiColors.primary,
                 onTap: () => context.push('/about'),
               ),
@@ -281,7 +302,9 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 icon: FudiIcons.shoppingBag,
                 label: 'Pedidos y recogidas',
                 subtitle: 'Comprar, recoger y cancelar',
-                bgColor: FudiColors.surfaceSuccess,
+                bgColor: isDark
+                    ? FudiColorsDark.surfaceSuccess
+                    : FudiColors.surfaceSuccess,
                 iconColor: FudiColors.ecoGreen,
                 onTap: () => _openOrdersInfo(context),
               ),
@@ -289,7 +312,9 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 icon: Icons.payment_rounded,
                 label: 'Pagos y reembolsos',
                 subtitle: 'Métodos de pago y devoluciones',
-                bgColor: FudiColors.surfaceWarning,
+                bgColor: isDark
+                    ? FudiColorsDark.surfaceWarning
+                    : FudiColors.surfaceWarning,
                 iconColor: FudiColors.warningOrange,
                 onTap: () => _openPaymentsInfo(context),
               ),
@@ -297,7 +322,9 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 icon: Icons.shield_rounded,
                 label: 'Políticas y privacidad',
                 subtitle: 'Términos y protección de datos',
-                bgColor: FudiColors.infoSurface,
+                bgColor: isDark
+                    ? FudiColorsDark.infoSurface
+                    : FudiColors.infoSurface,
                 iconColor: FudiColors.info,
                 onTap: () => context.push('/privacy'),
               ),
@@ -311,9 +338,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 setState(() => _expandedFAQ = _expandedFAQ == id ? null : id),
           ),
           const SizedBox(height: FudiSpacing.lg),
-          FudiContactSupportCard(
-            onTap: () => _launchEmail(context),
-          ),
+          FudiContactSupportCard(onTap: () => _launchEmail(context)),
           const SizedBox(height: FudiSpacing.lg),
           const FudiScheduleInfo(),
         ],
@@ -328,6 +353,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AppBar(
       leading: Padding(
         padding: const EdgeInsets.only(left: FudiSpacing.sm),
@@ -336,8 +362,8 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
-              color: FudiColors.muted,
+            decoration: BoxDecoration(
+              color: isDark ? FudiColorsDark.muted : FudiColors.muted,
               shape: BoxShape.circle,
             ),
             child: const Icon(FudiIcons.chevronLeft, size: 20),
@@ -351,11 +377,15 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
           Text('Centro de ayuda', style: FudiTypography.h4),
         ],
       ),
-      backgroundColor: FudiColors.background,
+      backgroundColor: isDark
+          ? FudiColorsDark.background
+          : FudiColors.background,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 1,
-      shadowColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.12),
+      shadowColor: Theme.of(
+        context,
+      ).colorScheme.surface.withValues(alpha: 0.12),
     );
   }
 }
