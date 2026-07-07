@@ -176,7 +176,7 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
     return Offer(
       id: json['id'] as String,
       businessId: json['business_id'] as String,
-      businessLocationId: json['business_location_id'] as String,
+      businessLocationId: json['business_location_id'] as String? ?? '',
       business: BusinessInfo(
         id: businessJson['id'] as String,
         name: businessJson['name'] as String,
@@ -209,9 +209,8 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
   }
 
   Map<String, dynamic> _mapOfferToJson(Offer offer) {
-    return {
+    final data = <String, dynamic>{
       'business_id': offer.businessId,
-      'business_location_id': offer.businessLocationId,
       'title': offer.title,
       'description': offer.description,
       'category': offer.category?.dbValue,
@@ -225,5 +224,9 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
       'pickup_end': offer.pickupEnd.toIso8601String(),
       'is_active': offer.isActive,
     };
+    if (offer.businessLocationId.isNotEmpty) {
+      data['business_location_id'] = offer.businessLocationId;
+    }
+    return data;
   }
 }

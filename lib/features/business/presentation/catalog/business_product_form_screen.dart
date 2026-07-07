@@ -67,6 +67,7 @@ class _BusinessProductFormScreenState
 
   String? _existingImageUrl;
   bool _isLoadingProduct = false;
+  String? _selectedLocationId;
 
   List<OfferCategory> get _categories => OfferCategory.values;
 
@@ -129,6 +130,8 @@ class _BusinessProductFormScreenState
           minute: offer.pickupEnd.minute,
         );
         _existingImageUrl = offer.imageUrl;
+        _selectedLocationId =
+            offer.businessLocationId.isNotEmpty ? offer.businessLocationId : null;
         setState(() {});
         _isDirty = false;
       }
@@ -317,10 +320,13 @@ class _BusinessProductFormScreenState
 
       final repo = ref.read(businessCatalogRepositoryProvider);
 
+      final effectiveLocationId =
+          _selectedLocationId ?? business.businessLocationId;
+
       final offer = Offer(
         id: widget.productId ?? '',
         businessId: business.id,
-        businessLocationId: business.businessLocationId ?? '',
+        businessLocationId: effectiveLocationId ?? '',
         business: BusinessInfo(
           id: business.id,
           name: business.name,
@@ -466,6 +472,8 @@ class _BusinessProductFormScreenState
                           _isDirty = true;
                         }),
                       ),
+                      const SizedBox(height: FudiSpacing.md),
+                      _buildLocationSelector(),
                       const SizedBox(height: FudiSpacing.md),
                       FudiTextFormField(
                         label: 'Descripción',
@@ -656,6 +664,41 @@ class _BusinessProductFormScreenState
           isLoading: _isSubmitting,
         ),
       ),
+    );
+  }
+
+  Widget _buildLocationSelector() {
+    return Consumer(
+      builder: (context, ref, _) {
+        final businessAsync = ref.watch(currentBusinessProvider);
+        final business = businessAsync.asData?.value;
+        if (business == null) return const SizedBox.shrink();
+
+        final locationsAsync = ref.watch(businessLocationsProvider(business.id));
+        final locations = locationsAsync.asData?.value ?? [];
+
+        final currentValue = _selectedLocationId ?? '';
+
+        return FudiDropdownFormField<String>(
+          label: 'Sucursal',
+          value: currentValue,
+          items: [
+            const DropdownMenuItem<String>(
+              value: '',
+              child: Text('Sin sucursal (todas)'),
+            ),
+            for (final loc in locations)
+              DropdownMenuItem<String>(
+                value: loc.id,
+                child: Text(loc.name),
+              ),
+          ],
+          onChanged: (v) => setState(() {
+            _selectedLocationId = (v != null && v.isNotEmpty) ? v : null;
+            _isDirty = true;
+          }),
+        );
+      },
     );
   }
 
