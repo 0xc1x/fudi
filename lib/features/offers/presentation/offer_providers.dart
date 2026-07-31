@@ -7,7 +7,7 @@ import '../../../core/di/core_providers.dart';
 import '../../profile/presentation/profile_providers.dart';
 import '../data/supabase_offer_repository.dart';
 import '../domain/offer.dart';
-import '../domain/offer_category.dart';
+import '../domain/category.dart';
 import '../domain/offer_repository.dart';
 
 final offerRepositoryProvider = Provider<OfferRepository>((ref) {
@@ -98,14 +98,14 @@ class PopularOffersNotifier extends AsyncNotifier<List<Offer>> {
     });
   }
 
-  Future<void> filterByCategory(OfferCategory? category) async {
+  Future<void> filterByCategory(String? categoryId) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final repo = ref.read(offerRepositoryProvider);
-      if (category == null) {
+      if (categoryId == null) {
         return repo.getPopularOffers();
       }
-      return repo.getPopularOffersFiltered(category: category.dbValue);
+      return repo.getPopularOffersFiltered(category: categoryId);
     });
   }
 }
@@ -116,7 +116,7 @@ final nearbyOffersProvider =
     );
 
 class NearbyOffersNotifier extends AsyncNotifier<List<Offer>> {
-  OfferCategory? _category;
+  String? _categoryId;
 
   @override
   Future<List<Offer>> build() async {
@@ -130,7 +130,7 @@ class NearbyOffersNotifier extends AsyncNotifier<List<Offer>> {
     return repo.getNearbyOffers(
       lat: location.latitude,
       lng: location.longitude,
-      category: _category?.dbValue,
+      category: _categoryId,
     );
   }
 
@@ -148,27 +148,27 @@ class NearbyOffersNotifier extends AsyncNotifier<List<Offer>> {
       return repo.getNearbyOffers(
         lat: location.latitude,
         lng: location.longitude,
-        category: _category?.dbValue,
+        category: _categoryId,
       );
     });
   }
 
-  Future<void> filterByCategory(OfferCategory? category) async {
-    _category = category;
+  Future<void> filterByCategory(String? categoryId) async {
+    _categoryId = categoryId;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final repo = ref.read(offerRepositoryProvider);
       final location = await ref.read(selectedDiscoveryLocationProvider.future);
 
       if (location == null) {
-        if (_category == null) return repo.getPopularOffers();
-        return repo.getPopularOffersFiltered(category: _category!.dbValue);
+        if (_categoryId == null) return repo.getPopularOffers();
+        return repo.getPopularOffersFiltered(category: _categoryId);
       }
 
       return repo.getNearbyOffers(
         lat: location.latitude,
         lng: location.longitude,
-        category: _category?.dbValue,
+        category: _categoryId,
       );
     });
   }
@@ -192,7 +192,7 @@ final popularAreasProvider = FutureProvider<List<AreaStat>>((ref) async {
   return repo.getPopularAreas();
 });
 
-final categoriesProvider = FutureProvider<List<OfferCategory>>((ref) async {
+final categoriesProvider = FutureProvider<List<Category>>((ref) async {
   final repo = ref.watch(offerRepositoryProvider);
   return repo.getCategories();
 });
@@ -217,7 +217,7 @@ class FilteredOffersNotifier extends AsyncNotifier<List<Offer>> {
   }
 
   Future<List<Offer>> _loadOffers({
-    OfferCategory? category,
+    String? category,
     double? maxPrice,
     double? maxDistanceKm,
     String? searchQuery,
@@ -238,7 +238,7 @@ class FilteredOffersNotifier extends AsyncNotifier<List<Offer>> {
       return repo.getFilteredOffers(
         lat: 0,
         lng: 0,
-        category: category?.dbValue,
+        category: category,
         maxPrice: maxPrice,
         searchQuery: searchQuery,
       );
@@ -251,7 +251,7 @@ class FilteredOffersNotifier extends AsyncNotifier<List<Offer>> {
     return repo.getFilteredOffers(
       lat: position.latitude,
       lng: position.longitude,
-      category: category?.dbValue,
+      category: category,
       maxPrice: maxPrice,
       maxDistanceKm: maxDistanceKm ?? 10.0,
       searchQuery: searchQuery,
@@ -259,7 +259,7 @@ class FilteredOffersNotifier extends AsyncNotifier<List<Offer>> {
   }
 
   Future<void> applyFilters({
-    OfferCategory? category,
+    String? category,
     double? maxPrice,
     double? maxDistanceKm,
     String? searchQuery,
@@ -428,7 +428,7 @@ class AllOffersNotifier extends AsyncNotifier<List<Offer>> {
   }
 
   Future<void> applyFilters({
-    OfferCategory? category,
+    String? category,
     double? maxPrice,
     double? maxDistanceKm,
     String? searchQuery,
@@ -450,7 +450,7 @@ class AllOffersNotifier extends AsyncNotifier<List<Offer>> {
       return repo.getFilteredOffers(
         lat: location?.latitude ?? 0,
         lng: location?.longitude ?? 0,
-        category: category?.dbValue,
+        category: category,
         maxPrice: maxPrice,
         maxDistanceKm: maxDistanceKm,
         searchQuery: searchQuery,

@@ -573,8 +573,11 @@ class _ProductInfoCard extends StatelessWidget {
                     : colorScheme.onSurfaceVariant,
               ),
               _InfoField(label: 'Recogida desde', value: _formatPickupStart()),
-if (offer.category != null)
-  _InfoField(label: 'Categoría', value: offer.categoryLabel)
+if (offer.categories.isNotEmpty)
+  _InfoField(
+    label: 'Categoría',
+    value: offer.categories.map((c) => c.name).join(', '),
+  )
               else
                 _InfoField(
                   label: 'Horario',

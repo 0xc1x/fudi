@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
-import '../../../offers/domain/offer_category.dart';
+import '../../../offers/presentation/offer_providers.dart';
 import '../business_providers.dart';
 
 class ProductsCategoryFilters extends ConsumerWidget {
@@ -12,31 +12,39 @@ class ProductsCategoryFilters extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedCategory = ref.watch(productsCategoryFilterProvider);
+    final selectedCategoryId = ref.watch(productsCategoryFilterProvider);
+    final categoriesAsync = ref.watch(categoriesProvider);
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
+    return categoriesAsync.when(
+      data: (categories) => SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
             _CategoryChip(
-            label: 'Todas',
-            selected: selectedCategory == null,
-            onTap: () =>
-                ref.read(productsCategoryFilterProvider.notifier).select(null),
-          ),
-          const SizedBox(width: FudiSpacing.sm),
-          for (final category in OfferCategory.values)
-            _CategoryChip(
-              label: category.emoji.isNotEmpty
-                  ? '${category.emoji} ${category.dbValue}'
-                  : category.dbValue,
-              selected: selectedCategory == category,
-              onTap: () => ref
-                  .read(productsCategoryFilterProvider.notifier)
-                  .select(category),
+              label: 'Todas',
+              selected: selectedCategoryId == null,
+              onTap: () =>
+                  ref.read(productsCategoryFilterProvider.notifier).select(null),
             ),
-        ],
+            const SizedBox(width: FudiSpacing.sm),
+            for (final category in categories)
+              _CategoryChip(
+                label: (category.emoji != null && category.emoji!.isNotEmpty)
+                    ? '${category.emoji} ${category.name}'
+                    : category.name,
+                selected: selectedCategoryId == category.id,
+                onTap: () => ref
+                    .read(productsCategoryFilterProvider.notifier)
+                    .select(category.id),
+              ),
+          ],
+        ),
       ),
+      loading: () => const SizedBox(
+        height: 40,
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 }

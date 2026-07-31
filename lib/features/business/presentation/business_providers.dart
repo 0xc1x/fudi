@@ -20,7 +20,6 @@ import '../domain/business_payout.dart';
 import '../domain/business_payout_repository.dart';
 import '../domain/business_stats_repository.dart';
 import '../../offers/domain/offer.dart';
-import '../../offers/domain/offer_category.dart';
 import '../../orders/domain/order_model.dart';
 import '../../orders/domain/coupon.dart';
 import '../../auth/presentation/auth_state_provider.dart';
@@ -337,15 +336,15 @@ final productsSortProvider =
       ProductsSortNotifier.new,
     );
 
-class ProductsCategoryFilterNotifier extends Notifier<OfferCategory?> {
+class ProductsCategoryFilterNotifier extends Notifier<String?> {
   @override
-  OfferCategory? build() => null;
+  String? build() => null;
 
-  void select(OfferCategory? value) => state = value;
+  void select(String? value) => state = value;
 }
 
 final productsCategoryFilterProvider =
-    NotifierProvider<ProductsCategoryFilterNotifier, OfferCategory?>(
+    NotifierProvider<ProductsCategoryFilterNotifier, String?>(
       ProductsCategoryFilterNotifier.new,
     );
 
@@ -366,7 +365,10 @@ final filteredBusinessOffersProvider = Provider.family<List<Offer>, String>((
     if (query.isNotEmpty && !o.title.toLowerCase().contains(query)) {
       return false;
     }
-    if (category != null && o.category != category) return false;
+    if (category != null &&
+        !o.categories.any((c) => c.id == category)) {
+      return false;
+    }
     return true;
   }).toList();
 

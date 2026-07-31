@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../offers/domain/offer.dart';
-import '../../offers/domain/offer_category.dart';
+import '../../offers/domain/category.dart';
 import '../domain/consumer_preferences.dart';
 import '../domain/payment_method_model.dart';
 import '../domain/saved_address_model.dart';
@@ -27,7 +27,7 @@ class SupabaseConsumerProfileRepository {
         .select('''
       offer_id,
       offers!inner (
-        id, business_id, business_location_id, title, description, image, category,
+        id, business_id, business_location_id, title, description, image,
         original_price, discounted_price, stock, initial_stock,
         pickup_start, pickup_end, is_active, rating, review_count,
         businesses:business_id (
@@ -35,6 +35,11 @@ class SupabaseConsumerProfileRepository {
         ),
         business_locations:business_location_id (
           id, address, latitude, longitude, zone
+        ),
+        offer_categories (
+          categories:categories!offer_categories_category_id_fkey (
+            id, name, slug, emoji, image_url, active
+          )
         )
       )
       ''')
@@ -65,7 +70,9 @@ class SupabaseConsumerProfileRepository {
         title: offerJson['title'] as String,
         description: offerJson['description'] as String?,
         imageUrl: offerJson['image'] as String?,
-        category: OfferCategory.fromDb(offerJson['category'] as String?),
+        categories: Category.fromEmbedded(
+          offerJson['offer_categories'] as List<dynamic>?,
+        ),
         originalPrice: (offerJson['original_price'] as num).toDouble(),
         discountedPrice: (offerJson['discounted_price'] as num).toDouble(),
         stock: offerJson['stock'] as int? ?? 0,

@@ -437,7 +437,7 @@ class _AllOffersHeader extends StatelessWidget {
   }
 }
 
-class _ActiveFiltersBar extends StatelessWidget {
+class _ActiveFiltersBar extends ConsumerWidget {
   const _ActiveFiltersBar({
     required this.filters,
     required this.onClear,
@@ -449,13 +449,26 @@ class _ActiveFiltersBar extends StatelessWidget {
   final VoidCallback onClearAll;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final categories =
+        ref.watch(categoriesProvider).asData?.value ?? const [];
+
+    String? categoryName;
+    if (filters.category != null) {
+      for (final c in categories) {
+        if (c.id == filters.category) {
+          categoryName = c.name;
+          break;
+        }
+      }
+    }
+
     final chips = <Widget>[];
 
     if (filters.category != null) {
       chips.add(
         FudiFilterChip(
-          label: filters.category!.dbValue,
+          label: categoryName ?? filters.category!,
           onClear: () => onClear('category'),
         ),
       );

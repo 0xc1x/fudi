@@ -18,7 +18,6 @@ import '../../../../core/ui/fudi_image_picker_field.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../offers/domain/offer.dart';
-import '../../../offers/domain/offer_category.dart';
 import '../../../offers/presentation/offer_providers.dart';
 import '../business_providers.dart';
 import '../business_profile_providers.dart';
@@ -54,7 +53,7 @@ class _BusinessProductFormScreenState
   final _priceFocus = FocusNode();
   final _stockFocus = FocusNode();
 
-  OfferCategory _selectedCategory = OfferCategory.surprise;
+  final Set<String> _selectedCategoryIds = <String>{};
   XFile? _imageFile;
   DateTime _startDate = DateTime.now();
   TimeOfDay _startTime = const TimeOfDay(hour: 18, minute: 0);
@@ -68,8 +67,6 @@ class _BusinessProductFormScreenState
   String? _existingImageUrl;
   bool _isLoadingProduct = false;
   String? _selectedLocationId;
-
-  List<OfferCategory> get _categories => OfferCategory.values;
 
   @override
   void initState() {
@@ -110,7 +107,9 @@ class _BusinessProductFormScreenState
         _stockController.text = offer.stock.toString();
         _includesController.text = offer.includes ?? '';
         _allergensController.text = offer.allergens ?? '';
-        _selectedCategory = offer.category ?? OfferCategory.surprise;
+        _selectedCategoryIds
+          ..clear()
+          ..addAll(offer.categories.map((c) => c.id));
         _startDate = DateTime(
           offer.pickupStart.year,
           offer.pickupStart.month,
@@ -295,6 +294,16 @@ class _BusinessProductFormScreenState
       return;
     }
 
+    if (_selectedCategoryIds.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Selecciona al menos una categoría.'),
+          backgroundColor: FudiColors.destructive,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isSubmitting = true);
 
     try {
@@ -319,6 +328,11 @@ class _BusinessProductFormScreenState
       }
 
       final repo = ref.read(businessCatalogRepositoryProvider);
+
+      final allCategories = await ref.read(categoriesProvider.future);
+      final selectedCategories = allCategories
+          .where((c) => _selectedCategoryIds.contains(c.id))
+          .toList();
 
       final effectiveLocationId =
           _selectedLocationId ?? business.businessLocationId;
@@ -345,7 +359,7 @@ class _BusinessProductFormScreenState
         discountedPrice: double.parse(_priceController.text),
         stock: int.parse(_stockController.text),
         initialStock: int.parse(_stockController.text),
-        category: _selectedCategory,
+        categories: selectedCategories,
         pickupStart: _pickupStartAt,
         pickupEnd: _pickupEndAt,
         isActive: true,
@@ -458,20 +472,7 @@ class _BusinessProductFormScreenState
                             : null,
                       ),
                       const SizedBox(height: FudiSpacing.md),
-                      FudiDropdownFormField<OfferCategory>(
-                        label: 'Categoría',
-                        value: _selectedCategory,
-                        items: _categories
-                            .map((e) => DropdownMenuItem(
-                                  value: e,
-                                  child: Text(e.dbValue),
-                                ))
-                            .toList(),
-                        onChanged: (v) => setState(() {
-                          _selectedCategory = v ?? OfferCategory.surprise;
-                          _isDirty = true;
-                        }),
-                      ),
+                      _buildCategorySelector(),
                       const SizedBox(height: FudiSpacing.md),
                       _buildLocationSelector(),
                       const SizedBox(height: FudiSpacing.md),
@@ -664,6 +665,75 @@ class _BusinessProductFormScreenState
           isLoading: _isSubmitting,
         ),
       ),
+    );
+  }
+
+  Widget _buildCategorySelector() {
+    final categoriesAsync = ref.watch(categoriesProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Categorías', style: FudiTypography.labelMedium),
+        const SizedBox(height: FudiSpacing.sm),
+        categoriesAsync.when(
+          data: (categories) {
+            if (categories.isEmpty) {
+              return Text(
+                'No hay categorías disponibles',
+                style: FudiTypography.bodySmall.copyWith(
+                  color: FudiColors.mutedForeground,
+                ),
+              );
+            }
+            return Wrap(
+              spacing: FudiSpacing.sm,
+              runSpacing: FudiSpacing.sm,
+              children: categories.map((cat) {
+                final selected = _selectedCategoryIds.contains(cat.id);
+                final label = (cat.emoji != null && cat.emoji!.isNotEmpty)
+                    ? '${cat.emoji} ${cat.name}'
+                    : cat.name;
+                return FilterChip(
+                  label: Text(label),
+                  selected: selected,
+                  onSelected: (value) {
+                    setState(() {
+                      if (value) {
+                        _selectedCategoryIds.add(cat.id);
+                      } else {
+                        _selectedCategoryIds.remove(cat.id);
+                      }
+                      _isDirty = true;
+                    });
+                  },
+                );
+              }).toList(),
+            );
+          },
+          loading: () => const SizedBox(
+            height: 32,
+            child: Center(
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+          error: (_, _) => Text(
+            'No se pudieron cargar las categorías.',
+            style: FudiTypography.bodySmall.copyWith(
+              color: FudiColors.destructive,
+            ),
+          ),
+        ),
+        if (_autoValidate && _selectedCategoryIds.isEmpty) ...[
+          const SizedBox(height: FudiSpacing.xs),
+          Text(
+            'Selecciona al menos una categoría.',
+            style: FudiTypography.bodySmall.copyWith(
+              color: FudiColors.destructive,
+            ),
+          ),
+        ],
+      ],
     );
   }
 

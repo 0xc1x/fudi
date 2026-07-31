@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,7 +8,8 @@ import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_theme.dart';
 import '../../../../core/ui/fudi_typography.dart';
-import '../../../offers/domain/offer_category.dart';
+import '../../../offers/domain/category.dart';
+import '../../../offers/presentation/offer_providers.dart';
 import '../business_providers.dart';
 
 class BusinessProductsFiltersSheet extends ConsumerStatefulWidget {
@@ -32,12 +35,16 @@ class BusinessProductsFiltersSheet extends ConsumerStatefulWidget {
 
 class _BusinessProductsFiltersSheetState
     extends ConsumerState<BusinessProductsFiltersSheet> {
-  OfferCategory? _selectedCategory;
+  String? _selectedCategoryId;
+  List<Category> _categories = [];
 
   @override
   void initState() {
     super.initState();
-    _selectedCategory = ref.read(productsCategoryFilterProvider);
+    _selectedCategoryId = ref.read(productsCategoryFilterProvider);
+    unawaited(ref.read(categoriesProvider.future).then((cats) {
+      if (mounted) setState(() => _categories = cats);
+    }));
   }
 
   @override
@@ -70,9 +77,10 @@ class _BusinessProductsFiltersSheetState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Categoría', style: FudiTypography.h2),
-              if (_selectedCategory != null)
+              if (_selectedCategoryId != null)
                 FudiPressableScale(
-                  onTap: () => setState(() => _selectedCategory = null),
+                  onTap: () =>
+                      setState(() => _selectedCategoryId = null),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -90,31 +98,44 @@ class _BusinessProductsFiltersSheetState
             ],
           ),
           const SizedBox(height: FudiSpacing.lg),
-          Wrap(
-            spacing: FudiSpacing.sm,
-            runSpacing: FudiSpacing.sm,
-            children: OfferCategory.values.map((cat) {
-              final isSelected = _selectedCategory == cat;
-              return FilterChip(
-                label: Text(cat.dbValue),
-                selected: isSelected,
-                onSelected: (selected) {
-                  setState(() {
-                    _selectedCategory = selected ? cat : null;
-                  });
-                },
-                selectedColor: FudiColors.secondary,
-                checkmarkColor: FudiColors.primary,
-                side: BorderSide(color: themeExt?.borderSolid ?? FudiColors.borderSolid),
-              );
-            }).toList(),
-          ),
+          if (_categories.isEmpty)
+            Text(
+              'No hay categorías disponibles',
+              style: FudiTypography.bodySmall.copyWith(
+                color: FudiColors.mutedForeground,
+              ),
+            )
+          else
+            Wrap(
+              spacing: FudiSpacing.sm,
+              runSpacing: FudiSpacing.sm,
+              children: _categories.map((cat) {
+                final isSelected = _selectedCategoryId == cat.id;
+                final label = (cat.emoji != null && cat.emoji!.isNotEmpty)
+                    ? '${cat.emoji} ${cat.name}'
+                    : cat.name;
+                return FilterChip(
+                  label: Text(label),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    setState(() {
+                      _selectedCategoryId = selected ? cat.id : null;
+                    });
+                  },
+                  selectedColor: FudiColors.secondary,
+                  checkmarkColor: FudiColors.primary,
+                  side: BorderSide(
+                    color: themeExt?.borderSolid ?? FudiColors.borderSolid,
+                  ),
+                );
+              }).toList(),
+            ),
           const SizedBox(height: FudiSpacing.xl),
           FudiPressableScale(
             onTap: () {
               ref
                   .read(productsCategoryFilterProvider.notifier)
-                  .select(_selectedCategory);
+                  .select(_selectedCategoryId);
               Navigator.of(context).pop();
             },
             child: Container(

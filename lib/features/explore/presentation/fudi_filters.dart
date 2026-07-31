@@ -8,7 +8,7 @@ import '../../../core/ui/fudi_pressable_scale.dart';
 import '../../../core/ui/fudi_spacing.dart';
 import '../../../core/ui/fudi_theme.dart';
 import '../../../core/ui/fudi_typography.dart';
-import '../../offers/domain/offer_category.dart';
+import '../../offers/domain/category.dart';
 import '../../offers/presentation/offer_providers.dart';
 
 class FudiFilterState {
@@ -19,7 +19,7 @@ class FudiFilterState {
     this.searchQuery,
   });
 
-  final OfferCategory? category;
+  final String? category;
   final double? maxPrice;
   final double? maxDistanceKm;
   final String? searchQuery;
@@ -33,7 +33,7 @@ class FudiFilterState {
   FudiFilterState clear() => const FudiFilterState();
 
   FudiFilterState copyWith({
-    OfferCategory? category,
+    String? category,
     double? maxPrice,
     double? maxDistanceKm,
     String? searchQuery,
@@ -87,7 +87,7 @@ class FudiFiltersSheet extends ConsumerStatefulWidget {
 
 class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
   late FudiFilterState _filters;
-  List<OfferCategory> _categories = [];
+  List<Category> _categories = [];
 
   static const _distanceOptions = [2.0, 5.0, 10.0];
   static const _priceOptions = [2.0, 5.0, 10.0];
@@ -167,14 +167,17 @@ class _FudiFiltersSheetState extends ConsumerState<FudiFiltersSheet> {
             Wrap(
               spacing: FudiSpacing.sm,
               children: _categories.map((cat) {
-                final isSelected = _filters.category == cat;
+                final isSelected = _filters.category == cat.id;
+                final label = (cat.emoji != null && cat.emoji!.isNotEmpty)
+                    ? '${cat.emoji} ${cat.name}'
+                    : cat.name;
                 return FilterChip(
-                  label: Text(cat.dbValue),
+                  label: Text(label),
                   selected: isSelected,
                   onSelected: (selected) {
                     setState(() {
                       _filters = _filters.copyWith(
-                        category: selected ? cat : null,
+                        category: selected ? cat.id : null,
                         clearCategory: !selected,
                       );
                     });

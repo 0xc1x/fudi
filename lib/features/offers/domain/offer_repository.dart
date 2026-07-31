@@ -1,5 +1,5 @@
 import 'offer.dart';
-import 'offer_category.dart';
+import 'category.dart';
 
 abstract class OfferRepository {
   Future<List<Offer>> getPopularOffers({int limit = 10});
@@ -34,7 +34,7 @@ abstract class OfferRepository {
 
   Future<List<AreaStat>> getPopularAreas();
 
-  Future<List<OfferCategory>> getCategories();
+  Future<List<Category>> getCategories();
 
   Future<List<Offer>> getExpiringSoonOffers({
     double? lat,

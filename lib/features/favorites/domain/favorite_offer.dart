@@ -1,4 +1,4 @@
-import '../../offers/domain/offer_category.dart';
+import '../../offers/domain/category.dart';
 
 class FavoriteOffer {
   const FavoriteOffer({
@@ -7,7 +7,7 @@ class FavoriteOffer {
     required this.businessName,
     required this.address,
     this.zone,
-    required this.category,
+    this.categories = const [],
     required this.title,
     required this.rating,
     required this.discountedPrice,
@@ -20,12 +20,14 @@ class FavoriteOffer {
   final String businessName;
   final String address;
   final String? zone;
-  final OfferCategory? category;
+  final List<Category> categories;
   final String title;
   final double rating;
   final double discountedPrice;
   final double originalPrice;
   final String? imageUrl;
+
+  String get categoryLabel => categories.map((c) => c.name).join(', ');
 
   double get totalSaved => originalPrice - discountedPrice;
 }

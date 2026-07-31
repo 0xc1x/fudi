@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/ui/atoms/fudi_filter_chip.dart';
 import '../../../../core/ui/fudi_colors.dart';
 import '../../../../core/ui/fudi_pressable_scale.dart';
 import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
+import '../../../offers/presentation/offer_providers.dart';
 import '../fudi_filters.dart';
 
 /// Barra de chips activos que muestra los filtros aplicados con opción de
 /// eliminarlos individualmente o limpiar todo.
-class ExploreActiveFiltersBar extends StatelessWidget {
+class ExploreActiveFiltersBar extends ConsumerWidget {
   const ExploreActiveFiltersBar({
     super.key,
     required this.filters,
@@ -21,13 +23,26 @@ class ExploreActiveFiltersBar extends StatelessWidget {
   final VoidCallback onClearAll;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final categories =
+        ref.watch(categoriesProvider).asData?.value ?? const [];
+
+    String? categoryName;
+    if (filters.category != null) {
+      for (final c in categories) {
+        if (c.id == filters.category) {
+          categoryName = c.name;
+          break;
+        }
+      }
+    }
+
     final chips = <Widget>[];
 
     if (filters.category != null) {
       chips.add(
         _ExploreFilterChip(
-          label: filters.category!.dbValue,
+          label: categoryName ?? filters.category!,
           onClear: () => onClear('category'),
         ),
       );

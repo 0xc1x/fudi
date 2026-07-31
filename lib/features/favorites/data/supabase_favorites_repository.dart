@@ -1,7 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/utils/num_utils.dart';
-import '../../offers/domain/offer_category.dart';
+import '../../offers/domain/category.dart';
 import '../domain/favorite_offer.dart';
 import '../domain/favorites_repository.dart';
 
@@ -21,12 +21,17 @@ class SupabaseFavoritesRepository implements FavoritesRepository {
       id,
       offer_id,
       offers:offer_id (
-        id, title, category, image, original_price, discounted_price, rating,
+        id, title, image, original_price, discounted_price, rating,
         businesses:business_id (
           name
         ),
         business_locations:business_location_id (
           address, zone
+        ),
+        offer_categories (
+          categories:categories!offer_categories_category_id_fkey (
+            id, name, slug, emoji, image_url, active
+          )
         )
       )
       ''')
@@ -89,7 +94,9 @@ class SupabaseFavoritesRepository implements FavoritesRepository {
       businessName: businessJson['name'] as String? ?? 'Negocio',
       address: locationJson?['address'] as String? ?? '',
       zone: locationJson?['zone'] as String?,
-      category: OfferCategory.fromDb(offerJson['category'] as String?),
+      categories: Category.fromEmbedded(
+        offerJson['offer_categories'] as List<dynamic>?,
+      ),
       title: offerJson['title'] as String? ?? 'Oferta',
       rating: parseDouble(offerJson['rating']) ?? 0,
       discountedPrice: parseDouble(offerJson['discounted_price']) ?? 0,

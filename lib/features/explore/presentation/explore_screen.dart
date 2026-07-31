@@ -14,7 +14,6 @@ import '../../../core/routing/route_names.dart';
 import '../../../core/utils/geo_utils.dart';
 import '../../favorites/presentation/favorites_providers.dart';
 import '../../offers/domain/offer.dart';
-import '../../offers/domain/offer_category.dart';
 import '../../offers/presentation/offer_providers.dart';
 import 'fudi_filters.dart';
 import 'map_view.dart';
@@ -31,7 +30,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   final _searchController = TextEditingController();
   FudiFilterState _filters = const FudiFilterState();
   bool _viewModeMap = false;
-  OfferCategory? _selectedCategory;
+  String? _selectedCategoryId;
   Timer? _searchDebounce;
 
   @override
@@ -83,7 +82,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             data: (stats) => SliverToBoxAdapter(
               child: ExploreCategoryGrid(
                 stats: stats,
-                selectedCategory: _selectedCategory,
+                selectedCategory: _selectedCategoryId,
                 onCategoryTap: _handleCategoryTap,
               ),
             ),
@@ -208,11 +207,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   }
 
   void _handleCategoryTap(String categoryId) {
-    final category = OfferCategory.fromDb(categoryId);
     setState(() {
-      _selectedCategory = _selectedCategory == category ? null : category;
-      if (_selectedCategory != null) {
-        _filters = _filters.copyWith(category: _selectedCategory);
+      _selectedCategoryId = _selectedCategoryId == categoryId ? null : categoryId;
+      if (_selectedCategoryId != null) {
+        _filters = _filters.copyWith(category: _selectedCategoryId);
         _viewModeMap = true;
       } else {
         _filters = _filters.copyWith(clearCategory: true);
@@ -226,7 +224,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       switch (key) {
         case 'category':
           _filters = _filters.copyWith(clearCategory: true);
-          _selectedCategory = null;
+          _selectedCategoryId = null;
         case 'maxPrice':
           _filters = _filters.copyWith(clearMaxPrice: true);
         case 'maxDistanceKm':
@@ -243,7 +241,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     setState(() {
       _filters = _filters.clear();
       _searchController.clear();
-      _selectedCategory = null;
+      _selectedCategoryId = null;
     });
     _loadOffers();
   }

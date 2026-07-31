@@ -9,6 +9,7 @@ import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/atoms/fudi_filter_chip.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../offers/domain/offer.dart';
+import '../../../offers/presentation/offer_providers.dart';
 import '../../domain/business_profile.dart';
 import '../business_providers.dart';
 import 'business_products_active_filters.dart';
@@ -140,8 +141,18 @@ class _ActiveFiltersChipsRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final category = ref.watch(productsCategoryFilterProvider);
-    if (category == null) return const SizedBox.shrink();
+    final categoryId = ref.watch(productsCategoryFilterProvider);
+    if (categoryId == null) return const SizedBox.shrink();
+
+    final categories =
+        ref.watch(categoriesProvider).asData?.value ?? const [];
+    String? categoryName;
+    for (final c in categories) {
+      if (c.id == categoryId) {
+        categoryName = c.name;
+        break;
+      }
+    }
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -158,7 +169,7 @@ class _ActiveFiltersChipsRow extends ConsumerWidget {
               child: Row(
                 children: [
                   _ActiveChip(
-                    label: category.dbValue,
+                    label: categoryName ?? categoryId,
                     onClear: () => ref
                         .read(productsCategoryFilterProvider.notifier)
                         .select(null),

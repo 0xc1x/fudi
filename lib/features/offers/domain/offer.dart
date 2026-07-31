@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'offer_category.dart';
+import 'category.dart';
 
 class BusinessInfo {
   const BusinessInfo({
@@ -80,7 +80,7 @@ class Offer {
     this.createdAt,
     this.description,
     this.imageUrl,
-    this.category,
+    this.categories = const [],
     this.includes,
     this.allergens,
   });
@@ -92,7 +92,7 @@ class Offer {
   final String title;
   final String? description;
   final String? imageUrl;
-  final OfferCategory? category;
+  final List<Category> categories;
   final String? includes;
   final String? allergens;
   final double originalPrice;
@@ -109,7 +109,7 @@ class Offer {
   double get discountPercentage =>
       originalPrice > 0 ? ((originalPrice - discountedPrice) / originalPrice * 100) : 0;
 
-  String get categoryLabel => category?.dbValue ?? '';
+  String get categoryLabel => categories.map((c) => c.name).join(', ');
 
   TimeOfDay get pickupUntilTimeOfDay =>
       TimeOfDay(hour: pickupEnd.hour, minute: pickupEnd.minute);

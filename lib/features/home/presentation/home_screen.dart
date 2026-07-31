@@ -14,7 +14,6 @@ import '../../../core/ui/fudi_typography.dart';
 import '../../offers/domain/offer_repository.dart';
 import '../../../core/ui/fudi_selectable_chips_bar.dart';
 import '../../../core/ui/fudi_error_state.dart';
-import '../../offers/domain/offer_category.dart';
 import '../../offers/presentation/offer_providers.dart';
 
 // Nuevos widgets extraídos
@@ -36,12 +35,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String? _selectedCategoryId;
 
   void _onCategorySelected(String? categoryId) {
-    final category = categoryId != null
-        ? OfferCategory.fromDb(categoryId)
-        : null;
     setState(() => _selectedCategoryId = categoryId);
-    unawaited(ref.read(popularOffersProvider.notifier).filterByCategory(category));
-    unawaited(ref.read(nearbyOffersProvider.notifier).filterByCategory(category));
+    unawaited(
+      ref.read(popularOffersProvider.notifier).filterByCategory(categoryId),
+    );
+    unawaited(
+      ref.read(nearbyOffersProvider.notifier).filterByCategory(categoryId),
+    );
   }
 
   @override
@@ -60,9 +60,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: RefreshIndicator(
         onRefresh: () async {
           if (_selectedCategoryId != null) {
-            final category = OfferCategory.fromDb(_selectedCategoryId);
-            unawaited(ref.read(popularOffersProvider.notifier).filterByCategory(category));
-            unawaited(ref.read(nearbyOffersProvider.notifier).filterByCategory(category));
+            unawaited(
+              ref
+                  .read(popularOffersProvider.notifier)
+                  .filterByCategory(_selectedCategoryId),
+            );
+            unawaited(
+              ref
+                  .read(nearbyOffersProvider.notifier)
+                  .filterByCategory(_selectedCategoryId),
+            );
           } else {
             await ref.read(popularOffersProvider.notifier).refresh();
             await ref.read(nearbyOffersProvider.notifier).refresh();

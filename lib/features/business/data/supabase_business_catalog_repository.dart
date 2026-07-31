@@ -6,7 +6,7 @@ import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/postgrest_exception_mapper.dart';
 import '../../../core/utils/num_utils.dart';
 import '../../offers/domain/offer.dart';
-import '../../offers/domain/offer_category.dart';
+import '../../offers/domain/category.dart';
 import '../domain/business_catalog_repository.dart';
 
 class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
@@ -16,7 +16,7 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
   final SupabaseClient _supabaseClient;
 
   static const _selectFields = '''
-  id, business_id, business_location_id, title, description, image, category,
+  id, business_id, business_location_id, title, description, image,
   original_price, discounted_price, stock, initial_stock,
   pickup_start, pickup_end, is_active, includes, allergens, rating, review_count,
   businesses:business_id (
@@ -24,6 +24,11 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
   ),
   business_locations:business_location_id (
     id, name, address, latitude, longitude, zone
+  ),
+  offer_categories (
+    categories:categories!offer_categories_category_id_fkey (
+      id, name, slug, emoji, image_url, active
+    )
   )
   ''';
 
@@ -69,7 +74,9 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
           .select(_selectFields)
           .single();
 
-      return _mapOfferFromJson(response);
+      final createdOffer = _mapOfferFromJson(response);
+      await _syncOfferCategories(createdOffer.id, createdOffer.categories);
+      return createdOffer;
     } on PostgrestException catch (e) {
       throw e.toFudiException(feature: 'catalog');
     } on FudiException {
@@ -103,7 +110,9 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
           .select(_selectFields)
           .single();
 
-      return _mapOfferFromJson(response);
+      final updatedOffer = _mapOfferFromJson(response);
+      await _syncOfferCategories(updatedOffer.id, offer.categories);
+      return updatedOffer;
     } on PostgrestException catch (e) {
       throw e.toFudiException(feature: 'catalog');
     } on FudiException {
@@ -193,7 +202,9 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
       title: json['title'] as String,
       description: json['description'] as String?,
       imageUrl: json['image'] as String?,
-      category: OfferCategory.fromDb(json['category'] as String?),
+      categories: Category.fromEmbedded(
+        json['offer_categories'] as List<dynamic>?,
+      ),
       includes: json['includes'] as String?,
       allergens: json['allergens'] as String?,
       originalPrice: parseDouble(json['original_price']) ?? 0.0,
@@ -213,7 +224,6 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
       'business_id': offer.businessId,
       'title': offer.title,
       'description': offer.description,
-      'category': offer.category?.dbValue,
       'includes': offer.includes,
       'allergens': offer.allergens,
       'original_price': offer.originalPrice,
@@ -228,5 +238,23 @@ class SupabaseBusinessCatalogRepository implements BusinessCatalogRepository {
       data['business_location_id'] = offer.businessLocationId;
     }
     return data;
+  }
+
+  Future<void> _syncOfferCategories(
+    String offerId,
+    List<Category> categories,
+  ) async {
+    await _supabaseClient
+        .from('offer_categories')
+        .delete()
+        .eq('offer_id', offerId);
+
+    if (categories.isEmpty) return;
+
+    await _supabaseClient.from('offer_categories').insert(
+      categories
+          .map((c) => {'offer_id': offerId, 'category_id': c.id})
+          .toList(),
+    );
   }
 }

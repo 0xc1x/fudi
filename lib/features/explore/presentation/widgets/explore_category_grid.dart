@@ -6,7 +6,6 @@ import '../../../../core/ui/fudi_spacing.dart';
 import '../../../../core/ui/fudi_typography.dart';
 import '../../../../core/ui/atoms/icons/fudi_icons.dart';
 import '../../../../core/ui/fudi_info_chips_bar.dart';
-import '../../../offers/domain/offer_category.dart';
 import '../../../offers/domain/offer_repository.dart';
 import '../../../offers/presentation/offer_providers.dart';
 
@@ -19,7 +18,7 @@ class ExploreCategoryGrid extends ConsumerStatefulWidget {
   });
 
   final List<CategoryStat> stats;
-  final OfferCategory? selectedCategory;
+  final String? selectedCategory;
   final ValueChanged<String> onCategoryTap;
 
   @override
@@ -96,8 +95,7 @@ class _ExploreCategoryGridState extends ConsumerState<ExploreCategoryGrid> {
                   runSpacing: FudiSpacing.sm,
                   children: [
                     ...display.map((cat) {
-                      final isSelected =
-                          widget.selectedCategory?.dbValue == cat.id;
+                      final isSelected = widget.selectedCategory == cat.id;
                       final isNew = newIds.contains(cat.id);
                       return _FadeSlideIn(
                         key: ValueKey(cat.id),

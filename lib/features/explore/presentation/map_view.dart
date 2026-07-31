@@ -506,7 +506,7 @@ class _ExploreMapViewState extends ConsumerState<ExploreMapView> {
   }
 }
 
-class _MapHeader extends StatelessWidget {
+class _MapHeader extends ConsumerWidget {
   const _MapHeader({
     required this.onBack,
     required this.filters,
@@ -518,14 +518,24 @@ class _MapHeader extends StatelessWidget {
   final VoidCallback onFilterTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final mutedBg = theme.colorScheme.surfaceContainerLow;
     final mutedFg = theme.colorScheme.onSurface.withValues(alpha: 0.6);
 
+    final categories =
+        ref.watch(categoriesProvider).asData?.value ?? const [];
+
     final subtitle = <String>[];
     if (filters.category != null) {
-      subtitle.add(filters.category!.dbValue);
+      String? categoryName;
+      for (final c in categories) {
+        if (c.id == filters.category) {
+          categoryName = c.name;
+          break;
+        }
+      }
+      subtitle.add(categoryName ?? filters.category!);
     }
     if (filters.maxDistanceKm != null) {
       subtitle.add('${filters.maxDistanceKm!.toInt()} km');

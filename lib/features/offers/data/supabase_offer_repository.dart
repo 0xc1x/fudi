@@ -8,7 +8,7 @@ import '../../../core/error/fudi_exception.dart';
 import '../../../core/error/postgrest_exception_mapper.dart';
 import '../../../core/utils/num_utils.dart';
 import '../domain/offer.dart';
-import '../domain/offer_category.dart';
+import '../domain/category.dart';
 import '../domain/offer_repository.dart';
 
 class SupabaseOfferRepository implements OfferRepository {
@@ -22,7 +22,7 @@ class SupabaseOfferRepository implements OfferRepository {
   static const kExpiringSoonWindowHours = 3;
 
   static const _selectFields = '''
-  id, business_id, business_location_id, title, description, image, category,
+  id, business_id, business_location_id, title, description, image,
   original_price, discounted_price, stock, initial_stock,
   pickup_start, pickup_end, is_active, rating, review_count,
   created_at,
@@ -31,8 +31,30 @@ class SupabaseOfferRepository implements OfferRepository {
   ),
   business_locations:business_locations!offers_business_location_id_fkey (
     id, name, address, latitude, longitude, zone
+  ),
+  offer_categories (
+    categories:categories!offer_categories_category_id_fkey (
+      id, name, slug, emoji, image_url, active
+    )
   )
   ''';
+
+  /// Variante de [_selectFields] que fuerza un INNER JOIN sobre
+  /// `offer_categories`. PostgREST solo filtra los padres cuando el join con
+  /// la tabla embebida es `!inner`; sin él, un `.eq('offer_categories.*')`
+  /// devuelve todas las ofertas y solo vacía el arreglo embebido.
+  ///
+  /// Nota: cuando aparece `!inner`, el parser de PostgREST rechaza cualquier
+  /// salto de línea en el `select`, por eso esta cadena va en una sola línea.
+  static String _selectFieldsWithInnerOfferCategories() =>
+      'id, business_id, business_location_id, title, description, image, '
+      'original_price, discounted_price, stock, initial_stock, '
+      'pickup_start, pickup_end, is_active, rating, review_count, created_at, '
+      'businesses:business_id(id, name, type, image, rating, review_count), '
+      'business_locations:business_locations!offers_business_location_id_fkey('
+      'id, name, address, latitude, longitude, zone), '
+      'offer_categories!inner(categories:categories!offer_categories_category_id_fkey('
+      'id, name, slug, emoji, image_url, active))';
 
   @override
   Future<List<Offer>> getPopularOffers({int limit = 10}) async {
@@ -64,15 +86,20 @@ class SupabaseOfferRepository implements OfferRepository {
     int limit = 10,
   }) async {
     try {
+      final hasCategory = category != null && category.isNotEmpty;
       var query = _supabaseClient
           .from('offers')
-          .select(_selectFields)
+          .select(
+            hasCategory
+                ? _selectFieldsWithInnerOfferCategories()
+                : _selectFields,
+          )
           .eq('is_active', true)
           .gt('stock', 0)
           .gt('pickup_end', DateTime.now().toUtc().toIso8601String());
 
-      if (category != null && category.isNotEmpty) {
-        query = query.eq('category', category);
+      if (hasCategory) {
+        query = query.eq('offer_categories.category_id', category);
       }
 
       final response = await query
@@ -153,15 +180,20 @@ class SupabaseOfferRepository implements OfferRepository {
     String? searchQuery,
   }) async {
     try {
+      final hasCategory = category != null && category.isNotEmpty;
       var query = _supabaseClient
           .from('offers')
-          .select(_selectFields)
+          .select(
+            hasCategory
+                ? _selectFieldsWithInnerOfferCategories()
+                : _selectFields,
+          )
           .eq('is_active', true)
           .gt('stock', 0)
           .gt('pickup_end', DateTime.now().toUtc().toIso8601String());
 
-      if (category != null && category.isNotEmpty) {
-        query = query.eq('category', category);
+      if (hasCategory) {
+        query = query.eq('offer_categories.category_id', category);
       }
       if (maxPrice != null) {
         query = query.lte('discounted_price', maxPrice);
@@ -251,15 +283,20 @@ class SupabaseOfferRepository implements OfferRepository {
   }
 
   Future<List<Offer>> _fetchActiveOffers({String? category}) async {
+    final hasCategory = category != null && category.isNotEmpty;
     var query = _supabaseClient
         .from('offers')
-        .select(_selectFields)
+        .select(
+          hasCategory
+              ? _selectFieldsWithInnerOfferCategories()
+              : _selectFields,
+        )
         .eq('is_active', true)
         .gt('stock', 0)
         .gt('pickup_end', DateTime.now().toUtc().toIso8601String());
 
-    if (category != null && category.isNotEmpty) {
-      query = query.eq('category', category);
+    if (hasCategory) {
+      query = query.eq('offer_categories.category_id', category);
     }
 
     final response = await query.order('created_at', ascending: false);
@@ -270,36 +307,43 @@ class SupabaseOfferRepository implements OfferRepository {
   @override
   Future<List<CategoryStat>> getCategoryStats() async {
     try {
+      final categories = await getCategories();
+
       final response = await _supabaseClient
           .from('offers')
-          .select('category')
+          .select('offer_categories(category_id)')
           .eq('is_active', true)
           .gt('stock', 0)
           .gt('pickup_end', DateTime.now().toUtc().toIso8601String());
 
       final counts = <String, int>{};
       for (final row in response) {
-        final cat = row['category'] as String?;
-        if (cat != null) {
-          final category = OfferCategory.fromDb(cat);
-          if (category != null) {
-            counts[category.dbValue] = (counts[category.dbValue] ?? 0) + 1;
+        final offerCategories =
+            row['offer_categories'] as List<dynamic>? ?? const [];
+        for (final item in offerCategories) {
+          final id = (item as Map<String, dynamic>)['category_id'] as String?;
+          if (id != null) {
+            counts[id] = (counts[id] ?? 0) + 1;
           }
         }
       }
 
-      final stats = OfferCategory.values.map((cat) {
+      final stats = categories.map((cat) {
         return CategoryStat(
-          id: cat.dbValue,
-          name: cat.dbValue,
-          count: counts[cat.dbValue] ?? 0,
-          emoji: cat.emoji,
-          imageUrl: cat.imageUrl,
+          id: cat.id,
+          name: cat.name,
+          count: counts[cat.id] ?? 0,
+          emoji: cat.emoji ?? '',
+          imageUrl: cat.imageUrl ?? '',
         );
       }).toList();
 
       stats.sort((a, b) => b.count.compareTo(a.count));
       return stats;
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'offers');
+    } on FudiException {
+      rethrow;
     } catch (e) {
       return [];
     }
@@ -337,8 +381,22 @@ class SupabaseOfferRepository implements OfferRepository {
   }
 
   @override
-  Future<List<OfferCategory>> getCategories() async {
-    return OfferCategory.values.toList();
+  Future<List<Category>> getCategories() async {
+    try {
+      final response = await _supabaseClient
+          .from('categories')
+          .select('id, name, slug, emoji, image_url, active')
+          .eq('active', true)
+          .order('name', ascending: true);
+
+      return response.map((json) => Category.fromJson(json)).toList();
+    } on PostgrestException catch (e) {
+      throw e.toFudiException(feature: 'offers');
+    } on FudiException {
+      rethrow;
+    } catch (e) {
+      throw const UnknownDataException(message: 'Error al cargar categorías');
+    }
   }
 
   @override
@@ -625,7 +683,9 @@ class SupabaseOfferRepository implements OfferRepository {
       title: json['title'] as String,
       description: json['description'] as String?,
       imageUrl: json['image'] as String?,
-      category: OfferCategory.fromDb(json['category'] as String?),
+      categories: Category.fromEmbedded(
+        json['offer_categories'] as List<dynamic>?,
+      ),
       originalPrice: parseDouble(json['original_price']) ?? 0.0,
       discountedPrice: parseDouble(json['discounted_price']) ?? 0.0,
       stock: json['stock'] as int? ?? 0,
