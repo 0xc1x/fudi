@@ -159,32 +159,23 @@ class _OfferDetailContentMinimalState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Categoría o tipo de comida en Badge minimalista
+                      // Categorías asignadas a la oferta en Badges minimalistas
                       FudiStaggerItem(
                         index: 0,
                         child: Row(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.primary.withValues(
-                                  alpha: 0.1,
-                                ),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                offer.business.type.toUpperCase(),
-                                style: FudiTypography.labelSmall.copyWith(
-                                  color: theme.colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.0,
-                                ),
+                            Expanded(
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  for (final category in offer.categories)
+                                    _categoryBadge(theme, category.name),
+                                  if (offer.categories.isEmpty)
+                                    _categoryBadge(theme, offer.business.type),
+                                ],
                               ),
                             ),
-                            const Spacer(),
                             if (offer.rating > 0) ...[
                               const Icon(
                                 Icons.star_rounded,
@@ -542,6 +533,24 @@ class _OfferDetailContentMinimalState
   }
 
   // Métodos Helper de UI para el Timeline
+  Widget _categoryBadge(ThemeData theme, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label.toUpperCase(),
+        style: FudiTypography.labelSmall.copyWith(
+          color: theme.colorScheme.primary,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.0,
+        ),
+      ),
+    );
+  }
+
   Widget _buildTimelineStep({
     required IconData icon,
     required String title,
