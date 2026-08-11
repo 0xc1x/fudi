@@ -1,6 +1,6 @@
 name: fudi
 description: "Fudi - Food rescue app. Pickup-only deals from local businesses."
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
@@ -85,7 +85,6 @@ flutter:
         - asset: assets/fonts/DMSans-VariableFont_opsz,wght.ttf
         - asset: assets/fonts/DMSans-Italic-VariableFont_opsz,wght.ttf
           style: italic
-
 
 sentry:
   upload_debug_symbols: true

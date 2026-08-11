@@ -109,7 +109,11 @@ bool _shouldHideAppBar(GoRouterState state) {
   return _hideAppBarPaths.contains(state.matchedLocation);
 }
 
-Widget _buildConsumerShell(BuildContext context, GoRouterState state, Widget child) {
+Widget _buildConsumerShell(
+  BuildContext context,
+  GoRouterState state,
+  Widget child,
+) {
   return FudiScaffold(
     showBottomNav: !_shouldHideBottomNav(state),
     showAppBar: !_shouldHideAppBar(state),
@@ -117,7 +121,11 @@ Widget _buildConsumerShell(BuildContext context, GoRouterState state, Widget chi
   );
 }
 
-Widget _buildBusinessShell(BuildContext context, GoRouterState state, Widget child) {
+Widget _buildBusinessShell(
+  BuildContext context,
+  GoRouterState state,
+  Widget child,
+) {
   return FudiScaffold(
     showBottomNav: !_shouldHideBottomNav(state),
     showAppBar: !_shouldHideAppBar(state),
@@ -213,8 +221,9 @@ GoRouter createAppRouter(
                   GoRoute(
                     path: 'business-profile/:id',
                     name: RouteNames.businessProfileView,
-                    builder: (context, state) =>
-                        BusinessProfileScreen(businessId: state.pathParameters['id']!),
+                    builder: (context, state) => BusinessProfileScreen(
+                      businessId: state.pathParameters['id']!,
+                    ),
                   ),
                   GoRoute(
                     path: 'about',
@@ -296,7 +305,8 @@ GoRouter createAppRouter(
                   GoRoute(
                     path: 'notifications',
                     name: RouteNames.profileNotifications,
-                    builder: (context, state) => const NotificationSettingsScreen(),
+                    builder: (context, state) =>
+                        const NotificationSettingsScreen(),
                   ),
                   GoRoute(
                     path: 'settings',
@@ -335,7 +345,8 @@ GoRouter createAppRouter(
                   GoRoute(
                     path: 'create',
                     name: RouteNames.businessProductCreate,
-                    builder: (context, state) => const BusinessProductFormScreen(),
+                    builder: (context, state) =>
+                        const BusinessProductFormScreen(),
                   ),
                   GoRoute(
                     path: ':id',
@@ -437,7 +448,8 @@ GoRouter createAppRouter(
                   GoRoute(
                     path: 'create',
                     name: RouteNames.businessCouponCreate,
-                    builder: (context, state) => const BusinessCouponEditScreen(),
+                    builder: (context, state) =>
+                        const BusinessCouponEditScreen(),
                   ),
                   GoRoute(
                     path: ':id/edit',
@@ -451,7 +463,8 @@ GoRouter createAppRouter(
               GoRoute(
                 path: RouteNames.businessNotificationsPath,
                 name: RouteNames.businessNotifications,
-                builder: (context, state) => const BusinessNotificationsScreen(),
+                builder: (context, state) =>
+                    const BusinessNotificationsScreen(),
               ),
               GoRoute(
                 path: RouteNames.businessProfilePath,
