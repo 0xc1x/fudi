@@ -14,10 +14,10 @@ Centralizar reglas, arquitectura, contexto de producto y configuración MCP para
 | `docs/ai/PRODUCT_BRIEF.md` | Producto | Roles, pantallas, alcance y restricciones |
 | `docs/ai/SYSTEM_ARCHITECTURE.md` | Arquitectura | Stack, módulos y decisiones técnicas |
 | `docs/ai/ERROR_HANDLING.md` | Observabilidad | Jerarquía FudiException, Sentry, retry, offline, UI errors |
-| `docs/ai/PAYMENTS.md` | Pagos | Pasarela MercadoPago, flujos cobro/pago, webhooks, reembolsos |
+| `docs/ai/PAYMENTS.md` | Pagos | Pasarela (pendiente de definición), flujos cobro/pago, webhooks, reembolsos |
 | `docs/ai/ANALYTICS.md` | Analítica | Eventos, funnels, métricas de negocio, consentimiento |
 | `docs/ai/MCP_CAPABILITIES.md` | Herramientas | MCPs compartidos, variables y estrategia de uso |
-| `docs/ai/IMPLEMENTATION_PLAN.md` | Implementacion | Plan completo: Mockup React -> Flutter + Supabase, 9 fases, 40 pantallas |
+| `docs/ai/IMPLEMENTATION_PLAN.md` | Implementacion | Plan de migracion React -> Flutter (COMPLETADO — historico) |
 | `AGENT_SYSTEM_META.md` | Meta | Mapa unificado de agentes y herramientas |
 
 ## Agentes especializados

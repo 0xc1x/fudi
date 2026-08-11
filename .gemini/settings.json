@@ -34,11 +34,8 @@
       ],
       "trust": true
     },
-    "supabase-db": {
-      "command": "node",
-      "args": [
-        "./.ai/mcp/launchers/supabase-postgres.mjs"
-      ],
+    "supabase": {
+      "httpUrl": "https://mcp.supabase.com/mcp?project_ref=sxqopofoynsqkztozlix&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching",
       "trust": true
     },
     "openaiDeveloperDocs": {
@@ -58,7 +55,7 @@
   "mcp": {
     "allowed": [
       "github",
-      "supabase-db",
+      "supabase",
       "openaiDeveloperDocs",
       "chrome-devtools",
       "context7"

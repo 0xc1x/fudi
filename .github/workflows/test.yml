@@ -16,8 +16,8 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.41.8'
-          channel: 'stable'
+          flutter-version: "3.41.8"
+          channel: "stable"
           cache: true
 
       - name: Install dependencies
@@ -37,11 +37,32 @@ jobs:
       - name: Run unit tests
         run: flutter test --coverage
 
+      - name: Enforce coverage threshold
+        # Gate mínimo de cobertura: falla si la línea cae del piso.
+        # Subir el piso conforme crezca la suite (objetivo: 40%+).
+        run: |
+          python3 - <<'EOF'
+          found = 0
+          hit = 0
+          with open('coverage/lcov.info') as f:
+              for line in f:
+                  if line.startswith('LF:'):
+                      found += int(line[3:].strip())
+                  elif line.startswith('LH:'):
+                      hit += int(line[3:].strip())
+          if found == 0:
+              raise SystemExit('No coverage data found (lcov.info vacio)')
+          pct = hit / found * 100
+          print(f'Line coverage: {pct:.1f}% ({hit}/{found})')
+          if pct < 5.0:
+              raise SystemExit(f'Coverage {pct:.1f}% por debajo del minimo 5.0% — agregar tests')
+          EOF
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           files: coverage/lcov.info
-          fail_ci_if_error: false
+          fail_ci_if_error: true
 
   integration-test:
     runs-on: ubuntu-latest
@@ -52,8 +73,8 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.41.8'
-          channel: 'stable'
+          flutter-version: "3.41.8"
+          channel: "stable"
           cache: true
 
       - name: Install dependencies

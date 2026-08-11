@@ -1,14 +1,18 @@
 # Notification Preferences — Refactor Plan
 
-> Status: Draft for review
-> Last updated: 2026-06-15
+> **STATUS: COMPLETADO — implementado.** Las tres fases están reflejadas en el codebase y NO deben reimplementarse (verificar contra el código):
+>
+> - **Fase 1–2**: dominios, repos y providers en `lib/features/profile/` y `lib/features/business/`; `NotificationSettingsScreen` y `BusinessNotificationsScreen` migradas a Riverpod con `consumerNotificationPreferencesProvider` / `businessNotificationPreferencesProvider`.
+> - **Fase 3**: `send-push-notification` (filtro por canal + quiet hours), `handle-order-event` (pref_table business) y `dispatch-nearby-offers` (alert types) implementados.
+> - `ConsumerPreferences` quedó solo con `notificationRadiusKm` (campos de notificaciones removidos).
+> Last updated: 2026-06-15 (verificado contra el codebase)
 
 ## Problem
 
 Current notification preferences are fragmented across multiple models, repositories, and storage layers, with no server-side enforcement.
 
 | Area | Issue |
-|---|---|
+| --- | --- |
 | **Consumer** | `user_preferences` mixes UI settings (dark_mode, language) with notification toggles. 4 fields (`favoriteAlertsEnabled`, `pickupRemindersEnabled`, `lastMinuteDealsEnabled`, `weeklySummaryEnabled`) exist only in `SharedPreferences` — the server cannot read them. No SMS/WhatsApp support. |
 | **Business** | `BusinessNotificationsScreen` has a full UI (event types, channels, quiet hours) but **zero persistence** — no domain model, no repository, no DB table. Save button shows a no-op SnackBar. |
 | **Server** | `handle-order-event` and `dispatch-nearby-offers` do not check per-type notification preferences before dispatching. Quiet hours are not enforced anywhere. |
@@ -133,6 +137,7 @@ Each with `getPreferences(id)` and `updatePreferences(prefs)`.
 ### 1.6 Clean up `ConsumerPreferences`
 
 Remove these fields from `ConsumerPreferences`:
+
 - `pushNotificationsEnabled`
 - `emailNotificationsEnabled`
 - `favoriteAlertsEnabled`
@@ -224,6 +229,7 @@ Phase 3.3  →  dispatch-nearby-offers preference check
 ## Files affected
 
 ### New files
+
 - `lib/features/profile/domain/consumer_notification_preferences.dart`
 - `lib/features/profile/domain/consumer_notification_repository.dart`
 - `lib/features/profile/data/supabase_consumer_notification_repository.dart`
@@ -232,6 +238,7 @@ Phase 3.3  →  dispatch-nearby-offers preference check
 - `lib/features/business/data/supabase_business_notification_repository.dart`
 
 ### Modified files
+
 - `lib/features/profile/domain/consumer_preferences.dart`
 - `lib/features/profile/data/supabase_consumer_profile_repository.dart`
 - `lib/features/profile/presentation/profile_providers.dart`
@@ -243,5 +250,6 @@ Phase 3.3  →  dispatch-nearby-offers preference check
 - `supabase/functions/dispatch-nearby-offers/index.ts`
 
 ### New migrations
+
 - `supabase/migrations/20260615000005_create_consumer_notification_preferences.sql`
 - `supabase/migrations/20260615000006_create_business_notification_preferences.sql`

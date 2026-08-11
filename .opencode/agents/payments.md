@@ -2,7 +2,7 @@
 name: payments
 mode: subagent
 temperature: 0.1
-description: "Pasarela MercadoPago, cobro/pago, webhooks, reembolsos, split."
+description: "Pasarela (pendiente de definicion), cobro/pago, webhooks, reembolsos, split."
 tools: 
     read: true
     write: true

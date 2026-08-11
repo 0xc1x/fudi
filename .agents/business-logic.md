@@ -41,7 +41,7 @@ Eres el guardián de las reglas de negocio de Fudi. Tu conocimiento de producto 
 ### Transiciones permitidas
 
 | Desde | Hasta | Trigger | Quién |
-|-------|------|---------|-------|
+| ------- | ------ | --------- | ------- |
 | — | pending | Usuario reserva oferta | User (app) |
 | pending | confirmed | Webhook payment.approved | Sistema (Edge Function) |
 | pending | cancelled | Webhook payment.rejected | Sistema |
@@ -136,8 +136,8 @@ $$ LANGUAGE plpgsql;
 ### Cobro a cliente
 
 1. Usuario selecciona oferta → crea Order (pending)
-2. Edge Function crea PaymentIntent en MercadoPago
-3. App redirige a Checkout Pro
+2. Edge Function crea PaymentIntent en la pasarela
+3. App redirige al checkout de la pasarela
 4. Webhook confirma pago → Order → confirmed
 5. Si falla: Order → cancelled, stock liberado
 
@@ -151,7 +151,7 @@ $$ LANGUAGE plpgsql;
 ## Permisos por Rol
 
 | Acción | guest | user | business | admin |
-|--------|-------|------|----------|-------|
+| -------- | ------- | ------ | ---------- | ------- |
 | Ver ofertas en mapa | ✓ | ✓ | ✓ | ✓ |
 | Filtrar ofertas | ✓ | ✓ | ✓ | ✓ |
 | Ver detalle de oferta | ✓ | ✓ | ✓ | ✓ |

@@ -1,36 +1,36 @@
 # Plan de Implementacion Fudi: Mockup React a Flutter + Supabase
 
-> **Para Hermes:** Usar subagent-driven-development para ejecutar este plan tarea por tarea.
+> **STATUS: COMPLETADO — documento historico.** La migracion React→Flutter y las 9 fases estan terminadas. No implementar fases desde aqui; usar el codebase actual y `docs/ai/` como fuente de verdad.
 
 **Goal:** Migrar los 40 componentes del mockup React a Flutter con logica real, crear el esquema de base de datos en Supabase, e implementar los flujos core de negocio.
 
-**Architecture:** Clean Architecture + Feature-First. 3 capas (Data/Domain/Presentation) con capas transversales de Error, Analytics, Observabilidad y Network. Supabase como backend (Auth + DB + Storage + Edge Functions). Pasarela de pagos por definir (ver decisión Place to Pay abajo). Sentry para trazabilidad.
+**Architecture:** Clean Architecture + Feature-First. 3 capas (Data/Domain/Presentation) con capas transversales de Error, Analytics, Observabilidad y Network. Supabase como backend (Auth + DB + Storage + Edge Functions). Pasarela de pagos PENDIENTE de definicion (ver ADR-001 abajo). Sentry para trazabilidad.
 
 **Tech Stack:** Flutter 3.x, Dart, Riverpod, GoRouter, Supabase Flutter, Sentry Flutter, Google Maps Flutter
 
-**Payment Provider Decision:** Place to Pay será la pasarela de pagos (reemplaza MercadoPago). No se agrega SDK de pagos en Phase 0 — la integración se pospone hasta Fase 7. Ver ADR-001 abajo.
+**Payment Provider Decision:** PENDIENTE — no se ha elegido la pasarela. No se agrega SDK de pagos. Ver ADR-001 abajo (historico).
 
-**Mockup fuente:** `/mnt/c/Users/emele/Downloads/fudi/src/app/` (40 pantallas, 7 componentes, 3 contextos)
+**Mockup fuente:** El mockup React fue migrado a Flutter (completado) — ya no es referencia activa.
 
-**Repo destino:** `/mnt/c/Users/emele/Repositories/fudi/`
+**Repo destino:** este repositorio.
 
 ---
 
 ## ADR-001: Pasarela de Pagos — Place to Pay
 
-**Status:** Accepted
+**Status:** Superseded — la pasarela NO esta definida (decision abierta). Ver `docs/ai/PAYMENTS.md`.
 
-**Context:** El plan original referenciaba MercadoPago (`mercadopago_sdk`) como pasarela de pagos. El usuario ha decidido usar Place to Pay en su lugar.
+**Context (historico):** El plan original referenciaba MercadoPago (`mercadopago_sdk`) como pasarela de pagos. En un momento se evaluo Place to Pay como alternativa.
 
-**Decision:** Usar Place to Pay como pasarela de pagos primaria. No agregar ningún SDK de pagos en Phase 0. La integración se implementará en Fase 7 con la misma interfaz abstracta `PaymentGateway` definida en PAYMENTS.md.
+**Decision (historica, no vigente):** Usar Place to Pay como pasarela de pagos primaria. **Revisada y pendiente** — no implementar hasta nueva decision.
 
-**Consequences:**
-- `mercadopago_sdk` NO se agrega como dependencia
-- La interfaz abstracta `PaymentGateway` (PAYMENTS.md) se mantiene — solo cambia la implementación concreta
-- Los env vars de configuración cambiarán de `MP_*` a los que Place to Pay requiera
-- Los webhooks endpoint cambiarán de `/api/webhooks/payments/mercadopago` a `/api/webhooks/payments/placetopay`
-- Los sandbox/test credentials serán los de Place to Pay
-- Los modelos de dominio (PaymentIntent, Payout, PaymentEvent) NO cambian — son agnósticos de pasarela
+**Consequences (vigentes de la revision):**
+
+- No se agrega NINGUN SDK de pagos hasta elegir pasarela
+- La interfaz abstracta `PaymentGateway` (PAYMENTS.md) se mantiene — solo cambia la implementacion concreta
+- Los env vars y endpoints de webhook se definiran al elegir la pasarela (`/api/webhooks/payments/{gateway}`)
+- Los sandbox/test credentials seran los de la pasarela elegida
+- Los modelos de dominio (PaymentIntent, Payout, PaymentEvent) NO cambian — son agnosticos de pasarela
 
 ---
 
@@ -43,6 +43,7 @@
 **Files:** Modify: `~/.hermes/config.yaml`
 
 **Step 1:** Agregar al config:
+
 ```yaml
 mcp_servers:
 supabase:
@@ -53,7 +54,7 @@ SUPABASE_ACCESS_TOKEN: "<REQUIERE_TOKEN>"
 SUPABASE_PROJECT_ID: "<REQUIERE_PROJECT_ID>"
 ```
 
-**NOTA:** Se necesitan credenciales de Supabase. Crear proyecto en https://supabase.com primero.
+**NOTA:** Se necesitan credenciales de Supabase. Crear proyecto en <https://supabase.com> primero.
 
 ---
 
@@ -64,6 +65,7 @@ SUPABASE_PROJECT_ID: "<REQUIERE_PROJECT_ID>"
 **Files:** Modify: `pubspec.yaml`
 
 **Dependencies:**
+
 - State: flutter_riverpod, riverpod_annotation
 - Navigation: go_router
 - Backend: supabase_flutter
@@ -71,7 +73,7 @@ SUPABASE_PROJECT_ID: "<REQUIERE_PROJECT_ID>"
 - Analytics: firebase_core, firebase_analytics, mixpanel_flutter
 - Maps: google_maps_flutter, geolocator
 - UI: cached_network_image, shimmer, flutter_svg, smooth_page_indicator
-- Payments: ~~mercadopago_sdk~~ → **Ningún SDK de pagos en Phase 0** (ver ADR-001: Place to Pay)
+- Payments: ~~mercadopago_sdk~~ → **Ningún SDK de pagos** (pasarela pendiente de definicion — ver ADR-001)
 - Utils: internet_connection_checker, intl, uuid, freezed_annotation, json_annotation, flutter_dotenv, shared_preferences, flutter_secure_storage, dio
 
 **Dev:** build_runner, freezed, json_serializable, riverpod_generator, mocktail
@@ -97,6 +99,7 @@ mkdir -p lib/shared
 **Objective:** 3 ambientes (dev/staging/prod) con .env files
 
 **Files:**
+
 - Create: `lib/core/config/app_config.dart` — AppConfig con environment, supabaseUrl, sentryDsn, etc. ✅
 - Create: `lib/core/config/app_environment.dart` — enum AppEnvironment { dev, staging, prod } ✅
 - Create: `.env.dev`, `.env.staging`, `.env.prod`, `.env.example` ✅
@@ -108,6 +111,7 @@ mkdir -p lib/shared
 **Objective:** Conectar la infraestructura en el punto de entrada de la app
 
 **Files:**
+
 - Modify: `lib/main.dart` — Load dotenv, create AppConfig, init Supabase + Sentry, wrap with ProviderScope
 - Create: `lib/core/observability/sentry_init.dart` — Sentry initialization per environment
 - Create: `lib/core/observability/sentry_breadcrumb.dart` — Structured breadcrumbs (navigation, user_action, api, payment)
@@ -116,6 +120,7 @@ mkdir -p lib/shared
 - Create: `lib/core/routing/app_router.dart` — GoRouter with placeholder home route
 
 **Startup sequence:**
+
 1. `WidgetsFlutterBinding.ensureInitialized()`
 2. Resolve `AppEnvironment` from `--dart-define=APP_ENV`
 3. `dotenv.load(fileName: environment.envFileName)`
@@ -133,6 +138,7 @@ mkdir -p lib/shared
 **Agente:** accessibility-observability
 
 **Files:**
+
 - Create: `lib/core/error/fudi_exception.dart` — Base abstracta con code, severity, feature, userMessage, recovery
 - Create: `lib/core/error/network_exceptions.dart` — timeout, noConnection, serverError, rateLimited
 - Create: `lib/core/error/auth_exceptions.dart` — unauthenticated, unauthorized, invalidCredentials, sessionExpired
@@ -148,6 +154,7 @@ mkdir -p lib/shared
 **Agente:** accessibility-observability
 
 **Files:**
+
 - Create: `lib/core/observability/sentry_init.dart` — DSN por ambiente, release, beforeSend strip PII
 - Create: `lib/core/observability/sentry_breadcrumb.dart` — Categories: navigation, api, payment, user_action
 - Create: `lib/core/observability/fudi_error_reporter.dart` — Enriquecer con tags[feature], tags[error_code]
@@ -159,6 +166,7 @@ mkdir -p lib/shared
 **Agente:** analytics-growth
 
 **Files:**
+
 - Create: `lib/core/analytics/analytics_service.dart` — Abstracto con track(), setUserProperties()
 - Create: `lib/core/analytics/analytics_provider.dart` — Riverpod provider
 - Create: `lib/core/analytics/events/` — auth_events, offer_events, order_events, payment_events, navigation_events, business_events
@@ -172,6 +180,7 @@ mkdir -p lib/shared
 **Agente:** architect + accessibility-observability
 
 **Files:**
+
 - Create: `lib/core/network/secure_http_client.dart` — Dio con interceptors
 - Create: `lib/core/network/retry_policy.dart` — 3 retries, backoff exponencial, solo idempotentes
 - Create: `lib/core/network/circuit_breaker.dart` — 5 failures -> open 30s -> half-open
@@ -184,11 +193,13 @@ mkdir -p lib/shared
 **Agente:** architect
 
 **Files:**
+
 - Create: `lib/core/routing/app_router.dart` — GoRouter con 40+ rutas
 - Create: `lib/core/routing/route_guards.dart` — Auth guard + Role guard
 - Create: `lib/core/routing/route_names.dart` — Constantes de rutas
 
 **Rutas desde mockup (40 pantallas):**
+
 - Auth: /login, /signup
 - Consumer: /, /explore, /product/:id, /checkout/:id, /review-order/:id, /orders, /orders/:id, /favorites, /payment-methods, /saved-addresses
 - Profile: /profile, /profile/edit, /profile/notifications, /profile/settings
@@ -202,6 +213,7 @@ mkdir -p lib/shared
 **Agente:** architect
 
 **Files:**
+
 - Create: `lib/core/di/core_providers.dart` — AppConfig, SentryClient, AnalyticsService, SecureHttpClient, GoRouter
 - Create: `lib/core/di/supabase_providers.dart` — SupabaseClient singleton
 
@@ -211,7 +223,7 @@ mkdir -p lib/shared
 
 ### 2.1 Crear proyecto Supabase
 
-**Paso manual:** Crear proyecto en https://supabase.com, obtener credenciales, configurar .env.dev
+**Paso manual:** Crear proyecto en <https://supabase.com>, obtener credenciales, configurar .env.dev
 
 ---
 
@@ -220,7 +232,7 @@ mkdir -p lib/shared
 **Modelos fuente del mockup React -> Tablas Supabase:**
 
 | Interface TS | Tabla SQL | Campos clave |
-|---|---|---|
+| --- | --- | --- |
 | Deal (Home.tsx) | offers | id, business_id, title, image, original_price, discounted_price, rating, stock, pickup_start/end, is_active |
 | Business (BusinessProfile.tsx) | businesses | id, owner_id, name, type, slug, image, cover_image, rating, review_count, description, address, phone, email, website, latitude, longitude, commission_rate, balance |
 | Order (OrderHistory.tsx) | orders | id, user_id, offer_id, business_id, order_number, status, price, original_price, pickup_code, pickup_time |
@@ -230,6 +242,7 @@ mkdir -p lib/shared
 | Location (BusinessLocations.tsx) | business_locations | id, business_id, name, address, phone, latitude, longitude |
 
 **Tablas adicionales (no en mockup pero necesarias):**
+
 - profiles (extiende auth.users, con role)
 - business_hours
 - order_items
@@ -261,7 +274,7 @@ mkdir -p lib/shared
 ### 2.4 Edge Functions
 
 - `reserve-offer` — Reserva atomica (decrement stock + create order)
-- `handle-payment-webhook` — Recibe webhook de pasarela de pagos (Place to Pay), actualiza payment_intents y orders
+- `handle-payment-webhook` — Recibe webhook de pasarela de pagos (pasarela pendiente de definicion), actualiza payment_intents y orders
 - `process-payout` — Payout semanal automatico a negocios
 
 ---
@@ -279,6 +292,7 @@ mkdir -p lib/shared
 ### 2.6 Seed data
 
 **Extraer desde mockup React:**
+
 - MOCK_DEALS -> INSERT offers
 - MOCK_BUSINESS_PRODUCTS -> INSERT offers
 - MOCK_ALL_ORDERS -> INSERT orders
@@ -294,6 +308,7 @@ mkdir -p lib/shared
 **Agente:** business-logic
 
 **Files:**
+
 - Create: `lib/features/auth/domain/user_profile.dart` — Modelo Dart
 - Create: `lib/features/auth/domain/auth_repository.dart` — Interface abstracta
 - Create: `lib/features/auth/domain/app_mode.dart` — enum AppMode { consumer, business }
@@ -303,6 +318,7 @@ mkdir -p lib/shared
 ### 3.2 Auth data layer (Supabase) ✅
 
 **Files:**
+
 - Create: `lib/features/auth/data/supabase_auth_repository.dart` — Implementacion real
 
 ---
@@ -311,7 +327,7 @@ mkdir -p lib/shared
 
 **Agente:** migration-specialist + ux-ui
 
-**Mockup:** `/mnt/c/Users/emele/Downloads/fudi/src/app/pages/Login.tsx`
+**Mockup (historico):** `Login.tsx`
 **Flutter:** `lib/features/auth/presentation/login_screen.dart`
 
 **Mockup tiene:** email + password + "Iniciar Sesion" + link signup + divider + Google/Apple social + "Olvidaste contrasena"
@@ -340,6 +356,7 @@ mkdir -p lib/shared
 **Agente:** component-library
 
 **Colores del mockup (theme.css):**
+
 - primary: #256646 (verde oscuro)
 - secondary: #E3F7BE (verde claro)
 - accent: #359C6B (verde medio)
@@ -349,6 +366,7 @@ mkdir -p lib/shared
 - mutedForeground: #737373
 
 **Files:**
+
 - Create: `lib/core/ui/fudi_colors.dart` ✅
 - Create: `lib/core/ui/fudi_theme.dart` ✅
 - Create: `lib/core/ui/fudi_typography.dart` ✅
@@ -359,7 +377,7 @@ mkdir -p lib/shared
 ### 4.2 Componentes base ✅
 
 | Componente React | Widget Flutter | Archivo |
-|---|---|---|
+| --- | --- | --- |
 | BottomNav.tsx | FudiBottomNav | lib/core/ui/fudi_bottom_nav.dart |
 | Filters.tsx | FudiFilters | lib/core/ui/fudi_filters.dart |
 | StarRating.tsx | FudiStarRating | lib/core/ui/fudi_star_rating.dart |
@@ -367,6 +385,7 @@ mkdir -p lib/shared
 | Layout.tsx | FudiScaffold | lib/core/ui/fudi_scaffold.dart |
 
 **Extra:**
+
 - `app_mode_provider.dart` para cambio automático entre Consumer y Business.
 - `ShellRoute` integration en `app_router.dart`.
 - `_OfflineBanner` integrado en el scaffold.
@@ -403,8 +422,9 @@ mkdir -p lib/shared
 
 **Mockup:** ProductDetail.tsx, Checkout.tsx (Product interface), ReviewOrder.tsx
 **Logica CRITICA NUEVA:**
+
 - Edge Function reserve-offer
-- PaymentIntent via pasarela de pagos (Place to Pay — ver ADR-001)
+- PaymentIntent via pasarela de pagos (pendiente de definicion — ver ADR-001)
 - Checkout redirect
 - Deep link de retorno
 - Payment timeout 5 min
@@ -465,22 +485,24 @@ mkdir -p lib/shared
 
 ## FASE 7: Integraciones de Terceros
 
-### 7.1 Place to Pay integration (reemplaza MercadoPago — ver ADR-001)
+### 7.1 Integracion de pasarela de pagos (PENDIENTE — ver ADR-001)
 
 **Agente:** payments + integrations
 
 **Files:**
-- Create: `lib/core/network/payment_gateway.dart` — Interface abstracta (sin cambios, agnóstica de pasarela)
-- Create: `lib/features/offers/data/placetopay_gateway.dart` — Implementación Place to Pay
+
+- Create: `lib/core/network/payment_gateway.dart` — Interface abstracta (YA EXISTE, agnostica de pasarela)
+- Create: `lib/features/offers/data/<gateway>_gateway.dart` — Implementacion concreta (se define al elegir pasarela)
 - Create: `lib/features/offers/data/mock_payment_gateway.dart` — Para testing
 
-**Ver PAYMENTS.md para flujos completos.** Los modelos de dominio (PaymentIntent, PaymentEvent, etc.) no cambian. Solo la implementación concreta de la pasarela cambia de MercadoPago a Place to Pay.
+**Ver PAYMENTS.md para flujos completos.** Los modelos de dominio (PaymentIntent, PaymentEvent, etc.) no cambian. Solo cambia la implementacion concreta segun la pasarela elegida.
 
 ---
 
 ### 7.2 Google Maps integration
 
 **Files:**
+
 - Create: `lib/core/network/maps_service.dart` — Interface
 - Create: `lib/features/home/data/google_maps_service.dart` — Implementacion
 
@@ -489,6 +511,7 @@ mkdir -p lib/shared
 ### 7.3 Push notifications
 
 **Files:**
+
 - Create: `lib/core/network/push_service.dart` — Interface
 - Create: `lib/features/notifications/data/firebase_push_service.dart`
 
@@ -548,7 +571,7 @@ mkdir -p lib/shared
 ## Resumen de Mapeo Mockup -> Flutter
 
 | # | Pantalla Mockup | Ruta Flutter | Fase | Prioridad |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | 1 | Login.tsx | /login | 3 | P0 |
 | 2 | Signup.tsx | /signup | 3 | P0 |
 | 3 | Home.tsx | / | 5 | P0 |
@@ -595,7 +618,7 @@ mkdir -p lib/shared
 ## Resumen de Interfaces Mockup -> Modelos Dart
 
 | Interface TS | Modelo Dart | Tabla SQL |
-|---|---|---|
+| --- | --- | --- |
 | Deal | Offer | offers |
 | Product (Checkout) | Offer (mismo) | offers |
 | Product (Business) | BusinessOffer | offers (con sold, is_active) |
@@ -631,6 +654,7 @@ FASE 0 (infra) -> FASE 1 (core) -> FASE 4.1-4.2 (theme + componentes base)
 ```
 
 **Dependencias criticas:**
+
 - Auth (FASE 3) debe estar antes que cualquier feature con datos reales
 - Supabase schema (FASE 2) debe estar antes que repositories con datos reales
 - Core (FASE 1) debe estar antes que todo lo demas
@@ -638,6 +662,7 @@ FASE 0 (infra) -> FASE 1 (core) -> FASE 4.1-4.2 (theme + componentes base)
 - Payments (FASE 7.1) debe estar antes que Checkout funcional
 
 **Paralelizable:**
+
 - FASE 2 y FASE 3 pueden ir en paralelo
 - FASE 5 y FASE 6 pueden ir en paralelo (consumer vs business)
 - Testing (FASE 8) es continuo, no esperar al final

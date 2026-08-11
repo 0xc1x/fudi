@@ -65,7 +65,7 @@ Cuando se trabaje en multiples features simultaneamente, seguir este orden:
 ## Decision de routing por tipo de tarea
 
 | Tarea | Agente primario | Consulta tambien a |
-|-------|----------------|-------------------|
+| ------- | ---------------- | ------------------- |
 | Nueva pantalla UI | `@ux-ui` | `@migration-specialist`, `@component-library` |
 | Flujo de pago | `@payments` | `@business-logic`, `@security-compliance` |
 | Cambio en BD | `@database-architect` | `@architect`, `@business-logic` |
@@ -83,4 +83,4 @@ Cuando se trabaje en multiples features simultaneamente, seguir este orden:
 - `docs/ai/ERROR_HANDLING.md` — FudiException, Sentry, retry, offline
 - `docs/ai/PAYMENTS.md` — PaymentGateway, flujos, webhooks
 - `docs/ai/ANALYTICS.md` — Eventos, funnels, metricas
-- **Mockup React** — `/mnt/c/Users/emele/Downloads/fudi/src/` — Fuente visual y modelos de datos
+- **Design system** — `lib/core/ui/` (fudi_theme.dart, fudi_colors.dart) — Fuente visual actual

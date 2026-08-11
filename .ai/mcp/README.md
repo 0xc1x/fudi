@@ -11,7 +11,7 @@ Versionar en el repositorio una **fuente única de verdad** para los MCPs de Fud
 | Server | Tipo | Uso |
 | --- | --- | --- |
 | `github` | local / stdio | Issues, PRs y metadata del repositorio |
-| `supabase` | remote / HTTP | Official Supabase MCP — Database, Auth, Storage, RLS |
+| `supabase` | remote / HTTP | Official Supabase MCP — Database, Auth, Storage, RLS. Auth por OAuth por harness (ej: `opencode mcp auth supabase`). Sin launcher local |
 | `openaiDeveloperDocs` | remote / HTTP | Documentación oficial de OpenAI |
 | `chrome-devtools` | local / stdio | Inspección de páginas web via Chrome DevTools Protocol (snapshots, screenshots, red, performance, JS execution) |
 | `context7` | remote / HTTP | Documentación actualizada de cualquier librería/framework en tiempo real |
@@ -52,7 +52,6 @@ Versionar en el repositorio una **fuente única de verdad** para los MCPs de Fud
 | `.ai/mcp/mcp.manifest.json` | Catálogo canónico de MCPs y variables requeridas |
 | `.ai/mcp/lib/env-loader.mjs` | Cargador compartido de variables desde archivos `.env*` |
 | `.ai/mcp/launchers/github.mjs` | Launcher del MCP de GitHub |
-| `.ai/mcp/launchers/supabase-postgres.mjs` | Launcher del MCP de Postgres/Supabase |
 | `.ai/mcp/launchers/chrome-devtools.mjs` | Launcher del MCP de Chrome DevTools |
 | `.ai/mcp/launchers/figma.mjs` | Launcher del MCP de Figma (opcional) |
 | `.ai/mcp/launchers/linear.mjs` | Launcher del MCP de Linear (opcional) |
@@ -78,15 +77,15 @@ Los launchers exponen variables canónicas del repo y las traducen a lo que espe
 | Server | Variable del repo | Variable runtime |
 | --- | --- | --- |
 | `github` | `GITHUB_PERSONAL_ACCESS_TOKEN` | `GITHUB_ACCESS_TOKEN` |
-| `supabase-db` | `SUPABASE_DB_URL` | `DB_MAIN_URL` + aliases `main` |
 | `figma-api` | `FIGMA_ACCESS_TOKEN` | `FIGMA_API_KEY` |
+
+> `supabase` usa OAuth por harness (no variables de entorno).
 
 ## Variables mínimas
 
 | Variable | Obligatoria | Uso |
 | --- | --- | --- |
 | `GITHUB_PERSONAL_ACCESS_TOKEN` | Sí | MCP de GitHub |
-| `SUPABASE_DB_URL` | Sí | MCP de Postgres/Supabase |
 | `FIGMA_ACCESS_TOKEN` | No | MCP de Figma (opcional) |
 | `LINEAR_API_KEY` | No | MCP de Linear (opcional) |
 
@@ -120,13 +119,29 @@ Capacidades: snapshots del DOM, screenshots, inspección de red, auditorías Lig
    - Claude Code usa `.claude/mcp.json` (project) + `~/.claude/mcp/` (global)
    - Antigravity CLI usa `.antigravitycli/mcp_config.json` (project) + `~/.gemini/antigravity-cli/mcp_config.json` (global)
 
-## Nota sobre Supabase / Postgres
+## Nota sobre Supabase (MCP oficial)
 
-La URL debe ser una cadena PostgreSQL válida, por ejemplo:
+Supabase usa el **MCP remoto oficial** — no hay launcher local ni `SUPABASE_DB_URL`.
 
-```env
-SUPABASE_DB_URL=postgresql://postgres:password@db.example.supabase.co:5432/postgres
+Configuración por herramienta (la misma URL con `features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching`):
+
+```json
+{
+  "mcp": {
+    "supabase": {
+      "type": "remote",
+      "url": "https://mcp.supabase.com/mcp?project_ref=sxqopofoynsqkztozlix&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching",
+      "enabled": true
+    }
+  }
+}
 ```
+
+**Auth (OAuth, por harness):**
+
+- OpenCode: `opencode mcp auth supabase`
+- Codex: `codex mcp login supabase`
+- Otras herramientas: flujo OAuth nativo del cliente MCP (abre el navegador).
 
 ## Nota sobre OpenAI Docs MCP
 

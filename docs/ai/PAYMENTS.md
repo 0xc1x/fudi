@@ -2,12 +2,15 @@
 
 ## Decision de Pasarela
 
-**Primaria:** Place to Pay (reemplaza MercadoPago — ver ADR-001 en IMPLEMENTATION_PLAN.md)
-**Razon:** Cobertura LATAM, soporte multi-pais, checkout redirect, webhooks robustos. Decisión del usuario.
+**Estado: PENDIENTE de definicion.** Aun no se ha elegido la pasarela de pagos.
 
-**Secundaria (futura):** Stripe Connect (para expansion fuera de LATAM).
+Candidatos evaluados (sin decision):
 
-> **NOTA:** La integración concreta se implementará en Fase 7. Los modelos de dominio y la interfaz abstracta `PaymentGateway` son agnósticos de pasarela y NO cambian. Solo la implementación concreta cambia de MercadoPago a Place to Pay. Los env vars de configuración (`MP_*`) se reemplazarán por los que Place to Pay requiera.
+- **MercadoPago** — cobertura LATAM, Checkout Pro, split nativo
+- **Place to Pay** — cobertura LATAM multi-pais, checkout redirect (ver ADR-001 historico en IMPLEMENTATION_PLAN.md)
+- **Stripe** — candidato para expansion futura fuera de LATAM
+
+> **Regla vigente:** No agregar SDK de pagos hasta elegir pasarela. La interfaz abstracta `PaymentGateway` (`lib/core/network/payment_gateway.dart`) y los modelos de dominio son agnosticos de pasarela y NO cambian. Solo cambia la implementacion concreta y sus env vars (`MP_*`, `PTP_*`, o los que la pasarela elegida requiera). Cuando se defina la pasarela, actualizar este doc y eliminar las opciones restantes.
 
 La pasarela se encapsula detras de una interfaz abstracta para permitir swap sin tocar logica de negocio.
 
@@ -18,7 +21,7 @@ La pasarela se encapsula detras de una interfaz abstracta para permitir swap sin
 ```
 Usuario selecciona oferta
   -> Crear intencion de pago (backend/edge function)
-  -> Redirigir a checkout (MercadoPago Checkout Pro o Wallet)
+  -> Redirigir a checkout (checkout de la pasarela elegida)
   -> Webhook confirma pago
   -> Orden cambia a "confirmed"
   -> Usuario recibe confirmacion + instrucciones de pickup
@@ -34,18 +37,18 @@ Orden completada (pickup validado)
   -> Negocio recibe notificacion de deposito
 ```
 
-### Split Payment (MercadoPago)
+### Split Payment
 
 - **Platform fee:** Porcentaje configurable por negocio (default: 10%)
-- **Application fee:** Se configura al crear el preference
-- **Payout:** MercadoPago maneja el split automaticamente via `marketplace_fee`
+- **Application fee:** Se configura al crear la intencion de pago (nombre segun pasarela: `application_fee`, `marketplace_fee`, etc.)
+- **Payout:** La pasarela maneja el split automaticamente
 
 ## Entidades de Dominio
 
 ### PaymentIntent
 
 | Campo | Tipo | Descripcion |
-|-------|------|-------------|
+| ------- | ------ | ------------- |
 | id | UUID | PK |
 | order_id | UUID | FK a orders |
 | gateway | enum | place_to_pay, stripe |
@@ -59,7 +62,7 @@ Orden completada (pickup validado)
 ### Payout
 
 | Campo | Tipo | Descripcion |
-|-------|------|-------------|
+| ------- | ------ | ------------- |
 | id | UUID | PK |
 | business_id | UUID | FK a businesses |
 | period_start | date | Inicio del periodo |
@@ -127,7 +130,7 @@ class PaymentRefundedEvent extends PaymentEvent {
 
 ### Endpoint
 
-`POST /api/webhooks/payments/placetopay` (anteriormente `/mercadopago`)
+`POST /api/webhooks/payments/{gateway}` (se define al elegir pasarela)
 
 ### Validacion
 
@@ -139,7 +142,7 @@ class PaymentRefundedEvent extends PaymentEvent {
 ### Eventos manejados
 
 | Evento | Accion |
-|--------|--------|
+| -------- | -------- |
 | `payment.approved` | Marcar pago como approved, confirmar orden |
 | `payment.rejected` | Marcar pago como rejected, notificar usuario |
 | `payment.cancelled` | Marcar pago como cancelled, liberar oferta |
@@ -148,8 +151,8 @@ class PaymentRefundedEvent extends PaymentEvent {
 
 ## Seguridad
 
-- **No almacenar datos de tarjeta:** MercadoPago maneja todo via Checkout Pro
-- **Tokenizar:** Si se habilita card-on-file, usar tokens de MercadoPago
+- **No almacenar datos de tarjeta:** la pasarela elegida maneja todo via checkout redirigido
+- **Tokenizar:** Si se habilita card-on-file, usar tokens de la pasarela
 - **Webhook secrets:** Almacenados en Supabase Vault, no en codigo
 - **Monto validado en backend:** El precio se lee del servidor, no del cliente
 - **Idempotencia:** Cada operacion usa idempotency key para evitar doble cobro
@@ -160,7 +163,7 @@ class PaymentRefundedEvent extends PaymentEvent {
 ### Politica fase 1
 
 | Escenario | Accion |
-|-----------|--------|
+| ----------- | -------- |
 | Negocio cancela antes de pickup | Reembolso automatico completo |
 | Usuario no recoge dentro de ventana | No reembolso (dinero va al negocio) |
 | Oferta agotada despues de pago | Reembolso automatico completo |
@@ -170,7 +173,7 @@ class PaymentRefundedEvent extends PaymentEvent {
 
 ### Modo sandbox
 
-- MercadoPago provee credenciales de test
+- La pasarela elegida provee credenciales de test (sandbox)
 - Tarjetas de prueba documentadas en su SDK
 - Webhooks de test con retardo configurable
 - Payouts simulados
@@ -189,11 +192,7 @@ class MockPaymentGateway implements PaymentGateway {
 
 | Variable | Dev | Staging | Prod |
 |----------|-----|---------|------|
-| `PTP_LOGIN` | test-xxx | test-xxx | prod-xxx |
-| `PTP_TRANKEY` | test-xxx | test-xxx | prod-xxx |
-| `PTP_WEBHOOK_SECRET` | dev-secret | staging-secret | prod-secret |
-| `PTP_SANDBOX_MODE` | true | true | false |
 | `PLATFORM_FEE_PCT` | 10 | 10 | Configurable por negocio |
 | `PAYOUT_SCHEDULE` | manual | weekly | weekly |
 
-> **NOTA:** Los env vars `MP_*` anteriores se reemplazan por `PTP_*` (Place to Pay). Los nombres exactos pueden ajustarse al revisar la documentación de Place to Pay SDK.
+> **NOTA:** Las credenciales de la pasarela (`*_API_KEY`, webhook secrets, sandbox mode) se definiran al elegirla. No inventar nombres de variables hasta esa decision.

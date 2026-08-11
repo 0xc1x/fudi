@@ -5,15 +5,15 @@ Este archivo es el **mapa unificado** del sistema agentic de Fudi. Los agentes e
 ## Fuente Unica de Verdad (SSOT)
 
 | Archivo | Tipo | Proposito |
-|---|---|---|
+| --- | --- | --- |
 | `AGENTS.md` | Comportamiento | Reglas de conducta, seguridad y orquestacion |
 | `docs/ai/PRODUCT_BRIEF.md` | Conocimiento | Que es Fudi, roles, pantallas, limites de fase |
 | `docs/ai/SYSTEM_ARCHITECTURE.md` | Conocimiento | Stack, arquitectura, Supabase, patrones |
 | `docs/ai/ERROR_HANDLING.md` | Conocimiento | Jerarquia FudiException, Sentry, retry, offline, UI errors |
-| `docs/ai/PAYMENTS.md` | Conocimiento | Pasarela MercadoPago, flujos cobro/pago, webhooks, reembolsos |
+| `docs/ai/PAYMENTS.md` | Conocimiento | Pasarela (pendiente de definicion), flujos cobro/pago, webhooks, reembolsos |
 | `docs/ai/ANALYTICS.md` | Conocimiento | Eventos, funnels, metricas de negocio, consentimiento |
 
-**Mockup React** (`/mnt/c/Users/emele/Downloads/fudi/src/`) — Fuente visual autoritativa. 45+ pantallas con UI completa y datos mock. NO es logica funcional, es guia visual.
+**Design system implementado** (`lib/core/ui/fudi_theme.dart` + `FudiColors`) — el mockup React fue migrado a Flutter (completado). Las pantallas existentes en `lib/features/*/presentation/` son la referencia visual actual.
 
 ---
 
@@ -22,42 +22,42 @@ Este archivo es el **mapa unificado** del sistema agentic de Fudi. Los agentes e
 **Todos los agentes estan en `.agents/`** — ubicacion neutral, proveedor-agnostic.
 
 | Agente | Archivo | Descripcion |
-|---|---|---|
+| --- | --- | --- |
 | **Orquestador** | `.agents/fudi-orchestrator.md` | Coordina tareas, enruta a 16 especialistas, prioriza features |
 | **Arquitecto** | `.agents/architect.md` | Clean Architecture, capas transversales, Supabase, offline-first |
 | **Database Architect** | `.agents/database-architect.md` | Schema SQL, RLS, migraciones, entidades de pago/analytics/errores |
-| **UX/UI** | `.agents/ux-ui.md` | Pantallas del mockup, estados obligatorios, Consumer vs Business |
+| **UX/UI** | `.agents/ux-ui.md` | Pantallas, estados obligatorios, Consumer vs Business |
 | **Business Logic** | `.agents/business-logic.md` | Maquina de estados Order, disponibilidad concurrente, permisos |
 | **Test Engineer** | `.agents/test-engineer.md` | TDD, pagos, errores, E2E, webhooks, analytics |
 | **A11y & Observability** | `.agents/accessibility-observability.md` | WCAG AA, Sentry detallado, jerarquia errores, retry, offline |
 | **Integrations** | `.agents/integrations.md` | Contratos abstractos, pasarela, mapas, push, health checks, fallbacks |
 | **Deployment/SRE** | `.agents/deployment-sre.md` | Flavors, CI/CD, Sentry releases, sourcemaps, secrets |
 | **Tech Docs** | `.agents/technical-documentation.md` | ADRs, changelog, docs SSOT, proceso de actualizacion |
-| **Migration Specialist** | `.agents/migration-specialist.md` | Mockup-driven migration, extraccion de modelos, mapa de pantallas |
+| **Migration Specialist** | `.agents/migration-specialist.md` | Migracion React→Flutter completada; coherencia visual y de modelos con lo implementado |
 | **Component Library** | `.agents/component-library.md` | Tokens del theme.css, OfferCard, BottomNav, FilterBar, Tailwind→Flutter |
 | **Performance** | `.agents/performance.md` | Optimizacion de renderizado, memoria, animaciones |
 | **Security & Compliance** | `.agents/security-compliance.md` | Auth, secure storage, certificate pinning, OWASP, GDPR, PCI |
 | **Analytics & Growth** | `.agents/analytics-growth.md` | Funnels, metricas de negocio, A/B testing, consentimiento |
-| **Payments** | `.agents/payments.md` | Pasarela MercadoPago, cobro/pago, webhooks, reembolsos, split |
+| **Payments** | `.agents/payments.md` | Pasarela (pendiente de definicion), cobro/pago, webhooks, reembolsos, split |
 
 ---
 
 ## Temperatures Recomendados
 
 | Tipo de Agente | Temperature | Justificacion |
-|---|---|---|
+| --- | --- | --- |
 | Orquestador | 0.2 | Controlado, coherente |
 | Architect | 0.1 | Preciso, estructurado |
 | Database Architect | 0.1 | Preciso, normalizado, alineado con docs SSOT |
 | Business Logic | 0.15 | Estructurado pero con espacio para opciones |
-| UX/UI | 0.45 | Creativo pero alineado al mockup |
+| UX/UI | 0.45 | Creativo pero alineado al design system implementado |
 | Test Engineer | 0.1 | Preciso, sistematico |
 | A11y & Observability | 0.1 | Preciso, normativo |
 | Integrations | 0.15 | Estructurado, foco en limites |
 | Deployment/SRE | 0.1 | Preciso, operativo |
 | Tech Docs | 0.1 | Claro, estructurado, con ADRs y changelog |
-| Migration Specialist | 0.2 | Estructurado, mockup-driven |
-| Component Library | 0.3 | Creativo pero fiel al theme.css del mockup |
+| Migration Specialist | 0.2 | Estructurado, migracion completada |
+| Component Library | 0.3 | Creativo pero fiel al design system (FudiColors) |
 | Performance | 0.1 | Preciso, analitico |
 | Security & Compliance | 0.1 | Preciso, normativo, sin margen de interpretacion |
 | Analytics & Growth | 0.2 | Estructurado con espacio para hipotesis de producto |
@@ -70,9 +70,9 @@ Este archivo es el **mapa unificado** del sistema agentic de Fudi. Los agentes e
 Cada herramienta tiene un **archivo adapter** que fuerza la carga de los agentes y SSOT. Los agentes reales estan en `.agents/` — los adapters solo referencian, nunca duplican.
 
 | Herramienta | Archivo Adapter | Tipo de Adapter | Notas |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **OpenCode** | `.opencode/agents/*.md` | Subagentes ejecutables (YAML frontmatter + referencia a `.agents/`) | Unico tool con `mode: subagent` real |
-| **Cursor** | `.cursor/rules/20-fudi-agents.mdc` | Regla condicional (globs: *.dart, *.md, *.sql) | Tabla de routing a `.agents/` |
+| **Cursor** | `.cursor/rules/20-fudi-agents.mdc` | Regla condicional (globs: *.dart,*.md, *.sql) | Tabla de routing a `.agents/` |
 | **Gemini CLI** | `.gemini/settings.json` → `context.fileName` | Contexto inyectado (lista de archivos) | Carga todos los `.agents/*.md` + docs SSOT |
 | **Copilot/Codex** | `.github/copilot-instructions.md` | Instrucciones con tabla de routing | Referencia `.agents/` y `docs/ai/` |
 | **Copilot Local** | `COPILOT_INSTRUCTIONS.md` | Adapter alternativo en raiz | Fallback si no lee `.github/` |
@@ -117,6 +117,7 @@ Fuente unica de verdad: `.agents/<agente>.md`
 ## Protocolo de Uso por Herramienta
 
 ### OpenCode
+
 ```
 1. Lee `.agents/fudi-orchestrator.md` o AGENTS.md
 2. Identifica rol/feature afectada
@@ -126,6 +127,7 @@ Fuente unica de verdad: `.agents/<agente>.md`
 ```
 
 ### GitHub Copilot / Codex
+
 ```
 1. Lee `.github/copilot-instructions.md`
 2. Carga AGENTS.md como referencia
@@ -134,6 +136,7 @@ Fuente unica de verdad: `.agents/<agente>.md`
 ```
 
 ### Gemini CLI
+
 ```
 1. GEMINI.md fuerza carga de contexto
 2. AGENTS.md es obligatorio
@@ -142,6 +145,7 @@ Fuente unica de verdad: `.agents/<agente>.md`
 ```
 
 ### Cursor
+
 ```
 1. Lee `.cursor/rules/` (si existe)
 2. Consulta AGENTS.md como fallback
@@ -176,4 +180,4 @@ Antes de cualquier tarea, el agente debe confirmar:
 - Verifica restricciones de fase 1
 - No ejecuta builds despues de cambios
 - Usa conventional commits sin AI attribution
-- Si la tarea involucra UI, consulta el mockup React como fuente visual
+- Si la tarea involucra UI, consulta el design system implementado (FudiColors, fudi_theme.dart) y las pantallas existentes

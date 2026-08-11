@@ -6,11 +6,8 @@
         ".ai/mcp/launchers/github.mjs"
       ]
     },
-    "supabase-db": {
-      "command": "node",
-      "args": [
-        ".ai/mcp/launchers/supabase-postgres.mjs"
-      ]
+    "supabase": {
+      "url": "https://mcp.supabase.com/mcp?project_ref=sxqopofoynsqkztozlix&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching"
     },
     "openaiDeveloperDocs": {
       "url": "https://developers.openai.com/mcp"

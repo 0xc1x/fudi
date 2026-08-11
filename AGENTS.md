@@ -88,7 +88,7 @@ Si no existen subagentes reales, simula su checklist antes de responder.
 Si el entorno MCP está configurado, prefiere estos servidores:
 
 - `github` para PRs, issues y metadata del repositorio
-- `supabase-db` para inspección de Postgres/Supabase
+- `supabase` (MCP oficial, remote/OAuth) para inspección de Postgres/Supabase — auth por harness: `opencode mcp auth supabase`
 - `openaiDeveloperDocs` para documentación oficial de OpenAI
 
 La configuración compartida vive en:
@@ -107,6 +107,20 @@ Cuando existan conflictos, prioriza:
 5. Mantenibilidad arquitectónica
 6. Fidelidad visual
 
+## 8. Protocolo de verificación obligatorio
+
+Antes de declarar cualquier cambio como terminado, ejecuta y corrige hasta que pase:
+
+```bash
+dart format --output=none --set-exit-if-changed .
+flutter analyze
+flutter test test/          # o acota a la feature: flutter test test/features/<feature>/
+```
+
+- No declares "done" si format, analyze o test fallan — CI (`test.yml`) corre exactamente estos comandos y fallará el PR.
+- Todo cambio de UI va acompañado de un widget test mínimo (skill `flutter-add-widget-test`); los modelos de dominio con lógica propia llevan unit test.
+- Sigue vigente la regla de no ejecutar builds: verifica con format/analyze/test, no compiles.
+
 ## Sesión actual — Theme migration: business presentation layer
 
 ### Completado
@@ -114,6 +128,7 @@ Cuando existan conflictos, prioriza:
 Todos los archivos en `lib/features/business/presentation/` fueron migrados de colores hardcodeados (`Colors.white`, `Colors.black*`, `Color(0x...)`) a tokens de `FudiColors` o `Theme.of(context).colorScheme.*`.
 
 Archivos modificados (en orden de edición):
+
 - `business_profile_screen.dart`
 - `business_edit_screen.dart`
 - `payments/business_payments_screen.dart`
@@ -159,7 +174,7 @@ Archivos modificados (en orden de edición):
 ### Principales reemplazos
 
 | Original → | Token FudiColors |
-|---|---|
+| --- | --- |
 | `Colors.white` (fondo tarjetas) | `Theme.of(context).colorScheme.surface` |
 | `Colors.white` (texto) | `FudiColors.primaryForeground` |
 | `Colors.black54` / `black26` (sombras) | `FudiColors.foreground.withValues(alpha: 0.54/0.26)` |

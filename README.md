@@ -47,18 +47,21 @@ Configuración base de agentes e instrucciones de trabajo para desarrollar **Fud
 
 ## Configuración de MCPs
 
-El proyecto incluye 11 MCPs configurados para desarrollo agéntico:
+El proyecto incluye 10 MCPs configurados para desarrollo agéntico:
 
 ### MCPs Requeridos
+
 - **GitHub** - Gestión de repositorios, issues, PRs (github-mcp)
-- **Supabase Database** - Introspección de PostgreSQL (postgres-mcp)
+- **Supabase** - MCP oficial remoto (`mcp.supabase.com`, OAuth por harness — `opencode mcp auth supabase`)
 
 ### MCPs Opcionales
+
 - **Figma API** - Designs y componentes (figma-mcp)
 - **Linear** - Gestión de tareas (@mseep/linear-mcp)
 - **Slack Notifications** - Notificaciones (@aaronsb/slack-mcp)
 
 ### MCPs HTTP
+
 - **OpenAI Developer Docs** - Documentación de OpenAI
 - **React Docs** - Documentación de React
 - **Flutter Docs** - Documentación de Flutter

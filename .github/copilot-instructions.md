@@ -5,6 +5,7 @@ Usa siempre `AGENTS.md` como la **Instrucción Canónica** del proyecto. Este ar
 ## Contexto de Verdad (Single Source of Truth)
 
 Para cualquier duda sobre el negocio, arquitectura o reglas técnicas, consulta:
+
 - [Instrucciones de Agentes](AGENTS.md)
 - [Contexto de Producto](docs/ai/PRODUCT_BRIEF.md)
 - [Arquitectura de Sistema](docs/ai/SYSTEM_ARCHITECTURE.md)
@@ -23,7 +24,7 @@ Para cualquier duda sobre el negocio, arquitectura o reglas técnicas, consulta:
 Antes de implementar, consulta el agente especialista correspondiente desde `.agents/`:
 
 | Tipo de Tarea | Agente | Archivo |
-|---|---|---|
+| --- | --- | --- |
 | Arquitectura / Clean Architecture | Architect | `.agents/architect.md` |
 | Schema SQL / RLS / migraciones | Database Architect | `.agents/database-architect.md` |
 | Pantallas UI / estados / accesibilidad | UX/UI | `.agents/ux-ui.md` |
@@ -38,7 +39,7 @@ Antes de implementar, consulta el agente especialista correspondiente desde `.ag
 | Renderizado / memoria / animaciones | Performance | `.agents/performance.md` |
 | Auth / OWASP / GDPR / PCI | Security & Compliance | `.agents/security-compliance.md` |
 | Funnels / métricas / A/B testing | Analytics & Growth | `.agents/analytics-growth.md` |
-| MercadoPago / webhooks / split | Payments | `.agents/payments.md` |
+| Pasarela (pendiente de definición) / webhooks / split | Payments | `.agents/payments.md` |
 | Coordinación multi-tarea | Orchestrator | `.agents/fudi-orchestrator.md` |
 
 ### Cómo usar

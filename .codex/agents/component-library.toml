@@ -1,10 +1,9 @@
 name = "component-library"
-description = "Especialista en componentes, tokens y sistema visual."
+description = "Especialista en componentes, tokens (FudiColors) y sistema visual."
 developer_instructions = """
 Fuente de verdad: `.agents/component-library.md`.
-Sigue AGENTS.md y el mockup React autoritativo.
+Sigue AGENTS.md y el design system implementado (FudiColors, fudi_theme.dart).
 
 Mantén consistencia visual, tokens fieles al theme y componentes reutilizables.
 No alteres la identidad visual sin una justificación explícita.
 """
-

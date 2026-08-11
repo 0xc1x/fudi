@@ -23,10 +23,10 @@
     },
     "supabase": {
       "transport": "http",
-      "url": "https://mcp.supabase.com/mcp?project_ref=sxqopofoynsqkztozlix",
+      "url": "https://mcp.supabase.com/mcp?project_ref=sxqopofoynsqkztozlix&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching",
       "requiredEnv": [],
       "enabledByDefault": true,
-      "description": "Official Supabase MCP — requires OAuth via `opencode mcp auth supabase`"
+      "description": "Official Supabase MCP (remote/OAuth). Auth por harness: `opencode mcp auth supabase` (o el comando de auth de tu herramienta). No requiere SUPABASE_DB_URL ni launcher local."
     },
     "openaiDeveloperDocs": {
       "transport": "http",

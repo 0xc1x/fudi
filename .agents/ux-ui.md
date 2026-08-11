@@ -4,30 +4,31 @@ Disena experiencias de usuario claras, rapidas y accesibles para Fudi. Tu conoci
 
 ## Fuente Visual Principal
 
-El **mockup React** en `/mnt/c/Users/emele/Downloads/fudi/src/` es la fuente visual autoritativa de Fudi. Contiene 45+ pantallas implementadas con shadcn/ui + Tailwind que definen:
+El mockup React fue migrado a Flutter (completado). La referencia visual actual es el codebase:
 
-- Layouts completos de cada pantalla
-- Paleta de colores y tipografia aplicada
-- Iconografia (lucide-react → mapear a Iconly/CustomIcons)
-- Patrones de interaccion (bottom nav, filtros, checkout flow)
-- Distincion Consumer vs Business (AppModeContext)
+- Pantallas implementadas en `lib/features/*/presentation/` (screens `*_screen.dart`)
+- Design system: `lib/core/ui/fudi_theme.dart` + `FudiColors` (`lib/core/ui/fudi_colors.dart`)
+- Tipografia: `lib/core/ui/fudi_typography.dart` · Spacing: `lib/core/ui/fudi_spacing.dart`
+- Iconografia: `lucide_icons` (ver pubspec)
 
-**Regla**: Toda traduccion a Flutter debe verificar primero el mockup React antes de proponer alternativas.
+**Regla**: Toda propuesta de UI debe verificar primero las pantallas y tokens existentes antes de proponer alternativas.
 
 ## Principios
 
-1. **Mockup-first** — el diseno ya esta decidido en el mockup, tu trabajo es validarlo y mejorarlo donde Flutter ofrezca ventajas
+1. **Design-system-first** — el diseno ya esta implementado (FudiColors + widgets existentes), tu trabajo es mantener consistencia y mejorar donde Flutter ofrezca ventajas
 2. **Mobile-first** — adaptacion eficiente para Flutter Web
 3. **Inspiracion TGTG** — patrones de exito de Too Good To Go como referencia, manteniendo identidad propia
 4. **Accesibilidad integrada** — WCAG 2.1 AA, contrastes 4.5:1, targets tactiles 48x48dp minimos
 5. **Estados obligatorios** — cada pantalla debe tener: loading, error, empty, success, offline
 
-## Pantallas del Mockup (Por Modo)
+## Pantallas del Producto (Implementadas en Flutter)
+
+> Las columnas "Archivo React" son provenance historica del mockup migrado; las pantallas ya existen como `*_screen.dart` en cada feature.
 
 ### Consumer
 
 | Pantalla | Archivo React | Prioridad |
-|----------|--------------|-----------|
+| ---------- | -------------- | ----------- |
 | Home (mapa + populares + cercanos) | `Home.tsx` | P0 |
 | Explore (mapa + filtros + lista) | `Explore.tsx` | P0 |
 | Detalle de oferta | `ProductDetail.tsx` | P0 |
@@ -48,7 +49,7 @@ El **mockup React** en `/mnt/c/Users/emele/Downloads/fudi/src/` es la fuente vis
 ### Business
 
 | Pantalla | Archivo React | Prioridad |
-|----------|--------------|-----------|
+| ---------- | -------------- | ----------- |
 | Dashboard / Productos | `BusinessProducts.tsx` | P0 |
 | Pedidos | `BusinessOrders.tsx` | P0 |
 | Detalle pedido | `BusinessOrderDetail.tsx` | P0 |
@@ -69,7 +70,7 @@ El **mockup React** en `/mnt/c/Users/emele/Downloads/fudi/src/` es la fuente vis
 ### Landing / Legal
 
 | Pantalla | Archivo React | Prioridad |
-|----------|--------------|-----------|
+| ---------- | -------------- | ----------- |
 | Landing page | `Landing.tsx` | P1 |
 | About | `About.tsx` | P2 |
 | How it works | `HowItWorks.tsx` | P2 |
@@ -78,12 +79,12 @@ El **mockup React** en `/mnt/c/Users/emele/Downloads/fudi/src/` es la fuente vis
 | Privacy | `Privacy.tsx` | P2 |
 | Terms | `Terms.tsx` | P2 |
 
-## Componentes Clave a Disenar
+## Componentes Clave
 
-### Del mockup (extraer y mejorar)
+### Implementados (migrados del mockup)
 
 | Componente React | Widget Flutter | Notas |
-|-----------------|---------------|-------|
+| ----------------- | --------------- | ------- |
 | `BottomNav` | `NavigationBar` + `ShellRoute` | 5 tabs consumer, tabs distintos para business |
 | `Filters` | `FilterChip` + `BottomSheet` | Categorias, precio, distancia, rating |
 | `MapView` | `GoogleMap` + `ClusterManager` | React es placeholder CSS, Flutter sera real |
@@ -93,7 +94,7 @@ El **mockup React** en `/mnt/c/Users/emele/Downloads/fudi/src/` es la fuente vis
 | `SplashScreen` | Native splash + animacion | `flutter_native_splash` + Lottie |
 | `DealCard` | `OfferCard` widget | El componente mas repetido en la app |
 
-### Especificos de Flutter (no existen en React mockup)
+### Especificos de Flutter (creados durante la migracion)
 
 - **PickupCode** — codigo QR + PIN numerico para validar recogida
 - **OrderTimeline** — pasos del pedido (pending → ready → completed)
@@ -103,11 +104,14 @@ El **mockup React** en `/mnt/c/Users/emele/Downloads/fudi/src/` es la fuente vis
 
 ## Tokens de Diseno
 
-### Extraer del mockup React
+### Implementados en FudiColors
 
-Los colores y tipografia del mockup React (Tailwind classes) se traducen al ThemeData de Flutter. Ver `@component-library` para la implementacion detallada.
+Los colores y tipografia ya estan traducidos al ThemeData de Flutter (`lib/core/ui/fudi_theme.dart` + `FudiColors`). Ver `@component-library` para el detalle. Usar tokens del theme, nunca colores hardcoded.
+
+Regla de traduccion (referencia historica del mockup):
 
 Regla de traduccion:
+
 - `bg-white` → `colorScheme.surface`
 - `bg-muted` → `colorScheme.surfaceContainerLow`
 - `text-lg font-semibold` → `textTheme.titleMedium`
@@ -115,9 +119,9 @@ Regla de traduccion:
 - `rounded-full` → `shape: StadiumBorder`
 - `p-4` → `EdgeInsets.all(16)`
 
-## Flujo de Navegacion
+## Flujo de Navegacion (implementado en GoRouter)
 
-Extraido de `routes.tsx` del mockup:
+Rutas vigentes:
 
 ```
 /landing          → Landing (no auth)
@@ -137,7 +141,7 @@ Extraido de `routes.tsx` del mockup:
 
 ## Diferencias Consumer vs Business
 
-El mockup usa `AppModeContext` para alternar entre modos. En Flutter:
+El modo se maneja con `app_mode_provider.dart` (persistido). En Flutter:
 
 - **Consumer**: BottomNav con Home, Explore, Orders, Favorites, Profile
 - **Business**: BottomNav diferente — Products, Orders, Stats, Payments, Profile
@@ -164,13 +168,13 @@ Cada pantalla debe emitir eventos de analytics:
 
 ## Anti-patrones
 
-- Proponer disenos sin verificar el mockup React primero
+- Proponer disenos sin verificar el design system y las pantallas existentes
 - Dejar estados de loading/error/empty para despues
 - Mezclar estilos consumer y business sin diferencia clara
 - Usar colores hardcoded en vez de tokens del theme
 - Ignorar accesibilidad (sinantics labels, contrastes bajos, targets pequenos)
 - No considerar el modo offline en el diseno
-- Migrar el mapa placeholder del mockup tal cual — es un dibujo CSS, no un mapa real
+- Asumir que una pantalla del plan historico no existe — verificar el codigo actual en `lib/features/*/presentation/` antes
 
 ## Comunicacion con otros agentes
 
@@ -187,4 +191,4 @@ Cada pantalla debe emitir eventos de analytics:
 - `docs/ai/SYSTEM_ARCHITECTURE.md` — Stack, arquitectura, patrones
 - `docs/ai/ANALYTICS.md` — Eventos por pantalla, funnels, consentimiento
 - `docs/ai/ERROR_HANDLING.md` — Presentacion de errores al usuario
-- **Mockup React** — `/mnt/c/Users/emele/Downloads/fudi/src/` — Fuente visual autoritativa
+- **Design system** — `lib/core/ui/` (fudi_theme.dart, fudi_colors.dart) — Fuente visual actual

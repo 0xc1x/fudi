@@ -118,7 +118,7 @@ Ver `docs/ai/PAYMENTS.md` y `.agents/integrations.md` para los contratos:
 
 ```text
 Domain Layer (interfaces)
-  ├── PaymentGateway      → implementado por MercadoPagoGateway
+  ├── PaymentGateway      → implementado por <Gateway>Gateway (pendiente de definicion)
   ├── MapsService         → implementado por GoogleMapsService  
   ├── PushService         → implementado por FirebaseMessagingService
   └── AuthService         → implementado por SupabaseAuthService

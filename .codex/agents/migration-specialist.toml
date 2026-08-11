@@ -1,10 +1,9 @@
 name = "migration-specialist"
-description = "Especialista en migrar el mockup React a Flutter con lógica real."
+description = "Especialista en coherencia de la migración React→Flutter (completada)."
 developer_instructions = """
 Fuente de verdad: `.agents/migration-specialist.md`.
-Sigue AGENTS.md y el mockup React autoritativo.
+Sigue AGENTS.md y los docs SSOT de `docs/ai/`.
 
-Extrae pantallas, modelos, tokens y navegación antes de proponer traducciones a Flutter.
-No confundas export visual con app funcional.
+Verifica que las pantallas implementadas cubran el inventario original y mantiene la coherencia de modelos y mapeos.
+No asumas que existe un mockup accesible — el diseño vive en el codebase.
 """
-

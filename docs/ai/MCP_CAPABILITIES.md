@@ -21,13 +21,20 @@ Las configuraciones concretas por herramienta viven en:
 
 ## MCPs activos
 
-### `supabase-db`
+### `supabase` (MCP oficial — unico)
 
-- **Tipo:** local / stdio
-- **Launcher:** `.ai/mcp/launchers/supabase-postgres.mjs`
-- **Variable requerida:** `SUPABASE_DB_URL`
-- **Variable runtime upstream:** `DB_MAIN_URL` con alias `main`
-- **Uso:** introspección de esquema, tablas, columnas, relaciones y consultas de apoyo sobre Postgres/Supabase.
+- **Tipo:** remoto / HTTP (hosted por Supabase)
+- **URL:** `https://mcp.supabase.com/mcp?project_ref=sxqopofoynsqkztozlix&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching`
+- **Variable requerida:** ninguna — usa OAuth por harness
+- **Auth:** cada herramienta autentica por su cuenta (login de Supabase):
+  - OpenCode: `opencode mcp auth supabase`
+  - Codex: `codex mcp login supabase`
+  - Cursor / VS Code / Zed / Gemini / Claude: flujo OAuth del cliente MCP
+- **Features activadas:** `docs`, `account`, `database`, `debugging`, `development`, `functions`, `branching`
+- **Tools principales (feature database):** `list_tables`, `execute_sql`, `list_extensions`, `list_migrations`, `apply_migration`
+- **Uso:** introspección de esquema, tablas, columnas, relaciones, migraciones y consultas sobre Supabase.
+
+> **Nota:** No existe launcher local ni variable `SUPABASE_DB_URL` para este MCP. Cualquier config con `supabase-db` / `supabase-postgres.mjs` es obsoleta — usar el remoto oficial.
 
 ### `github`
 

@@ -9,7 +9,7 @@ Esta guía explica paso a paso cómo configurar todos los MCPs (Model Context Pr
 | Nombre | Tipo | Paquete | Variable de Entorno | Descripción |
 |--------|------|---------|---------------------|-------------|
 | `github` | stdio | github-mcp | GITHUB_PERSONAL_ACCESS_TOKEN | GitHub API para gestión de repositorios |
-| `supabase-db` | stdio | postgres-mcp | SUPABASE_DB_URL | Supabase PostgreSQL para introspección de BD |
+| `supabase` | remote/HTTP | MCP oficial Supabase | (OAuth por harness) | Base de datos, auth, functions, branching |
 
 ### MCPs Opcionales (2)
 
@@ -21,13 +21,13 @@ Esta guía explica paso a paso cómo configurar todos los MCPs (Model Context Pr
 ### MCPs HTTP (6)
 
 | Nombre | URL | Descripción |
-|--------|-----|-------------|
-| `openaiDeveloperDocs` | https://developers.openai.com/mcp | Documentación de OpenAI |
-| `react-docs` | https://react.dev/learn | Documentación de React |
-| `flutter-docs` | https://docs.flutter.dev | Documentación de Flutter |
-| `flutter-testing` | https://docs.flutter.dev/cookbook/testing | Testing de Flutter |
-| `jest-docs` | https://jestjs.io/docs/getting-started | Documentación de Jest |
-| `github-actions` | https://docs.github.com/en/actions | Documentación de GitHub Actions |
+| -------- | ----- | ------------- |
+| `openaiDeveloperDocs` | <https://developers.openai.com/mcp> | Documentación de OpenAI |
+| `react-docs` | <https://react.dev/learn> | Documentación de React |
+| `flutter-docs` | <https://docs.flutter.dev> | Documentación de Flutter |
+| `flutter-testing` | <https://docs.flutter.dev/cookbook/testing> | Testing de Flutter |
+| `jest-docs` | <https://jestjs.io/docs/getting-started> | Documentación de Jest |
+| `github-actions` | <https://docs.github.com/en/actions> | Documentación de GitHub Actions |
 
 ## 🚀 Configuración Rápida
 
@@ -39,6 +39,7 @@ npm run setup
 ```
 
 Este script:
+
 - ✅ Verifica Node.js y npm
 - ✅ Instala dependencias necesarias
 - ✅ Verifica launchers
@@ -68,14 +69,16 @@ npm run verify
 Los launchers del repo traducen variables canónicas a lo que espera cada paquete upstream:
 
 | MCP | Variable canónica | Variable upstream |
-|-----|-------------------|------------------|
+| ----- | ------------------- | ------------------ |
 | GitHub | `GITHUB_PERSONAL_ACCESS_TOKEN` | `GITHUB_ACCESS_TOKEN` |
-| Supabase/Postgres | `SUPABASE_DB_URL` | `DB_MAIN_URL` + `DB_ALIASES=main` + `DEFAULT_DB_ALIAS=main` |
 | Figma | `FIGMA_ACCESS_TOKEN` | `FIGMA_API_KEY` |
+
+> Supabase usa OAuth por harness — no requiere variables de entorno.
 
 ### Requisitos Previos
 
 #### Node.js y npm
+
 ```bash
 # Verificar Node.js (requerido: 18+)
 node --version
@@ -94,6 +97,7 @@ npm --version
 **Propósito:** Gestión de repositorios, issues, PRs y metadata.
 
 **Obtener Token:**
+
 1. Ir a [GitHub Settings → Developer Settings → Personal Access Tokens](https://github.com/settings/tokens)
 2. Click en "Generate new token" → "Generate new token (classic)"
 3. Configurar permisos:
@@ -103,12 +107,14 @@ npm --version
 4. Generar token y **copiarlo inmediatamente** (solo se muestra una vez)
 
 **Configurar:**
+
 ```bash
 # Agregar a .env.mcp.local
 GITHUB_PERSONAL_ACCESS_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 **Verificar:**
+
 ```bash
 # Test con GitHub CLI
 gh auth status
@@ -117,31 +123,33 @@ gh auth status
 curl -H "Authorization: token YOUR_TOKEN" https://api.github.com/user
 ```
 
-#### 2. Supabase Database MCP
+#### 2. Supabase MCP (oficial, remoto)
 
-**Propósito:** Introspección de esquema, tablas, columnas y relaciones de PostgreSQL.
+**Propósito:** Introspección de esquema, tablas, columnas, relaciones, migraciones y consultas sobre Supabase.
 
-**Obtener URL:**
-1. Ir a [Supabase Dashboard](https://supabase.com/dashboard)
-2. Seleccionar tu proyecto
-3. Ir a Settings → Database
-4. Copiar "Connection string" → "URI"
-5. Formato: `postgresql://postgres:[password]@db.[project].supabase.co:5432/postgres`
+Usa el **MCP remoto oficial** — no hay launcher local ni `SUPABASE_DB_URL`.
 
-**Configurar:**
-```bash
-# Agregar a .env.mcp.local
-SUPABASE_DB_URL=postgresql://postgres:your_password@db.project.supabase.co:5432/postgres
+**Configurar:** añade la URL del MCP en la config de tu herramienta:
+
+```json
+{
+  "mcp": {
+    "supabase": {
+      "type": "remote",
+      "url": "https://mcp.supabase.com/mcp?project_ref=sxqopofoynsqkztozlix&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching",
+      "enabled": true
+    }
+  }
+}
 ```
 
-**Verificar:**
-```bash
-# Test con psql
-psql "postgresql://postgres:your_password@db.project.supabase.co:5432/postgres" -c "SELECT version();"
+**Autenticar (OAuth por harness):**
 
-# O test con node
-node -e "const pg = require('pg'); const client = new pg.Client({ connectionString: process.env.SUPABASE_DB_URL }); client.connect(); client.query('SELECT NOW()', (err, res) => { console.log(res.rows[0]); client.end(); });"
-```
+- OpenCode: `opencode mcp auth supabase`
+- Codex: `codex mcp login supabase`
+- Otras herramientas (Cursor, VS Code, Zed, Gemini, Claude): flujo OAuth del cliente MCP — abre el navegador para completar el login de Supabase.
+
+**Verificar:** tras autenticar, ejecuta una consulta (ej: `list_tables` / `execute_sql`) en tu herramienta.
 
 ### MCPs Opcionales
 
@@ -150,18 +158,21 @@ node -e "const pg = require('pg'); const client = new pg.Client({ connectionStri
 **Propósito:** Extraer designs, componentes y especificaciones visuales.
 
 **Obtener Token:**
+
 1. Ir a [Figma Developer Settings](https://www.figma.com/developers/api#access-tokens)
 2. Click en "Generate new personal access token"
 3. Dar un nombre descriptivo (ej: "Fudi MCP")
 4. Generar token y **copiarlo**
 
 **Configurar:**
+
 ```bash
 # Agregar a .env.mcp.local
 FIGMA_ACCESS_TOKEN=figd_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 **Verificar:**
+
 ```bash
 # Test con curl
 curl -H "X-Figma-Token: YOUR_TOKEN" https://api.figma.com/v1/me
@@ -172,6 +183,7 @@ curl -H "X-Figma-Token: YOUR_TOKEN" https://api.figma.com/v1/me
 **Propósito:** Gestión de tareas, issues y proyectos.
 
 **Obtener API Key:**
+
 1. Ir a [Linear Settings → API](https://linear.app/settings/api)
 2. Click en "Create personal API key"
 3. Dar permisos necesarios:
@@ -181,12 +193,14 @@ curl -H "X-Figma-Token: YOUR_TOKEN" https://api.figma.com/v1/me
 4. Crear key y **copiarla**
 
 **Configurar:**
+
 ```bash
 # Agregar a .env.mcp.local
 LINEAR_API_KEY=lin_api_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 **Verificar:**
+
 ```bash
 # Test con curl
 curl -H "Authorization: YOUR_KEY" https://api.linear.app/graphql
@@ -202,6 +216,7 @@ npm run setup
 ```
 
 **Funciones:**
+
 - Verifica Node.js y npm
 - Instala dependencias
 - Verifica launchers
@@ -216,6 +231,7 @@ npm run verify
 ```
 
 **Funciones:**
+
 - Verifica paquetes instalados
 - Verifica launchers
 - Verifica variables de entorno
@@ -233,7 +249,6 @@ npm run verify
 ├── .env.mcp.local                        # Tus variables locales MCP (no commits)
 ├── launchers/                            # Scripts de launchers
 │   ├── github.mjs
-│   ├── supabase-postgres.mjs
 │   ├── figma.mjs
 │   ├── linear.mjs
 │   └── slack.mjs
@@ -249,6 +264,7 @@ npm run verify
 ### Best Practices
 
 1. **Nunca commits archivos con secrets**
+
    ```gitignore
    # .gitignore
    .env
@@ -261,16 +277,17 @@ npm run verify
 
 2. **Usar tokens con permisos mínimos necesarios**
    - GitHub: Solo permisos `repo`, `read:org`, `read:user`
-   - Supabase: Solo acceso de lectura si es posible
+   - Supabase: OAuth con el alcance mínimo que pida el MCP (por harness)
    - Figma: Solo permisos de lectura
    - Linear: Permisos específicos por equipo
 3. **Rotar tokens periódicamente**
    - GitHub: Cada 90 días
-   - Supabase: Cada 180 días
+   - Supabase: Revoca/reautoriza el acceso OAuth desde Supabase Dashboard si sospechas uso indebido
    - Figma: Cada año
    - Linear: Cada 90 días
 
 4. **Usar variables de entorno en lugar de archivos hardcoded**
+
    ```bash
    # ❌ MAL
    const token = "ghp_xxxxxxxxxxxx";
@@ -281,14 +298,16 @@ npm run verify
 
 5. **Limitar acceso a tokens**
    - GitHub: Revisar "Authorized OAuth Apps" regularmente
-   - Supabase: Revisar "Database URLs" en settings
+   - Supabase: Revisar las sesiones OAuth autorizadas en Supabase Dashboard
    - Figma: Revisar "Personal Access Tokens" en settings
    - Linear: Revisar "API Keys" en settings
+
 ## 🐛 Troubleshooting
 
 ### Error: "Node.js not found"
 
 **Solución:**
+
 ```bash
 # Instalar Node.js 18+
 # macOS (Homebrew)
@@ -305,6 +324,7 @@ sudo apt-get install -y nodejs
 ### Error: "Package not found"
 
 **Solución:**
+
 ```bash
 cd .ai/mcp
 npm install
@@ -317,6 +337,7 @@ npm install
 ### Error: "Environment variable not set"
 
 **Solución:**
+
 ```bash
 # Verificar que el archivo existe
 ls -la .env.mcp.local
@@ -333,6 +354,7 @@ $env:Path = [System.Environment]::GetEnvironmentVariable("Path","User")  # Windo
 ### Error: "Launcher not found"
 
 **Solución:**
+
 ```bash
 # Verificar que los launchers existan
 ls -la .ai/mcp/launchers/
@@ -345,6 +367,7 @@ npm run setup
 ### Error: "GitHub token invalid"
 
 **Solución:**
+
 ```bash
 # Verificar token con GitHub CLI
 gh auth status
@@ -355,22 +378,24 @@ gh auth status
 # Actualizar .env.mcp.local
 ```
 
-### Error: "Supabase connection failed"
+### Error: "Supabase MCP no autenticado"
 
 **Solución:**
+
 ```bash
-# Verificar URL de conexión
-echo $SUPABASE_DB_URL
+# OpenCode
+opencode mcp auth supabase
 
-# Test con psql
-psql "postgresql://postgres:password@db.project.supabase.co:5432/postgres" -c "SELECT version();"
-
-# Verificar que el proyecto esté activo en Supabase
+# Codex
+codex mcp login supabase
 ```
+
+Autentica por OAuth (abre el navegador). No se usa `SUPABASE_DB_URL` ni psql.
 
 ## 📖 Referencias
 
 ### Documentación Oficial
+
 - [Model Context Protocol](https://modelcontextprotocol.io)
 - [GitHub MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/github)
 - [Postgres MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/postgres)
@@ -379,6 +404,7 @@ psql "postgresql://postgres:password@db.project.supabase.co:5432/postgres" -c "S
 - [Slack API](https://api.slack.com/)
 
 ### Herramientas
+
 - [Node.js](https://nodejs.org/)
 - [npm](https://www.npmjs.com/)
 - [GitHub CLI](https://cli.github.com/)
@@ -387,23 +413,26 @@ psql "postgresql://postgres:password@db.project.supabase.co:5432/postgres" -c "S
 ## ✅ Checklist de Configuración
 
 ### Requisitos Previos
+
 - [ ] Node.js 18+ instalado
 - [ ] npm instalado
 - [ ] Git configurado
 
 ### MCPs Requeridos
+
 - [ ] GitHub Personal Access Token obtenido
 - [ ] GitHub token configurado en `.env.mcp.local`
-- [ ] Supabase Database URL obtenida
-- [ ] Supabase URL configurada en `.env.mcp.local`
+- [ ] Supabase OAuth autenticado por harness (`opencode mcp auth supabase`)
 
 ### MCPs Opcionales
+
 - [ ] Figma Access Token obtenido (si aplica)
 - [ ] Figma token configurado (si aplica)
 - [ ] Linear API Key obtenida (si aplica)
 - [ ] Linear key configurada (si aplica)
 
 ### Verificación
+
 - [ ] `npm run setup` ejecutado sin errores
 - [ ] `npm run verify` pasa todas las verificaciones
 - [ ] Launchers creados correctamente
@@ -411,6 +440,7 @@ psql "postgresql://postgres:password@db.project.supabase.co:5432/postgres" -c "S
 - [ ] Conectividad verificada
 
 ### Integración
+
 - [ ] MCPs configurados en tu herramienta (Cursor, VS Code, etc.)
 - [ ] MCPs funcionando correctamente
 - [ ] Testing de cada MCP completado
@@ -418,18 +448,21 @@ psql "postgresql://postgres:password@db.project.supabase.co:5432/postgres" -c "S
 ## 🎯 Próximos Pasos
 
 1. **Ejecutar setup:**
+
    ```bash
    cd .ai/mcp
    npm run setup
    ```
 
 2. **Configurar variables requeridas:**
+
    ```bash
    cp .env.mcp.example .env.mcp.local
    # Editar con tus tokens
    ```
 
 3. **Verificar configuración:**
+
    ```bash
    npm run verify
    ```
@@ -441,7 +474,7 @@ psql "postgresql://postgres:password@db.project.supabase.co:5432/postgres" -c "S
 
 5. **Probar MCPs:**
    - GitHub: Crear un issue
-   - Supabase: Consultar una tabla
+   - Supabase: Autenticar por OAuth y ejecutar `list_tables` / `execute_sql`
    - HTTP MCPs: Consultar documentación
 
 ## 🎉 Estado
@@ -459,4 +492,4 @@ psql "postgresql://postgres:password@db.project.supabase.co:5432/postgres" -c "S
 
 **Última actualización:** 2024-04-24
 **Versión:** 1.0.0
-**Total MCPs:** 11 (2 requeridos + 3 opcionales + 6 HTTP)
+**Total MCPs:** 10 (1 requerido + 3 opcionales + 6 HTTP)

@@ -1,7 +1,26 @@
 #!/usr/bin/env python3
 """
-Script para generar estructura de boilerplate Flutter según Clean Architecture
+Script para generar boilerplate de un feature Flutter según el patrón real del repo Fudi.
+
 Uso: python generate-flutter-feature.py <feature_name>
+
+Genera (mirror de lib/features/offers, business, auth, ...):
+
+  lib/features/<feature>/
+  ├── data/
+  │   └── supabase_<feature>_repository.dart   # implementación con SupabaseClient
+  ├── domain/
+  │   ├── <feature>.dart                        # entidad (inmutable, const)
+  │   └── <feature>_repository.dart             # abstract del repositorio
+  └── presentation/
+      ├── <feature>_providers.dart              # providers Riverpod (repo + state)
+      └── <feature>_screen.dart                 # ConsumerWidget (*_screen.dart, no *_page.dart)
+
+Convenciones del repo (verificado contra el codebase):
+- Screens se llaman *_screen.dart (49 en el repo, 0 *_page.dart).
+- Providers viven en presentation/<feature>_providers.dart.
+- La impl va en data/supabase_<feature>_repository.dart con inyección de SupabaseClient.
+- Colores/tipografía: FudiColors / FudiTypography / FudiSpacing en lib/core/ui/.
 """
 
 import os
@@ -9,366 +28,204 @@ import sys
 import argparse
 from pathlib import Path
 
-# Estructura de carpetas según Clean Architecture + Feature-First
-FEATURE_STRUCTURE = [
-    'data',
-    'data/datasources',
-    'data/models',
-    'data/repositories',
-    'domain',
-    'domain/entities',
-    'domain/repositories',
-    'domain/usecases',
-    'presentation',
-    'presentation/providers',
-    'presentation/pages',
-    'presentation/widgets'
-]
-
-# Templates de código
-TEMPLATES = {
-    'entity': '''// lib/features/{feature}/domain/entities/{feature}_entity.dart
-class {Feature}Entity {{
-  // TODO: Define entity properties
-  
-  {Feature}Entity({{
-    // TODO: Add constructor parameters
+FILES = [
+    # (ruta relativa al feature, contenido template)
+    (
+        'domain/{feature}.dart',
+        '''// lib/features/{feature}/domain/{feature}.dart
+/// Entidad de dominio de {Feature}.
+/// Convencion del repo: clase inmutable con constructor const y copyWith.
+class {Feature} {{
+  const {Feature}({{
+    required this.id,
+    // TODO: agregar campos reales del dominio
   }});
-  
-  // TODO: Add entity methods
-}}
-''',
-    
-    'repository': '''// lib/features/{feature}/domain/repositories/{feature}_repository.dart
-abstract class {Feature}Repository {{
-  // TODO: Define repository methods
-  
-  // Future<{Feature}Entity> get{Feature}();
-  // Future<List<{Feature}Entity>> get{Feature}s();
-  // Future<void> create{Feature}({Feature}Entity entity);
-  // Future<void> update{Feature}({Feature}Entity entity);
-  // Future<void> delete{Feature}(String id);
-}}
-''',
-    
-    'usecase': '''// lib/features/{feature}/domain/usecases/get_{feature}.dart
-import '../entities/{feature}_entity.dart';
-import '../repositories/{feature}_repository.dart';
 
-class Get{Feature}UseCase {{
-  final {Feature}Repository repository;
-  
-  Get{Feature}UseCase(this.repository);
-  
-  Future<{Feature}Entity> call(String id) {{
-    return repository.get{Feature}(id);
-  }}
-}}
-''',
-    
-    'datasource': '''// lib/features/{feature}/data/datasources/{feature}_datasource.dart
-import '../models/{feature}_model.dart';
+  final String id;
 
-abstract class {Feature}DataSource {{
-  // TODO: Define datasource methods
-  
-  // Future<{Feature}Model> get{Feature}FromRemote(String id);
-  // Future<List<{Feature}Model>> get{Feature}sFromRemote();
-  // Future<{Feature}Model> get{Feature}FromLocal(String id);
-}}
-''',
-    
-    'model': '''// lib/features/{feature}/data/models/{feature}_model.dart
-import '../entities/{feature}_entity.dart';
-
-class {Feature}Model {{
-  // TODO: Define model properties matching API/DB
-  
-  {Feature}Model({{
-    // TODO: Add constructor parameters
-  }});
-  
-  // Convert to Entity
-  {Feature}Entity toEntity() {{
-    return {Feature}Entity(
-      // TODO: Map model to entity
-    );
-  }}
-  
-  // Create from Entity
-  factory {Feature}Model.fromEntity({Feature}Entity entity) {{
-    return {Feature}Model(
-      // TODO: Map entity to model
-    );
-  }}
-  
-  // Create from JSON
-  factory {Feature}Model.fromJson(Map<String, dynamic> json) {{
-    return {Feature}Model(
-      // TODO: Parse JSON
-    );
-  }}
-  
-  // Convert to JSON
-  Map<String, dynamic> toJson() {{
-    return {{
-      // TODO: Serialize to JSON
-    }};
-  }}
-}}
-''',
-    
-    'repository_impl': '''// lib/features/{feature}/data/repositories/{feature}_repository_impl.dart
-import '../../domain/entities/{feature}_entity.dart';
-import '../../domain/repositories/{feature}_repository.dart';
-import '../datasources/{feature}_datasource.dart';
-import '../models/{feature}_model.dart';
-
-class {Feature}RepositoryImpl implements {Feature}Repository {{
-  final {Feature}DataSource dataSource;
-  
-  {Feature}RepositoryImpl(this.dataSource);
-  
-  @override
-  Future<{Feature}Entity> get{Feature}(String id) async {{
-    final model = await dataSource.get{Feature}FromRemote(id);
-    return model.toEntity();
-  }}
-  
-  @override
-  Future<List<{Feature}Entity>> get{Feature}s() async {{
-    final models = await dataSource.get{Feature}sFromRemote();
-    return models.map((model) => model.toEntity()).toList();
-  }}
-  
-  @override
-  Future<void> create{Feature}({Feature}Entity entity) async {{
-    final model = {Feature}Model.fromEntity(entity);
-    // TODO: Implement create logic
-  }}
-  
-  @override
-  Future<void> update{Feature}({Feature}Entity entity) async {{
-    final model = {Feature}Model.fromEntity(entity);
-    // TODO: Implement update logic
-  }}
-  
-  @override
-  Future<void> delete{Feature}(String id) async {{
-    // TODO: Implement delete logic
-  }}
-}}
-''',
-    
-    'provider': '''// lib/features/{feature}/presentation/providers/{feature}_provider.dart
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/entities/{feature}_entity.dart';
-import '../../domain/usecases/get_{feature}.dart';
-
-// State
-class {Feature}State {{
-  final bool isLoading;
-  final {Feature}Entity? {feature};
-  final String? error;
-  
-  {Feature}State({{
-    this.isLoading = false,
-    this.{feature},
-    this.error,
-  }});
-  
-  {Feature}State copyWith({{
-    bool? isLoading,
-    {Feature}Entity? {feature},
-    String? error,
+  {Feature} copyWith({{
+    String? id,
   }}) {{
-    return {Feature}State(
-      isLoading: isLoading ?? this.isLoading,
-      {feature}: {feature} ?? this.{feature},
-      error: error ?? this.error,
+    return {Feature}(
+      id: id ?? this.id,
     );
   }}
-}}
 
-// StateNotifier
-class {Feature}Notifier extends StateNotifier<{Feature}State> {{
-  final Get{Feature}UseCase _get{Feature}UseCase;
-  
-  {Feature}Notifier(this._get{Feature}UseCase) : super({Feature}State());
-  
-  Future<void> load{Feature}(String id) async {{
-    state = state.copyWith(isLoading: true);
-    
-    try {{
-      final {feature} = await _get{Feature}UseCase(id);
-      state = state.copyWith(
-        isLoading: false,
-        {feature}: {feature},
-      );
-    }} catch (e) {{
-      state = state.copyWith(
-        isLoading: false,
-        error: e.toString(),
-      );
-    }}
-  }}
-}}
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is {Feature} &&
+          other.id == id;
 
-// Providers
-final {feature}Provider = StateNotifierProvider<{Feature}Notifier, {Feature}State>((ref) {{
-  // TODO: Inject dependencies
-  // final get{Feature}UseCase = ref.watch(get{Feature}UseCaseProvider);
-  // return {Feature}Notifier(get{Feature}UseCase);
-  throw UnimplementedError('TODO: Implement provider');
+  @override
+  int get hashCode => id.hashCode;
+}}
+''',
+    ),
+    (
+        'domain/{feature}_repository.dart',
+        '''// lib/features/{feature}/domain/{feature}_repository.dart
+import '{feature}.dart';
+
+abstract class {Feature}Repository {{
+  // TODO: definir los métodos que necesita la feature
+
+  // Future<{Feature}> get{Feature}(String id);
+  // Future<List<{Feature}>> get{Feature}s();
+  // Future<void> create{Feature}({Feature} value);
+  // Future<void> update{Feature}({Feature} value);
+}}
+''',
+    ),
+    (
+        'data/supabase_{feature}_repository.dart',
+        '''// lib/features/{feature}/data/supabase_{feature}_repository.dart
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../core/error/data_exceptions.dart';
+import '../domain/{feature}.dart';
+import '../domain/{feature}_repository.dart';
+
+class Supabase{Feature}Repository implements {Feature}Repository {{
+  Supabase{Feature}Repository({{required SupabaseClient supabaseClient}})
+      : _supabaseClient = supabaseClient;
+
+  final SupabaseClient _supabaseClient;
+
+  // TODO: nombre real de la tabla en Supabase
+  static const _table = '{feature}s';
+
+  // TODO: implementar los métodos del abstract usando _supabaseClient.from(_table);
+  //   - respuesta null => throw const NotFoundException(message: '{Feature} no encontrado');
+  //   - mapear con {Feature}.fromJson(...) si la entidad tiene fromJson
+}}
+''',
+    ),
+    (
+        'presentation/{feature}_providers.dart',
+        '''// lib/features/{feature}/presentation/{feature}_providers.dart
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/di/core_providers.dart';
+import '../data/supabase_{feature}_repository.dart';
+import '../domain/{feature}.dart';
+import '../domain/{feature}_repository.dart';
+
+final {feature}RepositoryProvider = Provider<{Feature}Repository>((ref) {{
+  return Supabase{Feature}Repository(
+    supabaseClient: ref.watch(supabaseClientProvider),
+  );
+}});
+
+// TODO: reemplazar por el provider real de la feature (FutureProvider, AsyncNotifier...)
+final {feature}ListProvider = FutureProvider<List<{Feature}>>((ref) async {{
+  final repository = ref.watch({feature}RepositoryProvider);
+  // TODO: return await repository.get{Feature}s();
+  throw UnimplementedError('TODO: implementar {feature}ListProvider');
 }});
 ''',
-    
-    'page': '''// lib/features/{feature}/presentation/pages/{feature}_page.dart
+    ),
+    (
+        'presentation/{feature}_screen.dart',
+        '''// lib/features/{feature}/presentation/{feature}_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/{feature}_provider.dart';
 
-class {Feature}Page extends ConsumerStatefulWidget {{
-  const {{super.key}}{Feature}Page({{required this.id}});
-  
-  final String id;
-  
-  @override
-  ConsumerState<{Feature}Page> createState() => _{Feature}PageState();
-}}
+import '../../../core/ui/fudi_colors.dart';
+import '../../../core/ui/fudi_spacing.dart';
+import '../../../core/ui/fudi_typography.dart';
+import '../domain/{feature}.dart';
+import '{feature}_providers.dart';
 
-class _{Feature}PageState extends ConsumerState<{Feature}Page> {{
+class {Feature}Screen extends ConsumerWidget {{
+  const {Feature}Screen({{super.key}});
+
   @override
-  void initState() {{
-    super.initState();
-    // Load data on init
-    // ref.read({feature}Provider.notifier).load{Feature}(widget.id);
-  }}
-  
-  @override
-  Widget build(BuildContext context) {{
-    final state = ref.watch({feature}Provider);
-    
+  Widget build(BuildContext context, WidgetRef ref) {{
+    final listAsync = ref.watch({feature}ListProvider);
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('{Feature}'),
+      appBar: AppBar(title: const Text('{Feature}')),
+      body: listAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(child: Text('Error: $error')),
+        data: (items) => ListView.separated(
+          padding: const EdgeInsets.all(FudiSpacing.lg),
+          itemCount: items.length,
+          separatorBuilder: (_, __) => const SizedBox(height: FudiSpacing.md),
+          itemBuilder: (context, index) => _buildItem(items[index]),
+        ),
       ),
-      body: state.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : state.error != null
-              ? Center(
-                  child: Text('Error: ${{state.error}}'),
-                )
-              : state.{feature} != null
-                  ? _buildContent(state.{feature}!)
-                  : const Center(
-                      child: Text('No data found'),
-                    ),
     );
   }}
-  
-  Widget _buildContent({Feature}Entity {feature}) {{
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // TODO: Build UI based on entity
-          Text('{Feature} Details'),
-        ],
+
+  Widget _buildItem({Feature} item) {{
+    return Card(
+      color: Theme.of(context).colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(FudiSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(item.id, style: FudiTypography.h4),
+            // TODO: renderizar los campos reales de la entidad
+          ],
+        ),
       ),
     );
   }}
 }}
-'''
-}
+''',
+    ),
+]
 
-def create_feature_structure(feature_name):
-    """Crea la estructura de carpetas para un feature"""
-    feature_path = Path(f'lib/features/{feature_name}')
-    
-    print(f'📁 Creating feature structure: {feature_name}')
-    
-    for folder in FEATURE_STRUCTURE:
-        folder_path = feature_path / folder
-        folder_path.mkdir(parents=True, exist_ok=True)
-        print(f'   ✓ Created: {folder_path}')
 
-def create_templates(feature_name):
-    """Crea los archivos template para un feature"""
+def snake_to_camel(feature: str) -> str:
+    """user_profile -> UserProfile"""
+    return ''.join(word.capitalize() for word in feature.split('_'))
+
+
+def create_files(feature_name: str) -> None:
     feature_path = Path(f'lib/features/{feature_name}')
-    feature_camel = ''.join(word.capitalize() for word in feature_name.split('_'))
-    feature_lower = feature_name.replace('_', '')
-    
-    print(f'📝 Creating templates for: {feature_name}')
-    
-    # Crear archivos desde templates
-    templates_to_create = [
-        ('entity', f'domain/entities/{feature_name}_entity.dart'),
-        ('repository', f'domain/repositories/{feature_name}_repository.dart'),
-        ('usecase', f'domain/usecases/get_{feature_name}.dart'),
-        ('datasource', f'data/datasources/{feature_name}_datasource.dart'),
-        ('model', f'data/models/{feature_name}_model.dart'),
-        ('repository_impl', f'data/repositories/{feature_name}_repository_impl.dart'),
-        ('provider', f'presentation/providers/{feature_name}_provider.dart'),
-        ('page', f'presentation/pages/{feature_name}_page.dart'),
-    ]
-    
-    for template_name, file_path in templates_to_create:
-        template = TEMPLATES[template_name]
-        content = template.format(
-            feature=feature_lower,
-            Feature=feature_camel
+    camel = snake_to_camel(feature_name)
+
+    print(f'📝 Creando archivos para: {feature_name}')
+    for rel_path, template in FILES:
+        full_path = feature_path / rel_path.format(feature=feature_name)
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        content = template.replace('{feature}', feature_name).replace(
+            '{Feature}', camel
         )
-        
-        full_path = feature_path / file_path
         full_path.write_text(content)
         print(f'   ✓ Created: {full_path}')
 
+
 def main():
     parser = argparse.ArgumentParser(
-        description='Generate Flutter feature structure with Clean Architecture'
+        description='Genera la estructura de un feature Flutter según el patrón del repo Fudi'
     )
-    parser.add_argument(
-        'feature_name',
-        help='Name of the feature (use snake_case, e.g., "user_profile")'
-    )
-    parser.add_argument(
-        '--no-templates',
-        action='store_true',
-        help='Create folder structure only, no template files'
-    )
-    
+    parser.add_argument('feature_name', help='Nombre de la feature en snake_case (ej: "user_profile")')
     args = parser.parse_args()
-    
-    # Validar nombre del feature
-    if not args.feature_name.replace('_', '').isalnum():
-        print('❌ Error: Feature name must be alphanumeric with underscores only')
+
+    feature = args.feature_name.strip().lower()
+    if not feature.replace('_', '').isalnum():
+        print('❌ Error: el nombre solo puede contener letras, números y guiones bajos')
         sys.exit(1)
-    
-    print(f'🚀 Generating Flutter feature: {args.feature_name}')
+
+    print(f'🚀 Generando feature: {feature}')
     print()
-    
     try:
-        create_feature_structure(args.feature_name)
-        
-        if not args.no_templates:
-            print()
-            create_templates(args.feature_name)
-        
+        create_files(feature)
         print()
-        print('✅ Feature generation complete!')
-        print()
-        print('📋 Next steps:')
-        print('   1. Review and customize the generated files')
-        print('   2. Implement TODO items in each file')
-        print('   3. Add dependencies to pubspec.yaml if needed')
-        print('   4. Register providers in your DI container')
-        print('   5. Add routes to your navigation system')
-        
+        print('✅ Generación completa. Siguientes pasos:')
+        print('   1. Renombrar la entidad al concepto de dominio real (ej: offer.dart por feature "offers")')
+        print('   2. Implementar los TODO en repository/impl/providers')
+        print('   3. Registrar la ruta en lib/core/routing/ (go_router)')
+        print('   4. Agregar widget test en test/features/<feature>/ (ver skill flutter-add-widget-test)')
     except Exception as e:
         print(f'❌ Error: {e}')
         sys.exit(1)
+
 
 if __name__ == '__main__':
     main()

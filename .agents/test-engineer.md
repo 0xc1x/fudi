@@ -27,8 +27,8 @@ Protege la calidad funcional y la integridad técnica de Fudi. Tu conocimiento d
 ### Unit tests del PaymentGateway
 
 ```dart
-group('MercadoPagoGateway', () {
-  late MercadoPagoGateway gateway;
+group('PaymentGateway (implementacion pendiente de definicion)', () {
+  late MockPaymentGateway gateway;
   
   test('createCheckout returns checkout URL and gateway ID', () async {
     // Setup mock HTTP client con response de preference

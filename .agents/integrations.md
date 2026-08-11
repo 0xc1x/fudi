@@ -5,7 +5,7 @@ Eres responsable de las integraciones externas y sus límites técnicos. Tu cono
 ## Integraciones objetivo
 
 | Servicio | Paquete Flutter | Adapter | Doc referencia |
-|----------|----------------|---------|----------------|
+| ---------- | ---------------- | --------- | ---------------- |
 | Supabase | supabase_flutter | SupabaseAdapter | `docs/ai/SYSTEM_ARCHITECTURE.md` |
 | Auth (email, social) | supabase_flutter | AuthAdapter | `docs/ai/SYSTEM_ARCHITECTURE.md` |
 | Mapas y geolocalización | google_maps_flutter + geolocator | MapsAdapter | Este documento |
@@ -20,7 +20,7 @@ Cada servicio externo se encapsula detrás de una interfaz abstracta. La capa de
 
 ```text
 Domain (interfaces) ← Data (implementations con SDK)
-  PaymentGateway         MercadoPagoGateway
+  PaymentGateway         <Gateway>Gateway (pendiente de definicion)
   MapsService            GoogleMapsService
   PushService            FirebaseMessagingService
   AuthService            SupabaseAuthService
@@ -117,9 +117,9 @@ enum HealthStatus { healthy, degraded, unhealthy }
 ```
 
 | Servicio | Health Check | Frecuencia |
-|----------|-------------|------------|
+| ---------- | ------------- | ------------ |
 | Supabase | `GET /health` | Al app start + cada 5 min |
-| MercadoPago | Ping a API de preference | Antes de cada checkout |
+| Pasarela de pagos | Ping a API de health | Antes de cada checkout |
 | Firebase Messaging | Token refresh check | Al app start |
 | Google Maps | SDK load verification | Al abrir pantalla de mapa |
 | Sentry | N/A (fire-and-forget) | — |
@@ -127,9 +127,9 @@ enum HealthStatus { healthy, degraded, unhealthy }
 ## Fallback Strategies
 
 | Servicio | Fallback si cae |
-|----------|----------------|
+| ---------- | ---------------- |
 | Supabase | Cache local (offline-first), retry con backoff |
-| MercadoPago | Mostrar mensaje "sistema de pagos no disponible", reintentar en 30s |
+| Pasarela de pagos | Mostrar mensaje "sistema de pagos no disponible", reintentar en 30s |
 | Push | Notificaciones locales como respaldo para ordenes activas |
 | Google Maps | Lista de ofertas sin mapa (fallback view) |
 | Geolocalización | Ubicación manual del usuario (ya definido en PRODUCT_BRIEF) |
@@ -152,7 +152,7 @@ class MockPaymentGateway implements PaymentGateway {
 Escenarios de mock por servicio:
 
 | Servicio | Escenarios |
-|----------|-----------|
+| ---------- | ----------- |
 | PaymentGateway | approved, rejected, timeout, gateway_unavailable |
 | MapsService | location_granted, location_denied, location_timeout, no_gps |
 | PushService | token_available, token_unavailable, foreground_received |
@@ -161,19 +161,19 @@ Escenarios de mock por servicio:
 ## Rate Limiting
 
 | Servicio | Rate Limit | Handling |
-|----------|-----------|----------|
+| ---------- | ----------- | ---------- |
 | Supabase | 500 req/min (free tier) | Queue + backoff, monitorear headers |
-| MercadoPago | Varía por endpoint | Retry con `Retry-After` header |
+| Pasarela de pagos | Varía por endpoint | Retry con `Retry-After` header |
 | Google Maps | 25k req/día (free) | Cache agresivo de geocoding |
 | Firebase Messaging | Sin límite práctico | — |
 
 ## Environment Configuration
 
 | Variable | Patrón | Ejemplo |
-|----------|--------|---------|
+| ---------- | -------- | --------- |
 | `SUPABASE_URL` | `ENV_SUPABASE_URL` | `https://xxx.supabase.co` |
 | `SUPABASE_ANON_KEY` | `ENV_SUPABASE_ANON_KEY` | `eyJ...` |
-| `MP_PUBLIC_KEY` | `ENV_MP_PUBLIC_KEY` | `APP_USR-xxx` |
+| `GATEWAY_API_KEY` | `ENV_GATEWAY_API_KEY` | (definir al elegir pasarela) |
 | `SENTRY_DSN` | `ENV_SENTRY_DSN` | `https://xxx@sentry.io/xxx` |
 | `FIREBASE_PROJECT_ID` | `ENV_FIREBASE_PROJECT_ID` | `fudi-dev` |
 | `MIXPANEL_TOKEN` | `ENV_MIXPANEL_TOKEN` | `xxx` |

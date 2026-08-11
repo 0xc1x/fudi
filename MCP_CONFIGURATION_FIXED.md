@@ -1,5 +1,7 @@
 # MCP Configuration Fixed
 
+> **STATUS: historico (sesion de configuracion).** Desde entonces, Supabase usa el **MCP oficial remoto** (`mcp.supabase.com`, OAuth por harness). El launcher local `supabase-postgres.mjs` fue eliminado. Ver `docs/ai/MCP_CAPABILITIES.md` y `.ai/mcp/README.md`.
+
 ## ✅ Paquetes MCP Actualizados
 
 He actualizado los paquetes MCP para usar los nombres correctos que existen en npm:
@@ -7,7 +9,7 @@ He actualizado los paquetes MCP para usar los nombres correctos que existen en n
 ### Paquetes Actualizados
 
 | MCP | Paquete Anterior | Paquete Correcto |
-|-----|------------------|------------------|
+| ----- | ------------------ | ------------------ |
 | GitHub | @modelcontextprotocol/server-github | github-mcp |
 | Supabase DB | @modelcontextprotocol/server-postgres | postgres-mcp |
 | Figma | @modelcontextprotocol/server-figma | figma-mcp |
@@ -26,12 +28,14 @@ He actualizado los paquetes MCP para usar los nombres correctos que existen en n
 ## 🚀 Pasos Siguientes
 
 ### 1. Ejecutar Setup
+
 ```bash
 cd .ai/mcp
 npm run setup
 ```
 
 ### 2. Configurar Variables de Entorno
+
 ```bash
 cp .env.mcp.example .env.mcp.local
 # Editar con tus tokens
@@ -39,6 +43,7 @@ nano .env.mcp.local
 ```
 
 ### 3. Verificar Configuración
+
 ```bash
 npm run verify
 ```

@@ -21,12 +21,12 @@ El proyecto ya eligio Supabase. No disenes para ser "agnostico al proveedor" —
 
 ## Entidades Principales
 
-### Del mockup React (interfaces TypeScript como base)
+### Entidades de dominio
 
-Las interfaces del mockup React definen las entidades del dominio. Traducir a SQL:
+El schema implementado cubre las entidades del dominio. Referencia del diseno original (mockup migrado):
 
 ```sql
--- Del mockup: Deal/Product → Offer
+-- Deal/Product → Offer (migrado del mockup)
 CREATE TABLE offers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   business_id UUID NOT NULL REFERENCES businesses(id),
@@ -45,7 +45,7 @@ CREATE TABLE offers (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Del mockup: Order
+-- Order
 CREATE TABLE orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id),
@@ -69,7 +69,7 @@ CREATE TABLE orders (
 CREATE TABLE payment_intents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id UUID NOT NULL REFERENCES orders(id),
-  gateway_id TEXT, -- ID de MercadoPago
+  gateway_id TEXT, -- ID en la pasarela (pendiente de definicion)
   idempotency_key TEXT NOT NULL UNIQUE,
   amount DECIMAL(10,2) NOT NULL,
   currency TEXT NOT NULL DEFAULT 'USD',
@@ -188,7 +188,6 @@ RETURNING *;
  **Indices:** en FKs, columnas de busqueda frecuentes, y campos de filtro
  **JSONB:** para datos flexibles (gateway_response, context) pero no para datos de consulta frecuente
  **Triggers:** `updated_at` automatico, auditoria de cambios criticos
-
 
 ### Diseño de Schema
 

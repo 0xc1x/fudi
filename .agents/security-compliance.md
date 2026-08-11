@@ -44,7 +44,7 @@ GoRoute(
 ### Qué almacenar seguro
 
 | Dato | Storage | Razon |
-|------|---------|-------|
+| ------ | --------- | ------- |
 | Access/refresh tokens | flutter_secure_storage | Acceso a cuenta |
 | Payment method tokens | flutter_secure_storage | Datos financieros |
 | User preferences | SharedPreferences | No sensible |
@@ -98,7 +98,7 @@ class SecureHttpClient {
 ### Checklist por feature
 
 | Riesgo | Mitigación en Fudi |
-|--------|-------------------|
+| -------- | ------------------- |
 | M1: Credential theft | flutter_secure_storage, biometric unlock |
 | M2: Insecure comms | Certificate pinning, HTTPS only |
 | M3: Insecure auth | Supabase Auth, server-side validation |
@@ -131,7 +131,7 @@ class SecureHttpClient {
 ### PII Handling
 
 | Dato | En Sentry | En Analytics | En Logs | En Cache |
-|------|-----------|-------------|---------|----------|
+| ------ | ----------- | ------------- | --------- | ---------- |
 | user_id | ✓ (hash) | ✓ (hash) | ✗ | ✓ |
 | email | ✗ | ✗ | ✗ | ✗ |
 | nombre | ✗ | ✗ | ✗ | ✗ |
@@ -143,7 +143,7 @@ class SecureHttpClient {
 
 - No tocar nunca PAN/CVV — todo via pasarela externa
 - Checkout Pro / Wallet: zero PCI scope en la app
-- Si se habilita card-on-file: usar tokens de MercadoPago, no datos crudos
+- Si se habilita card-on-file: usar tokens de la pasarela, no datos crudos
 - No almacenar datos de tarjeta en ningún lado
 - Validar montos en servidor, nunca confiar en el cliente
 
