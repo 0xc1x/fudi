@@ -31,7 +31,7 @@ class HowItWorksScreen extends StatelessWidget {
                 ),
                 child: const Icon(
                   Icons.arrow_back,
-                  color: Colors.black,
+                  color: FudiColors.foreground,
                   size: 20,
                 ),
               ),
@@ -274,7 +274,7 @@ class _FAQ extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF8F9FA),
+      color: FudiColors.landingBg,
       padding: const EdgeInsets.symmetric(
         vertical: 100,
         horizontal: FudiSpacing.xl,
@@ -357,7 +357,7 @@ class _CTA extends StatelessWidget {
       width: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [FudiColors.primary, Color(0xFF2E7D32)],
+          colors: [FudiColors.primary, FudiColors.successDark],
         ),
       ),
       padding: const EdgeInsets.symmetric(
@@ -369,15 +369,18 @@ class _CTA extends StatelessWidget {
           const Text(
             '¿Listo para empezar?',
             style: TextStyle(
-              color: Colors.white,
+              color: FudiColors.primaryForeground,
               fontSize: 40,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'Descarga Fudi y comienza a ahorrar hoy mismo',
-            style: TextStyle(color: Colors.white70, fontSize: 20),
+            style: TextStyle(
+              color: FudiColors.primaryForeground.withValues(alpha: 0.7),
+              fontSize: 20,
+            ),
           ),
           const SizedBox(height: 48),
           FudiPressableScale(
@@ -385,7 +388,7 @@ class _CTA extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(

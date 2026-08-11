@@ -288,7 +288,7 @@ class ExploreCategoryCard extends StatelessWidget {
                 child: ShaderMask(
                   shaderCallback: (rect) {
                     return const LinearGradient(
-                      colors: [Colors.transparent, Colors.black],
+                      colors: [Colors.transparent, FudiColors.foreground],
                       stops: [0.0, 0.4],
                     ).createShader(
                       Rect.fromLTRB(0, 0, rect.width, rect.height),

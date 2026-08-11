@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fudi/core/ui/atoms/fudi_discount_badge.dart';
 import 'package:fudi/core/ui/fudi_colors.dart';
+import 'package:fudi/core/ui/fudi_theme.dart';
 
 void main() {
   group('FudiDiscountBadge', () {
@@ -45,7 +46,12 @@ void main() {
   group('FudiDiscountBadge styling', () {
     testWidgets('uses default primary color', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: FudiDiscountBadge(percent: 20))),
+        MaterialApp(
+          theme: FudiTheme.light(),
+          home: const Scaffold(
+            body: FudiDiscountBadge(percent: 20),
+          ),
+        ),
       );
 
       final container = tester.widget<Container>(find.byType(Container).first);

@@ -821,13 +821,13 @@ class _SelectedOfferCard extends StatelessWidget {
                       bottom: 0,
                       child: Container(
                         height: 60,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.transparent,
-                              Color(0x66000000),
+                              FudiColors.foreground.withValues(alpha: 0.4),
                             ],
                           ),
                         ),

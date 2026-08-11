@@ -567,10 +567,10 @@ class _GridCardSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final mutedColor = isDark ? const Color(0xFF2C2C2C) : FudiColors.muted;
+    final mutedColor = isDark ? FudiColorsDark.card : FudiColors.muted;
     return Shimmer.fromColors(
       baseColor: mutedColor,
-      highlightColor: isDark ? const Color(0xFF4A4A4A) : Colors.white,
+      highlightColor: isDark ? FudiColorsDark.borderSolid : FudiColors.primaryForeground,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: mutedColor,

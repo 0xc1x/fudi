@@ -136,7 +136,7 @@ class _OfferDetailContentMinimalState
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Colors.black45,
+                                FudiColors.foreground.withValues(alpha: 0.45),
                                 Colors.transparent,
                                 theme.scaffoldBackgroundColor,
                               ],
@@ -378,7 +378,7 @@ class _OfferDetailContentMinimalState
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: themeExt?.surfaceShadow ?? Colors.black.withValues(alpha: 0.02),
+                                color: themeExt?.surfaceShadow ?? FudiColors.foreground.withValues(alpha: 0.02),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
@@ -453,7 +453,7 @@ class _OfferDetailContentMinimalState
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: themeExt?.surfaceShadow ?? Colors.black.withValues(alpha: 0.08),
+                    color: themeExt?.surfaceShadow ?? FudiColors.foreground.withValues(alpha: 0.08),
                     blurRadius: 24,
                     offset: const Offset(0, 8),
                   ),

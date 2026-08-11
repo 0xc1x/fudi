@@ -121,7 +121,7 @@ flutter test test/          # o acota a la feature: flutter test test/features/<
 - Todo cambio de UI va acompañado de un widget test mínimo (skill `flutter-add-widget-test`); los modelos de dominio con lógica propia llevan unit test.
 - Sigue vigente la regla de no ejecutar builds: verifica con format/analyze/test, no compiles.
 
-## Sesión actual — Theme migration: business presentation layer
+## Sesión anterior — Theme migration: business presentation layer (completada)
 
 ### Completado
 
@@ -196,6 +196,40 @@ Archivos modificados (en orden de edición):
 | `Color(0x0DFA4743)` (branch selected bg) | `FudiColors.destructiveVibrant.withValues(alpha: 0.05)` |
 | `Color(0xFFFFB300)` (stars) | `FudiColors.yellow` |
 
-### Pendiente (fuera de scope de la sesión)
+### Pendiente (resuelto en la sesión siguiente)
 
-Los siguientes archivos en otras features aún contienen colores hardcodeados (`lib/features/landing/presentation/`, `lib/features/explore/presentation/`, `lib/features/offers/presentation/`, `lib/features/orders/presentation/`, `lib/features/home/presentation/`, `lib/features/favorites/presentation/`, `lib/features/profile/presentation/`, `lib/features/all_offers/presentation/`).
+Los archivos consumer con colores hardcodeados de este listado fueron migrados en la sesión `Ecosystem hardening + Theme migration: consumer` — ver abajo.
+
+## Sesión actual — Ecosystem hardening + Theme migration: consumer presentation layer (completada)
+
+### Completado
+
+1. **Migración consumer**: los 7 archivos restantes con colores hardcodeados migrados a tokens `FudiColors` / `FudiColorsDark` / `colorScheme.*`:
+   - `landing/presentation/how_it_works_screen.dart`
+   - `explore/presentation/widgets/explore_category_grid.dart`
+   - `explore/presentation/map_view.dart`
+   - `offers/presentation/product_detail_screen.dart`
+   - `home/presentation/widgets/offer_sections.dart`
+   - `home/presentation/widgets/eco_banner.dart`
+   - `all_offers/presentation/all_offers_screen.dart`
+
+2. **Tests nuevos (A3/A6)** — features orders, auth y providers con cobertura real por primera vez:
+   - `test/features/orders/domain/order_status_test.dart` (fromString/dbValue/canTransitionTo/terminales)
+   - `test/features/orders/domain/coupon_test.dart` (fromJson/validez/calculo de descuento)
+   - `test/features/auth/domain/user_profile_test.dart` (roles)
+   - `test/features/orders/presentation/order_providers_test.dart` (validateCouponProvider con mocktail)
+
+3. **CI (`test.yml`)**: job `edge-functions` (deno check de las Edge Functions de Supabase — A1), reporte de cobertura por directorio, plan de subida del piso (5% → 10% → 15% → 20% — A5) y `codecov-action` actualizado a v5.
+
+### Reemplazos consumer (adicionales a la tabla de la sesión anterior)
+
+| Original → | Token |
+| --- | --- |
+| `Colors.black` (iconos / máscaras shader) | `FudiColors.foreground` |
+| `Colors.black45` (overlay legibilidad) | `FudiColors.foreground.withValues(alpha: 0.45)` |
+| `Color(0x66000000)` (overlay) | `FudiColors.foreground.withValues(alpha: 0.4)` |
+| `Color(0xFFF8F9FA)` (fondo FAQ) | `FudiColors.landingBg` |
+| `Color(0xFF2E7D32)` (gradiente CTA verde) | `FudiColors.successDark` |
+| `Colors.white70` (texto) | `FudiColors.primaryForeground.withValues(alpha: 0.7)` |
+| `Color(0xFF2D4142) / 0xFF2C2C2C` (shimmer base dark) | `FudiColorsDark.card` |
+| `Color(0xFF4A4A4A)` (shimmer highlight dark) | `FudiColorsDark.borderSolid` |

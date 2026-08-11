@@ -38,8 +38,10 @@ jobs:
         run: flutter test --coverage
 
       - name: Enforce coverage threshold
-        # Gate mínimo de cobertura: falla si la línea cae del piso.
-        # Subir el piso conforme crezca la suite (objetivo: 40%+).
+        # PLAN DE SUBIDA DEL PISO DE COBERTURA (A5):
+        #   actual (5.4% medido) -> 8% con mas tests de features core
+        #   -> 10% -> 15% -> 20% (objetivo corto plazo).
+        # Subir el piso en este mismo paso conforme crezca la suite.
         run: |
           python3 - <<'EOF'
           found = 0
@@ -58,8 +60,36 @@ jobs:
               raise SystemExit(f'Coverage {pct:.1f}% por debajo del minimo 5.0% — agregar tests')
           EOF
 
+      - name: Coverage report by directory
+        # Reporte por directorio para que los agentes vean donde falta cobertura
+        # (no rompe CI: solo informa).
+        run: |
+          python3 - <<'EOF'
+          from collections import defaultdict
+          dirs = defaultdict(lambda: [0, 0])
+          current = None
+          with open('coverage/lcov.info') as f:
+              for line in f:
+                  if line.startswith('SF:'):
+                      path = line[3:].strip()
+                      # rutas absolutas (/repo/lib/..) y relativas (lib/..)
+                      rel = path.split('/lib/')[-1]
+                      if rel == path and path.startswith('lib/'):
+                          rel = path[4:]
+                      current = rel.rsplit('/', 1)[0] if '/' in rel else '(raiz)'
+                      dirs.setdefault(current, [0, 0])
+                  elif line.startswith('LF:') and current:
+                      dirs[current][0] += int(line[3:].strip())
+                  elif line.startswith('LH:') and current:
+                      dirs[current][1] += int(line[3:].strip())
+          print(f'{"Directorio":<45} {"LH/LF":>12}  %')
+          for d, (lf, lh) in sorted(dirs.items(), key=lambda kv: -((kv[1][1] / kv[1][0]) if kv[1][0] else 0)):
+              pct = lh / lf * 100 if lf else 0
+              print(f'{d:<45} {lh}/{lf:<8} {pct:5.1f}')
+          EOF
+
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           files: coverage/lcov.info
           fail_ci_if_error: true
@@ -87,3 +117,26 @@ jobs:
 
       - name: Run integration tests
         run: flutter test integration_test
+
+  edge-functions:
+    # Type-check de las Edge Functions de Supabase (A1).
+    # No hay tests deno aun; deno check valida que los agentes no rompan
+    # el tipado de reserve-offer, handle-order-event, send-push-notification, etc.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Deno check (Edge Functions)
+        run: |
+          for f in supabase/functions/*/index.ts; do
+            echo "Checking $f"
+            deno check "$f"
+          done
+          echo "Checking _shared"
+          deno check supabase/functions/_shared/*.ts
