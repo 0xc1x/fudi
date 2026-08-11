@@ -30,7 +30,7 @@ void main() {
       discountedPrice: discountedPrice,
       stock: stock,
       initialStock: initialStock,
-      pickupStart: DateTime(2099, 1, 1),
+      pickupStart: DateTime(2099),
       pickupEnd: pickupEnd ?? DateTime(2099, 12, 31),
       isActive: isActive,
       categories: categories,
@@ -39,12 +39,12 @@ void main() {
 
   group('Offer', () {
     test('discountPercentage calcula el descuento relativo', () {
-      final offer = buildOffer(originalPrice: 100, discountedPrice: 75);
+      final offer = buildOffer();
       expect(offer.discountPercentage, 25);
     });
 
     test('discountPercentage es 0 si el precio original es 0', () {
-      final offer = buildOffer(originalPrice: 0, discountedPrice: 75);
+      final offer = buildOffer(originalPrice: 0);
       expect(offer.discountPercentage, 0);
     });
 

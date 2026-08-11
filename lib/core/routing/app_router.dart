@@ -50,7 +50,6 @@ import '../../features/business/presentation/notifications/business_notification
 import '../../features/business/presentation/help/business_help_screen.dart';
 import '../observability/sentry_breadcrumb.dart';
 import '../ui/fudi_scaffold.dart';
-import '../ui/ui_gallery_screen.dart';
 import 'route_guards.dart';
 import 'route_names.dart';
 
@@ -169,10 +168,6 @@ GoRouter createAppRouter(
         path: RouteNames.landingPath,
         name: RouteNames.landing,
         builder: (context, state) => const LandingScreen(),
-      ),
-      GoRoute(
-        path: '/ui-gallery',
-        builder: (context, state) => const UiGalleryScreen(),
       ),
 
       // ─── Shell Consumidor (StatefulShellRoute preserva estado entre tabs) ─

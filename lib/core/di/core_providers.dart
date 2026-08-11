@@ -1,14 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../features/auth/presentation/auth_state_provider.dart';
 import '../config/app_config.dart';
 import '../config/app_environment.dart';
-import '../network/offline_aware_repository.dart';
-import '../network/secure_http_client.dart';
 import '../routing/app_router.dart';
 
 /// Provider for the current [AppEnvironment].
@@ -37,16 +34,6 @@ final supabaseClientProvider = Provider<SupabaseClient>((ref) {
   return Supabase.instance.client;
 });
 
-/// Provider for the [SecureHttpClient].
-///
-/// Wraps Dio with auth token injection, Sentry tracing, error mapping,
-/// retry with backoff, and circuit breaker. Depends on Supabase for
-/// auth token injection.
-final secureHttpClientProvider = Provider<SecureHttpClient>((ref) {
-  final supabaseClient = ref.watch(supabaseClientProvider);
-  return SecureHttpClient(supabaseClient: supabaseClient);
-});
-
 /// Provider for the [GoRouter] instance.
 ///
 /// Creates the router with all 40+ routes and auth/role guards.
@@ -56,14 +43,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final authSessionNotifier = ref.watch(authSessionNotifierProvider.notifier);
   final refreshListenable = ref.watch(authRefreshListenableProvider);
   return createAppRouter(authSessionNotifier, refreshListenable);
-});
-
-/// Provider for the [OfflineAwareRepository].
-///
-/// Uses InternetConnection for connectivity checks and
-/// FlutterSecureStorage for cache storage.
-final offlineAwareRepositoryProvider = Provider<OfflineAwareRepository>((ref) {
-  return OfflineAwareRepository(connectivity: InternetConnection());
 });
 
 /// Provider for SharedPreferences. Must be overridden in main.dart.

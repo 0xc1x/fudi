@@ -5,10 +5,9 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'analytics_service.dart';
 import 'trackers/analytics_tracker.dart';
 import 'trackers/firebase_tracker.dart';
-import 'trackers/mixpanel_tracker.dart';
 
 final analyticsServiceProvider = Provider<AnalyticsService>((ref) {
-  final trackers = <AnalyticsTracker>[FirebaseTracker(), MixpanelTracker()];
+  final trackers = <AnalyticsTracker>[FirebaseTracker()];
 
   return AnalyticsService(trackers: trackers);
 });

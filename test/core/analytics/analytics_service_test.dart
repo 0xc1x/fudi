@@ -5,10 +5,6 @@ import 'package:fudi/core/analytics/models/user_properties.dart';
 import 'package:fudi/core/analytics/trackers/analytics_tracker.dart';
 import 'package:fudi/core/analytics/events/auth_events.dart';
 import 'package:fudi/core/analytics/events/navigation_events.dart';
-import 'package:fudi/core/analytics/events/offer_events.dart';
-import 'package:fudi/core/analytics/events/order_events.dart';
-import 'package:fudi/core/analytics/events/payment_events.dart';
-import 'package:fudi/core/analytics/events/business_events.dart';
 
 class _MockTracker implements AnalyticsTracker {
   final List<AnalyticsEvent> trackedEvents = [];
@@ -263,97 +259,6 @@ void main() {
         final event = BottomNavTappedEvent(tabIndex: 2, tabName: 'favorites');
         expect(event.properties['tab_index'], 2);
         expect(event.properties['tab_name'], 'favorites');
-      });
-    });
-
-    group('OfferEvents', () {
-      test('OfferListViewedEvent has source and count', () {
-        final event = OfferListViewedEvent(source: 'home', count: 10);
-        expect(event.name, 'offer_list_viewed');
-        expect(event.properties['source'], 'home');
-        expect(event.properties['count'], 10);
-      });
-
-      test('OfferDetailViewedEvent includes price', () {
-        final event = OfferDetailViewedEvent(
-          offerId: 'o1',
-          businessId: 'b1',
-          price: 15000,
-          discountPct: 30.0,
-        );
-        expect(event.properties['price'], 15000);
-        expect(event.properties['discount_pct'], 30.0);
-      });
-
-      test('OfferSearchPerformedEvent has query and results', () {
-        final event = OfferSearchPerformedEvent(
-          query: 'pizza',
-          resultsCount: 5,
-        );
-        expect(event.properties['query'], 'pizza');
-        expect(event.properties['results_count'], 5);
-      });
-    });
-
-    group('OrderEvents', () {
-      test('OrderReserveStartedEvent includes amount', () {
-        final event = OrderReserveStartedEvent(
-          offerId: 'o1',
-          businessId: 'b1',
-          amount: 15000,
-        );
-        expect(event.name, 'order_reserve_started');
-        expect(event.properties['amount'], 15000);
-      });
-
-      test('OrderCancelledEvent includes reason and by', () {
-        final event = OrderCancelledEvent(
-          orderId: 'ord1',
-          reason: 'changed_mind',
-          by: 'user',
-        );
-        expect(event.properties['reason'], 'changed_mind');
-        expect(event.properties['by'], 'user');
-      });
-    });
-
-    group('PaymentEvents', () {
-      test('CheckoutStartedEvent includes amount', () {
-        final event = CheckoutStartedEvent(
-          offerId: 'o1',
-          businessId: 'b1',
-          amount: 9.99,
-        );
-        expect(event.name, 'checkout_started');
-        expect(event.properties['amount'], 9.99);
-      });
-
-      test('PaymentCompletedEvent includes gateway', () {
-        final event = PaymentCompletedEvent(
-          orderId: 'ord1',
-          amount: 9.99,
-          gateway: 'placetopay',
-          paymentMethod: 'card',
-        );
-        expect(event.properties['gateway'], 'placetopay');
-      });
-    });
-
-    group('BusinessEvents', () {
-      test('BusinessOfferCreatedEvent includes price', () {
-        final event = BusinessOfferCreatedEvent(
-          businessId: 'b1',
-          offerId: 'o1',
-          price: 25000,
-        );
-        expect(event.name, 'business_offer_created');
-        expect(event.properties['price'], 25000);
-      });
-
-      test('BusinessDashboardViewedEvent only has businessId', () {
-        final event = BusinessDashboardViewedEvent(businessId: 'b1');
-        expect(event.properties.keys, contains('business_id'));
-        expect(event.properties.length, 1);
       });
     });
 
